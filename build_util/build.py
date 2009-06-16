@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import sys
+import os, sys
+import path_resolv
 import custom_compile
 
 compilers = ["fsc", "scalac", "javap"]
@@ -11,7 +12,23 @@ defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s".split
     "javap": "-classpath %(classpath)s:%(out_path)s".split(" ") }
 defaultopts["scalac"] = defaultopts["fsc"]
 
+def set_classpath_from_eclipse():
+    from xml.dom.minidom import parse as parse_xml
+    eclipse_classpath = path_resolv.Path(".classpath")
+    if not eclipse_classpath.exists():
+        print("WARNING - please run with \".classpath\" in $(pwd), attempting to resolve...")
+        eclipse_classpath = path_resolv.resolve(".classpath")
+        assert eclipse_classpath.exists()
+    doc = parse_xml(eclipse_classpath)
+    entries = doc.getElementsByTagName("classpathentry")
+    path_elts = [os.environ["CLASSPATH"]]
+    for entry in entries:
+        if entry.getAttribute("kind") == "lib":
+            path_elts.append(path_resolv.resolve(entry.getAttribute("path")))
+    os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(*path_elts)
+
 if __name__ == "__main__":
+    set_classpath_from_eclipse()
     in_args = sys.argv[1:]
     run_after = False
 
@@ -35,11 +52,16 @@ all other options passed to compiler. common ones:
     compile_args = ["--compiler=%s" %(compiler)]
     [compile_args.extend(["--option", opt]) for opt in defaultopts[compiler]]
 
+    run_options = False
     for arg in in_args:
         if arg == "print_lowered":
             compile_args.extend(["--option", "-Xprint:jvm"])
         elif arg.startswith("/"):
             compile_args.append("--src_filter=%s" %(arg[1:]))
+        elif arg == "--run_opt_list":
+            run_options = True
+        elif run_options:
+            compile_args.extend(["--run_option", arg])
         else:
             compile_args.append("--%s" %(arg.lstrip("-")))
 

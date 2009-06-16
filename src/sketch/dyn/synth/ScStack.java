@@ -41,7 +41,8 @@ public class ScStack extends ScPrefixSearch {
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
     public ScStack(ScConstructInfo[] ctrl_info, ScConstructInfo[] oracle_info,
-            ScPrefix default_prefix) {
+            ScPrefix default_prefix)
+    {
         this.ctrl_info = ctrl_info.clone();
         this.oracle_info = oracle_info.clone();
         ctrls = new ScCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);

@@ -1,6 +1,8 @@
 package test
 import skalch.DynamicSketch
+import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
+import sketch.util._
 
 object TrivialTest extends DynamicSketch {
     // this much is the same
@@ -23,10 +25,21 @@ object TrivialTest extends DynamicSketch {
         def set(x : Int, v : Boolean) {
             set_default_input(Array(x))
         }
-        def tests() { for (ctr <- 0 until 10) test_case(new java.lang.Integer(ctr), new java.lang.Boolean(false)) }
+        var num_tests = 10
+        def tests() {
+            for (ctr <- 0 until num_tests)
+                test_case(new java.lang.Integer(ctr), new java.lang.Boolean(false))
+        }
+    }
+
+    object TestOptions extends CliOptGroup {
+        add("--num_inputs")
     }
 
     def main(args : Array[String])  = {
-        TrivialTest.synthesize_from_test(ExhaustiveTestGenerator)
+        val cmdopts = new sketch.util.CliParser(args)
+        val be_opts = BackendOptions.create_and_parse(cmdopts)
+        //ExhaustiveTestGenerator.num_tests = TestOptions.parse(cmdopts).int_("num_inputs")
+        TrivialTest.synthesize_from_test(ExhaustiveTestGenerator, be_opts)
     }
 }

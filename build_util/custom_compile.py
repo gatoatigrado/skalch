@@ -30,12 +30,15 @@ class Compiler(object):
     def run(self, cmd, file_ext="txt"):
         if self.print:
             print(cmd)
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        save_output = self.kwrite or self.vim
+        pipe_output = { "stdout": subprocess.PIPE } if save_output else { }
+        proc = subprocess.Popen(cmd, **pipe_output)
         text = proc.communicate()[0]
-        if proc.returncode != 0 and not self.print:
-            print("command", cmd)
-        if proc.returncode != 0 or ( (not self.kwrite) and (not self.vim) ):
+        if proc.returncode != 0:
+            if not self.print: print("command", cmd)
             if text: print(text)
+            raise Exception("subprocess returned error; code %d" %(proc.returncode))
+        elif not save_output:
             return
 
         from tempfile import NamedTemporaryFile
@@ -72,8 +75,8 @@ class Compiler(object):
             self.vim = None
             # scala bug - `scala` doesn't work here
             subprocess.Popen(["java", "-classpath",
-                "%s:%s" %(self.classpath, self.out_path),
-                self.run_app]).wait()
+                "%s:%s" %(self.classpath, self.out_path), self.run_app] +
+                [opt %(self.__dict__) for opt in self.run_option] ).wait()
 
 def main(args):
     cmdopts = optparse.OptionParser(usage="%prog --options [files]",
@@ -91,6 +94,8 @@ def main(args):
     cmdopts.add_option("--compiler", default="scalac", help="compiler command to invoke")
     cmdopts.add_option("--option", action="append", default=[],
         help="options to pass to the compiler. example \"--opt -Xprint:jvm --opt -nowarn\".")
+    cmdopts.add_option("--run_option", action="append", default=[],
+        help="options to pass to java when/if running")
     cmdopts.add_option("--print", action="store_true", help="print command before executing")
     cmdopts.add_option("--run_app", help="run a class after compiling")
     cmdopts.add_option("--kwrite", action="store_true", help="launch kwrite")

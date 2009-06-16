@@ -13,6 +13,8 @@ class Path(str):
     def __new__(cls, *unix_paths):
         args = []
         for path in unix_paths:
+            if not path:
+                raise Exception("no path", path)
             v = path[1:].split("/") # abs path handling
             v[0] = path[0] + v[0]
             args.extend(v)
@@ -49,43 +51,53 @@ class Path(str):
 
     def __repr__(self): return "Path[\"%s\"]" %(self)
 
-    def ifexists(self, debug=False):
-        if debug and not self.exists():
-            print("    debug -- path '%s' doesn't exist." %(debug))
-            assert False
-        return self if self.exists() else None
-
     @classmethod
     def pathjoin(cls, *argv):
+        assert all([type(v) != list for v in argv]), "pathjoin takes varargs"
         return os.path.pathsep.join([str(v) for v in argv])
 
 class PathResolver:
     def get_file(self, basename):
         raise NotImplementedError, "abstract"
 
-class EnvironPathResolver:
-    def __init__(self):
+class DirArrayPathResolver:
+    def __init__(self, array):
         self.dir_arr = []
+        self.add_paths(array)
+
+    def add_paths(self, array):
+        for dirname in array:
+            if dirname:
+                path = Path(dirname)
+                if path.exists() and not path in self.dir_arr:
+                        self.dir_arr.append(path)
+
+    def get_resolve_list(self, basename):
+        subpaths = [dir_.subpath(basename) for dir_ in self.dir_arr]
+        return [subpath for subpath in subpaths if subpath.exists()]
+
+class EnvironPathResolver(DirArrayPathResolver):
+    def __init__(self):
+        DirArrayPathResolver.__init__(self, [])
         for k, v in os.environ.items():
-            if "HOME" in k or k == "CLASSPATH":
-                self.dir_arr.extend([v1 for v1 in v.split(os.pathsep) if v1])
-    def get_file(self, basename):
-        for dir_ in self.dir_arr:
-            if Path(dir_, basename).exists():
-                return Path(dir_, basename)
+            self.add_paths(v.split(os.path.pathsep))
 
-class DefaultPathResolver:
-    def get_file(self, basename):
-        # look in ~/sandbox/eclipse
-        return Path("~/sandbox/eclipse", basename).ifexists(debug=True)
+class DefaultPathResolver(DirArrayPathResolver):
+    def __init__(self):
+        DirArrayPathResolver.__init__(self, [".", "~/sandbox/eclipse"])
 
-resolvers = [EnvironPathResolver(), DefaultPathResolver()]
+resolvers = [DefaultPathResolver(), EnvironPathResolver()]
 
 def resolve(path):
+    results = []
     for resolver in resolvers:
-        result = resolver.get_file(path)
-        if result:
-            return result
+        results.extend(resolver.get_resolve_list(path))
+    results = [path for i, path in enumerate(results) if not path in results[:i]]
+    if not results:
+        raise Exception("can't resolve path '%s'" %(path))
+    elif len(results) > 1:
+        print("WARNING - multiple resolutions for '%s':" %(path), results)
+    return results[0]
 
 class ExecuteIn:
     def __init__(self, path):

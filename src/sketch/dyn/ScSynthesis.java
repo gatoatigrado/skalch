@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.util.DebugOut;
+import sketch.util.OptionResult;
 
 /**
  * Where everything begins.
@@ -20,10 +21,11 @@ public class ScSynthesis {
     protected ScDynamicSketch[] sketches;
     protected ScStackSynthesis ssr;
 
-    public ScSynthesis(ScDynamicSketch sketch) throws SecurityException,
+    public ScSynthesis(ScDynamicSketch sketch, OptionResult cmdopts) throws SecurityException,
             NoSuchMethodException, IllegalArgumentException,
             InstantiationException, IllegalAccessException,
-            InvocationTargetException {
+            InvocationTargetException
+    {
         sketches = new ScDynamicSketch[nthreads];
         Constructor<?> constructor = sketch.getClass().getDeclaredConstructor();
         constructor.setAccessible(true);

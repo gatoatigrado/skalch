@@ -15,6 +15,9 @@ public class RichString {
     }
 
     public String join(String[] arr) {
+        if (arr == null) {
+            return "<null list>";
+        }
         StringBuilder b = new StringBuilder();
         for (String item : arr) {
             if (b.length() != 0) {
@@ -26,9 +29,16 @@ public class RichString {
     }
 
     public String join(Object[] arr) {
+        if (arr == null) {
+            return "<null list>";
+        }
         String[] as_string = new String[arr.length];
         for (int a = 0; a < arr.length; a++) {
-            as_string[a] = arr[a].toString();
+            if (arr[a] == null) {
+                as_string[a] = "<null>";
+            } else {
+                as_string[a] = arr[a].toString();
+            }
         }
         return join(as_string);
     }

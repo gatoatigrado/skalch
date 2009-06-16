@@ -2,6 +2,7 @@ package skalch
 
 import sketch.dyn._
 import sketch.util.DebugOut
+import sketch.util.OptionResult
 
 /**
  * Dynamic sketching library
@@ -94,12 +95,15 @@ abstract class DynamicSketch extends ScDynamicSketch {
     def get_oracle_input_list() = oracle_input_list.toArray
 
     // === Main solver code ===
-    def synthesize_from_test(tg : TestGenerator) {
+    def synthesize_from_test(tg : TestGenerator, be_opts : OptionResult) {
         DebugOut.todo("query user for test cases. running all for now.")
-        val synth = new ScSynthesis(this)
+        val synth = new ScSynthesis(this, be_opts)
         synth.synthesize(tg)
     }
 
     /** null generator when test inputs are not explicit */
-    def synthesize() { synthesize_from_test(NullTestGenerator) }
+    def synthesize() {
+        println("please fix synthesize() or use synthesize_from_test, sorry!")
+        //synthesize_from_test(NullTestGenerato, null)
+    }
 }

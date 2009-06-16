@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>DynamicSketching</name>
-	<comment></comment>
+	<name>skalch</name>
+	<comment>Scala dynamic sketch</comment>
 	<projects>
 		<project>edu.berkeley.asolar.sketch</project>
 		<project>frontend</project>

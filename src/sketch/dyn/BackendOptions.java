@@ -14,6 +14,6 @@ public class BackendOptions extends CliOptGroup {
 
     // java's not quite as concise as Scala
     public static OptionResult create_and_parse(CliParser p) {
-        return new OptionResult(new BackendOptions(), p);
+        return (new BackendOptions()).parse(p);
     }
 }

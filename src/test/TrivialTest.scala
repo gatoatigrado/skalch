@@ -39,7 +39,7 @@ object TrivialTest extends DynamicSketch {
     def main(args : Array[String])  = {
         val cmdopts = new sketch.util.CliParser(args)
         val be_opts = BackendOptions.create_and_parse(cmdopts)
-        //ExhaustiveTestGenerator.num_tests = TestOptions.parse(cmdopts).int_("num_inputs")
+        // ExhaustiveTestGenerator.num_tests = TestOptions.parse(cmdopts).int_("num_inputs")
         TrivialTest.synthesize_from_test(ExhaustiveTestGenerator, be_opts)
     }
 }

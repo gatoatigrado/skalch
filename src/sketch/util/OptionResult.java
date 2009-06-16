@@ -10,6 +10,7 @@ public class OptionResult {
     }
 
     protected Object get_value(String name) {
+        DebugOut.print("get value...");
         parser.parse();
         return options.opt_set.get(name).parse(parser.cmd_line);
     }

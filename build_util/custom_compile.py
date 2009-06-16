@@ -10,7 +10,8 @@ from path_resolv import Path
 
 # setup classpath
 os.environ["CLASSPATH"] = Path.pathjoin(os.environ["CLASSPATH"],
-    path_resolv.resolve("lib/scala-library.jar") )
+    path_resolv.resolve("lib/scala-library.jar"),
+    path_resolv.resolve("lib/scala-compiler.jar"))
 # reinit with updated classpath
 path_resolv.resolvers[0] = path_resolv.EnvironPathResolver()
 

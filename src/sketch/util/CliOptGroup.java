@@ -84,7 +84,7 @@ public abstract class CliOptGroup {
 
             if (!cmd_line.hasOption(full_name_)) {
                 DebugOut.assert_(default_ != null, "argument", name_,
-                        "is required.");
+                        "is required.", this);
                 return default_;
             }
 

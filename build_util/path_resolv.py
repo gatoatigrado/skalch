@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 # -*- coding: utf-8 -*-
 # NOTE - this file is mostly for examining compilation results, not for building the project
 

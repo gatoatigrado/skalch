@@ -1,0 +1,12 @@
+Name: skalch
+Project: Scala dynamic sketching
+Institution: UC Berkeley ParLab
+Authors: Nicholas Tung (soon Casey Rodarmor as well)
+
+This project will be made private soon, but public (BSD license) releases will be created when work is ready.
+
+=== Building ===
+Currently, as fsc has given me plenty of headaches, the build is done through a custom script.
+Run it with build_util/run.sh
+You may have to set up your PATH and CLASSPATH to include the results of a Scala build tree (most things are in the "pack" directory after building).
+More documentation at http://sketch.cs.berkeley.edu/wiki/index.php/Scala (currently private, sorry!)

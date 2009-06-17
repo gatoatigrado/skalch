@@ -28,17 +28,17 @@ class Compiler(object):
         if self.clean:
             [self.out_path.subpath(f).remove_tree() for f in self.out_path.listdir()]
 
-    def run(self, cmd, file_ext="txt"):
+    def run(self, cmd, save_output=None, file_ext="txt"):
         if self.print:
             print(cmd)
-        save_output = self.kwrite or self.vim
+        save_output = (self.kwrite or self.vim) if save_output is None else save_output
         pipe_output = { "stdout": subprocess.PIPE } if save_output else { }
         proc = subprocess.Popen(cmd, **pipe_output)
         text = proc.communicate()[0]
         if proc.returncode != 0:
             if not self.print: print("command", cmd)
             if text: print(text)
-            raise Exception("subprocess returned error; code %d" %(proc.returncode))
+            sys.exit(1)
         elif not save_output:
             return
 
@@ -72,20 +72,14 @@ class Compiler(object):
 
     def run_app_(self):
         if self.run_app:
-            self.kwrite = None
-            self.vim = None
             # scala bug - `scala` doesn't work here
-            subprocess.Popen(["java", "-classpath",
+            self.run(["java", "-classpath",
                 "%s:%s" %(self.classpath, self.out_path), self.run_app] +
-                [opt %(self.__dict__) for opt in self.run_option] ).wait()
+                [opt %(self.__dict__) for opt in self.run_option], save_output=False)
 
 def main(args):
     cmdopts = optparse.OptionParser(usage="%prog --options [files]",
         description="you might want to use the build.py wrapper for presets")
-        #description="examples: ./custom_compile.py --dis_j --options= --kwr "
-            #"src/test/TrivialTest2 to invoke the jvm, ./custom_compile.py "
-            #"--options=-Xprint:jvm src/test/TrivialTest.scala to display the "
-            #"jvm lowering phase")
     cmdopts.add_option("--src_filter", help="filter source files (when compiling all)")
     cmdopts.add_option("--src_path", default="src", help="path for src files")
     cmdopts.add_option("--out_path", default="bin", help="path for output files")

@@ -13,8 +13,6 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
 
     public CliParser(String[] args) {
         super();
-        DebugOut.print("Cli Parser");
-        DebugOut.print((Object[])args);
         this.args = args;
     }
 
@@ -29,7 +27,6 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
             String prefix = (group.prefixes == null) ? "" : group.prefixes[0];
             for (CliOptGroup.CmdOption cmd_opt : group.opt_set.values()) {
                 options.addOption(cmd_opt.as_option(prefix));
-                DebugOut.print("option", cmd_opt);
             }
         }
         try {

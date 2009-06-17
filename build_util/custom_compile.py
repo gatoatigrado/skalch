@@ -51,16 +51,17 @@ class Compiler(object):
         elif self.vim:
             subprocess.Popen(["vim", tf.name], stderr=subprocess.PIPE).wait()
 
-    def compile_(self, src_file):
-        assert src_file.exists()
-        src_name = str(src_file)
+    def compile_(self, src_files):
+        assert all([src_file.exists() for src_file in src_files])
         if self.src_java_names:
-            src_name = Path(src_file.splitext()[0]).relpath(str(self.src_path)).replace("/", ".")
+            src_files = [Path(src_file.splitext()[0]).relpath(self.src_path).replace("/", ".")
+                for src_file in src_files]
         with path_resolv.ExecuteIn(self.out_path):
             self.run([self.compiler] + [opt %(self.__dict__) for opt in self.option] +
-                [src_name], file_ext="scala")
+                [str(v) for v in src_files], file_ext="scala")
 
     def compile_all(self):
+        src_files = []
         for root, dirs, files in self.src_path.walk():
             filter_ = re.compile(self.src_filter) if self.src_filter else None
             for f in files:
@@ -68,7 +69,8 @@ class Compiler(object):
                     continue
                 path = Path(root, f)
                 if not filter_ or filter_.search(str(path)):
-                    self.compile_(path)
+                    src_files.append(path)
+        self.compile_(src_files)
 
     def run_app_(self):
         if self.run_app:
@@ -102,8 +104,7 @@ def main(args):
     if not args:
         comp.compile_all()
     else:
-        for arg in args:
-            comp.compile_(Path(arg))
+        comp.compile_([Path(arg) for arg in args])
     comp.run_app_()
 
 if __name__ == "__main__":

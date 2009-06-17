@@ -27,15 +27,8 @@ def set_classpath_from_eclipse():
             path_elts.append(path_resolv.resolve(entry.getAttribute("path")))
     os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(*path_elts)
 
-if __name__ == "__main__":
-    set_classpath_from_eclipse()
-    in_args = sys.argv[1:]
-    run_after = False
-
-    if not in_args:
-        print("compiling all; use 'help' to show help")
-    if "help" in in_args or any(["-h" in arg for arg in in_args]):
-        print(r"""usage: build.py [compiler] [options]
+def print_help():
+    print(r"""usage: build.py [compiler] [options]
 compilers (one chosen):
     %r
 expanded options / actions (use as many as you want):
@@ -43,7 +36,12 @@ expanded options / actions (use as many as you want):
     /filter where filter is a regular expression for source files to compile
 all other options passed to compiler. common ones:
     ['clean', 'src_java_names', 'run']""" %(compilers, options), file=sys.stderr)
-        sys.exit(1)
+    sys.exit(1)
+
+if __name__ == "__main__":
+    set_classpath_from_eclipse()
+    in_args = sys.argv[1:]
+    run_after = False
 
     compiler = "scalac"
     if in_args and in_args[0] in compilers:
@@ -62,6 +60,8 @@ all other options passed to compiler. common ones:
             run_options = True
         elif run_options:
             compile_args.extend(["--run_option", arg])
+        elif arg == "-h" or arg.strip("-") == "help":
+            print_help()
         else:
             compile_args.append("--%s" %(arg.lstrip("-")))
 

@@ -45,6 +45,11 @@ abstract class DynamicSketch extends ScDynamicSketch {
             if ((v & 1) == 1) (-posvalue) else posvalue
         }
     }
+    class MinMaxHole(val min_incl : Int, val max_incl : Int
+        ) extends Hole(max_incl - min_incl + 1)
+    {
+        override def apply() = super.apply() + min_incl
+    }
     class ValueSelectHole[T](num : Int) extends Hole(num) {
         def apply(arr : T*) : T = { assert(arr.length == num); arr(super.apply()) }
     }
@@ -78,6 +83,13 @@ abstract class DynamicSketch extends ScDynamicSketch {
         oracle_input_list ::= this
         def apply() : Int = DynamicSketch.this.oracle_input_backend(uid).next_value()
     }
+    class BooleanOracle {
+        val oracle = new OracleInput(2)
+        def apply() : Boolean = (oracle.apply() == 1)
+    }
+    class ValueSelectOracle[T](num : Int) extends OracleInput(num) {
+        def apply(arr : T*) : T = { assert(arr.length == num); arr(super.apply()) }
+    }
 
 
 
@@ -97,7 +109,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
     // === Main solver code ===
     def synthesize_from_test(tg : TestGenerator, be_opts : OptionResult) {
         DebugOut.todo("query user for test cases. running all for now.")
-        val synth = new ScSynthesis(this, be_opts)
+        val synth = new ScSynthesis(this.getClass, be_opts)
         synth.synthesize(tg)
     }
 

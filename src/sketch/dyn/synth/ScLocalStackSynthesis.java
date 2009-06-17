@@ -1,6 +1,7 @@
 package sketch.dyn.synth;
 
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ScSynthesisCompleteException;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.result.ScSynthesisResult;
@@ -69,10 +70,7 @@ public class ScLocalStackSynthesis {
                         sketch.dysketch_main();
                     }
                     ssr.add_solution(stack);
-                    if (ssr.wait_handler.synthesis_complete.get()) {
-                        // everyone's exiting, order doesn't matter
-                        return false;
-                    }
+                    ssr.wait_handler.throw_synthesis_complete();
                 } catch (Exception e) {
                 } catch (java.lang.AssertionError e) {
                 }
@@ -88,20 +86,29 @@ public class ScLocalStackSynthesis {
             return false; // not exhausted
         }
 
-        /** doc in images/scala/synth_loop/ */
-        public void run() {
+        public void run_inner() {
             stack = (ScStack) ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
             while (!ssr.wait_handler.synthesis_complete.get()) {
                 exhausted = blind_fast_routine();
-                if (ssr.wait_handler.synthesis_complete.get()) {
-                    return;
-                } else if (exhausted) {
+                ssr.wait_handler.throw_synthesis_complete();
+                if (exhausted) {
                     ssr.wait_handler.wait_exhausted();
+                    ssr.wait_handler.throw_synthesis_complete();
                     stack = ssr.search_manager.get_active_prefix();
                     stack.set_for_synthesis(sketch);
                 }
             }
+        }
+
+        /** doc in images/scala/synth_loop/ */
+        public void run() {
+            try {
+                run_inner();
+            } catch (ScSynthesisCompleteException e) {
+            }
+            stack = (ScStack) ssr.search_manager.clone_default_search();
+            stack.set_for_synthesis(sketch);
         }
     }
 }

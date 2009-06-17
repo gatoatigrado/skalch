@@ -20,14 +20,23 @@ public class ScSynthesis {
     protected int nthreads = 1;// Runtime.getRuntime().availableProcessors();
     protected ScDynamicSketch[] sketches;
     protected ScStackSynthesis ssr;
+    public static OptionResult cmdopts;
 
-    public ScSynthesis(ScDynamicSketch sketch, OptionResult cmdopts) throws SecurityException,
-            NoSuchMethodException, IllegalArgumentException,
-            InstantiationException, IllegalAccessException,
-            InvocationTargetException
+    /**
+     * Where everything begins.
+     * @param sketch_cls
+     *            A class which has an empty new constructor.
+     * @param cmdopts
+     *            Command options
+     */
+    public ScSynthesis(Class<?> sketch_cls, OptionResult cmdopts)
+            throws SecurityException, NoSuchMethodException,
+            IllegalArgumentException, InstantiationException,
+            IllegalAccessException, InvocationTargetException
     {
+        ScSynthesis.cmdopts = cmdopts;
         sketches = new ScDynamicSketch[nthreads];
-        Constructor<?> constructor = sketch.getClass().getDeclaredConstructor();
+        Constructor<?> constructor = sketch_cls.getDeclaredConstructor();
         constructor.setAccessible(true);
         for (int a = 0; a < nthreads; a++) {
             sketches[a] = (ScDynamicSketch) constructor.newInstance();

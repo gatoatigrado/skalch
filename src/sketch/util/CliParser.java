@@ -31,7 +31,16 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
         }
         try {
             cmd_line = super.parse(options, this.args, true);
-            if (cmd_line.hasOption("help")) {
+            boolean print_help = cmd_line.hasOption("help");
+            for (String arg : cmd_line.getArgs()) {
+                if (arg.equals("--")) {
+                    break;
+                } else if (arg.startsWith("--")) {
+                    DebugOut.print("unrecognized argument", arg);
+                    print_help = true;
+                }
+            }
+            if (print_help) {
                 HelpFormatter hf = new HelpFormatter();
                 hf.printHelp("[options]", options);
                 System.exit(1);

@@ -67,7 +67,7 @@ public abstract class CliOptGroup {
 
         public Option as_option(String prefix) {
             boolean has_name = !(type_.equals(Boolean.class));
-            full_name_ = prefix.isEmpty() ? name_ : prefix + "_" + name_;
+            full_name_ = prefix.equals("") ? name_ : prefix + "_" + name_;
             return new Option(null, full_name_, has_name, help_);
         }
 
@@ -89,7 +89,6 @@ public abstract class CliOptGroup {
                 return default_;
             }
 
-            DebugOut.print("has option", cmd_line.hasOption(full_name_));
             String v = cmd_line.getOptionValue(full_name_);
             if (type_.equals(Integer.class)) {
                 return Integer.parseInt(v);

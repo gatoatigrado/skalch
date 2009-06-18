@@ -10,32 +10,59 @@ import java.util.concurrent.atomic.AtomicInteger;
  *          make changes, please consider contributing back!
  */
 public class DebugOut {
+    /*
+     * for a in $(seq 0 1); do for i in $(seq 30 37); do echo -e
+     * "\x1b[${a};${i}m${a} - ${i}\x1b[0m"; done; done
+     */
     public final static String BASH_RED = "0;31";
     public final static String BASH_BLUE = "0;34";
     public final static String BASH_GREEN = "0;32";
-    public final static String BASH_ORANGE = "0;33";
+    public final static String BASH_BROWN = "0;33";
+    public final static String BASH_GREY = "1;30";
+    public final static String BASH_SALMON = "1;31";
     public final static String BASH_LIGHT_BLUE = "1;34";
     /** don't use BASH_BLACK for people using black-background terminals */
     public final static String BASH_DEFAULT = "0";
+    public final static boolean HONOR_QUIET_ASSERTS = true;
 
     public static void print_colored(String color, String prefix, String sep,
-            Object[] text) {
+            boolean nice_arrays, Object... text)
+    {
+        if (nice_arrays) {
+            for (int a = 0; a < text.length; a++) {
+                if (text[a].getClass().isArray()) {
+                    Object[] arr = (Object[]) text[a];
+                    text[a] = (new RichString("\n")).join(arr);
+                }
+            }
+        }
         System.err.println(String.format("    \u001b[%sm%s ", color, prefix)
                 + (new RichString(sep)).join(text) + "\u001b[0m");
     }
 
     public static void print(Object... text) {
-        print_colored(BASH_BLUE, "[debug]", " ", text);
+        print_colored(BASH_BLUE, "[debug]", " ", false, text);
     }
 
     public static synchronized void print_mt(Object... text) {
         print_colored(BASH_LIGHT_BLUE, thread_indentation.get() + "[debug-"
-                + Thread.currentThread().getId() + "]", " ", text);
+                + Thread.currentThread().getId() + "]", " ", false, text);
     }
 
     public static void assert_(boolean truth, Object... description) {
         if (!truth) {
-            print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", description);
+            print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
+                    description);
+        }
+    }
+
+    public static void quiet_assert_(boolean truth, Object... description) {
+        if (!truth) {
+            print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
+                    description);
+            if (HONOR_QUIET_ASSERTS) {
+                System.exit(1);
+            }
             assert (false);
             throw new java.lang.IllegalStateException("please enable asserts.");
         }
@@ -49,7 +76,7 @@ public class DebugOut {
     }
 
     public static void todo(Object... what) {
-        print_colored(BASH_ORANGE, "[TODO] ", " ", what);
+        print_colored(BASH_BROWN, "[TODO] ", " ", false, what);
     }
 
     protected static class ThreadIndentation extends ThreadLocal<String> {
@@ -67,4 +94,5 @@ public class DebugOut {
     }
 
     protected static ThreadIndentation thread_indentation = new ThreadIndentation();
+
 }

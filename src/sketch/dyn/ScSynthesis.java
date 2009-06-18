@@ -1,12 +1,9 @@
 package sketch.dyn;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.util.DebugOut;
-import sketch.util.OptionResult;
 
 /**
  * Where everything begins.
@@ -20,36 +17,39 @@ public class ScSynthesis {
     protected int nthreads = 1;// Runtime.getRuntime().availableProcessors();
     protected ScDynamicSketch[] sketches;
     protected ScStackSynthesis ssr;
-    public static OptionResult cmdopts;
 
     /**
      * Where everything begins.
-     * @param sketch_cls
-     *            A class which has an empty new constructor.
+     * @param f
+     *            A scala function which will yield a new sketch
      * @param cmdopts
      *            Command options
      */
-    public ScSynthesis(Class<?> sketch_cls, OptionResult cmdopts)
-            throws SecurityException, NoSuchMethodException,
-            IllegalArgumentException, InstantiationException,
-            IllegalAccessException, InvocationTargetException
-    {
-        ScSynthesis.cmdopts = cmdopts;
+    public ScSynthesis(scala.Function0<ScDynamicSketch> f) {
         sketches = new ScDynamicSketch[nthreads];
-        Constructor<?> constructor = sketch_cls.getDeclaredConstructor();
-        constructor.setAccessible(true);
         for (int a = 0; a < nthreads; a++) {
-            sketches[a] = (ScDynamicSketch) constructor.newInstance();
+            sketches[a] = f.apply();
         }
+
+        DebugOut.assert_((BackendOptions.stat_opts != null)
+                && (BackendOptions.synth_opts != null),
+                "please command line options; "
+                        + "this will be made optional in the future.");
+        ScStats.initialize();
         ssr = new ScStackSynthesis(sketches);
-        DebugOut.print("ssr", ssr);
     }
 
-    public void synthesize(ScTestGenerator tg) {
+    public void synthesize() {
+        ScTestGenerator tg = sketches[0].test_generator();
         tg.init(sketches[0].get_input_info());
         tg.tests();
-        DebugOut.print((Object[]) tg.get_inputs());
         ScInputConf[] inputs = tg.get_inputs();
+        if (BackendOptions.synth_opts.bool_("print_counterexamples")) {
+            Object[] text = { "counterexamples", inputs };
+            DebugOut.print_colored(DebugOut.BASH_GREEN,
+                    "[user requested print]", "\n", true, text);
+        }
         ssr.synthesize(inputs);
+        ScStats.print_if_enabled();
     }
 }

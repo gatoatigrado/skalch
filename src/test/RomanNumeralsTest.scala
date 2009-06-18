@@ -4,10 +4,9 @@ import scala.collection.mutable.ListBuffer
 import RomanNumerals._
 import skalch.DynamicSketch
 import sketch.dyn.BackendOptions
-import sketch.util.DebugOut
 import sketch.util._
 
-object RomanNumerals1 extends DynamicSketch {
+class RomanNumerals1(val decimal_number : Int) extends DynamicSketch {
     val loopbnd = new BooleanOracle()
     val numeral_select = new ValueSelectOracle[RomanNumeral](num=7)
 
@@ -22,31 +21,33 @@ object RomanNumerals1 extends DynamicSketch {
         return buf.toList
     }
 
-    def dysketch_main() {
+    def dysketch_main() = {
         val n = next_int_input()
-        assert(numberOfNumeral(numeralOfNumber(n)) == n)
+        numberOfNumeral(numeralOfNumber(n)) == n
     }
 
-    object ExhaustiveTestGenerator extends TestGenerator {
+    val test_generator = new TestGenerator {
         // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set(x : Int) {
-            set_default_input(Array(x))
+            put_default_input(x)
         }
         var decimal_number = 10
         def tests() {
             test_case(decimal_number : java.lang.Integer)
         }
     }
+}
 
+object RomanNumeralsTest {
     object TestOptions extends CliOptGroup {
         add("--decimal_number", 1 : java.lang.Integer)
     }
 
     def main(args : Array[String])  = {
         val cmdopts = new sketch.util.CliParser(args)
-        val be_opts = BackendOptions.create_and_parse(cmdopts)
-        ExhaustiveTestGenerator.decimal_number = TestOptions.parse(cmdopts).int_("decimal_number")
-        RomanNumerals1.synthesize_from_test(ExhaustiveTestGenerator, be_opts)
+        BackendOptions.add_opts(cmdopts)
+        val decimal_number = TestOptions.parse(cmdopts).int_("decimal_number")
+        skalch.synthesize(() => new RomanNumerals1(decimal_number))
     }
 }
 

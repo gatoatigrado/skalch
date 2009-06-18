@@ -2,6 +2,7 @@ package sketch.dyn.ctrls;
 
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
+import sketch.util.DebugOut;
 
 /**
  * The element the backend API will call when resolving the value of a hole
@@ -45,5 +46,11 @@ public final class ScSSRHoleValue extends ScHoleValue {
         }
         accessed = true;
         return v;
+    }
+
+    public void reset_accessed() {
+        DebugOut.assert_(accessed,
+                "ScSSRHoleValue - bad value to pop from stack");
+        accessed = false;
     }
 }

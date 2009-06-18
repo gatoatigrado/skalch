@@ -1,18 +1,19 @@
 package sketch.dyn;
 
-import sketch.util.CliOptGroup;
+import sketch.dyn.stats.ScStatOptions;
+import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.util.CliParser;
+import sketch.util.DebugOut;
 import sketch.util.OptionResult;
 
-public class BackendOptions extends CliOptGroup {
-    public BackendOptions() {
-        prefixes("sk", "sketch");
-        add("--num_solutions", 1, "number of solutions to find");
-        add("--num_threads", "number of threads (currently unsupported)");
-    }
+public class BackendOptions {
+    public static OptionResult synth_opts;
+    public static OptionResult stat_opts;
 
-    // java's not quite as concise as Scala
-    public static OptionResult create_and_parse(CliParser p) {
-        return (new BackendOptions()).parse(p);
+    public static void add_opts(CliParser p) {
+        DebugOut.assert_(synth_opts == null && (stat_opts == null),
+                "adding command line options twice");
+        synth_opts = (new ScSynthesisOptions()).parse(p);
+        stat_opts = (new ScStatOptions()).parse(p);
     }
 }

@@ -107,28 +107,16 @@ public class ScStack extends ScPrefixSearch {
                 int next_value;
                 if (current_prefix instanceof ScLocalPrefix) {
                     next_value = get_stack_ent(last) + 1;
-                    DebugOut.print_mt("local next value", next_value);
                 } else {
                     next_value = current_prefix.next_value(this);
                     DebugOut.print_mt("got value", next_value, "from prefix",
                             current_prefix);
                 }
 
-                if (last.type == SYNTH_HOLE_LOG_TYPE) {
-                    if (!ctrls.set(last.uid, next_value)) {
-                        current_prefix.set_all_searched();
-                    } else {
-                        return;
-                    }
-                } else if (last.type == SYNTH_ORACLE_LOG_TYPE) {
-                    if (!oracle_inputs.set(last.uid, last.subuid, next_value)) {
-                        current_prefix.set_all_searched();
-                    } else {
-                        return;
-                    }
+                if (!set_stack_ent(last, next_value)) {
+                    current_prefix.set_all_searched();
                 } else {
-                    DebugOut.assert_(false, "uknown stack entry type",
-                            last.type);
+                    return;
                 }
             } catch (EmptyStackException e) {
                 throw new ScSearchDoneException();
@@ -136,21 +124,29 @@ public class ScStack extends ScPrefixSearch {
         }
 
         // recurse if this subtree is searched.
-        stack.pop();
+        reset_accessed(stack.pop());
         current_prefix = current_prefix.get_parent(this);
         next_inner();
     }
 
+    protected void reset_accessed(ScStackEntry prev) {
+        if (prev.type == SYNTH_HOLE_LOG_TYPE) {
+            ctrls.reset_accessed(prev.uid);
+        } else {
+            oracle_inputs.reset_accessed(prev.uid, prev.subuid);
+        }
+    }
+
     public void next() {
-        DebugOut.print_mt("   next -", this);
+        // DebugOut.print_mt("   next -", this, first_run, added_entries);
         if (first_run) {
             // now at DefaultPrefix
+            first_run = false;
         } else if (added_entries > 0) {
             // need to create a LocalPrefix
             current_prefix = current_prefix.add_entries(added_entries);
         }
         // reset for next run
-        first_run = false;
         added_entries = 0;
         oracle_inputs.reset_index();
         next_inner();

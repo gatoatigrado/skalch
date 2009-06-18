@@ -4,8 +4,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.ScSynthesis;
 import sketch.dyn.ScSynthesisCompleteException;
 import sketch.dyn.ctrls.ScCtrlConf;
 import sketch.dyn.inputs.ScInputConf;
@@ -28,8 +28,12 @@ public class ScStackSynthesis {
     protected ScLocalStackSynthesis[] local_synthesis;
     protected ScCtrlConf ctrls;
     protected ScInputConf oracle_inputs;
-    protected int nsolutions_to_find;
     protected int nsolutions_found = 0;
+
+    // command line options
+    protected int nsolutions_to_find;
+    protected int debug_stop_after;
+    protected boolean print_exceptions;
 
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
@@ -45,7 +49,11 @@ public class ScStackSynthesis {
         ScStack stack = new ScStack(sketches[0].get_hole_info(), sketches[0]
                 .get_oracle_input_list(), prefix);
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
-        nsolutions_to_find = ScSynthesis.cmdopts.int_("num_solutions");
+
+        // command line options
+        nsolutions_to_find = BackendOptions.synth_opts.int_("num_solutions");
+        print_exceptions = BackendOptions.synth_opts.bool_("print_exceptions");
+        debug_stop_after = BackendOptions.synth_opts.int_("debug_stop_after");
     }
 
     public boolean synthesize(ScInputConf[] counterexamples) {
@@ -62,7 +70,9 @@ public class ScStackSynthesis {
     public synchronized void add_solution(ScStack stack) {
         DebugOut.print_mt("solution with stack", stack);
         nsolutions_found += 1;
+        DebugOut.print_mt("solutions to find", nsolutions_found, nsolutions_to_find);
         if (nsolutions_found == nsolutions_to_find) {
+            DebugOut.print_mt("synthesis complete");
             wait_handler.set_synthesis_complete();
         }
     }
@@ -75,8 +85,7 @@ public class ScStackSynthesis {
         public void wait_exhausted() {
             if (n_exhausted.incrementAndGet() >= local_synthesis.length) {
                 DebugOut.print_mt("all exhausted, exiting");
-                synthesis_complete.set(true);
-                wait.release(local_synthesis.length - 1);
+                set_synthesis_complete();
                 n_exhausted.addAndGet(-(local_synthesis.length));
                 return;
             }

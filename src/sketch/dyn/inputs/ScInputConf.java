@@ -47,8 +47,8 @@ public class ScInputConf implements Cloneable {
         return result;
     }
 
-    public void set_input(int uid, int[] arr) {
-        solving_inputs[uid].setInput(arr);
+    public void add_input(int uid, int v) {
+        solving_inputs[uid].addInput(v);
     }
 
     /** copies synthesized inputs to fixed inputs. result is threadsafe / unique */
@@ -72,5 +72,9 @@ public class ScInputConf implements Cloneable {
         for (ScSolvingInputGenerator input : solving_inputs) {
             input.reset_index();
         }
+    }
+
+    public void reset_accessed(int uid, int subuid) {
+        solving_inputs[uid].reset_accessed(subuid);
     }
 }

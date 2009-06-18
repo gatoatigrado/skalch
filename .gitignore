@@ -1,2 +1,5 @@
 bin/*
 *.pyc
+# compile and symlink it yourself...
+lib/scala-library.jar
+.scala_dependencies

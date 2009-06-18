@@ -43,6 +43,7 @@ public abstract class CliOptGroup {
                     opt.help_ = as_str;
                 }
             } else if (ent instanceof Integer) {
+                opt.type_ = Integer.class;
                 opt.default_ = ent;
             } else if (ent instanceof Float) {
                 opt.type_ = Float.class;
@@ -68,7 +69,13 @@ public abstract class CliOptGroup {
         public Option as_option(String prefix) {
             boolean has_name = !(type_.equals(Boolean.class));
             full_name_ = prefix.equals("") ? name_ : prefix + "_" + name_;
-            return new Option(null, full_name_, has_name, help_);
+            String help = help_;
+            if (default_ == null) {
+                help += " (REQUIRED)";
+            } else {
+                help += " [default " + default_.toString() + "]";
+            }
+            return new Option(null, full_name_, has_name, help);
         }
 
         @Override
@@ -84,7 +91,7 @@ public abstract class CliOptGroup {
             }
 
             if (!cmd_line.hasOption(full_name_)) {
-                DebugOut.assert_(default_ != null, "argument", name_,
+                DebugOut.quiet_assert_(default_ != null, "argument", name_,
                         "is required.", this);
                 return default_;
             }

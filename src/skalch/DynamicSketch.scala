@@ -14,15 +14,27 @@ import sketch.util.OptionResult
  * overhead.
  */
 abstract class DynamicSketch extends ScDynamicSketch {
-    private[this] var hole_list : List[Hole] = List()
-    private[this] var input_gen_list : List[InputGenerator] = List()
-    private[this] var oracle_input_list : List[OracleInput] = List()
+    private class FreezableVector[T <: ScConstructInfo] extends java.util.Vector[T] {
+        var frozen = false
+        def +=(value : T) {
+            assert(!frozen)
+            super.add(value)
+        }
+        def length = super.size()
+        def get_and_freeze() = {
+            frozen = true
+            // not sure why not Array[ScConstructInfo]()...
+            super.toArray(new Array[ScConstructInfo](0))
+        }
+    }
+    private[this] val hole_list = new FreezableVector[Hole]()
+    private[this] val input_gen_list = new FreezableVector[InputGenerator]()
+    private[this] val oracle_input_list = new FreezableVector[OracleInput]()
     // more fields in ScDynamicSketch.java
 
     /** generate test data */
     abstract class TestGenerator extends ScTestGenerator {
-        def set_input(input : InputGenerator, v : Array[Int]) = set_uid(input.uid, v)
-        def set_default_input(v : Array[Int]) = set_input(default_input_gen, v)
+        def put_default_input(v : Int) = put_input(default_input_gen, v)
     }
     object NullTestGenerator extends TestGenerator {
         def set() { }
@@ -33,8 +45,8 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
     // === Holes ===
     class Hole(val untilv : Int) extends ScConstructInfo {
-       var uid : Int = hole_list.length
-       hole_list ::= this
+       val uid : Int = hole_list.length
+       hole_list += this
        def apply() = DynamicSketch.this.ctrl_values(uid).get_value() // hopefully wickedly fast
        override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
     }
@@ -61,7 +73,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
     // === Inputs ===
     class InputGenerator(val untilv : Int) extends ScConstructInfo {
         val uid : Int = input_gen_list.length
-        input_gen_list ::= this
+        input_gen_list += this
         def apply() = DynamicSketch.this.input_backend(uid).next_value()
     }
     class ArrayInput(val len_untilv : Int, val value_untilv : Int) {
@@ -80,7 +92,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
     // === Oracles inputs ===
     class OracleInput(val untilv : Int) extends ScConstructInfo {
         val uid : Int = oracle_input_list.length
-        oracle_input_list ::= this
+        oracle_input_list += this
         def apply() : Int = DynamicSketch.this.oracle_input_backend(uid).next_value()
     }
     class BooleanOracle {
@@ -102,20 +114,14 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
 
 
-    def get_hole_info() = hole_list.toArray
-    def get_input_info() = input_gen_list.toArray
-    def get_oracle_input_list() = oracle_input_list.toArray
+    def get_hole_info() = hole_list.get_and_freeze()
+    def get_input_info() = input_gen_list.get_and_freeze()
+    def get_oracle_input_list() = oracle_input_list.get_and_freeze()
+}
 
-    // === Main solver code ===
-    def synthesize_from_test(tg : TestGenerator, be_opts : OptionResult) {
-        DebugOut.todo("query user for test cases. running all for now.")
-        val synth = new ScSynthesis(this.getClass, be_opts)
-        synth.synthesize(tg)
-    }
-
-    /** null generator when test inputs are not explicit */
-    def synthesize() {
-        println("please fix synthesize() or use synthesize_from_test, sorry!")
-        //synthesize_from_test(NullTestGenerato, null)
+object synthesize {
+    def apply(f : (() => DynamicSketch)) {
+        val synth = new ScSynthesis(f)
+        synth.synthesize()
     }
 }

@@ -42,4 +42,8 @@ public class ScCtrlConf {
         }
         return fixed_holes;
     }
+
+    public void reset_accessed(int uid) {
+        ssr_holes[uid].reset_accessed();
+    }
 }

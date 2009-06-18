@@ -34,9 +34,7 @@ public abstract class ScTestGenerator {
             if (m.getName() == "set") {
                 set_method = m;
             }
-            DebugOut.print("method", m, all_obj, m.getName());
         }
-        DebugOut.print("tg init");
     }
 
     public ScInputConf[] get_inputs() {
@@ -64,8 +62,8 @@ public abstract class ScTestGenerator {
         current_config = null;
     }
 
-    public void set_uid(int uid, int[] arr) {
-        current_config.set_input(uid, arr);
+    public void put_input(ScConstructInfo info, int v) {
+        current_config.add_input(info.uid(), v);
     }
 
     public abstract void tests();

@@ -1,9 +1,11 @@
 package sketch.dyn.synth;
 
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ScSynthesisAssertFailure;
 import sketch.dyn.ScSynthesisCompleteException;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.result.ScSynthesisResult;
 import sketch.util.DebugOut;
 
@@ -52,8 +54,8 @@ public class ScLocalStackSynthesis {
         }
     }
 
-    // TODO - experiment, set to twice min
-    public final static int NUM_BLIND_FAST = 1;
+    /** currently doesn't do much, no MT */
+    public final static int NUM_BLIND_FAST = 16;
 
     public class SynthesisThread extends Thread {
         ScStack stack;
@@ -63,16 +65,29 @@ public class ScLocalStackSynthesis {
         public boolean blind_fast_routine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
                 // run the program
+                trycatch:
                 try {
-                    DebugOut.print_mt("running test");
+                    ScStats.stats.run_test();
+                    // DebugOut.print_mt("running test");
                     for (ScCounterexample counterexample : counterexamples) {
+                        ScStats.stats.try_counterexample();
                         counterexample.set_for_sketch(sketch);
-                        sketch.dysketch_main();
+                        if (!sketch.dysketch_main()) {
+                            break trycatch;
+                        }
                     }
+                    DebugOut.print_mt("solution string <<<", sketch
+                            .solution_str(), ">>>");
                     ssr.add_solution(stack);
                     ssr.wait_handler.throw_synthesis_complete();
-                } catch (Exception e) {
+                } catch (ScSynthesisAssertFailure e) {
+                    if (ssr.print_exceptions) {
+                        e.printStackTrace();
+                    }
                 } catch (java.lang.AssertionError e) {
+                    if (ssr.print_exceptions) {
+                        e.printStackTrace();
+                    }
                 }
 
                 // advance the stack (whether it succeeded or not)
@@ -89,7 +104,10 @@ public class ScLocalStackSynthesis {
         public void run_inner() {
             stack = (ScStack) ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
-            while (!ssr.wait_handler.synthesis_complete.get()) {
+            for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a += NUM_BLIND_FAST) {
+                if (ssr.debug_stop_after != -1 && a >= ssr.debug_stop_after) {
+                    ssr.wait_handler.wait_exhausted();
+                }
                 exhausted = blind_fast_routine();
                 ssr.wait_handler.throw_synthesis_complete();
                 if (exhausted) {

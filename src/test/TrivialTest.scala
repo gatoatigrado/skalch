@@ -4,7 +4,7 @@ import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
 import sketch.util._
 
-object TrivialTest extends DynamicSketch {
+class TrivialSketch(val num_tests : Int) extends DynamicSketch {
     // this much is the same
     val hole0 = new Hole(untilv=3)
     val hole1 = new Hole(untilv=4)
@@ -17,29 +17,34 @@ object TrivialTest extends DynamicSketch {
         hole1()
         hole2()
         assert(hole1() == 2)
-        assert(oracle0() == in0)
+        val v0 = oracle0()
+        print("oracle " + v0 + ", in0 " + in0)
+        v0 == in0
     }
 
-    object ExhaustiveTestGenerator extends TestGenerator {
+    val test_generator = new TestGenerator {
         // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set(x : Int, v : Boolean) {
-            set_default_input(Array(x))
+            put_default_input(x)
         }
-        var num_tests = 10
         def tests() {
             for (ctr <- 0 until num_tests)
                 test_case(new java.lang.Integer(ctr), new java.lang.Boolean(false))
         }
     }
+}
 
+object TrivialTest {
     object TestOptions extends CliOptGroup {
-        add("--num_inputs")
+        add("--num_tests")
     }
 
+    // good options
+    // --array_length 3 --num_steps 5 --num_tests 10 --stat_enable
     def main(args : Array[String])  = {
         val cmdopts = new sketch.util.CliParser(args)
-        val be_opts = BackendOptions.create_and_parse(cmdopts)
-        ExhaustiveTestGenerator.num_tests = TestOptions.parse(cmdopts).int_("num_inputs")
-        TrivialTest.synthesize_from_test(ExhaustiveTestGenerator, be_opts)
+        BackendOptions.add_opts(cmdopts)
+        val num_tests = TestOptions.parse(cmdopts).int_("num_tests")
+        skalch.synthesize(() => new TrivialSketch(num_tests))
     }
 }

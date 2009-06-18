@@ -35,7 +35,18 @@ expanded options / actions (use as many as you want):
     %r
     /filter where filter is a regular expression for source files to compile
 all other options passed to compiler. common ones:
-    ['clean', 'src_java_names', 'run']""" %(compilers, options), file=sys.stderr)
+    ['clean', 'src_java_names', 'run']
+
+examples:
+    build scala code and run RomanNumeralsTest:
+        build_util/build.py print run_app=test.RomanNumeralsTest
+
+    run BitonicSortTest with argument -h passed to java:
+        build_util/build.py /dontcompile run_app=test.BitonicSortTest --run_opt_list -h
+
+    if fsc happens to be working for you:
+        build_util/build.py fsc print run_app=test.RomanNumeralsTest
+    """ %(compilers, options), file=sys.stderr)
     sys.exit(1)
 
 if __name__ == "__main__":

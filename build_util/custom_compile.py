@@ -28,9 +28,16 @@ class Compiler(object):
         if self.clean:
             [self.out_path.subpath(f).remove_tree() for f in self.out_path.listdir()]
 
+    @staticmethod
+    def print_cmd(cmd):
+        def quote(v):
+            v = re.sub("([\$\'\"])", r"\\\g<1>", v)
+            return "\"%s\"" %(v) if (" " in v) else v
+        print(" ".join([quote(v) for v in cmd]))
+
     def run(self, cmd, save_output=None, file_ext="txt"):
         if self.print:
-            print(cmd)
+            self.print_cmd(cmd)
         save_output = (self.kwrite or self.vim) if save_output is None else save_output
         pipe_output = { "stdout": subprocess.PIPE } if save_output else { }
         proc = subprocess.Popen(cmd, **pipe_output)
@@ -61,7 +68,7 @@ class Compiler(object):
                 [str(v) for v in src_files], file_ext="scala")
 
     def compile_all(self):
-        src_files = []
+        src_files = set()
         for root, dirs, files in self.src_path.walk():
             filter_ = re.compile(self.src_filter) if self.src_filter else None
             for f in files:
@@ -69,8 +76,9 @@ class Compiler(object):
                     continue
                 path = Path(root, f)
                 if not filter_ or filter_.search(str(path)):
-                    src_files.append(path)
-        self.compile_(src_files)
+                    src_files.add(path)
+        if src_files:
+            self.compile_(src_files)
 
     def run_app_(self):
         if self.run_app:

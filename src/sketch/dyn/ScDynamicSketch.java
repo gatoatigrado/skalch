@@ -17,6 +17,7 @@ public abstract class ScDynamicSketch {
     public ScInputGenerator[] input_backend;
     public ScInputGenerator[] oracle_input_backend;
     public boolean failed__ = false;
+    protected ScSynthesisAssertFailure assert_inst__ = new ScSynthesisAssertFailure();
 
     public abstract ScConstructInfo[] get_hole_info();
 
@@ -30,7 +31,7 @@ public abstract class ScDynamicSketch {
 
     public void synthAssertTerminal(boolean truth) {
         if (!truth) {
-            throw new ScSynthesisAssertFailure();
+            throw assert_inst__;
         }
     }
 

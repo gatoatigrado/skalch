@@ -71,16 +71,24 @@ if __name__ == "__main__":
     compile_args = ["--compiler=%s" %(compiler)]
     [compile_args.extend(["--option", opt]) for opt in defaultopts[compiler]]
 
-    run_options = False
+    mode = "default"
     for arg in in_args:
         if arg == "print_lowered":
             compile_args.extend(["--option", "-Xprint:jvm"])
         elif arg.startswith("/"):
             compile_args.append("--src_filter=%s" %(arg[1:]))
+
+        # argument lists
         elif arg.lstrip("-") == "run_opt_list":
-            run_options = True
-        elif run_options:
+            mode = "run options"
+        elif arg.lstrip("-") == "run_cmd_opts":
+            mode = "java options"
+        elif mode == "run options":
             compile_args.extend(["--run_option", arg])
+        elif mode == "java options":
+            compile_args.extend(["--java_option", arg])
+
+        # help
         elif arg == "-h" or arg.strip("-") == "help":
             print_help()
         else:

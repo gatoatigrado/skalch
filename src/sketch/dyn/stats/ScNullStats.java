@@ -23,4 +23,17 @@ public class ScNullStats extends ScStats {
     public long num_try_counterexample() {
         throw new java.lang.RuntimeException("trying to query null stats");
     }
+
+    @Override
+    public void start_synthesis() {
+    }
+
+    @Override
+    public void stop_synthesis() {
+    }
+
+    @Override
+    public long get_synthesis_time() {
+        throw new java.lang.RuntimeException("trying to query null stats");
+    }
 }

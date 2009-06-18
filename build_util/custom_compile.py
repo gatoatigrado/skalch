@@ -83,11 +83,11 @@ class Compiler(object):
     def run_app_(self):
         if self.run_app:
             # scala bug - `scala` doesn't work here
-            self.run(["java", "-classpath",
+            self.run(["java"] + [opt %(self.__dict__) for opt in self.java_option] + ["-classpath",
                 "%s:%s" %(self.classpath, self.out_path), self.run_app] +
                 [opt %(self.__dict__) for opt in self.run_option], save_output=False)
 
-def main(args):
+def get_cmdopts():
     cmdopts = optparse.OptionParser(usage="%prog --options [files]",
         description="you might want to use the build.py wrapper for presets")
     cmdopts.add_option("--src_filter", help="filter source files (when compiling all)")
@@ -97,6 +97,9 @@ def main(args):
         help="use full java names for source files (e.g. mypackage.ClassName)")
     cmdopts.add_option("--clean", action="store_true", help="clean the build directory")
     cmdopts.add_option("--compiler", default="scalac", help="compiler command to invoke")
+    cmdopts.add_option("--javacmd", default="java", help="java command to invoke")
+    cmdopts.add_option("--java_option", action="append", default=[],
+        help="options to pass to the run command (java)")
     cmdopts.add_option("--option", action="append", default=[],
         help="options to pass to the compiler. example \"--opt -Xprint:jvm --opt -nowarn\".")
     cmdopts.add_option("--run_option", action="append", default=[],
@@ -105,7 +108,10 @@ def main(args):
     cmdopts.add_option("--run_app", help="run a class after compiling")
     cmdopts.add_option("--kwrite", action="store_true", help="launch kwrite")
     cmdopts.add_option("--vim", action="store_true", help="launch vim")
-    options, args = cmdopts.parse_args(args)
+    return cmdopts
+
+def main(args):
+    options, args = get_cmdopts().parse_args(args)
 
     comp = Compiler(**options.__dict__)
     comp.clean_dir()
@@ -114,6 +120,9 @@ def main(args):
     else:
         comp.compile_([Path(arg) for arg in args])
     comp.run_app_()
+
+def get_options_help():
+    return get_cmdopts().format_help()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

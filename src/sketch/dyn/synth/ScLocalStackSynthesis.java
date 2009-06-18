@@ -1,13 +1,12 @@
 package sketch.dyn.synth;
 
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.ScSynthesisAssertFailure;
-import sketch.dyn.ScSynthesisCompleteException;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.result.ScSynthesisResult;
 import sketch.util.DebugOut;
+import sketch.util.Profiler;
 
 /**
  * Container for a synthesis thread. The actual thread is an inner class because
@@ -60,14 +59,17 @@ public class ScLocalStackSynthesis {
     public class SynthesisThread extends Thread {
         ScStack stack;
         boolean exhausted = false;
+        Profiler prof;
 
         /** @returns true if exhausted (need to wait) */
         public boolean blind_fast_routine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
                 // run the program
+                // trycatch doesn't seem slow.
                 trycatch:
                 try {
                     ScStats.stats.run_test();
+                    //prof.set_event(Profiler.ProfileEvent.SynthesisStart);
                     // DebugOut.print_mt("running test");
                     for (ScCounterexample counterexample : counterexamples) {
                         ScStats.stats.try_counterexample();
@@ -76,6 +78,7 @@ public class ScLocalStackSynthesis {
                             break trycatch;
                         }
                     }
+                    //prof.set_event(Profiler.ProfileEvent.SynthesisComplete);
                     DebugOut.print_mt("solution string <<<", sketch
                             .solution_str(), ">>>");
                     ssr.add_solution(stack);
@@ -84,14 +87,11 @@ public class ScLocalStackSynthesis {
                     if (ssr.print_exceptions) {
                         e.printStackTrace();
                     }
-                } catch (java.lang.AssertionError e) {
-                    if (ssr.print_exceptions) {
-                        e.printStackTrace();
-                    }
                 }
 
                 // advance the stack (whether it succeeded or not)
                 try {
+                    //prof.set_event(Profiler.ProfileEvent.StackNext);
                     stack.next();
                 } catch (ScSearchDoneException e) {
                     DebugOut.print_mt("exhausted local search");
@@ -121,6 +121,7 @@ public class ScLocalStackSynthesis {
 
         /** doc in images/scala/synth_loop/ */
         public void run() {
+            prof = Profiler.profiler.get();
             try {
                 run_inner();
             } catch (ScSynthesisCompleteException e) {

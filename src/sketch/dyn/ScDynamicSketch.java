@@ -2,6 +2,7 @@ package sketch.dyn;
 
 import sketch.dyn.ctrls.ScHoleValue;
 import sketch.dyn.inputs.ScInputGenerator;
+import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.util.DebugOut;
 
 /**

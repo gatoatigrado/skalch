@@ -56,9 +56,9 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
     @Override
     public int next_value() {
         if (next >= values.size()) {
-            // add element
-            values.add(0);
+            // add element, might fail (in which case, don't add the value yet)
             al.add_entry(log_type, info.uid(), next);
+            values.add(0);
         }
         int v = values.get(next);
         next += 1;

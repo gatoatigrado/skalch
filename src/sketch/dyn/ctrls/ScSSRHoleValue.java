@@ -42,6 +42,7 @@ public final class ScSSRHoleValue extends ScHoleValue {
     @Override
     public int get_value() {
         if (!accessed) {
+            // might fail; don't set anything yet.
             al.add_entry(log_type, info.uid(), 0);
         }
         accessed = true;

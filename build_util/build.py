@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import os, sys
+import os, subprocess, sys
 import path_resolv
 import custom_compile
 
@@ -28,16 +28,20 @@ def set_classpath_from_eclipse():
     os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(*path_elts)
 
 def print_help():
-    print(r"""usage: build.py [compiler] [options]
-compilers (one chosen):
-    %r
-expanded options / actions (use as many as you want):
-    %r
-    /filter where filter is a regular expression for source files to compile
-all other options passed to compiler. common ones:
-    ['clean', 'src_java_names', 'run']
+    proc = subprocess.Popen(["less"], stdin=subprocess.PIPE)
+    proc.communicate(r"""usage: build.py [%s] [actions] [options] [/filter]
+    [run_app=qualified.name
+        [run_cmd_opts <options to java>]
+        [run_opt_list <opts to program>]]
 
-examples:
+build.py actions: %r
+    /filter where filter is a regular expression for source files to compile
+
+
+
+
+=== examples ===
+
     build scala code and run RomanNumeralsTest:
         build_util/build.py print run_app=test.RomanNumeralsTest
 
@@ -46,7 +50,13 @@ examples:
 
     if fsc happens to be working for you:
         build_util/build.py fsc print run_app=test.RomanNumeralsTest
-    """ %(compilers, options), file=sys.stderr)
+
+
+
+=== options to custom_compile.py ===
+
+all other options passed to compiler. common ones: include [clean | src_java_names]
+%s""" %(" | ".join(compilers), options, custom_compile.get_options_help()))
     sys.exit(1)
 
 if __name__ == "__main__":
@@ -67,7 +77,7 @@ if __name__ == "__main__":
             compile_args.extend(["--option", "-Xprint:jvm"])
         elif arg.startswith("/"):
             compile_args.append("--src_filter=%s" %(arg[1:]))
-        elif arg == "--run_opt_list":
+        elif arg.lstrip("-") == "run_opt_list":
             run_options = True
         elif run_options:
             compile_args.extend(["--run_option", arg])

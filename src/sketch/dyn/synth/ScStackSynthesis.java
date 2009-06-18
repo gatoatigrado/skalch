@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.ScSynthesisCompleteException;
 import sketch.dyn.ctrls.ScCtrlConf;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.prefix.ScDefaultPrefix;

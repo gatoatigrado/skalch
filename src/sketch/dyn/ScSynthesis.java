@@ -4,6 +4,7 @@ import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.util.DebugOut;
+import sketch.util.Profiler;
 
 /**
  * Where everything begins.
@@ -49,7 +50,11 @@ public class ScSynthesis {
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);
         }
+        Profiler.start_monitor();
+        ScStats.stats.start_synthesis();
         ssr.synthesize(inputs);
+        ScStats.stats.stop_synthesis();
+        Profiler.stop_monitor();
         ScStats.print_if_enabled();
     }
 }

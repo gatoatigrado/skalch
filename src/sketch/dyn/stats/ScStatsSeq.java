@@ -1,6 +1,6 @@
 package sketch.dyn.stats;
 
-public class ScStatsSeq extends ScStats {
+public class ScStatsSeq extends ScStatsMT {
     public long nrun = 0;
     public long ncounterexample = 0;
 

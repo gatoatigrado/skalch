@@ -1,6 +1,5 @@
 package sketch.dyn.inputs;
 
-import java.util.Stack;
 import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;

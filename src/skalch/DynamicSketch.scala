@@ -107,7 +107,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
     // === Convenience shortcuts for generators ===
     // note that these don't allow any structure within the generator to be exploited.
-    // atm. this isn't much, but when it makes sketching faster, warnings shoudl
+    // atm. this isn't much, but when it makes sketching faster, warnings should
     // be issued.
     val default_input_gen = new InputGenerator(1 << 30)
     def next_int_input() : Int = default_input_gen()

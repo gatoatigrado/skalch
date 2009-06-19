@@ -1,9 +1,12 @@
 package sketch.dyn;
 
+import java.util.Vector;
+
 import sketch.dyn.ctrls.ScHoleValue;
 import sketch.dyn.inputs.ScInputGenerator;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.util.DebugOut;
+import sketch.util.RichString;
 
 /**
  * Scala classes inherit this, so the Java code can make nice API calls.
@@ -42,7 +45,15 @@ public abstract class ScDynamicSketch {
     }
 
     public String solution_str() {
-        return "not defined...";
+        Vector<String> result = new Vector<String>();
+        result.add("=== generic solution_str() function for sketch ===");
+        for (ScHoleValue h : ctrl_values) {
+            result.add(h.toString());
+        }
+        for (ScInputGenerator oracle : oracle_input_backend) {
+            result.add(oracle.toString());
+        }
+        return (new RichString("\n")).join(result.toArray(new String[0]));
     }
 
     public synchronized void print(String... text) {

@@ -6,6 +6,7 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
 </listAttribute>
+<booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="false"/>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="SHELL" value="eclipse"/>
 </mapAttribute>
@@ -27,7 +28,7 @@
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS" value="false"/>
 <intAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS_NUM" value="5"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="tptp-dummy-profiling-set-bitonic_sort"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="test.BitonicSortTest"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--array_length 5 --num_steps 40 --num_tests 20 --sy_debug_stop_after 3000000 --stat_enable --stat_no_mt_safe"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="test.RomanNumeralsTest"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--decimal_number 2 --stat_enable"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="skalch"/>
 </launchConfiguration>

@@ -146,10 +146,12 @@ public class ScStack extends ScPrefixSearch {
             // need to create a LocalPrefix
             current_prefix = current_prefix.add_entries(added_entries);
         }
-        // reset for next run
+        next_inner();
+
+        // reset for next run. oracle_input.reset_index() should happen after
+        // next_inner()
         added_entries = 0;
         oracle_inputs.reset_index();
-        next_inner();
     }
 
     public void add_entry(int type, int uid, int subuid) {

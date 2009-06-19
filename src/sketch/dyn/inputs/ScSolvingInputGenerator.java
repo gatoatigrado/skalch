@@ -35,7 +35,8 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
 
     @Override
     public String toString() {
-        return info.uid() + "=" + values.toString();
+        return "Oracle[" + info.uid() + "] =" + values.toString() + ", "
+                + values.capacity() + values.size();
     }
 
     public ScFixedInputGenerator createFixedInput() {
@@ -74,6 +75,10 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
         }
     }
 
+    /**
+     * reset_index should happen every _run_ but not between _counterexamples_.
+     * it is currently called in the end of ScStack.next()
+     */
     public void reset_index() {
         next = 0;
     }
@@ -87,9 +92,15 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
         overflow_oblivious = false;
     }
 
+    /** called after the stack is popped */
     public void reset_accessed(int subuid) {
-        next -= 1;
+        DebugOut.assert_(next == values.size(), "i think this is correct...",
+                next, values.size());
+        next -= 1; // N.B. - for asserts ONLY!!! next := 0 from reset_index()
         DebugOut.assert_(subuid == next,
-                "ScSolvingInputGenerator - bad value to pop from stack");
+                "ScSolvingInputGenerator - bad value to pop from stack",
+                subuid, next);
+
+        values.remove(subuid);
     }
 }

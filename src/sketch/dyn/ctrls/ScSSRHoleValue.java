@@ -28,6 +28,11 @@ public final class ScSSRHoleValue extends ScHoleValue {
         this.untilv = info.untilv();
     }
 
+    @Override
+    public String toString() {
+        return "Hole[" + info.uid() + "] = " + v;
+    }
+
     public boolean set(int v) {
         if (v < untilv) {
             this.v = v;

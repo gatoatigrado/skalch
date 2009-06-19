@@ -13,7 +13,9 @@ public class ScStatOptions extends CliOptGroup {
     public ScStatOptions() {
         prefixes("stat", "statistics");
         add("--enable", "enable statistics");
-        add("--profile_enable", "enable profiling thread");
+        add("--profile_enable",
+                "enable profiling thread (only supported if <profiler>.set_event()"
+                        + " calls are made, which slow execution)");
         add("--no_mt_safe",
                 "use sequential (non-threadsafe) stats classes (may be faster)");
     }

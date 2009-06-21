@@ -3,7 +3,8 @@ package sketch.dyn;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
-import sketch.ui.ScUiThread;
+import sketch.ui.ScUserInterface;
+import sketch.ui.ScUserInterfaceManager;
 import sketch.util.DebugOut;
 import sketch.util.Profiler;
 
@@ -15,8 +16,7 @@ import sketch.util.Profiler;
  *          make changes, please consider contributing back!
  */
 public class ScSynthesis {
-    // FIXME - hack!
-    protected int nthreads = 1;// Runtime.getRuntime().availableProcessors();
+    protected int nthreads;
     protected ScDynamicSketch[] sketches;
     protected ScStackSynthesis ssr;
 
@@ -28,16 +28,16 @@ public class ScSynthesis {
      *            Command options
      */
     public ScSynthesis(scala.Function0<ScDynamicSketch> f) {
+        // initialization
+        BackendOptions.initialize_defaults();
+        ScStats.initialize();
+        nthreads = BackendOptions.synth_opts.int_("num_threads");
+
+        // initialize ssr
         sketches = new ScDynamicSketch[nthreads];
         for (int a = 0; a < nthreads; a++) {
             sketches[a] = f.apply();
         }
-
-        DebugOut.assert_((BackendOptions.stat_opts != null)
-                && (BackendOptions.synth_opts != null),
-                "please command line options; "
-                        + "this will be made optional in the future.");
-        ScStats.initialize();
         ssr = new ScStackSynthesis(sketches);
     }
 
@@ -53,18 +53,18 @@ public class ScSynthesis {
         }
 
         // start various utilities
-        ScUiThread.start_ui(ssr);
+        ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr);
         Profiler.start_monitor();
         ScStats.stats.start_synthesis();
 
         // actual synthesize call
-        ssr.synthesize(inputs);
+        ssr.synthesize(inputs, ui);
 
         // stop utilities
         ScStats.stats.stop_synthesis();
         Profiler.stop_monitor();
         ScStats.print_if_enabled();
-        
+
         // don't do this upon completion, but the api is available
         // ScUiThread.stop_ui();
     }

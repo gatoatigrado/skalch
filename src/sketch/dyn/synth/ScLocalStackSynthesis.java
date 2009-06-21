@@ -82,7 +82,7 @@ public class ScLocalStackSynthesis {
                     DebugOut.print_mt("solution string <<<", sketch
                             .solution_str(), ">>>");
                     ssr.add_solution(stack);
-                    ssr.wait_handler.throw_synthesis_complete();
+                    ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {
                     if (ssr.print_exceptions) {
                         e.printStackTrace();
@@ -109,10 +109,11 @@ public class ScLocalStackSynthesis {
                     ssr.wait_handler.wait_exhausted();
                 }
                 exhausted = blind_fast_routine();
-                ssr.wait_handler.throw_synthesis_complete();
+                ssr.wait_handler.throw_if_synthesis_complete();
                 if (exhausted) {
                     ssr.wait_handler.wait_exhausted();
-                    ssr.wait_handler.throw_synthesis_complete();
+                    ssr.wait_handler.throw_if_synthesis_complete();
+                    // TODO - use search manager more
                     stack = ssr.search_manager.get_active_prefix();
                     stack.set_for_synthesis(sketch);
                 }
@@ -126,8 +127,6 @@ public class ScLocalStackSynthesis {
                 run_inner();
             } catch (ScSynthesisCompleteException e) {
             }
-            stack = (ScStack) ssr.search_manager.clone_default_search();
-            stack.set_for_synthesis(sketch);
         }
     }
 }

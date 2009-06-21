@@ -15,7 +15,7 @@ import sketch.util.InteractiveThread;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScUiThread extends InteractiveThread {
+public class ScUiThread extends InteractiveThread implements ScUserInterface {
     protected ScStackSynthesis ssr;
     protected gui_0_1 gui;
     static ConcurrentLinkedQueue<ScUiThread> gui_list = new ConcurrentLinkedQueue<ScUiThread>();
@@ -49,6 +49,7 @@ public class ScUiThread extends InteractiveThread {
         }
     }
 
+    /** @deprecated deleteme soon, just use set_synthesis_complete */
     public static void stop_ui() {
         try {
             while (true) {

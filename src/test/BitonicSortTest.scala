@@ -58,7 +58,7 @@ object BitonicSortTest {
     object TestOptions extends CliOptGroup {
         add("--array_length", "length of array")
         add("--num_steps", "number of steps allowed")
-        add("--num_tests", 1 : java.lang.Integer, "number of randomly generated input sequences to test")
+        add("--num_tests", 100 : java.lang.Integer, "number of randomly generated input sequences to test")
     }
 
     def main(args : Array[String])  = {

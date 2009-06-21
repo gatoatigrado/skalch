@@ -26,9 +26,11 @@ public class ScLocalPrefix extends ScPrefix {
 
     @Override
     public ScPrefix get_parent(ScPrefixSearch search) {
+        DebugOut.assert_(nlinks_to_shared >= 1, "dummy assert");
         if (nlinks_to_shared == 1) {
             return base_prefix;
         } else {
+            this.nlinks_to_shared -= 1;
             return this;
         }
     }

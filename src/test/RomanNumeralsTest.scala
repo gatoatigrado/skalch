@@ -48,7 +48,7 @@ object RomanNumeralsTest {
     def main(args : Array[String])  = {
         DebugOut.todo("The RomanNumeralsTest currently doesn't decode roman",
             "numerals correctly; for example, it reports that \"iiv\" is 5.",
-            "Please contact Nicholas Tung / Joel Galenson if you need it fixed.")
+            "Please contact Nicholas Tung or Joel Galenson if you need it fixed.")
         val cmdopts = new sketch.util.CliParser(args)
         BackendOptions.add_opts(cmdopts)
         val decimal_number = TestOptions.parse(cmdopts).int_("decimal_number")

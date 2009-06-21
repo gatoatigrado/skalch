@@ -110,7 +110,7 @@ public class ScStack extends ScPrefixSearch {
                 } else {
                     next_value = current_prefix.next_value(this);
                     DebugOut.print_mt("got value", next_value, "from prefix",
-                            current_prefix);
+                            current_prefix, "uid", last.uid);
                 }
 
                 if (!set_stack_ent(last, next_value)) {

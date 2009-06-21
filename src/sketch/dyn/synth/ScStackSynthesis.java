@@ -10,6 +10,7 @@ import sketch.dyn.ctrls.ScCtrlConf;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.prefix.ScDefaultPrefix;
 import sketch.dyn.prefix.ScPrefixSearchManager;
+import sketch.ui.ScUserInterface;
 import sketch.util.DebugOut;
 
 /**
@@ -27,6 +28,7 @@ public class ScStackSynthesis {
     protected ScLocalStackSynthesis[] local_synthesis;
     protected ScCtrlConf ctrls;
     protected ScInputConf oracle_inputs;
+    protected ScUserInterface ui;
     protected int nsolutions_found = 0;
 
     // command line options
@@ -47,6 +49,8 @@ public class ScStackSynthesis {
         ScDefaultPrefix prefix = new ScDefaultPrefix();
         ScStack stack = new ScStack(sketches[0].get_hole_info(), sketches[0]
                 .get_oracle_input_list(), prefix);
+
+        // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
 
         // command line options
@@ -55,7 +59,9 @@ public class ScStackSynthesis {
         debug_stop_after = BackendOptions.synth_opts.int_("debug_stop_after");
     }
 
-    public boolean synthesize(ScInputConf[] counterexamples) {
+    public boolean synthesize(ScInputConf[] counterexamples, ScUserInterface ui)
+    {
+        this.ui = ui;
         wait_handler = new ExhaustedWaitHandler();
         for (ScLocalStackSynthesis local_synth : local_synthesis) {
             local_synth.run(counterexamples);
@@ -69,7 +75,6 @@ public class ScStackSynthesis {
     public synchronized void add_solution(ScStack stack) {
         DebugOut.print_mt("solution with stack", stack);
         nsolutions_found += 1;
-        DebugOut.print_mt("solutions to find", nsolutions_found, nsolutions_to_find);
         if (nsolutions_found == nsolutions_to_find) {
             DebugOut.print_mt("synthesis complete");
             wait_handler.set_synthesis_complete();
@@ -103,7 +108,7 @@ public class ScStackSynthesis {
             wait.release(local_synthesis.length - 1);
         }
 
-        public void throw_synthesis_complete() {
+        public void throw_if_synthesis_complete() {
             if (synthesis_complete.get()) {
                 throw new ScSynthesisCompleteException();
             }

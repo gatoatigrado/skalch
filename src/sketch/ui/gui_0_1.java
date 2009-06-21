@@ -11,11 +11,21 @@
 
 package sketch.ui;
 
+import sketch.util.DebugOut;
+import javax.swing.event.HyperlinkEvent;
+
 /**
- *
- * @author gatoatigrado
+ * Generated GUI frame using Netbeans. Please only edit in Netbeans to avoid
+ * desynchronizing generated segments, and (only for this file) don't use the
+ * Eclipse formatter.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
  */
+@SuppressWarnings("all")
 public class gui_0_1 extends javax.swing.JFrame {
+    private static final long serialVersionUID = -6929286664850956931L;
 
     /** Creates new form gui_0_1 */
     public gui_0_1() {
@@ -31,94 +41,113 @@ public class gui_0_1 extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jEditorPane1 = new javax.swing.JEditorPane();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        stopButton1 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
-        jLabel6 = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        synth_completion_list = new javax.swing.JList();
-        jButton3 = new javax.swing.JButton();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jEditorPane2 = new javax.swing.JEditorPane();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        sourceViewLabel = new javax.swing.JLabel();
+        sourceCodePane = new javax.swing.JScrollPane();
+        sourceCodeEditor = new javax.swing.JEditorPane();
+        monospaceCheckbox = new javax.swing.JCheckBox();
+        controlsLabel = new javax.swing.JLabel();
+        selectInputsLabel = new javax.swing.JLabel();
+        debugPrintoutsLabel = new javax.swing.JLabel();
+        viewSelectionsButton = new javax.swing.JButton();
+        selectInputPane = new javax.swing.JScrollPane();
+        selectInputList = new javax.swing.JList();
+        synthCompletionLabel = new javax.swing.JLabel();
+        synthCompletionPane = new javax.swing.JScrollPane();
+        synthCompletionList = new javax.swing.JList();
+        solversButton = new javax.swing.JButton();
+        debugOutPane = new javax.swing.JScrollPane();
+        debugOutEditor = new javax.swing.JEditorPane();
+        stopButton = new javax.swing.JButton();
+        acceptButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Skalch GUI");
 
-        jLabel1.setFont(jLabel1.getFont().deriveFont(jLabel1.getFont().getSize()+3f));
-        jLabel1.setText("Source view");
+        sourceViewLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        sourceViewLabel.setText("Source view");
 
-        jEditorPane1.setContentType("text/html");
-        jEditorPane1.setEditable(false);
-        jEditorPane1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jEditorPane1.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\n</style>\n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n&nbsp;&nbsp;&nbsp;&nbsp;code 1<span style=\"color: #ff0000;\">??</span><br />\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;code2\n    </p>\n    <p style=\"color: #666666;\">\n         grey text\n    </p>\n  </body>\n</html>\n");
-        jScrollPane1.setViewportView(jEditorPane1);
+        sourceCodeEditor.setContentType("text/html");
+        sourceCodeEditor.setEditable(false);
+        sourceCodeEditor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        sourceCodeEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n\n<pre style=\"font-family: serif;\">\nclass RelevantSketchingClass extends DynamicSketch { // this is a long line\n    def fcn1():\n        <span style=\"color: #ff0000;\"><b>4</b></span> + 3\n}\n</pre>\n<pre style=\"font-family: monospace;\">\n\nsome monospace text\n</pre>\n  </body>\n</html>\n");
+        sourceCodePane.setViewportView(sourceCodeEditor);
 
-        jCheckBox1.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
-        jCheckBox1.setText("monospace");
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+        monospaceCheckbox.setFont(new java.awt.Font("Dialog", 0, 12));
+        monospaceCheckbox.setText("monospace");
+        monospaceCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
+                monospaceCheckboxActionPerformed(evt);
             }
         });
 
-        jLabel2.setFont(jLabel2.getFont().deriveFont(jLabel2.getFont().getSize()+3f));
-        jLabel2.setText("Controls");
+        controlsLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        controlsLabel.setText("Controls");
 
-        jLabel4.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
-        jLabel4.setText("Select inputs (tests)");
+        selectInputsLabel.setFont(new java.awt.Font("Dialog", 0, 12));
+        selectInputsLabel.setText("Select inputs / tests (use <ctrl> to select multiple)");
 
-        jLabel5.setFont(jLabel5.getFont().deriveFont(jLabel5.getFont().getSize()+3f));
-        jLabel5.setText("Debug printouts (select to highlight source)");
+        debugPrintoutsLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        debugPrintoutsLabel.setText("Debug printouts (select to highlight source)");
 
-        stopButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/sync.png"))); // NOI18N
-        stopButton1.setText("View selections");
-        stopButton1.setEnabled(false);
-        stopButton1.addActionListener(new java.awt.event.ActionListener() {
+        viewSelectionsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/sync.png"))); // NOI18N
+        viewSelectionsButton.setText("View selections");
+        viewSelectionsButton.setEnabled(false);
+        viewSelectionsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopButton1ActionPerformed(evt);
+                viewSelectionsButtonActionPerformed(evt);
             }
         });
 
-        jList1.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
-        jList1.setModel(new javax.swing.AbstractListModel() {
+        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12));
+        selectInputList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane2.setViewportView(jList1);
+        selectInputPane.setViewportView(selectInputList);
 
-        jLabel6.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
-        jLabel6.setText("Select synthesized completions");
+        synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12));
+        synthCompletionLabel.setText("Select synthesized completions");
 
-        synth_completion_list.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
-        jScrollPane3.setViewportView(synth_completion_list);
+        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
+        synthCompletionPane.setViewportView(synthCompletionList);
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/office-chart-ring.png"))); // NOI18N
-        jButton3.setText("solvers...");
-        jButton3.setEnabled(false);
+        solversButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/office-chart-ring.png"))); // NOI18N
+        solversButton.setText("solvers...");
+        solversButton.setEnabled(false);
+        solversButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                solversButtonActionPerformed(evt);
+            }
+        });
 
-        jEditorPane2.setContentType("text/html");
-        jEditorPane2.setEditable(false);
-        jEditorPane2.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        jEditorPane2.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n<ul>\n<li>[line 4] - !! set to 2, selecting expression \"q.next\" for a complete line of \"g(q.next.getValue())\"</li>\n<li>[line 12] - ?? set to 13</li>\n</ul>\n  </body>\n</html>\n");
-        jScrollPane4.setViewportView(jEditorPane2);
+        debugOutEditor.setContentType("text/html");
+        debugOutEditor.setEditable(false);
+        debugOutEditor.setFont(new java.awt.Font("SansSerif", 0, 14));
+        debugOutEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n<ul>\n<li>[<a href=\"line:4\">line 4</a>] - !! set to 2, selecting expression \"q.next\" for a complete line of \"g(q.next.getValue())\"</li>\n<li>[line 12] - ?? set to 13</li>\n</ul>\n  </body>\n</html>\n");
+        debugOutEditor.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+                debugOutEditorHyperlinkUpdate(evt);
+            }
+        });
+        debugOutPane.setViewportView(debugOutEditor);
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/process-stop.png"))); // NOI18N
-        jButton1.setText("stop");
+        stopButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/process-stop.png"))); // NOI18N
+        stopButton.setText("stop");
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopButtonActionPerformed(evt);
+            }
+        });
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/dialog-ok-apply.png"))); // NOI18N
-        jButton2.setText("Accept");
-        jButton2.setEnabled(false);
-        jButton2.setPreferredSize(new java.awt.Dimension(95, 30));
+        acceptButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/dialog-ok-apply.png"))); // NOI18N
+        acceptButton.setText("Accept");
+        acceptButton.setEnabled(false);
+        acceptButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                acceptButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -127,31 +156,31 @@ public class gui_0_1 extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
+                    .addComponent(controlsLabel)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(stopButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3))
+                        .addComponent(solversButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel4)
+                            .addComponent(synthCompletionLabel)
+                            .addComponent(selectInputsLabel)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(stopButton1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)))
-                    .addComponent(jLabel5)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE))
+                                .addComponent(viewSelectionsButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 182, Short.MAX_VALUE)
+                                .addComponent(acceptButton))
+                            .addComponent(synthCompletionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
+                            .addComponent(selectInputPane, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)))
+                    .addComponent(debugPrintoutsLabel)
+                    .addComponent(debugOutPane, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 161, Short.MAX_VALUE)
-                        .addComponent(jCheckBox1))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE))
+                        .addComponent(sourceViewLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 170, Short.MAX_VALUE)
+                        .addComponent(monospaceCheckbox))
+                    .addComponent(sourceCodePane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -161,46 +190,76 @@ public class gui_0_1 extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jCheckBox1)
-                            .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 797, Short.MAX_VALUE))
+                            .addComponent(monospaceCheckbox)
+                            .addComponent(sourceViewLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(sourceCodePane, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(controlsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton3))
+                            .addComponent(stopButton)
+                            .addComponent(solversButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel4)
+                        .addComponent(selectInputsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(selectInputPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel6)
+                        .addComponent(synthCompletionLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(synthCompletionPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(stopButton1)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(viewSelectionsButton)
+                            .addComponent(acceptButton))
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel5)
+                        .addComponent(debugPrintoutsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)))
+                        .addComponent(debugOutPane, javax.swing.GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+    private void monospaceCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monospaceCheckboxActionPerformed
         // TODO add your handling code here:
-        System.out.println("monospace selected");
-    }//GEN-LAST:event_jCheckBox1ActionPerformed
+        sourceCodeEditor.setText("<html>\n  <head>\n<style>\nbody " +
+                "{\nfont-size: 12pt; font-family: monospace;\n}\n</style>\n " +
+                " </head>\n  <body>\n    <p style=\"margin-top: 0\">\n&nbsp;" +
+                "&nbsp;&nbsp;&nbsp;code 1<span style=\"color: #ff0000;\">??" +
+                "</span><br />\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                "code2\n    </p>\n    <p style=\"color: #666666;\">\n         " +
+                "grey text\n    </p>\n  </body>\n</html>\n");
+        DebugOut.print("monospace", monospaceCheckbox.isSelected());
+    }//GEN-LAST:event_monospaceCheckboxActionPerformed
 
-    private void stopButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButton1ActionPerformed
+    private void viewSelectionsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectionsButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_stopButton1ActionPerformed
+        DebugOut.print("view selections");
+    }//GEN-LAST:event_viewSelectionsButtonActionPerformed
+
+    private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
+        // TODO add your handling code here:
+        DebugOut.print("stop");
+    }//GEN-LAST:event_stopButtonActionPerformed
+
+    private void acceptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptButtonActionPerformed
+        // TODO add your handling code here:
+        DebugOut.print("accept");
+    }//GEN-LAST:event_acceptButtonActionPerformed
+
+    private void solversButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_solversButtonActionPerformed
+        // TODO add your handling code here:
+        DebugOut.print("solvers button");
+    }//GEN-LAST:event_solversButtonActionPerformed
+
+    private void debugOutEditorHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_debugOutEditorHyperlinkUpdate
+        // TODO add your handling code here:
+        if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            sketch.util.DebugOut.print("hyperlink update", evt.getDescription());
+        }
+    }//GEN-LAST:event_debugOutEditorHyperlinkUpdate
 
     /**
     * @param args the command line arguments
@@ -214,24 +273,24 @@ public class gui_0_1 extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JEditorPane jEditorPane1;
-    private javax.swing.JEditorPane jEditorPane2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JList jList1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JButton stopButton1;
-    private javax.swing.JList synth_completion_list;
+    private javax.swing.JButton acceptButton;
+    private javax.swing.JLabel controlsLabel;
+    private javax.swing.JEditorPane debugOutEditor;
+    private javax.swing.JScrollPane debugOutPane;
+    private javax.swing.JLabel debugPrintoutsLabel;
+    private javax.swing.JCheckBox monospaceCheckbox;
+    private javax.swing.JList selectInputList;
+    private javax.swing.JScrollPane selectInputPane;
+    private javax.swing.JLabel selectInputsLabel;
+    private javax.swing.JButton solversButton;
+    private javax.swing.JEditorPane sourceCodeEditor;
+    private javax.swing.JScrollPane sourceCodePane;
+    private javax.swing.JLabel sourceViewLabel;
+    private javax.swing.JButton stopButton;
+    private javax.swing.JLabel synthCompletionLabel;
+    private javax.swing.JList synthCompletionList;
+    private javax.swing.JScrollPane synthCompletionPane;
+    private javax.swing.JButton viewSelectionsButton;
     // End of variables declaration//GEN-END:variables
 
 }

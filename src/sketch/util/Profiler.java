@@ -1,8 +1,6 @@
 package sketch.util;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import sketch.dyn.BackendOptions;
 
@@ -17,8 +15,7 @@ public class Profiler {
     };
 
     public enum ProfileEvent {
-        SynthesisStart, SynthesisComplete, StackNext,
- GetHoleValue, PostGetHoleValue
+        SynthesisStart, SynthesisComplete, StackNext, GetHoleValue, PostGetHoleValue
     }
 
     /** indexed [from][to] */
@@ -55,22 +52,16 @@ public class Profiler {
         }
     }
 
-    protected static class ProfileMonitor extends Thread {
-        public Semaphore stop_event = new Semaphore(0);
+    protected static class ProfileMonitor extends InteractiveThread {
+        public ProfileMonitor() {
+            super(0.1f);
+        }
 
         @Override
-        public void run() {
-            try {
-                while (!stop_event.tryAcquire(100, TimeUnit.MILLISECONDS)) {
-                    for (Profiler prof : profilers) {
-                        DebugOut.print_mt(prof);
-                    }
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        public void run_inner() {
+            for (Profiler prof : profilers) {
+                DebugOut.print_mt(prof);
             }
-            DebugOut.print_mt("end run.");
         }
     }
-
 }

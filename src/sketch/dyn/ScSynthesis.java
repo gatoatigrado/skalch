@@ -3,6 +3,7 @@ package sketch.dyn;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
+import sketch.ui.ScUiThread;
 import sketch.util.DebugOut;
 import sketch.util.Profiler;
 
@@ -50,11 +51,21 @@ public class ScSynthesis {
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);
         }
+
+        // start various utilities
+        ScUiThread.start_ui(ssr);
         Profiler.start_monitor();
         ScStats.stats.start_synthesis();
+
+        // actual synthesize call
         ssr.synthesize(inputs);
+
+        // stop utilities
         ScStats.stats.stop_synthesis();
         Profiler.stop_monitor();
         ScStats.print_if_enabled();
+        
+        // don't do this upon completion, but the api is available
+        // ScUiThread.stop_ui();
     }
 }

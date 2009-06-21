@@ -43,7 +43,7 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
             if (print_help) {
                 HelpFormatter hf = new HelpFormatter();
                 hf.printHelp("[options]", options);
-                System.exit(1);
+                System.exit(1); // @code standards ignore
             }
         } catch (org.apache.commons.cli.ParseException e) {
             DebugOut.assert_(false, e.getMessage());

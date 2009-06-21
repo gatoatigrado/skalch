@@ -91,8 +91,12 @@ public abstract class CliOptGroup {
             }
 
             if (!cmd_line.hasOption(full_name_)) {
-                DebugOut.quiet_assert_(default_ != null, "argument", name_,
-                        "is required.", this);
+                if (default_ == null) {
+                    DebugOut.print_colored(DebugOut.BASH_RED, "", " ", false,
+                            "argument", name_,
+                            "is required.\n    argument info:", this);
+                    System.exit(1); // @code standards ignore
+                }
                 return default_;
             }
 

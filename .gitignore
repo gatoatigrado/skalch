@@ -1,4 +1,5 @@
 bin/*
+build/*
 *.pyc
 # compile and symlink it yourself...
 lib/scala-library.jar

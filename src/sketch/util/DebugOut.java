@@ -23,7 +23,6 @@ public class DebugOut {
     public final static String BASH_LIGHT_BLUE = "1;34";
     /** don't use BASH_BLACK for people using black-background terminals */
     public final static String BASH_DEFAULT = "0";
-    public final static boolean HONOR_QUIET_ASSERTS = true;
     public final static boolean is_interactive = (System.getenv("SHELL") != null)
             && (System.getenv("SHELL").contains("sh"));
 
@@ -39,7 +38,8 @@ public class DebugOut {
             }
         }
         if (is_interactive) {
-            System.err.println(String.format("    \u001b[%sm%s ", color, prefix)
+            System.err.println(String
+                    .format("    \u001b[%sm%s ", color, prefix)
                     + (new RichString(sep)).join(text) + "\u001b[0m");
         } else {
             System.err.println(String.format("    %s ", prefix)
@@ -60,18 +60,6 @@ public class DebugOut {
         if (!truth) {
             print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
                     description);
-            assert (false);
-            throw new java.lang.IllegalStateException("please enable asserts.");
-        }
-    }
-
-    public static void quiet_assert_(boolean truth, Object... description) {
-        if (!truth) {
-            print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
-                    description);
-            if (HONOR_QUIET_ASSERTS) {
-                System.exit(1);
-            }
             assert (false);
             throw new java.lang.IllegalStateException("please enable asserts.");
         }

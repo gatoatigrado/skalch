@@ -17,7 +17,8 @@ public class ScPrefixSearchManager<SearchType extends ScPrefixSearch> {
     protected ActivePrefixQueue active_prefixes = new ActivePrefixQueue();
 
     public ScPrefixSearchManager(SearchType search_default,
-            ScDefaultPrefix prefix_default) {
+            ScDefaultPrefix prefix_default)
+    {
         this.search_default = search_default;
         this.prefix_default = prefix_default;
     }

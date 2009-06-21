@@ -17,8 +17,8 @@ import sketch.util.DebugOut;
 public class ScSharedPrefix extends ScPrefix {
     public AtomicBoolean search_done = new AtomicBoolean(false);
     public AtomicInteger next_value = new AtomicInteger(0);
-    public AtomicReference<ScPrefix> parent = new AtomicReference<ScPrefix>(
-            null);
+    public AtomicReference<ScPrefix> parent =
+            new AtomicReference<ScPrefix>(null);
 
     @Override
     public boolean get_all_searched() {
@@ -44,7 +44,6 @@ public class ScSharedPrefix extends ScPrefix {
 
     @Override
     public void set_all_searched() {
-        // TODO Auto-generated method stub
         search_done.set(true);
     }
 

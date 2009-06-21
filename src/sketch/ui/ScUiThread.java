@@ -2,9 +2,11 @@ package sketch.ui;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.synth.ScStackSynthesis;
+import sketch.util.DebugOut;
 import sketch.util.InteractiveThread;
 
 /**
@@ -18,6 +20,7 @@ import sketch.util.InteractiveThread;
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
     protected ScStackSynthesis ssr;
     protected gui_0_1 gui;
+    public AtomicInteger modifier_timestamp = new AtomicInteger(0);
     static ConcurrentLinkedQueue<ScUiThread> gui_list = new ConcurrentLinkedQueue<ScUiThread>();
 
     public ScUiThread(ScStackSynthesis ssr) {
@@ -58,5 +61,13 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
             }
         } catch (NoSuchElementException e) {
         }
+    }
+
+    public void modifierComplete(ScUiModifier m) {
+        DebugOut.not_implemented("modifierComplete");
+    }
+
+    public int nextModifierTimestamp() {
+        return modifier_timestamp.incrementAndGet();
     }
 }

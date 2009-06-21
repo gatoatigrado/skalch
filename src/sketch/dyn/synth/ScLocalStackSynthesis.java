@@ -1,10 +1,14 @@
 package sketch.dyn.synth;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.result.ScSynthesisResult;
+import sketch.ui.ScUiModifier;
+import sketch.ui.ScUiQueueable;
 import sketch.util.DebugOut;
 import sketch.util.Profiler;
 
@@ -17,12 +21,14 @@ import sketch.util.Profiler;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScLocalStackSynthesis {
+public class ScLocalStackSynthesis implements ScUiQueueable {
     protected ScDynamicSketch sketch;
     protected ScStackSynthesis ssr;
     protected ScCounterexample[] counterexamples;
     public SynthesisThread thread;
     public ScSynthesisResult synthesis_result;
+    public ConcurrentLinkedQueue<ScUiModifier> ui_queue =
+            new ConcurrentLinkedQueue<ScUiModifier>();
 
     public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr) {
         this.sketch = sketch;
@@ -66,10 +72,9 @@ public class ScLocalStackSynthesis {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
                 // run the program
                 // trycatch doesn't seem slow.
-                trycatch:
-                try {
+                trycatch: try {
                     ScStats.stats.run_test();
-                    //prof.set_event(Profiler.ProfileEvent.SynthesisStart);
+                    // prof.set_event(Profiler.ProfileEvent.SynthesisStart);
                     // DebugOut.print_mt("running test");
                     for (ScCounterexample counterexample : counterexamples) {
                         ScStats.stats.try_counterexample();
@@ -78,7 +83,7 @@ public class ScLocalStackSynthesis {
                             break trycatch;
                         }
                     }
-                    //prof.set_event(Profiler.ProfileEvent.SynthesisComplete);
+                    // prof.set_event(Profiler.ProfileEvent.SynthesisComplete);
                     DebugOut.print_mt("solution string <<<", sketch
                             .solution_str(), ">>>");
                     ssr.add_solution(stack);
@@ -91,7 +96,7 @@ public class ScLocalStackSynthesis {
 
                 // advance the stack (whether it succeeded or not)
                 try {
-                    //prof.set_event(Profiler.ProfileEvent.StackNext);
+                    // prof.set_event(Profiler.ProfileEvent.StackNext);
                     stack.next();
                 } catch (ScSearchDoneException e) {
                     DebugOut.print_mt("exhausted local search");
@@ -104,12 +109,18 @@ public class ScLocalStackSynthesis {
         public void run_inner() {
             stack = (ScStack) ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
-            for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a += NUM_BLIND_FAST) {
+            for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
+                    NUM_BLIND_FAST)
+            {
                 if (ssr.debug_stop_after != -1 && a >= ssr.debug_stop_after) {
                     ssr.wait_handler.wait_exhausted();
                 }
                 exhausted = blind_fast_routine();
                 ssr.wait_handler.throw_if_synthesis_complete();
+                if (!ui_queue.isEmpty()) {
+                    ui_queue.remove().setInfo(ScLocalStackSynthesis.this, this,
+                            stack);
+                }
                 if (exhausted) {
                     ssr.wait_handler.wait_exhausted();
                     ssr.wait_handler.throw_if_synthesis_complete();
@@ -128,5 +139,9 @@ public class ScLocalStackSynthesis {
             } catch (ScSynthesisCompleteException e) {
             }
         }
+    }
+
+    public void queueModifier(ScUiModifier m) {
+        ui_queue.add(m);
     }
 }

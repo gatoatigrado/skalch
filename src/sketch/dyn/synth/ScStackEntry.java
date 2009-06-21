@@ -1,5 +1,7 @@
 package sketch.dyn.synth;
 
+import sketch.util.DebugOut;
+
 /**
  * An entry of ScStack, contains fields to index holes or inputs.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
@@ -17,6 +19,19 @@ public final class ScStackEntry {
     }
 
     public ScStackEntry() {
+    }
+
+    @Override
+    public String toString() {
+        if (type == -1) {
+            return "<unset type>";
+        } else if (type == ScStack.SYNTH_HOLE_LOG_TYPE) {
+            return "hole " + uid;
+        } else {
+            DebugOut.assert_(type == ScStack.SYNTH_ORACLE_LOG_TYPE,
+                    "ScStackEntry - unknown type");
+            return "oracle " + uid + "[" + subuid + "]";
+        }
     }
 
     public ScStackEntry copy() {

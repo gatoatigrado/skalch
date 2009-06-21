@@ -46,27 +46,19 @@ public class ScStack extends ScPrefixSearch {
         this.ctrl_info = ctrl_info.clone();
         this.oracle_info = oracle_info.clone();
         ctrls = new ScCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);
-        oracle_inputs = new ScInputConf(oracle_info, this,
-                SYNTH_ORACLE_LOG_TYPE);
+        oracle_inputs =
+                new ScInputConf(oracle_info, this, SYNTH_ORACLE_LOG_TYPE);
         this.current_prefix = default_prefix;
     }
 
     @Override
     public String toString() {
-        String[] stack_formatted = new String[stack.size()];
+        String[] rv = new String[stack.size()];
         for (int a = 0; a < stack.size(); a++) {
             ScStackEntry ent = stack.get(a);
-            if (ent.type == SYNTH_HOLE_LOG_TYPE) {
-                stack_formatted[a] = String.format("(hole %d, %d)", ent.uid,
-                        ctrls.get(ent.uid));
-            } else if (ent.type == SYNTH_ORACLE_LOG_TYPE) {
-                stack_formatted[a] = String.format("(oracle %d[%d], %d)",
-                        ent.uid, ent.subuid, oracle_inputs.get(ent.uid,
-                                ent.subuid));
-            }
+            rv[a] = "(" + ent.toString() + ", " + get_stack_ent(ent) + ")";
         }
-        return "ScStack[ " + (new RichString(" -> ")).join(stack_formatted)
-                + " ]";
+        return "ScStack[ " + (new RichString(" -> ")).join(rv) + " ]";
     }
 
     public void set_fixed_for_testing(ScDynamicSketch sketch) {

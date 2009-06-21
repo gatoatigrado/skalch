@@ -24,7 +24,7 @@ import javax.swing.event.HyperlinkEvent;
  *          make changes, please consider contributing back!
  */
 @SuppressWarnings("all")
-public class gui_0_1 extends javax.swing.JFrame {
+public abstract class gui_0_1 extends javax.swing.JFrame {
     private static final long serialVersionUID = -6929286664850956931L;
 
     /** Creates new form gui_0_1 */
@@ -63,12 +63,12 @@ public class gui_0_1 extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Skalch GUI");
 
-        sourceViewLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        sourceViewLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         sourceViewLabel.setText("Source view");
 
         sourceCodeEditor.setContentType("text/html");
         sourceCodeEditor.setEditable(false);
-        sourceCodeEditor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        sourceCodeEditor.setFont(new java.awt.Font("SansSerif", 0, 14));
         sourceCodeEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n\n<pre style=\"font-family: serif;\">\nclass RelevantSketchingClass extends DynamicSketch { // this is a long line\n    def fcn1():\n        <span style=\"color: #ff0000;\"><b>4</b></span> + 3\n}\n</pre>\n<pre style=\"font-family: monospace;\">\n\nsome monospace text\n</pre>\n  </body>\n</html>\n");
         sourceCodePane.setViewportView(sourceCodeEditor);
 
@@ -80,13 +80,13 @@ public class gui_0_1 extends javax.swing.JFrame {
             }
         });
 
-        controlsLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        controlsLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         controlsLabel.setText("Controls");
 
         selectInputsLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         selectInputsLabel.setText("Select inputs / tests (use <ctrl> to select multiple)");
 
-        debugPrintoutsLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        debugPrintoutsLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         debugPrintoutsLabel.setText("Debug printouts (select to highlight source)");
 
         viewSelectionsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/sync.png"))); // NOI18N
@@ -109,7 +109,12 @@ public class gui_0_1 extends javax.swing.JFrame {
         synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         synthCompletionLabel.setText("Select synthesized completions");
 
-        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
+        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        synthCompletionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                synthCompletionListValueChanged(evt);
+            }
+        });
         synthCompletionPane.setViewportView(synthCompletionList);
 
         solversButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/office-chart-ring.png"))); // NOI18N
@@ -235,8 +240,7 @@ public class gui_0_1 extends javax.swing.JFrame {
     }//GEN-LAST:event_monospaceCheckboxActionPerformed
 
     private void viewSelectionsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectionsButtonActionPerformed
-        // TODO add your handling code here:
-        DebugOut.print("view selections");
+        viewSelections();
     }//GEN-LAST:event_viewSelectionsButtonActionPerformed
 
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
@@ -261,36 +265,35 @@ public class gui_0_1 extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_debugOutEditorHyperlinkUpdate
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new gui_0_1().setVisible(true);
-            }
-        });
-    }
+    /** can't change private -> protected abstract with netbeans */
+    private void synthCompletionListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_synthCompletionListValueChanged
+        synthCompletionSelectionChanged(evt);
+    }//GEN-LAST:event_synthCompletionListValueChanged
+
+    protected abstract void viewSelections();
+    protected abstract void synthCompletionSelectionChanged(javax.swing.event.ListSelectionEvent evt);
+
+    //protected abstract void synthCompletionListValueChanged2(javax.swing.event.ListSelectionEvent evt);
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton acceptButton;
-    private javax.swing.JLabel controlsLabel;
-    private javax.swing.JEditorPane debugOutEditor;
-    private javax.swing.JScrollPane debugOutPane;
-    private javax.swing.JLabel debugPrintoutsLabel;
-    private javax.swing.JCheckBox monospaceCheckbox;
-    private javax.swing.JList selectInputList;
-    private javax.swing.JScrollPane selectInputPane;
-    private javax.swing.JLabel selectInputsLabel;
-    private javax.swing.JButton solversButton;
-    private javax.swing.JEditorPane sourceCodeEditor;
-    private javax.swing.JScrollPane sourceCodePane;
-    private javax.swing.JLabel sourceViewLabel;
-    private javax.swing.JButton stopButton;
-    private javax.swing.JLabel synthCompletionLabel;
-    private javax.swing.JList synthCompletionList;
-    private javax.swing.JScrollPane synthCompletionPane;
-    private javax.swing.JButton viewSelectionsButton;
+    protected javax.swing.JButton acceptButton;
+    javax.swing.JLabel controlsLabel;
+    protected javax.swing.JEditorPane debugOutEditor;
+    javax.swing.JScrollPane debugOutPane;
+    javax.swing.JLabel debugPrintoutsLabel;
+    protected javax.swing.JCheckBox monospaceCheckbox;
+    protected javax.swing.JList selectInputList;
+    javax.swing.JScrollPane selectInputPane;
+    javax.swing.JLabel selectInputsLabel;
+    protected javax.swing.JButton solversButton;
+    protected javax.swing.JEditorPane sourceCodeEditor;
+    javax.swing.JScrollPane sourceCodePane;
+    javax.swing.JLabel sourceViewLabel;
+    javax.swing.JButton stopButton;
+    javax.swing.JLabel synthCompletionLabel;
+    protected javax.swing.JList synthCompletionList;
+    javax.swing.JScrollPane synthCompletionPane;
+    protected javax.swing.JButton viewSelectionsButton;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -3,6 +3,13 @@ package sketch.ui;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.synth.ScStackSynthesis;
 
+/**
+ * static functions for all user interfaces.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class ScUserInterfaceManager {
     /**
      * start a user interface
@@ -16,7 +23,8 @@ public class ScUserInterfaceManager {
             ScUiThread.gui_list.add(thread);
             thread.start();
             return thread;
+        } else {
+            return new ScDebugConsoleUI();
         }
-        return null;
     }
 }

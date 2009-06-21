@@ -4,9 +4,11 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.SwingUtilities;
+
 import sketch.dyn.BackendOptions;
+import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStackSynthesis;
-import sketch.util.DebugOut;
 import sketch.util.InteractiveThread;
 
 /**
@@ -19,9 +21,12 @@ import sketch.util.InteractiveThread;
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
     protected ScStackSynthesis ssr;
-    protected gui_0_1 gui;
+    protected ScUiGui gui;
     public AtomicInteger modifier_timestamp = new AtomicInteger(0);
-    static ConcurrentLinkedQueue<ScUiThread> gui_list = new ConcurrentLinkedQueue<ScUiThread>();
+    static ConcurrentLinkedQueue<ScUiThread> gui_list =
+            new ConcurrentLinkedQueue<ScUiThread>();
+    static ConcurrentLinkedQueue<ScUiModifier> modifier_list =
+            new ConcurrentLinkedQueue<ScUiModifier>();
 
     public ScUiThread(ScStackSynthesis ssr) {
         super(0.1f);
@@ -30,12 +35,20 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     @Override
     public void init() {
-        gui = new gui_0_1();
+        gui = new ScUiGui(this);
         gui.setVisible(true);
     }
 
     @Override
     public void run_inner() {
+        try {
+            while (!modifier_list.isEmpty()) {
+                ScUiModifier m = modifier_list.remove();
+                RunModifier run_modifier = new RunModifier(m);
+                SwingUtilities.invokeLater(run_modifier);
+            }
+        } catch (NoSuchElementException e) {
+        }
     }
 
     @Override
@@ -64,10 +77,42 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     }
 
     public void modifierComplete(ScUiModifier m) {
-        DebugOut.not_implemented("modifierComplete");
+        modifier_list.add(m);
     }
 
     public int nextModifierTimestamp() {
         return modifier_timestamp.incrementAndGet();
+    }
+
+    public void addStackSynthesis(ScLocalStackSynthesis local_ssr) {
+        modifierComplete(new AddStackSynthesisModifier(local_ssr));
+    }
+
+    // all of this junk just because Java can't bind non-final variables
+
+    public static class RunModifier implements Runnable {
+        protected ScUiModifier m;
+
+        public RunModifier(ScUiModifier m) {
+            this.m = m;
+        }
+
+        public void run() {
+            m.apply();
+        }
+    }
+
+    public class AddStackSynthesisModifier extends ScUiModifier {
+        ScLocalStackSynthesis local_ssr;
+
+        public AddStackSynthesisModifier(ScLocalStackSynthesis local_ssr) {
+            super(ScUiThread.this);
+            this.local_ssr = local_ssr;
+        }
+
+        @Override
+        public void apply() {
+            gui.addStackSynthesis(local_ssr);
+        }
     }
 }

@@ -44,11 +44,13 @@ public class ScStackSynthesis {
         // initialize backends
         local_synthesis = new ScLocalStackSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
-            local_synthesis[a] = new ScLocalStackSynthesis(sketches[a], this);
+            local_synthesis[a] =
+                    new ScLocalStackSynthesis(sketches[a], this, a);
         }
         ScDefaultPrefix prefix = new ScDefaultPrefix();
-        ScStack stack = new ScStack(sketches[0].get_hole_info(), sketches[0]
-                .get_oracle_input_list(), prefix);
+        ScStack stack =
+                new ScStack(sketches[0].get_hole_info(), sketches[0]
+                        .get_oracle_input_list(), prefix);
 
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
@@ -64,6 +66,7 @@ public class ScStackSynthesis {
         this.ui = ui;
         wait_handler = new ExhaustedWaitHandler();
         for (ScLocalStackSynthesis local_synth : local_synthesis) {
+            ui.addStackSynthesis(local_synth);
             local_synth.run(counterexamples);
         }
         for (ScLocalStackSynthesis local_synth : local_synthesis) {

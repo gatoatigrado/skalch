@@ -152,7 +152,7 @@ public class ScStack extends ScPrefixSearch {
     }
 
     @SuppressWarnings("unchecked")
-    public ScPrefixSearch clone() {
+    public ScStack clone() {
         ScStack result = new ScStack(ctrl_info, oracle_info, current_prefix);
         result.stack = (Stack<ScStackEntry>) this.stack.clone();
         result.first_run = this.first_run;

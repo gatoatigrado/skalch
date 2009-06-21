@@ -25,14 +25,18 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     protected ScDynamicSketch sketch;
     protected ScStackSynthesis ssr;
     protected ScCounterexample[] counterexamples;
+    public int uid;
     public SynthesisThread thread;
     public ScSynthesisResult synthesis_result;
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue =
             new ConcurrentLinkedQueue<ScUiModifier>();
 
-    public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr) {
+    public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr,
+            int uid)
+    {
         this.sketch = sketch;
         this.ssr = ssr;
+        this.uid = uid;
     }
 
     public void run(ScInputConf[] inputs) {

@@ -12,31 +12,31 @@ object RomanNumerals {
     def isM = false
     def value: Int
   }
-  case class I() extends RomanNumeral { 
+  case class I() extends RomanNumeral {
     override def isI = true
     override def value: Int = 1
   }
-  case class V() extends RomanNumeral { 
+  case class V() extends RomanNumeral {
     override def isV = true
     override def value: Int = 5
   }
-  case class X() extends RomanNumeral { 
+  case class X() extends RomanNumeral {
     override def isX = true
     override def value: Int = 10
   }
-  case class L() extends RomanNumeral { 
+  case class L() extends RomanNumeral {
     override def isL = true
     override def value: Int = 50
   }
-  case class C() extends RomanNumeral { 
+  case class C() extends RomanNumeral {
     override def isC = true
     override def value: Int = 100
   }
-  case class D() extends RomanNumeral { 
+  case class D() extends RomanNumeral {
     override def isD = true
     override def value: Int = 500
   }
-  case class M() extends RomanNumeral { 
+  case class M() extends RomanNumeral {
     override def isM = true
     override def value: Int = 1000
   }
@@ -48,16 +48,16 @@ object RomanNumerals {
       val cur = numerals(i)
       val next = if (i + 1 < numerals.size) Some(numerals(i + 1)) else None
       val incr = cur match {
-	case I() =>
-	  if (next.isDefined && next.get.isV) { i += 1; 4 } else if (next.isDefined && next.get.isX) { i += 1; 9 } else 1
-	case V() => 5
-	case X() =>
-	  if (next.isDefined && next.get.isL) { i += 1; 40 } else if (next.isDefined && next.get.isC) { i += 1; 90 } else 10
-	case L() => 50
-	case C() =>
-	  if (next.isDefined && next.get.isD) { i += 1; 400 } else if (next.isDefined && next.get.isM) { i += 1; 900 } else 100
-	case D() => 500
-	case M() => 1000
+        case I() =>
+          if (next.isDefined && next.get.isV) { i += 1; 4 } else if (next.isDefined && next.get.isX) { i += 1; 9 } else 1
+        case V() => 5
+        case X() =>
+          if (next.isDefined && next.get.isL) { i += 1; 40 } else if (next.isDefined && next.get.isC) { i += 1; 90 } else 10
+        case L() => 50
+        case C() =>
+          if (next.isDefined && next.get.isD) { i += 1; 400 } else if (next.isDefined && next.get.isM) { i += 1; 900 } else 100
+        case D() => 500
+        case M() => 1000
       }
       num += incr
       i += 1
@@ -70,13 +70,13 @@ object RomanNumerals {
     var buf = new ListBuffer[RomanNumeral]
     s foreach { c => {
       val cur = c match {
-	case 'I' => I()
-	case 'V' => V()
-	case 'X' => X()
-	case 'L' => L()
-	case 'C' => C()
-	case 'D' => D()
-	case 'M' => M()
+        case 'I' => I()
+        case 'V' => V()
+        case 'X' => X()
+        case 'L' => L()
+        case 'C' => C()
+        case 'D' => D()
+        case 'M' => M()
       }
       buf += cur
     }}
@@ -91,9 +91,9 @@ object RomanNumerals {
     var prev: RomanNumeral = null
     numeral foreach { cur => {
       if (i > 0) {
-	assert(prev.value >= cur.value || (Math.log10(cur.value) - Math.log10(prev.value) <= 1 && (prevprev == null || prevprev.value < prev.value)))
-	if (prev != cur)
-	  count = 0
+        assert(prev.value >= cur.value || (Math.log10(cur.value) - Math.log10(prev.value) <= 1 && (prevprev == null || prevprev.value < prev.value)))
+        if (prev != cur)
+          count = 0
       }
       prevprev = prev
       prev = cur

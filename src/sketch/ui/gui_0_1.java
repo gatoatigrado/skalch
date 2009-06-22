@@ -68,7 +68,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         sourceCodeEditor.setContentType("text/html");
         sourceCodeEditor.setEditable(false);
-        sourceCodeEditor.setFont(new java.awt.Font("SansSerif", 0, 14));
+        sourceCodeEditor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         sourceCodeEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n\n<pre style=\"font-family: serif;\">\nclass RelevantSketchingClass extends DynamicSketch { // this is a long line\n    def fcn1():\n        <span style=\"color: #ff0000;\"><b>4</b></span> + 3\n}\n</pre>\n<pre style=\"font-family: monospace;\">\n\nsome monospace text\n</pre>\n  </body>\n</html>\n");
         sourceCodePane.setViewportView(sourceCodeEditor);
 
@@ -98,7 +98,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
             }
         });
 
-        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12));
+        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         selectInputList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
@@ -109,7 +109,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         synthCompletionLabel.setText("Select synthesized completions");
 
-        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
+        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         synthCompletionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 synthCompletionListValueChanged(evt);
@@ -128,7 +128,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         debugOutEditor.setContentType("text/html");
         debugOutEditor.setEditable(false);
-        debugOutEditor.setFont(new java.awt.Font("SansSerif", 0, 14));
+        debugOutEditor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         debugOutEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n<ul>\n<li>[<a href=\"line:4\">line 4</a>] - !! set to 2, selecting expression \"q.next\" for a complete line of \"g(q.next.getValue())\"</li>\n<li>[line 12] - ?? set to 13</li>\n</ul>\n  </body>\n</html>\n");
         debugOutEditor.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -166,26 +166,30 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
                         .add(stopButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(solversButton))
-                    .add(layout.createSequentialGroup()
-                        .add(12, 12, 12)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(synthCompletionLabel)
-                            .add(selectInputsLabel)
-                            .add(layout.createSequentialGroup()
-                                .add(viewSelectionsButton)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 182, Short.MAX_VALUE)
-                                .add(acceptButton))
-                            .add(synthCompletionPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
-                            .add(selectInputPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)))
                     .add(debugPrintoutsLabel)
-                    .add(debugOutPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, debugOutPane, 0, 0, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(12, 12, 12)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(synthCompletionLabel)
+                                    .add(selectInputsLabel)
+                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                            .add(viewSelectionsButton)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .add(acceptButton))
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, synthCompletionPane)
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, selectInputPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)))))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(layout.createSequentialGroup()
                         .add(sourceViewLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 170, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 241, Short.MAX_VALUE)
                         .add(monospaceCheckbox))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sourceCodePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE))
+                    .add(sourceCodePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

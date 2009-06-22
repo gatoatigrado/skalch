@@ -9,5 +9,5 @@ package sketch.ui;
  *          make changes, please consider contributing back!
  */
 public interface ScUiQueueable {
-    public void queueModifier(ScUiModifier m);
+    public void queueModifier(ScUiModifier m) throws ScUiQueueableInactive;
 }

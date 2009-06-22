@@ -31,7 +31,7 @@ public abstract class ScUiModifier {
         this.timestamp = ui.nextModifierTimestamp();
     }
 
-    public final void enqueueTo(ScUiQueueable... targets) {
+    public final void enqueueTo(ScUiQueueable... targets) throws ScUiQueueableInactive {
         this.enqueue_remaining = new AtomicInteger(targets.length);
         for (ScUiQueueable target : targets) {
             target.queueModifier(this);

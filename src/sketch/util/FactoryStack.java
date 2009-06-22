@@ -71,6 +71,7 @@ public class FactoryStack<T extends ScCloneable<T>> {
         for (int a = next; a < array.length; a++) {
             result.array[a] = factory.create();
         }
+        result.next = next;
         return result;
     }
 

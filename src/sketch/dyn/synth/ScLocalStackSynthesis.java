@@ -1,5 +1,6 @@
 package sketch.dyn.synth;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sketch.dyn.ScDynamicSketch;
@@ -9,6 +10,7 @@ import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.result.ScSynthesisResult;
 import sketch.ui.ScUiModifier;
 import sketch.ui.ScUiQueueable;
+import sketch.ui.ScUiQueueableInactive;
 import sketch.util.DebugOut;
 import sketch.util.Profiler;
 
@@ -28,8 +30,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     public int uid;
     public SynthesisThread thread;
     public ScSynthesisResult synthesis_result;
-    public ConcurrentLinkedQueue<ScUiModifier> ui_queue =
-            new ConcurrentLinkedQueue<ScUiModifier>();
+    public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
 
     public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr,
             int uid)
@@ -47,6 +48,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
             counterexamples[a] = new ScCounterexample(inputs[a].fixed_inputs());
         }
         synthesis_result = null;
+        ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
 
         // really basic stuff for now
         if (thread != null && thread.isAlive()) {
@@ -143,10 +145,21 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 run_inner();
             } catch (ScSynthesisCompleteException e) {
             }
+            try {
+                while (true) {
+                    ui_queue.remove().setInfo(ScLocalStackSynthesis.this, this,
+                            stack);
+                }
+            } catch (NoSuchElementException e) {
+                ui_queue = null;
+            }
         }
     }
 
-    public void queueModifier(ScUiModifier m) {
+    public void queueModifier(ScUiModifier m) throws ScUiQueueableInactive {
+        if (ui_queue == null) {
+            throw new ScUiQueueableInactive();
+        }
         ui_queue.add(m);
     }
 }

@@ -1,7 +1,6 @@
 package sketch.ui;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -33,8 +32,29 @@ public class ScUiList<T> {
         list_model.addElement(element);
     }
 
+    @SuppressWarnings("unchecked")
     public T[] getSelected() {
+        if (type_param_array_type == null) {
+            return (T[]) new Object[0];
+        }
         Object[] as_obj = list.getSelectedValues();
-        return Arrays.copyOf(as_obj, as_obj.length, type_param_array_type);
+        return arrayCopy(as_obj, as_obj.length, type_param_array_type);
+    }
+
+    public void remove(T elt) {
+        list_model.removeElement(elt);
+    }
+
+    // 1.5 compatibility
+    @SuppressWarnings("unchecked")
+    public static <NEW, OLD> NEW[] arrayCopy(OLD[] original, int newLength,
+            Class<? extends NEW[]> newType)
+    {
+        NEW[] copy =
+                (NEW[]) Array
+                        .newInstance(newType.getComponentType(), newLength);
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length,
+                newLength));
+        return copy;
     }
 }

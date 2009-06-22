@@ -72,7 +72,13 @@ public class ScUiGui extends gui_0_1 {
 
         @Override
         public void dispatch() {
-            (new Modifier()).enqueueTo(local_ssr);
+            try {
+                (new Modifier()).enqueueTo(local_ssr);
+            } catch (ScUiQueueableInactive e) {
+                DebugOut
+                        .todo("remove StackModifierDispatchers after synthesis is done");
+                synthCompletions.remove(this);
+            }
         }
     }
 

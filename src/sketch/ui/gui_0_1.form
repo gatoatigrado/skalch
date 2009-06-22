@@ -32,31 +32,38 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="solversButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="synthCompletionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="182" max="32767" attributes="0"/>
-                              <Component id="acceptButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="synthCompletionPane" alignment="0" pref="432" max="32767" attributes="2"/>
-                          <Component id="selectInputPane" alignment="0" pref="432" max="32767" attributes="2"/>
-                      </Group>
-                  </Group>
                   <Component id="debugPrintoutsLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                  <Component id="debugOutPane" alignment="0" pref="444" max="32767" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="debugOutPane" alignment="0" min="0" pref="0" max="32767" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="synthCompletionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                      <Group type="102" alignment="0" attributes="1">
+                                          <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="32767" attributes="0"/>
+                                          <Component id="acceptButton" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="synthCompletionPane" alignment="0" max="32767" attributes="3"/>
+                                      <Component id="selectInputPane" alignment="0" pref="358" max="32767" attributes="3"/>
+                                  </Group>
+                              </Group>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="32767" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="sourceViewLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="170" max="32767" attributes="0"/>
+                      <EmptySpace pref="241" max="32767" attributes="0"/>
                       <Component id="monospaceCheckbox" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="sourceCodePane" alignment="1" pref="346" max="32767" attributes="0"/>
+                  <Component id="sourceCodePane" pref="417" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

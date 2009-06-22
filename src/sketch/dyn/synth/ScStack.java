@@ -166,6 +166,8 @@ public class ScStack extends ScPrefixSearch {
         // ScStackEntry types don't explicitly link to holes or oracles.
         result.stack = this.stack.clone();
         result.first_run = this.first_run;
+        DebugOut.print("original", this);
+        DebugOut.print("cloned", result);
         return result;
     }
 }

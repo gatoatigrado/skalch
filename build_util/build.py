@@ -6,11 +6,12 @@ import os, subprocess, sys
 import path_resolv
 import custom_compile
 
-compilers = ["fsc", "scalac", "javap"]
 options = ["print_lowered"]
 defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s".split(" "),
+    "javac": "-classpath %(classpath)s -sourcepath %(src_path)s -d %(out_path)s".split(" "),
     "javap": "-classpath %(classpath)s:%(out_path)s".split(" ") }
 defaultopts["scalac"] = defaultopts["fsc"]
+compilers = defaultopts.keys()
 
 def set_classpath_from_eclipse():
     from xml.dom.minidom import parse as parse_xml
@@ -70,6 +71,8 @@ if __name__ == "__main__":
         in_args = in_args[1:]
     compile_args = ["--compiler=%s" %(compiler)]
     [compile_args.extend(["--option", opt]) for opt in defaultopts[compiler]]
+    if compiler == "javac":
+        compile_args.extend(["--src_extensions", "java"])
 
     mode = "default"
     for arg in in_args:

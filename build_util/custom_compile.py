@@ -22,6 +22,7 @@ class Compiler(object):
         self.out_path = Path(self.out_path)
         self.print = self.print or self.src_filter
         self.classpath = os.environ["CLASSPATH"]
+        self.src_extensions = self.src_extensions.split(",")
         assert self.src_path.exists() and self.out_path.exists()
 
     def clean_dir(self):
@@ -58,23 +59,23 @@ class Compiler(object):
         elif self.vim:
             subprocess.Popen(["vim", tf.name], stderr=subprocess.PIPE).wait()
 
-    def compile_(self, src_files):
+    def compile_(self, src_files, file_ext="scala"):
         assert all([src_file.exists() for src_file in src_files])
         if self.src_java_names:
             src_files = [Path(src_file.splitext()[0]).relpath(self.src_path).replace("/", ".")
                 for src_file in src_files]
         with path_resolv.ExecuteIn(self.out_path):
             self.run([self.compiler] + [opt %(self.__dict__) for opt in self.option] +
-                [str(v) for v in src_files], file_ext="scala")
+                [str(v) for v in src_files], file_ext)
 
     def compile_all(self):
         src_files = set()
         for root, dirs, files in self.src_path.walk():
             filter_ = re.compile(self.src_filter) if self.src_filter else None
             for f in files:
-                if not f.endswith(".scala"):
-                    continue
                 path = Path(root, f)
+                if not path.extension() in self.src_extensions:
+                    continue
                 if not filter_ or filter_.search(str(path)):
                     src_files.add(path)
         if src_files:
@@ -95,6 +96,8 @@ def get_cmdopts():
     cmdopts.add_option("--out_path", default="bin", help="path for output files")
     cmdopts.add_option("--src_java_names", action="store_true",
         help="use full java names for source files (e.g. mypackage.ClassName)")
+    cmdopts.add_option("--src_extensions", default="scala",
+        help="source file extensions, e.g. \"scala,java\"")
     cmdopts.add_option("--clean", action="store_true", help="clean the build directory")
     cmdopts.add_option("--compiler", default="scalac", help="compiler command to invoke")
     cmdopts.add_option("--javacmd", default="java", help="java command to invoke")

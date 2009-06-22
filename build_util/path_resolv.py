@@ -49,6 +49,9 @@ class Path(str):
     def read(self):
         return open(self, "r").read()
 
+    def extension(self):
+        return self.splitext()[1][1:]
+
     def __repr__(self): return "Path[\"%s\"]" %(self)
 
     @classmethod

@@ -13,6 +13,12 @@ defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s".split
 defaultopts["scalac"] = defaultopts["fsc"]
 compilers = defaultopts.keys()
 
+os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(
+    os.environ["CLASSPATH"],
+    path_resolv.resolve("lib/swing-layout-1.0.3.jar"))
+# reinit with updated classpath
+path_resolv.resolvers[0] = path_resolv.EnvironPathResolver()
+
 def set_classpath_from_eclipse():
     from xml.dom.minidom import parse as parse_xml
     eclipse_classpath = path_resolv.Path(".classpath")

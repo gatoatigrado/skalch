@@ -154,10 +154,13 @@ public class ScStack extends ScPrefixSearch {
     @SuppressWarnings("unchecked")
     public ScStack clone() {
         ScStack result = new ScStack(ctrl_info, oracle_info, current_prefix);
-        result.stack = (Stack<ScStackEntry>) this.stack.clone();
-        result.first_run = this.first_run;
         DebugOut.assert_(added_entries == 0,
                 "please run next() before cloning.");
+        result.ctrls.copy_from(this.ctrls);
+        result.oracle_inputs.copy_from(this.oracle_inputs);
+        // ScStackEntry types don't explicitly link to holes or oracles.
+        result.stack = (Stack<ScStackEntry>) this.stack.clone();
+        result.first_run = this.first_run;
         return result;
     }
 }

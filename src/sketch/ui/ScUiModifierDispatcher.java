@@ -12,5 +12,5 @@ package sketch.ui;
 public abstract class ScUiModifierDispatcher {
     public abstract String toString();
 
-    public abstract ScUiModifier dispatch();
+    public abstract void dispatch();
 }

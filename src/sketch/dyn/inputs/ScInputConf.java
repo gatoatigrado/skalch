@@ -1,5 +1,7 @@
 package sketch.dyn.inputs;
 
+import java.util.Vector;
+
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
 import sketch.util.RichString;
@@ -18,8 +20,8 @@ public class ScInputConf implements Cloneable {
     public ScInputConf(ScConstructInfo[] input_info, ScStack al, int log_type) {
         solving_inputs = new ScSolvingInputGenerator[input_info.length];
         for (int a = 0; a < input_info.length; a++) {
-            solving_inputs[input_info[a].uid()] = new ScSolvingInputGenerator(
-                    al, log_type, input_info[a]);
+            solving_inputs[input_info[a].uid()] =
+                    new ScSolvingInputGenerator(al, log_type, input_info[a]);
         }
     }
 
@@ -37,23 +39,14 @@ public class ScInputConf implements Cloneable {
     protected ScInputConf() {
     }
 
-    @Override
-    protected ScInputConf clone() {
-        ScInputConf result = new ScInputConf();
-        result.solving_inputs = new ScSolvingInputGenerator[solving_inputs.length];
-        for (int a = 0; a < solving_inputs.length; a++) {
-            result.solving_inputs[a] = solving_inputs[a].clone();
-        }
-        return result;
-    }
-
     public void add_input(int uid, int v) {
         solving_inputs[uid].addInput(v);
     }
 
     /** copies synthesized inputs to fixed inputs. result is threadsafe / unique */
     public ScFixedInputGenerator[] fixed_inputs() {
-        ScFixedInputGenerator[] result = new ScFixedInputGenerator[solving_inputs.length];
+        ScFixedInputGenerator[] result =
+                new ScFixedInputGenerator[solving_inputs.length];
         for (int a = 0; a < solving_inputs.length; a++) {
             result[a] = solving_inputs[a].createFixedInput();
         }
@@ -76,5 +69,15 @@ public class ScInputConf implements Cloneable {
 
     public void reset_accessed(int uid, int subuid) {
         solving_inputs[uid].reset_accessed(subuid);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void copy_from(ScInputConf oracleInputs) {
+        for (int a = 0; a < oracleInputs.solving_inputs.length; a++) {
+            solving_inputs[a].next = oracleInputs.solving_inputs[a].next;
+            solving_inputs[a].values =
+                    (Vector<Integer>) oracleInputs.solving_inputs[a].values
+                            .clone();
+        }
     }
 }

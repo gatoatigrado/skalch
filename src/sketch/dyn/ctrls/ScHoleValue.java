@@ -9,8 +9,4 @@ package sketch.dyn.ctrls;
  */
 public abstract class ScHoleValue {
     public abstract int get_value();
-
-    public static final int ZERO_INIT = 0;
-    public static final int RANDOM_INIT = 1;
-    public int newValuePolicy = ZERO_INIT;
 }

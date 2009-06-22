@@ -47,13 +47,6 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
         return new ScFixedInputGenerator(result_values, overflow_oblivious);
     }
 
-    public ScSolvingInputGenerator clone() {
-        ScSolvingInputGenerator result = new ScSolvingInputGenerator(al,
-                log_type, info);
-        result.values.addAll(values);
-        return result;
-    }
-
     @Override
     public int next_value() {
         if (next >= values.size()) {

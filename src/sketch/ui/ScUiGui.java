@@ -6,6 +6,7 @@ import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScLocalStackSynthesis.SynthesisThread;
+import sketch.util.DebugOut;
 
 /**
  * kinda because I can't resist using Eclipse's formatter (it also separates
@@ -58,6 +59,7 @@ public class ScUiGui extends gui_0_1 {
 
             @Override
             public void apply() {
+                DebugOut.print("apply...");
                 debugOutEditor.setText("hello world from StackModifier;"
                         + " stack = " + my_stack.toString());
             }
@@ -69,8 +71,8 @@ public class ScUiGui extends gui_0_1 {
         }
 
         @Override
-        public ScUiModifier dispatch() {
-            return new Modifier();
+        public void dispatch() {
+            (new Modifier()).enqueueTo(local_ssr);
         }
     }
 

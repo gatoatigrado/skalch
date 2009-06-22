@@ -49,8 +49,9 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         synthesis_result = null;
 
         // really basic stuff for now
-        DebugOut.assert_(thread == null || !thread.isAlive(),
-                "localsynthesis thead alive");
+        if (thread != null && thread.isAlive()) {
+            DebugOut.assertFalse("localsynthesis thead alive");
+        }
         thread = new SynthesisThread();
         thread.start();
     }
@@ -59,7 +60,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         try {
             thread.join();
         } catch (InterruptedException e) {
-            DebugOut.assert_(false, "interrupted waiting for ScLocalSynthesis");
+            DebugOut.assertFalse("interrupted waiting for ScLocalSynthesis");
         }
     }
 

@@ -87,12 +87,17 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
 
     /** called after the stack is popped */
     public void reset_accessed(int subuid) {
-        DebugOut.assert_(next == values.size(), "i think this is correct...",
-                next, values.size());
+        // TODO - remove asserts and next -= 1
+        if (next != values.size()) {
+            DebugOut.assertFalse("i think this is correct...", next, values
+                    .size());
+        }
         next -= 1; // N.B. - for asserts ONLY!!! next := 0 from reset_index()
-        DebugOut.assert_(subuid == next,
-                "ScSolvingInputGenerator - bad value to pop from stack",
-                subuid, next);
+        if (subuid != next) {
+            DebugOut.assertFalse(
+                    "ScSolvingInputGenerator - bad value to pop from stack",
+                    subuid, next);
+        }
 
         values.remove(subuid);
     }

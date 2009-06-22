@@ -43,20 +43,22 @@ public abstract class ScTestGenerator {
 
     // === scala-side interfaces ===
     public void test_case(Object... args) {
-        DebugOut.assert_(set_method != null, "    [test generator] "
-                + "please provide a method set([emit_test_case_args])");
+        if (set_method == null) {
+            DebugOut.assertFalse("    [test generator] "
+                    + "please provide a method set([emit_test_case_args])");
+        }
         current_config = new ScInputConf(input_info, null, 0);
         try {
             set_method.invoke(this, args);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            DebugOut.assert_(false);
+            DebugOut.assertFalse();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            DebugOut.assert_(false);
+            DebugOut.assertFalse();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-            DebugOut.assert_(false);
+            DebugOut.assertFalse();
         }
         inputs.add(current_config);
         current_config = null;

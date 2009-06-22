@@ -26,7 +26,9 @@ public class ScLocalPrefix extends ScPrefix {
 
     @Override
     public ScPrefix get_parent(ScPrefixSearch search) {
-        DebugOut.assert_(nlinks_to_shared >= 1, "dummy assert");
+        if (nlinks_to_shared < 1) {
+            DebugOut.assertFalse("dummy assert");
+        }
         if (nlinks_to_shared == 1) {
             return base_prefix;
         } else {
@@ -47,7 +49,7 @@ public class ScLocalPrefix extends ScPrefix {
 
     @Override
     public int next_value(ScPrefixSearch search) {
-        DebugOut.assert_(false, "don't call next value with local searches!");
+        DebugOut.assertFalse("don't call next value with local searches!");
         return 0;
     }
 }

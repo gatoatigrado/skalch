@@ -1,6 +1,8 @@
 package sketch.dyn.synth;
 
 import sketch.util.DebugOut;
+import sketch.util.ObjectFactory;
+import sketch.util.ScCloneable;
 
 /**
  * An entry of ScStack, contains fields to index holes or inputs.
@@ -9,7 +11,7 @@ import sketch.util.DebugOut;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public final class ScStackEntry {
+public final class ScStackEntry implements ScCloneable<ScStackEntry> {
     public int type = -1;
     public int uid;
     public int subuid;
@@ -28,8 +30,9 @@ public final class ScStackEntry {
         } else if (type == ScStack.SYNTH_HOLE_LOG_TYPE) {
             return "hole " + uid;
         } else {
-            DebugOut.assert_(type == ScStack.SYNTH_ORACLE_LOG_TYPE,
-                    "ScStackEntry - unknown type");
+            if (type != ScStack.SYNTH_ORACLE_LOG_TYPE) {
+                DebugOut.assertFalse("ScStackEntry - unknown type");
+            }
             return "oracle " + uid + "[" + subuid + "]";
         }
     }
@@ -44,5 +47,16 @@ public final class ScStackEntry {
         this.type = type;
         this.uid = uid;
         this.subuid = subuid;
+    }
+
+    public ScStackEntry clone() {
+        return new ScStackEntry(type, uid, subuid);
+    }
+
+    public static class Factory extends ObjectFactory<ScStackEntry> {
+        @Override
+        public ScStackEntry create() {
+            return new ScStackEntry();
+        }
     }
 }

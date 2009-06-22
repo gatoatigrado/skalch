@@ -12,18 +12,26 @@ public class OptionResult {
     public OptionResult(CliOptGroup options, CliParser parser) {
         this.options = options;
         this.parser = parser;
-        DebugOut.assert_(options != null && parser != null);
+        if (options == null || parser == null) {
+            DebugOut.assertFalse();
+        }
         this.cached_results = new HashMap<String, Object>();
     }
 
     protected Object get_value(String name) {
         parser.parse();
-        DebugOut.assert_(cached_results != null);
+        if (cached_results == null) {
+            DebugOut.assertFalse();
+        }
         Object result = cached_results.get(name);
         if (result == null) {
-            DebugOut.assert_(options.opt_set != null);
+            if (options.opt_set == null) {
+                DebugOut.assertFalse();
+            }
             CmdOption opt = options.opt_set.get(name);
-            DebugOut.assert_(opt != null, "invalid name", name);
+            if (opt == null) {
+                DebugOut.assertFalse("invalid name", name);
+            }
             result = opt.parse(parser.cmd_line);
             cached_results.put(name, result);
         }

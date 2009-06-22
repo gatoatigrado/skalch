@@ -1,7 +1,6 @@
 package sketch.dyn.synth;
 
 import java.util.EmptyStackException;
-import java.util.Stack;
 
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ScDynamicSketch;
@@ -11,6 +10,7 @@ import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
 import sketch.dyn.prefix.ScPrefixSearch;
 import sketch.util.DebugOut;
+import sketch.util.FactoryStack;
 import sketch.util.RichString;
 
 /**
@@ -32,7 +32,7 @@ import sketch.util.RichString;
 public class ScStack extends ScPrefixSearch {
     protected ScCtrlConf ctrls;
     protected ScInputConf oracle_inputs;
-    protected Stack<ScStackEntry> stack = new Stack<ScStackEntry>();
+    protected FactoryStack<ScStackEntry> stack;
     protected int added_entries = 0;
     protected boolean first_run = true;
     protected ScConstructInfo[] ctrl_info, oracle_info;
@@ -45,6 +45,9 @@ public class ScStack extends ScPrefixSearch {
     {
         this.ctrl_info = ctrl_info.clone();
         this.oracle_info = oracle_info.clone();
+        this.stack =
+                new FactoryStack<ScStackEntry>(ctrl_info.length + 16
+                        * oracle_info.length, new ScStackEntry.Factory());
         ctrls = new ScCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);
         oracle_inputs =
                 new ScInputConf(oracle_info, this, SYNTH_ORACLE_LOG_TYPE);
@@ -75,8 +78,9 @@ public class ScStack extends ScPrefixSearch {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
             return ctrls.set(ent.uid, v);
         } else {
-            DebugOut.assert_(ent.type == SYNTH_ORACLE_LOG_TYPE,
-                    "uknown stack entry type", ent.type);
+            if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
+                DebugOut.assertFalse("uknown stack entry type", ent.type);
+            }
             return oracle_inputs.set(ent.uid, ent.subuid, v);
         }
     }
@@ -85,8 +89,9 @@ public class ScStack extends ScPrefixSearch {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
             return ctrls.get(ent.uid);
         } else {
-            DebugOut.assert_(ent.type == SYNTH_ORACLE_LOG_TYPE,
-                    "uknown stack entry type", ent.type);
+            if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
+                DebugOut.assertFalse("uknown stack entry type", ent.type);
+            }
             return oracle_inputs.get(ent.uid, ent.subuid);
         }
     }
@@ -147,19 +152,19 @@ public class ScStack extends ScPrefixSearch {
     }
 
     public void add_entry(int type, int uid, int subuid) {
-        stack.add(new ScStackEntry(type, uid, subuid));
+        stack.push().set(type, uid, subuid);
         added_entries += 1;
     }
 
-    @SuppressWarnings("unchecked")
     public ScStack clone() {
         ScStack result = new ScStack(ctrl_info, oracle_info, current_prefix);
-        DebugOut.assert_(added_entries == 0,
-                "please run next() before cloning.");
+        if (added_entries != 0) {
+            DebugOut.assertFalse("please run next() before cloning.");
+        }
         result.ctrls.copy_from(this.ctrls);
         result.oracle_inputs.copy_from(this.oracle_inputs);
         // ScStackEntry types don't explicitly link to holes or oracles.
-        result.stack = (Stack<ScStackEntry>) this.stack.clone();
+        result.stack = this.stack.clone();
         result.first_run = this.first_run;
         return result;
     }

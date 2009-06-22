@@ -23,8 +23,9 @@ public class DebugOut {
     public final static String BASH_LIGHT_BLUE = "1;34";
     /** don't use BASH_BLACK for people using black-background terminals */
     public final static String BASH_DEFAULT = "0";
-    public final static boolean is_interactive = (System.getenv("SHELL") != null)
-            && (System.getenv("SHELL").contains("sh"));
+    public final static boolean is_interactive =
+            (System.getenv("SHELL") != null)
+                    && (System.getenv("SHELL").contains("sh"));
 
     public static void print_colored(String color, String prefix, String sep,
             boolean nice_arrays, Object... text)
@@ -56,20 +57,18 @@ public class DebugOut {
                 + Thread.currentThread().getId() + "]", " ", false, text);
     }
 
-    public static void assert_(boolean truth, Object... description) {
-        if (!truth) {
-            print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
-                    description);
-            assert (false);
-            throw new java.lang.IllegalStateException("please enable asserts.");
-        }
+    public static void assertFalse(Object... description) {
+        print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
+                description);
+        assert (false);
+        throw new java.lang.IllegalStateException("please enable asserts.");
     }
 
     public static void not_implemented(Object... what) {
         Object[] what_prefixed = new Object[what.length + 1];
         what_prefixed[0] = "Not implemented -";
         System.arraycopy(what, 0, what_prefixed, 1, what.length);
-        assert_(false, what_prefixed);
+        assertFalse(what_prefixed);
     }
 
     public static void todo(Object... what) {
@@ -90,6 +89,7 @@ public class DebugOut {
         }
     }
 
-    protected static ThreadIndentation thread_indentation = new ThreadIndentation();
+    protected static ThreadIndentation thread_indentation =
+            new ThreadIndentation();
 
 }

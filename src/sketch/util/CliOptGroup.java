@@ -5,8 +5,17 @@ import java.util.HashMap;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+/**
+ * a group of options. subclasses are initialized by making calls in the
+ * constructor; see e.g. ScSynthesisOptions for an example.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public abstract class CliOptGroup {
-    protected HashMap<String, CmdOption> opt_set = new HashMap<String, CmdOption>();
+    protected HashMap<String, CmdOption> opt_set =
+            new HashMap<String, CmdOption>();
     protected String[] prefixes;
 
     public void prefixes(String... prefixes) {
@@ -30,8 +39,10 @@ public abstract class CliOptGroup {
                             opt.default_ = null;
                         }
                     }
-                    DebugOut.assert_(opt.name_ == null, "name already exists",
-                            opt, options);
+                    if (opt.name_ != null) {
+                        DebugOut.assertFalse("name already exists", opt,
+                                options);
+                    }
                     opt.name_ = as_str.substring(2);
                 } else if (opt.help_ == null) {
                     opt.help_ = as_str;
@@ -50,13 +61,18 @@ public abstract class CliOptGroup {
                 opt.default_ = ent;
             }
         }
-        DebugOut.assert_(opt.name_ != null, "no name given", options);
-        DebugOut.assert_(opt.default_ == null
-                || opt.type_.isAssignableFrom(opt.default_.getClass()),
-                "default value", opt.default_, "doesn't match type", opt.type_,
-                "; options", options);
-        DebugOut.assert_(opt_set.put(opt.name_, opt) == null,
-                "already contained option", opt);
+        if (opt.name_ == null) {
+            DebugOut.assertFalse("no name given", options);
+        }
+        if (opt.default_ != null
+                && !opt.type_.isAssignableFrom(opt.default_.getClass()))
+        {
+            DebugOut.assertFalse("default value", opt.default_,
+                    "doesn't match type", opt.type_, "; options", options);
+        }
+        if (opt_set.put(opt.name_, opt) != null) {
+            DebugOut.assertFalse("already contained option", opt);
+        }
     }
 
     protected final static class CmdOption {
@@ -106,8 +122,9 @@ public abstract class CliOptGroup {
             } else if (type_.equals(Float.class)) {
                 return Float.parseFloat(v);
             } else {
-                DebugOut.assert_(type_.equals(String.class),
-                        "can't parse type ", type_);
+                if (!type_.equals(String.class)) {
+                    DebugOut.assertFalse("can't parse type ", type_);
+                }
                 return v;
             }
         }

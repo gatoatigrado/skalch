@@ -30,8 +30,9 @@ public class ScPrefixSearchManager<SearchType extends ScPrefixSearch> {
 
     public void add_prefix(ScSubtreePrefix prefix) {
         DebugOut.not_implemented("add_prefix");
-        DebugOut.assert_(prefix.explicit_prefix != null,
-                "must have explicit prefix for cloning");
+        if (prefix.explicit_prefix == null) {
+            DebugOut.assertFalse("must have explicit prefix for cloning");
+        }
         active_prefixes.add(prefix);
     }
 

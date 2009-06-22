@@ -55,8 +55,10 @@ public final class ScSSRHoleValue extends ScHoleValue {
     }
 
     public void reset_accessed() {
-        DebugOut.assert_(accessed,
-                "ScSSRHoleValue - bad value to pop from stack");
+        if (!accessed) {
+            DebugOut
+                    .assertFalse("ScSSRHoleValue - bad value to pop from stack");
+        }
         accessed = false;
     }
 }

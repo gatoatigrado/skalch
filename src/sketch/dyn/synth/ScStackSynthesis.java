@@ -101,7 +101,7 @@ public class ScStackSynthesis {
                 wait.acquire();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                DebugOut.assert_(false, "don't interrupt threads.");
+                DebugOut.assertFalse("don't interrupt threads.");
             }
             DebugOut.print_mt("done waiting");
         }

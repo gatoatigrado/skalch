@@ -83,7 +83,7 @@ class Compiler(object):
     def run_app_(self):
         if self.run_app:
             # scala bug - `scala` doesn't work here
-            self.run(["java"] + [opt %(self.__dict__) for opt in self.java_option] + ["-classpath",
+            self.run([self.javacmd] + [opt %(self.__dict__) for opt in self.java_option] + ["-classpath",
                 "%s:%s" %(self.classpath, self.out_path), self.run_app] +
                 [opt %(self.__dict__) for opt in self.run_option], save_output=False)
 

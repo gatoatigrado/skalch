@@ -62,13 +62,13 @@ public abstract class ScUiModifier {
     public void setInfoInner(ScLocalStackSynthesis local_synth,
             ScLocalStackSynthesis.SynthesisThread synth_thread, ScStack stack)
     {
-        DebugOut.assert_(false, "don't append UIModifiers to objects "
+        DebugOut.assertFalse("don't append UIModifiers to objects "
                 + "they don't have a setInfoInner() for");
     }
 
     /** make sure to make this method threadsafe! */
     public void setInfoInner(ScStats stats) {
-        DebugOut.assert_(false, "don't append UIModifiers to objects "
+        DebugOut.assertFalse("don't append UIModifiers to objects "
                 + "they don't have a setInfoInner() for");
     }
 }

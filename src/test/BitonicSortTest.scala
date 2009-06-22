@@ -13,26 +13,50 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
 
     val swap_first_idx = hole_array(num=nsteps, untilv=tg_array_length)
     val swap_second_idx = hole_array(num=nsteps, untilv=tg_array_length)
+    val in_arr = new Array[Int](tg_array_length)
 
     def dysketch_main() = {
         val array_len : Int = in_lengths()
-        val in = (for (i <- 0 until array_len) yield in_values()).toArray
-        // print("input array", in.toString)
-        for (a <- 0 until nsteps) {
-            // NOTE / ntung - if the hole array is null, then it will just throw an exception,
-            // which is caught. This is probably not desirable. The compiler should track
-            // which indices are synthesized with holes, and then only allow those to throw exceptions
-            val first_swap : Int = swap_first_idx(a)()
-            val second_swap : Int = swap_second_idx(a)()
-            // print("step " + a + ", swap (" + first_swap + ", " + second_swap + ")")
-            if (in(second_swap) < in(first_swap)) {
-                val tmp = in(first_swap)
-                in(first_swap) = in(second_swap)
-                in(second_swap) = tmp
+
+        // scala efficiency
+//         val in_arr : Array[Int] = new Array[Int](array_len)
+        {
+            var i = 0
+            while (i < array_len) {
+                in_arr(i) = in_values() : Int
+                i += 1
             }
         }
-        // print("sorted array", in.toString)
-        for (a <- 0 until (array_len - 1)) synthAssertTerminal(in(a) <= in(a + 1))
+        //val in_arr = (for (i <- 0 until array_len) yield in_values()).toArray
+
+        // print("input array", in_arr.toString)
+        {
+            var a = 0
+            while (a < nsteps) {
+//         for (a <- 0 until nsteps) {
+                // NOTE / ntung - if the hole array is null, then it will just throw an exception,
+                // which is caught. This is probably not desirable. The compiler should track
+                // which indices are synthesized with holes, and then only allow those to throw exceptions
+                val first_swap : Int = swap_first_idx(a)()
+                val second_swap : Int = swap_second_idx(a)()
+                // print("step " + a + ", swap (" + first_swap + ", " + second_swap + ")")
+                if (in_arr(second_swap) < in_arr(first_swap)) {
+                    val tmp = in_arr(first_swap)
+                    in_arr(first_swap) = in_arr(second_swap)
+                    in_arr(second_swap) = tmp
+                }
+                a += 1
+            }
+        }
+        // print("sorted array", in_arr.toString)
+        {
+            var a = 0
+            while (a < array_len - 1) {
+                synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
+                a += 1
+            }
+        }
+//         for (a <- 0 until (array_len - 1)) synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
         true
     }
 

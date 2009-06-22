@@ -46,7 +46,7 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
                 System.exit(1); // @code standards ignore
             }
         } catch (org.apache.commons.cli.ParseException e) {
-            DebugOut.assert_(false, e.getMessage());
+            DebugOut.assertFalse(e.getMessage());
         }
     }
 }

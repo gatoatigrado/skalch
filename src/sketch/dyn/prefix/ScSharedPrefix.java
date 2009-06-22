@@ -49,8 +49,9 @@ public class ScSharedPrefix extends ScPrefix {
 
     @Override
     public ScPrefix add_entries(int added_entries) {
-        DebugOut.assert_(added_entries > 0,
-                "scsharedprefix - added entries is zero");
+        if (added_entries <= 0) {
+            DebugOut.assertFalse("scsharedprefix - added entries is zero");
+        }
         return new ScLocalPrefix(added_entries, this);
     }
 }

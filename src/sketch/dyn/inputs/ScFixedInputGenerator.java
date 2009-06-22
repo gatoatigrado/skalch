@@ -27,8 +27,10 @@ public class ScFixedInputGenerator extends ScInputGenerator {
     @Override
     public int next_value() {
         if (next >= values.length) {
-            DebugOut.assert_(overflow_oblivious,
-                    "fixed input generator exceeding length", values.length);
+            if (!overflow_oblivious) {
+                DebugOut.assertFalse("fixed input generator exceeding length",
+                        values.length);
+            }
             DebugOut.print("fixed input generator exceeding length...", next,
                     values.length);
             return 0;

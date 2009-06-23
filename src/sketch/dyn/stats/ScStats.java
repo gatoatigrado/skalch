@@ -37,22 +37,6 @@ public abstract class ScStats {
     /** called before a specific counterexample is run */
     public abstract void try_counterexample();
 
-    public static void print_if_enabled() {
-        if (stats != null && stats.is_null() == false) {
-            float synth_time = ((float) stats.get_synthesis_time()) / 1000.f;
-            float ncouterexamples = stats.num_try_counterexample();
-            float ntests = stats.num_run_test();
-            float tests_per_sec = ntests / synth_time;
-            DebugOut
-                    .print_colored(DebugOut.BASH_SALMON, "[stats] ", "\n",
-                            false, "=== statistics ===", "num tests run: "
-                                    + ntests, "    num counterexamples run: "
-                                    + ncouterexamples, "time taken: "
-                                    + synth_time, "runs / sec: "
-                                    + tests_per_sec);
-        }
-    }
-
     public abstract void start_synthesis();
 
     public abstract void stop_synthesis();

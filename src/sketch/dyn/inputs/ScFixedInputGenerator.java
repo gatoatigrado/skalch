@@ -20,6 +20,16 @@ public class ScFixedInputGenerator extends ScInputGenerator {
         this.overflow_oblivious = overflow_oblivious;
     }
 
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (int v : values) {
+            result *= 344;
+            result += v;
+        }
+        return result;
+    }
+
     public void reset_index() {
         next = 0;
     }

@@ -1,5 +1,6 @@
 package sketch.util;
 
+import java.util.EmptyStackException;
 import java.util.Iterator;
 
 /**
@@ -50,6 +51,9 @@ public class FactoryStack<T extends ScCloneable<T>> implements Iterable<T> {
 
     @SuppressWarnings("unchecked")
     public T peek() {
+        if (next == 0) {
+            throw new EmptyStackException();
+        }
         return (T) array[next - 1];
     }
 

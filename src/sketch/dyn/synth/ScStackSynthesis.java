@@ -30,12 +30,10 @@ public class ScStackSynthesis {
     protected ScInputConf oracle_inputs;
     protected ScUserInterface ui;
     protected int nsolutions_found = 0;
-
     // command line options
     protected int nsolutions_to_find;
     protected int debug_stop_after;
     protected boolean print_exceptions;
-
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
     public ExhaustedWaitHandler wait_handler;
@@ -51,10 +49,8 @@ public class ScStackSynthesis {
         ScStack stack =
                 new ScStack(sketches[0].get_hole_info(), sketches[0]
                         .get_oracle_input_list(), prefix);
-
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
-
         // command line options
         nsolutions_to_find = BackendOptions.synth_opts.int_("num_solutions");
         print_exceptions = BackendOptions.synth_opts.bool_("print_exceptions");
@@ -64,6 +60,7 @@ public class ScStackSynthesis {
     public boolean synthesize(ScInputConf[] counterexamples, ScUserInterface ui)
     {
         this.ui = ui;
+        this.ui.set_counterexamples(counterexamples);
         wait_handler = new ExhaustedWaitHandler();
         for (ScLocalStackSynthesis local_synth : local_synthesis) {
             ui.addStackSynthesis(local_synth);

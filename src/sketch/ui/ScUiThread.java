@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
+import sketch.dyn.inputs.ScCounterexample;
+import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScStackSynthesis;
@@ -94,9 +96,21 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         final ScUiThread target = this;
         new RunnableModifier(new Runnable() {
             public void run() {
-                ScUiGui gui = target.gui;
-                new ScSolutionStack(target, gui.synthCompletions, stack_to_add)
-                        .add();
+                new ScSolutionStack(target, target.gui.synthCompletions,
+                        stack_to_add).add();
+            }
+        }).add();
+    }
+
+    public void set_counterexamples(ScInputConf[] inputs) {
+        final ScCounterexample[] counterexamples =
+                ScCounterexample.from_inputs(inputs);
+        final ScUiThread target = this;
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                for (ScCounterexample elt : counterexamples) {
+                    target.gui.inputChoices.add(elt);
+                }
             }
         }).add();
     }

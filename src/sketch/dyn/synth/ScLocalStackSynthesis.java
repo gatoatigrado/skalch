@@ -3,8 +3,6 @@ package sketch.dyn.synth;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import ec.util.ThreadLocalMT;
-
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
@@ -15,7 +13,7 @@ import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
-import sketch.util.Profiler;
+import ec.util.ThreadLocalMT;
 
 /**
  * Container for a synthesis thread. The actual thread is an inner class because
@@ -50,14 +48,10 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     public void run(ScInputConf[] inputs) {
         // need to clone these as the ScFixedInputGenerators have sketch-local
         // indices
-        counterexamples = new ScCounterexample[inputs.length];
-        for (int a = 0; a < inputs.length; a++) {
-            counterexamples[a] = new ScCounterexample(inputs[a].fixed_inputs());
-        }
+        counterexamples = ScCounterexample.from_inputs(inputs);
         synthesis_result = null;
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
         done_events.reset();
-
         // really basic stuff for now
         if (thread != null && thread.isAlive()) {
             DebugOut.assertFalse("localsynthesis thead alive");
@@ -80,7 +74,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     public class SynthesisThread extends Thread {
         ScStack stack;
         boolean exhausted = false;
-        Profiler prof;
         public float replacement_probability = 1.f;
 
         /** @returns true if exhausted (need to wait) */
@@ -90,7 +83,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 // trycatch doesn't seem slow.
                 trycatch: try {
                     ScStats.stats.run_test();
-                    // prof.set_event(Profiler.ProfileEvent.SynthesisStart);
                     // DebugOut.print_mt("running test");
                     for (ScCounterexample counterexample : counterexamples) {
                         ScStats.stats.try_counterexample();
@@ -99,7 +91,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                             break trycatch;
                         }
                     }
-                    // prof.set_event(Profiler.ProfileEvent.SynthesisComplete);
                     DebugOut.print_mt("solution string <<<", sketch
                             .solution_str(), ">>>");
                     ssr.add_solution(stack);
@@ -109,10 +100,8 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                         e.printStackTrace();
                     }
                 }
-
                 // advance the stack (whether it succeeded or not)
                 try {
-                    // prof.set_event(Profiler.ProfileEvent.StackNext);
                     if (longest_stack == null
                             || longest_stack.stack.size() < stack.stack.size())
                     {
@@ -132,7 +121,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         }
 
         public void run_inner() {
-            stack = (ScStack) ssr.search_manager.clone_default_search();
+            stack = ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
             for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
                     NUM_BLIND_FAST)
@@ -157,8 +146,8 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         }
 
         /** doc in images/scala/synth_loop/ */
+        @Override
         public void run() {
-            prof = Profiler.profiler.get();
             try {
                 run_inner();
             } catch (ScSynthesisCompleteException e) {

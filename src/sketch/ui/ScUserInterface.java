@@ -1,5 +1,6 @@
 package sketch.ui;
 
+import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.modifiers.ScUiModifier;
@@ -19,4 +20,6 @@ public interface ScUserInterface {
     public void addStackSynthesis(ScLocalStackSynthesis local_ssr);
 
     public void addSolution(ScStack stack);
+
+    public void set_counterexamples(ScInputConf[] inputs);
 }

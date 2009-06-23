@@ -5,8 +5,6 @@ import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
-import sketch.util.DebugOut;
-import sketch.util.Profiler;
 
 /**
  * Where everything begins.
@@ -32,7 +30,6 @@ public class ScSynthesis {
         BackendOptions.initialize_defaults();
         ScStats.initialize();
         nthreads = BackendOptions.synth_opts.int_("num_threads");
-
         // initialize ssr
         sketches = new ScDynamicSketch[nthreads];
         for (int a = 0; a < nthreads; a++) {
@@ -41,31 +38,21 @@ public class ScSynthesis {
         ssr = new ScStackSynthesis(sketches);
     }
 
-    public void synthesize() {
-        ScTestGenerator tg = sketches[0].test_generator();
+    protected ScInputConf[] generate_inputs(ScDynamicSketch sketch) {
+        ScTestGenerator tg = sketch.test_generator();
         tg.init(sketches[0].get_input_info());
         tg.tests();
-        ScInputConf[] inputs = tg.get_inputs();
-        if (BackendOptions.synth_opts.bool_("print_counterexamples")) {
-            Object[] text = { "counterexamples", inputs };
-            DebugOut.print_colored(DebugOut.BASH_GREEN,
-                    "[user requested print]", "\n", true, text);
-        }
+        return tg.get_inputs();
+    }
 
+    public void synthesize() {
+        ScInputConf[] inputs = generate_inputs(sketches[0]);
         // start various utilities
         ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr);
-        Profiler.start_monitor();
         ScStats.stats.start_synthesis();
-
         // actual synthesize call
         ssr.synthesize(inputs, ui);
-
         // stop utilities
         ScStats.stats.stop_synthesis();
-        Profiler.stop_monitor();
-        ScStats.print_if_enabled();
-
-        // don't do this upon completion, but the api is available
-        // ScUiThread.stop_ui();
     }
 }

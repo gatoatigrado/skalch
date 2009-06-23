@@ -1,5 +1,7 @@
 package sketch.ui;
 
+import sketch.dyn.BackendOptions;
+import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.modifiers.ScUiModifier;
@@ -28,5 +30,13 @@ public class ScDebugConsoleUI implements ScUserInterface {
 
     public void addSolution(ScStack stack) {
         DebugOut.print_mt("solution with stack", stack);
+    }
+
+    public void set_counterexamples(ScInputConf[] inputs) {
+        if (BackendOptions.synth_opts.bool_("print_counterexamples")) {
+            Object[] text = { "counterexamples", inputs };
+            DebugOut.print_colored(DebugOut.BASH_GREEN,
+                    "[user requested print]", "\n", true, text);
+        }
     }
 }

@@ -40,7 +40,6 @@
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="synthCompletionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Group type="103" alignment="0" groupAlignment="1" attributes="0">
                                           <Group type="102" alignment="0" attributes="1">
                                               <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
@@ -50,6 +49,7 @@
                                           <Component id="selectInputPane" alignment="0" pref="315" max="32767" attributes="3"/>
                                           <Component id="synthCompletionPane" alignment="0" pref="315" max="32767" attributes="3"/>
                                       </Group>
+                                      <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>

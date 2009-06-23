@@ -3,7 +3,7 @@ package test
 import ec.util.ThreadLocalMT
 import skalch.DynamicSketch
 
-import sketch.dyn.ScSourceLocation
+import sketch.dyn.sourcecode.ScSourceLocation
 import sketch.dyn.ctrls.ScCtrlSourceInfo
 import sketch.dyn.BackendOptions
 import sketch.util._
@@ -22,7 +22,6 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
         val array_len : Int = in_lengths()
 
         // scala efficiency
-//         val in_arr : Array[Int] = new Array[Int](array_len)
         {
             var i = 0
             while (i < array_len) {
@@ -79,8 +78,8 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
     {
         val filename = "/home/gatoatigrado/sandbox/eclipse/skalch/src/test/BitonicSortTest.scala"
         val line_num = (line : Int) => new ScSourceLocation(filename, line)
-        addHoleSourceInfo(new ScCtrlSourceInfo(swap_first_idx, line_num(40)))
-        addHoleSourceInfo(new ScCtrlSourceInfo(swap_second_idx, line_num(41)))
+        addHoleSourceInfo(new ScCtrlSourceInfo(swap_first_idx, line_num(42)))
+        addHoleSourceInfo(new ScCtrlSourceInfo(swap_second_idx, line_num(43)))
     }
 }
 

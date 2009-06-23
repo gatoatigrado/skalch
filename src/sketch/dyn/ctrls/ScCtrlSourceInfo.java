@@ -1,6 +1,6 @@
 package sketch.dyn.ctrls;
 
-import sketch.dyn.ScSourceLocation;
+import sketch.ui.sourcecode.ScSourceLocation;
 
 /**
  * location of a rich construct in the source
@@ -9,7 +9,7 @@ import sketch.dyn.ScSourceLocation;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScCtrlSourceInfo {
+public class ScCtrlSourceInfo implements Comparable<ScCtrlSourceInfo> {
     public ScCtrlConstructInfo info;
     public ScSourceLocation src_loc;
 
@@ -17,5 +17,14 @@ public class ScCtrlSourceInfo {
     {
         this.info = info;
         this.src_loc = src_loc;
+    }
+
+    @Override
+    public String toString() {
+        return src_loc.toString();
+    }
+
+    public int compareTo(ScCtrlSourceInfo o) {
+        return src_loc.compareTo(o.src_loc);
     }
 }

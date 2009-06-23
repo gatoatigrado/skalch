@@ -6,13 +6,17 @@ import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.gui.ScUiThread;
 
 public class ScSolutionStack extends ScModifierDispatcher {
-    protected ScStack stack;
+    protected ScStack my_stack;
 
+    /**
+     * @param stack
+     *            already cloned stack
+     */
     public ScSolutionStack(ScUiThread uiThread,
             ScUiList<ScModifierDispatcher> list, ScStack stack)
     {
         super(uiThread, list);
-        this.stack = stack;
+        my_stack = stack;
     }
 
     @Override
@@ -23,8 +27,7 @@ public class ScSolutionStack extends ScModifierDispatcher {
     public class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.debugOutEditor.setText("solution with stack "
-                    + stack.toString());
+            ui_thread.gui.fillWithStack(my_stack);
         }
     }
 
@@ -35,6 +38,11 @@ public class ScSolutionStack extends ScModifierDispatcher {
 
     @Override
     public String toString() {
-        return "solution " + stack.hashCode();
+        return "solution " + my_stack.hashCode();
+    }
+
+    @Override
+    public boolean isAcceptable() {
+        return true;
     }
 }

@@ -6,6 +6,7 @@ import sketch.dyn.ctrls.ScCtrlSourceInfo;
 import sketch.dyn.ctrls.ScHoleValue;
 import sketch.dyn.inputs.ScInputGenerator;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.util.DebugOut;
 import sketch.util.RichString;
 

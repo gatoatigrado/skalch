@@ -1,4 +1,6 @@
-package sketch.dyn;
+package sketch.ui.sourcecode;
+
+import sketch.dyn.ctrls.ScCtrlSourceInfo;
 
 /**
  * visitor which will e.g. print a string corresponding to a source location
@@ -8,5 +10,11 @@ package sketch.dyn;
  *          make changes, please consider contributing back!
  */
 public abstract class ScSourceLocationVisitor {
-    public abstract void visit(ScSourceLocation location);
+    public String visitCode(ScSourceLocation location) {
+        return ScSourceCache.singleton().getSourceString(location);
+    }
+
+    public String visitHoleInfo(ScCtrlSourceInfo ctrl_src_info) {
+        return ScSourceCache.singleton().getSourceString(ctrl_src_info.src_loc);
+    }
 }

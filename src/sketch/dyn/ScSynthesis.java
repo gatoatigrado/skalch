@@ -16,6 +16,7 @@ import sketch.ui.ScUserInterfaceManager;
 public class ScSynthesis {
     protected int nthreads;
     protected ScDynamicSketch[] sketches;
+    protected ScDynamicSketch ui_sketch;
     protected ScStackSynthesis ssr;
 
     /**
@@ -35,6 +36,7 @@ public class ScSynthesis {
         for (int a = 0; a < nthreads; a++) {
             sketches[a] = f.apply();
         }
+        ui_sketch = f.apply();
         ssr = new ScStackSynthesis(sketches);
     }
 
@@ -46,9 +48,10 @@ public class ScSynthesis {
     }
 
     public void synthesize() {
-        ScInputConf[] inputs = generate_inputs(sketches[0]);
+        ScInputConf[] inputs = generate_inputs(ui_sketch);
         // start various utilities
-        ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr);
+        ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr, ui_sketch);
+        ui.set_counterexamples(inputs);
         ScStats.stats.start_synthesis();
         // actual synthesize call
         ssr.synthesize(inputs, ui);

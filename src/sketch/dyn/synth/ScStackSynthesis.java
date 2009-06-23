@@ -60,7 +60,6 @@ public class ScStackSynthesis {
     public boolean synthesize(ScInputConf[] counterexamples, ScUserInterface ui)
     {
         this.ui = ui;
-        this.ui.set_counterexamples(counterexamples);
         wait_handler = new ExhaustedWaitHandler();
         for (ScLocalStackSynthesis local_synth : local_synthesis) {
             ui.addStackSynthesis(local_synth);

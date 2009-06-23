@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
 
-import sketch.dyn.BackendOptions;
+import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
@@ -29,7 +29,8 @@ import sketch.util.InteractiveThread;
  *          make changes, please consider contributing back!
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
-    protected ScStackSynthesis ssr;
+    public ScStackSynthesis ssr;
+    public ScDynamicSketch sketch;
     public ScUiGui gui;
     public AtomicInteger modifier_timestamp = new AtomicInteger(0);
     static ConcurrentLinkedQueue<ScUiThread> gui_list =
@@ -37,9 +38,10 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     static ConcurrentLinkedQueue<ScUiModifier> modifier_list =
             new ConcurrentLinkedQueue<ScUiModifier>();
 
-    public ScUiThread(ScStackSynthesis ssr) {
+    public ScUiThread(ScStackSynthesis ssr, ScDynamicSketch sketch) {
         super(0.1f);
         this.ssr = ssr;
+        this.sketch = sketch;
         gui_list.add(this);
     }
 
@@ -65,14 +67,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public void finish() {
         gui.setVisible(false);
         gui.dispose();
-    }
-
-    public static void start_ui(ScStackSynthesis ssr) {
-        if (!BackendOptions.ui_opts.bool_("no_gui")) {
-            ScUiThread thread = new ScUiThread(ssr);
-            gui_list.add(thread);
-            thread.start();
-        }
     }
 
     public void modifierComplete(ScUiModifier m) {

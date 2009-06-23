@@ -56,4 +56,8 @@ public abstract class ScModifierDispatcher {
     public abstract String toString();
 
     public abstract void enqueue(ScUiModifier m) throws ScUiQueueableInactive;
+
+    public boolean isAcceptable() {
+        return false;
+    }
 }

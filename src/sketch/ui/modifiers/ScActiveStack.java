@@ -15,7 +15,6 @@ import sketch.ui.gui.ScUiThread;
  *          make changes, please consider contributing back!
  */
 public class ScActiveStack extends ScLocalSynthDispatcher {
-
     public ScActiveStack(ScUiThread uiThread,
             ScUiList<ScModifierDispatcher> list, ScLocalStackSynthesis localSsr)
     {
@@ -40,7 +39,6 @@ public class ScActiveStack extends ScLocalSynthDispatcher {
     }
 
     // === modifier ===
-
     private class Modifier extends ScUiModifierInner {
         // ScCounterexample[] counterexamples;
         ScStack my_stack;
@@ -54,8 +52,7 @@ public class ScActiveStack extends ScLocalSynthDispatcher {
 
         @Override
         public void apply() {
-            ui_thread.gui.debugOutEditor.setText("hello world from "
-                    + "StackModifier; stack = " + my_stack.toString());
+            ui_thread.gui.fillWithStack(my_stack);
         }
     }
 

@@ -28,8 +28,7 @@ public class ScLongestStack extends ScLocalSynthDispatcher {
     public class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.debugOutEditor.setText("hello world "
-                    + "longest stack modifier" + local_ssr.longest_stack);
+            ui_thread.gui.fillWithStack(local_ssr.longest_stack);
         }
     }
 

@@ -27,8 +27,7 @@ public class ScRandomStack extends ScLocalSynthDispatcher {
     public class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.debugOutEditor.setText("hello world"
-                    + " from randomstackmodifier" + local_ssr.random_stack);
+            ui_thread.gui.fillWithStack(local_ssr.random_stack);
         }
     }
 

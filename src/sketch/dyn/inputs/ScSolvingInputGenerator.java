@@ -18,6 +18,7 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
     protected ScStack al;
     protected int log_type;
     protected ScConstructInfo info;
+    /** used for construction of ScFixedInputGenerator only */
     public boolean overflow_oblivious = false;
 
     public Vector<Integer> values = new Vector<Integer>(10);

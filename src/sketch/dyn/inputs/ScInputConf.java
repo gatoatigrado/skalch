@@ -35,6 +35,16 @@ public class ScInputConf implements Cloneable {
                 .join(as_str));
     }
 
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (ScSolvingInputGenerator input : solving_inputs) {
+            result *= 9221;
+            result += input.values.hashCode();
+        }
+        return result;
+    }
+
     /** for clone method only */
     protected ScInputConf() {
     }

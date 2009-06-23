@@ -1,5 +1,8 @@
 package sketch.util;
 
+import java.util.EmptyStackException;
+import java.util.Iterator;
+
 /**
  * stack whose objects are always allocated using a factory
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
@@ -7,7 +10,7 @@ package sketch.util;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class FactoryStack<T extends ScCloneable<T>> {
+public class FactoryStack<T extends ScCloneable<T>> implements Iterable<T> {
     public Object[] array;
     public int next = 0;
     public ObjectFactory<T> factory;
@@ -21,7 +24,6 @@ public class FactoryStack<T extends ScCloneable<T>> {
     {
         this.factory = factory;
         initial_size = Math.max(1, initial_size);
-
         array = new Object[initial_size];
         if (!no_create) {
             for (int a = 0; a < array.length; a++) {
@@ -49,6 +51,9 @@ public class FactoryStack<T extends ScCloneable<T>> {
 
     @SuppressWarnings("unchecked")
     public T peek() {
+        if (next == 0) {
+            throw new EmptyStackException();
+        }
         return (T) array[next - 1];
     }
 
@@ -61,6 +66,7 @@ public class FactoryStack<T extends ScCloneable<T>> {
         return (T) array[a];
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public FactoryStack<T> clone() {
         FactoryStack<T> result =
@@ -81,5 +87,33 @@ public class FactoryStack<T extends ScCloneable<T>> {
         for (int a = array.length; a < next_array.length; a++) {
             next_array[a] = factory.create();
         }
+    }
+
+    public class StackIterator implements Iterator<T> {
+        int index = 0;
+        int my_next = next;
+
+        public boolean hasNext() {
+            return index < my_next;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T next() {
+            if (!hasNext()) {
+                return null;
+            } else {
+                T result = (T) array[index];
+                index += 1;
+                return result;
+            }
+        }
+
+        public void remove() {
+            DebugOut.not_implemented("remove");
+        }
+    }
+
+    public Iterator<T> iterator() {
+        return new StackIterator();
     }
 }

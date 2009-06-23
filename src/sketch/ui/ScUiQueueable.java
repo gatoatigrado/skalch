@@ -1,5 +1,7 @@
 package sketch.ui;
 
+import sketch.ui.modifiers.ScUiModifier;
+
 /**
  * A target of a UI Modifier, which will eventually call setInfo on the
  * modifier.

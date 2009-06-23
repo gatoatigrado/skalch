@@ -1,8 +1,10 @@
 package skalch
 
 import sketch.dyn._
+import sketch.dyn.ctrls.ScCtrlConstructInfo
 import sketch.util.DebugOut
 import sketch.util.OptionResult
+import sketch.util.RichString
 
 /**
  * Dynamic sketching library
@@ -44,11 +46,12 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
 
     // === Holes ===
-    class Hole(val untilv : Int) extends ScConstructInfo {
+    class Hole(val untilv : Int) extends ScConstructInfo with ScCtrlConstructInfo {
        val uid : Int = hole_list.length
        hole_list += this
        def apply() = DynamicSketch.this.ctrl_values(uid).get_value() // hopefully wickedly fast
        override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
+       def valueString() = apply().toString
     }
     class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
         override def apply() = {
@@ -65,8 +68,14 @@ abstract class DynamicSketch extends ScDynamicSketch {
     class ValueSelectHole[T](num : Int) extends Hole(num) {
         def apply(arr : T*) : T = { assert(arr.length == num); arr(super.apply()) }
     }
-    def hole_array(num: Int, untilv: Int) =
-        (for (i <- 0 until num) yield new Hole(untilv)).toArray
+    class HoleArray(val num : Int, untilv : Int) extends ScCtrlConstructInfo {
+        val array : Array[Hole] = (for (i <- 0 until num) yield new Hole(untilv)).toArray
+        def apply(idx : Int) : Int = array(idx).apply()
+        def valueString() = {
+            val values : Array[Object] = (for (i <- 0 until num) yield array(i)() : java.lang.Integer).toArray
+            (new RichString(", ")).join(values)
+        }
+    }
 
 
 

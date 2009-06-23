@@ -1,9 +1,12 @@
 package sketch.ui;
 
+import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
+import sketch.dyn.synth.ScStack;
+import sketch.ui.modifiers.ScUiModifier;
 
 /**
- * functions for ui
+ * shared functions for ui
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -15,4 +18,8 @@ public interface ScUserInterface {
     public int nextModifierTimestamp();
 
     public void addStackSynthesis(ScLocalStackSynthesis local_ssr);
+
+    public void addSolution(ScStack stack);
+
+    public void set_counterexamples(ScInputConf[] inputs);
 }

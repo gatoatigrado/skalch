@@ -1,4 +1,4 @@
-#Mon Jun 22 13:12:44 PDT 2009
+#Mon Jun 22 19:56:09 PDT 2009
 eclipse.preferences.version=1
 org.eclipse.jdt.core.codeComplete.argumentPrefixes=
 org.eclipse.jdt.core.codeComplete.argumentSuffixes=
@@ -272,7 +272,7 @@ org.eclipse.jdt.core.formatter.lineSplit=80
 org.eclipse.jdt.core.formatter.never_indent_block_comments_on_first_column=false
 org.eclipse.jdt.core.formatter.never_indent_line_comments_on_first_column=false
 org.eclipse.jdt.core.formatter.number_of_blank_lines_at_beginning_of_method_body=0
-org.eclipse.jdt.core.formatter.number_of_empty_lines_to_preserve=1
+org.eclipse.jdt.core.formatter.number_of_empty_lines_to_preserve=0
 org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line=true
 org.eclipse.jdt.core.formatter.tabulation.char=space
 org.eclipse.jdt.core.formatter.tabulation.size=4

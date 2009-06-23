@@ -24,6 +24,16 @@ public class ScCtrlConf {
         }
     }
 
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (ScSSRHoleValue ssr_hole : ssr_holes) {
+            result *= 3333;
+            result += ssr_hole.v;
+        }
+        return result;
+    }
+
     public boolean set(int uid, int v) {
         return ssr_holes[uid].set(v);
     }

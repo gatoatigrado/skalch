@@ -1,11 +1,13 @@
-package sketch.ui;
+package sketch.ui.modifiers;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
-import sketch.util.DebugOut;
+import sketch.ui.ScUiQueueable;
+import sketch.ui.ScUiQueueableInactive;
+import sketch.ui.ScUserInterface;
 
 /**
  * An object which will modify the user interface. It will be enqueued to
@@ -21,21 +23,26 @@ import sketch.util.DebugOut;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public abstract class ScUiModifier {
-    protected ScUserInterface ui;
+public final class ScUiModifier {
     public int timestamp;
     private AtomicInteger enqueue_remaining;
+    protected ScUserInterface ui;
+    public ScUiModifierInner modifier;
 
-    public ScUiModifier(ScUserInterface ui) {
+    public ScUiModifier(ScUserInterface ui, ScUiModifierInner modifier) {
+        timestamp = ui.nextModifierTimestamp();
         this.ui = ui;
-        this.timestamp = ui.nextModifierTimestamp();
+        this.modifier = modifier;
     }
 
-    public final void enqueueTo(ScUiQueueable... targets) throws ScUiQueueableInactive {
-        this.enqueue_remaining = new AtomicInteger(targets.length);
+    public final void enqueueTo(ScUiQueueable... targets)
+            throws ScUiQueueableInactive
+    {
+        enqueue_remaining = new AtomicInteger(targets.length + 1);
         for (ScUiQueueable target : targets) {
             target.queueModifier(this);
         }
+        setInfoComplete();
     }
 
     public final void setInfoComplete() {
@@ -44,31 +51,15 @@ public abstract class ScUiModifier {
         }
     }
 
-    public abstract void apply();
-
     public final void setInfo(ScLocalStackSynthesis local_synth,
             ScLocalStackSynthesis.SynthesisThread synth_thread, ScStack stack)
     {
-        setInfoInner(local_synth, synth_thread, stack);
+        modifier.setInfo(local_synth, synth_thread, stack);
         setInfoComplete();
     }
 
     public final void setInfo(ScStats stats) {
-        setInfoInner(stats);
+        modifier.setInfo(stats);
         setInfoComplete();
-    }
-
-    /** make sure to make this method threadsafe! */
-    public void setInfoInner(ScLocalStackSynthesis local_synth,
-            ScLocalStackSynthesis.SynthesisThread synth_thread, ScStack stack)
-    {
-        DebugOut.assertFalse("don't append UIModifiers to objects "
-                + "they don't have a setInfoInner() for");
-    }
-
-    /** make sure to make this method threadsafe! */
-    public void setInfoInner(ScStats stats) {
-        DebugOut.assertFalse("don't append UIModifiers to objects "
-                + "they don't have a setInfoInner() for");
     }
 }

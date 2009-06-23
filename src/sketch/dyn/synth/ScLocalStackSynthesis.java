@@ -3,14 +3,17 @@ package sketch.dyn.synth;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import ec.util.ThreadLocalMT;
+
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.result.ScSynthesisResult;
-import sketch.ui.ScUiModifier;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
+import sketch.ui.modifiers.ScUiModifier;
+import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
 import sketch.util.Profiler;
 
@@ -31,6 +34,10 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     public SynthesisThread thread;
     public ScSynthesisResult synthesis_result;
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
+    public AsyncMTEvent done_events = new AsyncMTEvent();
+    public ScStack longest_stack;
+    public ScStack random_stack;
+    public static ThreadLocalMT rand = new ThreadLocalMT();
 
     public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr,
             int uid)
@@ -49,6 +56,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         }
         synthesis_result = null;
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
+        done_events.reset();
 
         // really basic stuff for now
         if (thread != null && thread.isAlive()) {
@@ -73,6 +81,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         ScStack stack;
         boolean exhausted = false;
         Profiler prof;
+        public float replacement_probability = 1.f;
 
         /** @returns true if exhausted (need to wait) */
         public boolean blind_fast_routine() {
@@ -104,6 +113,15 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 // advance the stack (whether it succeeded or not)
                 try {
                     // prof.set_event(Profiler.ProfileEvent.StackNext);
+                    if (longest_stack == null
+                            || longest_stack.stack.size() < stack.stack.size())
+                    {
+                        longest_stack = stack.clone();
+                    }
+                    if (rand.get().nextFloat() < replacement_probability) {
+                        random_stack = stack.clone();
+                        replacement_probability /= 2.f;
+                    }
                     stack.next();
                 } catch (ScSearchDoneException e) {
                     DebugOut.print_mt("exhausted local search");
@@ -152,6 +170,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 }
             } catch (NoSuchElementException e) {
                 ui_queue = null;
+                done_events.set_done();
             }
         }
     }

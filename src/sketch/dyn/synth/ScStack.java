@@ -36,7 +36,6 @@ public class ScStack extends ScPrefixSearch {
     protected int added_entries = 0;
     protected boolean first_run = true;
     protected ScConstructInfo[] ctrl_info, oracle_info;
-
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
@@ -45,13 +44,27 @@ public class ScStack extends ScPrefixSearch {
     {
         this.ctrl_info = ctrl_info.clone();
         this.oracle_info = oracle_info.clone();
-        this.stack =
+        stack =
                 new FactoryStack<ScStackEntry>(ctrl_info.length + 16
                         * oracle_info.length, new ScStackEntry.Factory());
         ctrls = new ScCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);
         oracle_inputs =
                 new ScInputConf(oracle_info, this, SYNTH_ORACLE_LOG_TYPE);
-        this.current_prefix = default_prefix;
+        current_prefix = default_prefix;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (ScStackEntry ent : stack) {
+            result *= 77;
+            result += ent.hashCode();
+        }
+        result *= 171;
+        result += ctrls.hashCode();
+        result *= 723;
+        result += oracle_inputs.hashCode();
+        return result;
     }
 
     @Override
@@ -109,7 +122,6 @@ public class ScStack extends ScPrefixSearch {
                     DebugOut.print_mt("got value", next_value, "from prefix",
                             current_prefix, "uid", last.uid);
                 }
-
                 if (!set_stack_ent(last, next_value)) {
                     current_prefix.set_all_searched();
                 } else {
@@ -119,7 +131,6 @@ public class ScStack extends ScPrefixSearch {
                 throw new ScSearchDoneException();
             }
         }
-
         // recurse if this subtree is searched.
         reset_accessed(stack.pop());
         current_prefix = current_prefix.get_parent(this);
@@ -144,7 +155,6 @@ public class ScStack extends ScPrefixSearch {
             current_prefix = current_prefix.add_entries(added_entries);
         }
         next_inner();
-
         // reset for next run. oracle_input.reset_index() should happen after
         // next_inner()
         added_entries = 0;
@@ -156,18 +166,15 @@ public class ScStack extends ScPrefixSearch {
         added_entries += 1;
     }
 
+    @Override
     public ScStack clone() {
         ScStack result = new ScStack(ctrl_info, oracle_info, current_prefix);
-        if (added_entries != 0) {
-            DebugOut.assertFalse("please run next() before cloning.");
-        }
-        result.ctrls.copy_from(this.ctrls);
-        result.oracle_inputs.copy_from(this.oracle_inputs);
+        result.added_entries = added_entries;
+        result.ctrls.copy_from(ctrls);
+        result.oracle_inputs.copy_from(oracle_inputs);
         // ScStackEntry types don't explicitly link to holes or oracles.
-        result.stack = this.stack.clone();
-        result.first_run = this.first_run;
-        DebugOut.print("original", this);
-        DebugOut.print("cloned", result);
+        result.stack = stack.clone();
+        result.first_run = first_run;
         return result;
     }
 }

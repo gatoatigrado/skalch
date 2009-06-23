@@ -76,7 +76,7 @@ public class ScStackSynthesis {
     }
 
     public synchronized void add_solution(ScStack stack) {
-        DebugOut.print_mt("solution with stack", stack);
+        ui.addSolution(stack);
         nsolutions_found += 1;
         if (nsolutions_found == nsolutions_to_find) {
             DebugOut.print_mt("synthesis complete");

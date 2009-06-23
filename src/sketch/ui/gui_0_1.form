@@ -32,38 +32,40 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="solversButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="debugPrintoutsLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="debugOutPane" alignment="0" min="0" pref="0" max="32767" attributes="1"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="synthCompletionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                      <Group type="102" alignment="0" attributes="1">
-                                          <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="32767" attributes="0"/>
-                                          <Component id="acceptButton" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                              <Component id="debugOutPane" alignment="0" min="0" pref="0" max="32767" attributes="1"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="synthCompletionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
+                                          <Group type="102" alignment="0" attributes="1">
+                                              <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace pref="65" max="32767" attributes="0"/>
+                                              <Component id="acceptButton" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Component id="selectInputPane" alignment="0" pref="315" max="32767" attributes="3"/>
+                                          <Component id="synthCompletionPane" alignment="0" pref="315" max="32767" attributes="3"/>
                                       </Group>
-                                      <Component id="synthCompletionPane" alignment="0" max="32767" attributes="3"/>
-                                      <Component id="selectInputPane" alignment="0" pref="358" max="32767" attributes="3"/>
                                   </Group>
                               </Group>
                           </Group>
+                          <Component id="debugPrintoutsLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="sourceViewLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="241" max="32767" attributes="0"/>
+                      <EmptySpace pref="282" max="32767" attributes="0"/>
                       <Component id="monospaceCheckbox" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="sourceCodePane" pref="417" max="32767" attributes="0"/>
+                  <Component id="sourceCodePane" pref="458" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -139,7 +141,7 @@
             <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&lt;style&gt;&#xa;body {&#xa;font-size: 12pt;&#xa;}&#xa;&lt;/style&gt;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;&lt;p&gt;&lt;b&gt;Text like the following example should appear when you select inputs and a synthesized completion&lt;/b&gt;. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).&lt;/p&gt;&#xa;&#xa;&lt;pre style=&quot;font-family: serif;&quot;&gt;&#xa;class RelevantSketchingClass extends DynamicSketch { // this is a long line&#xa;    def fcn1():&#xa;        &lt;span style=&quot;color: #ff0000;&quot;&gt;&lt;b&gt;4&lt;/b&gt;&lt;/span&gt; + 3&#xa;}&#xa;&lt;/pre&gt;&#xa;&lt;pre style=&quot;font-family: monospace;&quot;&gt;&#xa;&#xa;some monospace text&#xa;&lt;/pre&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -220,7 +222,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -250,7 +252,7 @@
             <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="synthCompletionListValueChanged"/>
           </Events>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -290,7 +292,7 @@
             <EventHandler event="hyperlinkUpdate" listener="javax.swing.event.HyperlinkListener" parameters="javax.swing.event.HyperlinkEvent" handler="debugOutEditorHyperlinkUpdate"/>
           </Events>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
           </AuxValues>
         </Component>
       </SubComponents>

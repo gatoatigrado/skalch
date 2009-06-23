@@ -37,6 +37,11 @@ public final class ScStackEntry implements ScCloneable<ScStackEntry> {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return type + 13 * (uid + 13 * subuid);
+    }
+
     public ScStackEntry copy() {
         ScStackEntry result = new ScStackEntry();
         result.set(type, uid, subuid);
@@ -49,6 +54,7 @@ public final class ScStackEntry implements ScCloneable<ScStackEntry> {
         this.subuid = subuid;
     }
 
+    @Override
     public ScStackEntry clone() {
         return new ScStackEntry(type, uid, subuid);
     }

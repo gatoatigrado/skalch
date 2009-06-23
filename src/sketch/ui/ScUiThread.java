@@ -8,7 +8,12 @@ import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.synth.ScLocalStackSynthesis;
+import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScStackSynthesis;
+import sketch.ui.modifiers.ScActiveStack;
+import sketch.ui.modifiers.ScSolutionStack;
+import sketch.ui.modifiers.ScUiModifier;
+import sketch.ui.modifiers.ScUiModifierInner;
 import sketch.util.InteractiveThread;
 
 /**
@@ -21,7 +26,7 @@ import sketch.util.InteractiveThread;
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
     protected ScStackSynthesis ssr;
-    protected ScUiGui gui;
+    public ScUiGui gui;
     public AtomicInteger modifier_timestamp = new AtomicInteger(0);
     static ConcurrentLinkedQueue<ScUiThread> gui_list =
             new ConcurrentLinkedQueue<ScUiThread>();
@@ -65,17 +70,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }
     }
 
-    /** @deprecated deleteme soon, just use set_synthesis_complete */
-    public static void stop_ui() {
-        try {
-            while (true) {
-                ScUiThread thread = gui_list.remove();
-                thread.set_stop();
-            }
-        } catch (NoSuchElementException e) {
-        }
-    }
-
     public void modifierComplete(ScUiModifier m) {
         modifier_list.add(m);
     }
@@ -84,13 +78,31 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         return modifier_timestamp.incrementAndGet();
     }
 
-    public void addStackSynthesis(ScLocalStackSynthesis local_ssr) {
-        modifierComplete(new AddStackSynthesisModifier(local_ssr));
+    public void addStackSynthesis(final ScLocalStackSynthesis local_ssr) {
+        final ScUiThread target = this;
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                ScUiGui gui = target.gui;
+                new ScActiveStack(target, gui.synthCompletions, local_ssr)
+                        .add();
+            }
+        }).add();
+    }
+
+    public void addSolution(ScStack stack) {
+        final ScStack stack_to_add = stack.clone();
+        final ScUiThread target = this;
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                ScUiGui gui = target.gui;
+                new ScSolutionStack(target, gui.synthCompletions, stack_to_add)
+                        .add();
+            }
+        }).add();
     }
 
     // all of this junk just because Java can't bind non-final variables
-
-    public static class RunModifier implements Runnable {
+    public class RunModifier implements Runnable {
         protected ScUiModifier m;
 
         public RunModifier(ScUiModifier m) {
@@ -98,21 +110,28 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }
 
         public void run() {
-            m.apply();
+            m.modifier.apply();
         }
     }
 
-    public class AddStackSynthesisModifier extends ScUiModifier {
-        ScLocalStackSynthesis local_ssr;
+    public class RunnableModifier extends ScUiModifierInner {
+        private Runnable runnable;
 
-        public AddStackSynthesisModifier(ScLocalStackSynthesis local_ssr) {
-            super(ScUiThread.this);
-            this.local_ssr = local_ssr;
+        public RunnableModifier(Runnable runnable) {
+            this.runnable = runnable;
+        }
+
+        public void add() {
+            try {
+                new ScUiModifier(ScUiThread.this, this).enqueueTo();
+            } catch (ScUiQueueableInactive e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void apply() {
-            gui.addStackSynthesis(local_ssr);
+            runnable.run();
         }
     }
 }

@@ -1,6 +1,8 @@
 package sketch.ui;
 
 import sketch.dyn.synth.ScLocalStackSynthesis;
+import sketch.dyn.synth.ScStack;
+import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
 /**
@@ -22,5 +24,9 @@ public class ScDebugConsoleUI implements ScUserInterface {
     public int nextModifierTimestamp() {
         DebugOut.print("ui modifier timestamp");
         return 0;
+    }
+
+    public void addSolution(ScStack stack) {
+        DebugOut.print_mt("solution with stack", stack);
     }
 }

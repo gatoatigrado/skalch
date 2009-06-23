@@ -1,4 +1,4 @@
-package sketch.ui;
+package sketch.ui.gui;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -12,6 +12,8 @@ import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScStackSynthesis;
+import sketch.ui.ScUiQueueableInactive;
+import sketch.ui.ScUserInterface;
 import sketch.ui.modifiers.ScActiveStack;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
@@ -38,6 +40,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public ScUiThread(ScStackSynthesis ssr) {
         super(0.1f);
         this.ssr = ssr;
+        gui_list.add(this);
     }
 
     @Override

@@ -2,6 +2,7 @@ package sketch.ui;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.synth.ScStackSynthesis;
+import sketch.ui.gui.ScUiThread;
 
 /**
  * static functions for all user interfaces.
@@ -18,13 +19,12 @@ public class ScUserInterfaceManager {
      *            ScUserInterface from appropriate solvers.
      */
     public static ScUserInterface start_ui(ScStackSynthesis ssr) {
-        if (!BackendOptions.ui_opts.bool_("no_gui")) {
+        if (BackendOptions.ui_opts.bool_("no_gui")) {
+            return new ScDebugConsoleUI();
+        } else {
             ScUiThread thread = new ScUiThread(ssr);
-            ScUiThread.gui_list.add(thread);
             thread.start();
             return thread;
-        } else {
-            return new ScDebugConsoleUI();
         }
     }
 }

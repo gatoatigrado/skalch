@@ -9,7 +9,7 @@
  * Created on Jun 19, 2009, 3:25:47 PM
  */
 
-package sketch.ui;
+package sketch.ui.gui;
 
 import sketch.util.DebugOut;
 import javax.swing.event.HyperlinkEvent;
@@ -98,7 +98,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
             }
         });
 
-        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12));
         selectInputList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }

@@ -5,7 +5,7 @@ import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScLocalStackSynthesis.SynthesisThread;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
-import sketch.ui.ScUiThread;
+import sketch.ui.gui.ScUiThread;
 
 /**
  * UI Modifier dispatcher for an active stack.

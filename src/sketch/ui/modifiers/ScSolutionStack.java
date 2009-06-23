@@ -3,7 +3,7 @@ package sketch.ui.modifiers;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
-import sketch.ui.ScUiThread;
+import sketch.ui.gui.ScUiThread;
 
 public class ScSolutionStack extends ScModifierDispatcher {
     protected ScStack stack;

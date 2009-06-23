@@ -2,7 +2,7 @@ package sketch.ui.modifiers;
 
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.ui.ScUiList;
-import sketch.ui.ScUiThread;
+import sketch.ui.gui.ScUiThread;
 
 /**
  * dispatcher with a local_ssr variable, and clone-style constructor.

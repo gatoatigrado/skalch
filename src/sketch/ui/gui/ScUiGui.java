@@ -1,8 +1,9 @@
-package sketch.ui;
+package sketch.ui.gui;
 
 import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.inputs.ScCounterexample;
+import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 
 /**

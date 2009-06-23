@@ -2,6 +2,7 @@ package sketch.dyn;
 
 import java.util.Vector;
 
+import sketch.dyn.ctrls.ScCtrlSourceInfo;
 import sketch.dyn.ctrls.ScHoleValue;
 import sketch.dyn.inputs.ScInputGenerator;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
@@ -19,8 +20,12 @@ public abstract class ScDynamicSketch {
     public ScHoleValue[] ctrl_values; // always contain the current valuation
     public ScInputGenerator[] input_backend;
     public ScInputGenerator[] oracle_input_backend;
+    public Vector<ScCtrlSourceInfo> ctrl_src_info =
+            new Vector<ScCtrlSourceInfo>();
+    public ScSourceLocation dysketch_fcn_location;
     public boolean failed__ = false;
-    protected ScSynthesisAssertFailure assert_inst__ = new ScSynthesisAssertFailure();
+    protected ScSynthesisAssertFailure assert_inst__ =
+            new ScSynthesisAssertFailure();
 
     public abstract ScConstructInfo[] get_hole_info();
 
@@ -40,7 +45,7 @@ public abstract class ScDynamicSketch {
 
     public void synthAssertForgiving(boolean truth) {
         if (!truth) {
-            this.failed__ = true;
+            failed__ = true;
         }
     }
 
@@ -59,5 +64,9 @@ public abstract class ScDynamicSketch {
     public synchronized void print(String... text) {
         DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
                 (Object[]) text);
+    }
+
+    public void addHoleSourceInfo(ScCtrlSourceInfo info) {
+        ctrl_src_info.add(info);
     }
 }

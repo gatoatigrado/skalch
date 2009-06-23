@@ -2,6 +2,9 @@ package test
 
 import ec.util.ThreadLocalMT
 import skalch.DynamicSketch
+
+import sketch.dyn.ScSourceLocation
+import sketch.dyn.ctrls.ScCtrlSourceInfo
 import sketch.dyn.BackendOptions
 import sketch.util._
 
@@ -11,8 +14,8 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
     val in_lengths = new InputGenerator(untilv=(1 << 30))
     val in_values = new InputGenerator(untilv=(1 << 30))
 
-    val swap_first_idx = hole_array(num=nsteps, untilv=tg_array_length)
-    val swap_second_idx = hole_array(num=nsteps, untilv=tg_array_length)
+    val swap_first_idx = new HoleArray(num=nsteps, untilv=tg_array_length)
+    val swap_second_idx = new HoleArray(num=nsteps, untilv=tg_array_length)
     val in_arr = new Array[Int](tg_array_length)
 
     def dysketch_main() = {
@@ -37,8 +40,8 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
                 // NOTE / ntung - if the hole array is null, then it will just throw an exception,
                 // which is caught. This is probably not desirable. The compiler should track
                 // which indices are synthesized with holes, and then only allow those to throw exceptions
-                val first_swap : Int = swap_first_idx(a)()
-                val second_swap : Int = swap_second_idx(a)()
+                val first_swap : Int = swap_first_idx(a)
+                val second_swap : Int = swap_second_idx(a)
                 // print("step " + a + ", swap (" + first_swap + ", " + second_swap + ")")
                 if (in_arr(second_swap) < in_arr(first_swap)) {
                     val tmp = in_arr(first_swap)
@@ -60,11 +63,6 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
         true
     }
 
-    override def solution_str() = {
-        "swap first idx " + (for (h <- swap_first_idx) yield h()).toArray + ", " +
-        "swap second idx " + (for (h <- swap_second_idx) yield h()).toArray
-    }
-
     val test_generator = new TestGenerator {
         val mt = new ThreadLocalMT()
         // this is supposed to be expressive only, recover it with Java reflection if necessary
@@ -75,6 +73,14 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
         def tests() {
             for (i <- 0 until num_tests) test_case(tg_array_length : java.lang.Integer)
         }
+    }
+
+    // generate this code with the plugin
+    {
+        val filename = "/home/gatoatigrado/sandbox/eclipse/skalch/src/test/BitonicSortTest.scala"
+        val line_num = (line : Int) => new ScSourceLocation(filename, line)
+        addHoleSourceInfo(new ScCtrlSourceInfo(swap_first_idx, line_num(40)))
+        addHoleSourceInfo(new ScCtrlSourceInfo(swap_second_idx, line_num(41)))
     }
 }
 

@@ -4,6 +4,7 @@ import scala.tools.nsc
 import nsc._
 import nsc.plugins.Plugin
 import nsc.plugins.PluginComponent
+import nsc.util
 
 class SketchRewriter(val global: Global) extends Plugin {
 
@@ -25,23 +26,43 @@ class SketchRewriter(val global: Global) extends Plugin {
 
             var uid: Int = 0
 
+            var currentHintsFile: java.io.FileWriter = null
+
             def apply(unit: CompilationUnit) {
+                currentHintsFile = new java.io.FileWriter(unit.source.file.path + ".hints")
                 unit.body = CallTransformer.transform(unit.body)
+                currentHintsFile.close()
             }
 
             // Rewrite calls to ?? to include a call site specific uid
             object CallTransformer extends Transformer {
+                //?? uid line column
+                
+                def isSketchConstruct(tree: Tree): Boolean = {
+                    val sketchConstructs = List[String]("$qmark$qmark", "$bang$bang")
+
+                    return tree.toString.endsWith("$qmark$qmark")
+
+                    for(constructName <- sketchConstructs) {
+                        if(tree.toString.endsWith(constructName)) {
+                            return true
+                        }
+                    }
+
+                    return false
+                }
 
                 import scala.tools.nsc.util.FakePos
 
                 override def transform(tree: Tree) = tree match {
-                    case Apply(select, args) if select.toString.endsWith("$qmark$qmark") && args.length == 1 =>
+                    case Apply(select, args) if isSketchConstruct(select) && args.length == 1 =>
                         val uidLit = Literal(uid)
                         uidLit.setPos(FakePos("Inserted literal for call to ??"))
                         uidLit.setType(ConstantType(Constant(uid)))
-                        uid += 1
                         val newTree = treeCopy.Apply(tree, select, uidLit :: transformTrees(args))
-                        Console.println("Rewrite: " + tree + " => " + newTree)
+
+                        currentHintsFile.write(select.toString + " " + uid + " " + tree.pos.line.get + " " + tree.pos.column.get + "\n")
+                        uid += 1
                         newTree
                     case _ => 
                         super.transform(tree)

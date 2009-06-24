@@ -5,7 +5,7 @@ import java.util.EmptyStackException;
 import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.ctrls.ScCtrlConf;
+import sketch.dyn.ctrls.ScSynthCtrlConf;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
@@ -31,7 +31,7 @@ import sketch.util.RichString;
  *          make changes, please consider contributing back!
  */
 public class ScStack extends ScPrefixSearch {
-    protected ScCtrlConf ctrls;
+    protected ScSynthCtrlConf ctrls;
     protected ScInputConf oracle_inputs;
     protected FactoryStack<ScStackEntry> stack;
     protected int added_entries = 0;
@@ -48,7 +48,7 @@ public class ScStack extends ScPrefixSearch {
         stack =
                 new FactoryStack<ScStackEntry>(ctrl_info.length + 16
                         * oracle_info.length, new ScStackEntry.Factory());
-        ctrls = new ScCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);
+        ctrls = new ScSynthCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);
         oracle_inputs =
                 new ScInputConf(oracle_info, this, SYNTH_ORACLE_LOG_TYPE);
         current_prefix = default_prefix;
@@ -78,18 +78,13 @@ public class ScStack extends ScPrefixSearch {
         return "ScStack[ " + (new RichString(" -> ")).join(rv) + " ]";
     }
 
-    public void set_fixed_for_testing(ScDynamicSketch sketch) {
-        sketch.ctrl_values = ctrls.fixed_controls();
-        sketch.oracle_input_backend = oracle_inputs.fixed_inputs();
-    }
-
     public void set_fixed_for_illustration(ScDynamicSketch sketch) {
-        sketch.ctrl_values = ctrls.fixed_annotated_controls();
-        sketch.oracle_input_backend = oracle_inputs.fixed_inputs();
+        ctrls.generate_value_strings();
+        set_for_synthesis(sketch);
     }
 
     public void set_for_synthesis(ScDynamicSketch sketch) {
-        sketch.ctrl_values = ctrls.ssr_holes;
+        sketch.ctrl_conf = ctrls;
         sketch.oracle_input_backend = oracle_inputs.solving_inputs;
     }
 
@@ -106,7 +101,7 @@ public class ScStack extends ScPrefixSearch {
 
     protected int get_stack_ent(ScStackEntry ent) {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
-            return ctrls.get(ent.uid);
+            return ctrls.getValue(ent.uid);
         } else {
             if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
                 DebugOut.assertFalse("uknown stack entry type", ent.type);
@@ -176,7 +171,7 @@ public class ScStack extends ScPrefixSearch {
     public ScStack clone() {
         ScStack result = new ScStack(ctrl_info, oracle_info, current_prefix);
         result.added_entries = added_entries;
-        result.ctrls.copy_from(ctrls);
+        result.ctrls.copy_values_from(ctrls);
         result.oracle_inputs.copy_from(oracle_inputs);
         // ScStackEntry types don't explicitly link to holes or oracles.
         result.stack = stack.clone();

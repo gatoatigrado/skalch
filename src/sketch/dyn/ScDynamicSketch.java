@@ -2,8 +2,8 @@ package sketch.dyn;
 
 import java.util.Vector;
 
+import sketch.dyn.ctrls.ScCtrlConf;
 import sketch.dyn.ctrls.ScCtrlSourceInfo;
-import sketch.dyn.ctrls.ScHoleValue;
 import sketch.dyn.inputs.ScInputGenerator;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.sourcecode.ScSourceLocation;
@@ -16,7 +16,7 @@ import sketch.ui.sourcecode.ScSourceLocation;
  *          make changes, please consider contributing back!
  */
 public abstract class ScDynamicSketch {
-    public ScHoleValue[] ctrl_values; // always contain the current valuation
+    public ScCtrlConf ctrl_conf;
     public ScInputGenerator[] input_backend;
     public ScInputGenerator[] oracle_input_backend;
     public Vector<ScCtrlSourceInfo> ctrl_src_info =

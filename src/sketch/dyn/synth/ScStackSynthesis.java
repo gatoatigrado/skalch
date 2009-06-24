@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.ctrls.ScCtrlConf;
+import sketch.dyn.ctrls.ScSynthCtrlConf;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.prefix.ScDefaultPrefix;
 import sketch.dyn.prefix.ScPrefixSearchManager;
@@ -27,7 +27,7 @@ import sketch.util.MTReachabilityCheck;
  */
 public class ScStackSynthesis {
     protected ScLocalStackSynthesis[] local_synthesis;
-    protected ScCtrlConf ctrls;
+    protected ScSynthCtrlConf ctrls;
     protected ScInputConf oracle_inputs;
     protected ScUserInterface ui;
     protected int nsolutions_found = 0;

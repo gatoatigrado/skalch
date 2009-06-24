@@ -49,9 +49,9 @@ abstract class DynamicSketch extends ScDynamicSketch {
     class Hole(val untilv : Int) extends ScConstructInfo with ScCtrlConstructInfo {
        val uid : Int = hole_list.length
        hole_list += this
-       def apply() = DynamicSketch.this.ctrl_values(uid).get_value() // hopefully wickedly fast
+       def apply() = DynamicSketch.this.ctrl_conf.getValue(uid) // hopefully wickedly fast
        override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
-       def valueString() = DynamicSketch.this.ctrl_values(uid).get_value_string()
+       def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
     }
     class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
         override def apply() = {

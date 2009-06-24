@@ -91,8 +91,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                             break trycatch;
                         }
                     }
-                    DebugOut.print_mt("solution string <<<", sketch
-                            .solution_str(), ">>>");
                     ssr.add_solution(stack);
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {

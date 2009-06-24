@@ -51,7 +51,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
        hole_list += this
        def apply() = DynamicSketch.this.ctrl_values(uid).get_value() // hopefully wickedly fast
        override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
-       def valueString() = apply().toString
+       def valueString() = DynamicSketch.this.ctrl_values(uid).get_value_string()
     }
     class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
         override def apply() = {
@@ -72,7 +72,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
         val array : Array[Hole] = (for (i <- 0 until num) yield new Hole(untilv)).toArray
         def apply(idx : Int) : Int = array(idx).apply()
         def valueString() = {
-            val values : Array[Object] = (for (i <- 0 until num) yield array(i)() : java.lang.Integer).toArray
+            val values : Array[Object] = (for (i <- 0 until num) yield array(i).valueString()).toArray
             (new RichString(", ")).join(values)
         }
     }

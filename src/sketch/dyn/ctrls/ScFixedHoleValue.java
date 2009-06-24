@@ -9,9 +9,19 @@ package sketch.dyn.ctrls;
  */
 public final class ScFixedHoleValue extends ScHoleValue {
     public int v = 0;
+    public String myValueString = null;
 
     @Override
     public int get_value() {
         return v;
+    }
+
+    @Override
+    public String get_value_string() {
+        if (myValueString == null) {
+            return "value(" + String.valueOf(v) + ")";
+        } else {
+            return myValueString;
+        }
     }
 }

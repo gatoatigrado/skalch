@@ -82,6 +82,11 @@ public class ScStack extends ScPrefixSearch {
         sketch.oracle_input_backend = oracle_inputs.fixed_inputs();
     }
 
+    public void set_fixed_for_illustration(ScDynamicSketch sketch) {
+        sketch.ctrl_values = ctrls.fixed_annotated_controls();
+        sketch.oracle_input_backend = oracle_inputs.fixed_inputs();
+    }
+
     public void set_for_synthesis(ScDynamicSketch sketch) {
         sketch.ctrl_values = ctrls.ssr_holes;
         sketch.oracle_input_backend = oracle_inputs.solving_inputs;

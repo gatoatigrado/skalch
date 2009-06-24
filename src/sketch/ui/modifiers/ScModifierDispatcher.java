@@ -3,7 +3,6 @@ package sketch.ui.modifiers;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.gui.ScUiThread;
-import sketch.util.DebugOut;
 
 /**
  * A class which has bound variables. This is useful for the synthesis list,
@@ -26,18 +25,7 @@ public abstract class ScModifierDispatcher {
     }
 
     public void add() {
-        try {
-            final ScModifierDispatcher elt_to_add = this;
-            new ScUiModifier(ui_thread, new ScUiModifierInner() {
-                @Override
-                public void apply() {
-                    list.add(elt_to_add);
-                }
-            }).enqueueTo();
-        } catch (ScUiQueueableInactive e) {
-            e.printStackTrace();
-            DebugOut.assertFalse();
-        }
+        list.add(this);
     }
 
     public void dispatch() {

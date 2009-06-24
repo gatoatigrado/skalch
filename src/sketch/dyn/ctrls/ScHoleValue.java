@@ -9,4 +9,6 @@ package sketch.dyn.ctrls;
  */
 public abstract class ScHoleValue {
     public abstract int get_value();
+
+    public abstract String get_value_string();
 }

@@ -65,6 +65,10 @@ public class ScSourceCache {
             for (int line = start_line; line <= end_line; line++) {
                 result[line - start_line] = new String(lines[line]);
             }
+            // do it in reverse order if lines.length == 1 (single line)
+            result[result.length - 1] =
+                    result[result.length - 1].substring(0, end.column);
+            result[0] = result[0].substring(start.column);
             return result;
         }
     }
@@ -72,10 +76,18 @@ public class ScSourceCache {
     public String getSourceString(ScSourceLocation location) {
         SourceFile file = cached_files.get(location.filename);
         String[] lines = file.getLinesCopy(location.start, location.end);
-        // do it in reverse order if lines.length == 1 (single line)
-        lines[lines.length - 1] =
-                lines[lines.length - 1].substring(0, location.end.column);
-        lines[0] = lines[0].substring(location.start.column);
         return (new RichString("\n")).join(lines);
+    }
+
+    public String getLine(String filename, int line) {
+        return cached_files.get(filename).lines[line];
+    }
+
+    public String[] getLines(ScSourceLocation location) {
+        if (location.start_eq_to_end()) {
+            return new String[0];
+        }
+        SourceFile file = cached_files.get(location.filename);
+        return file.getLinesCopy(location.start, location.end);
     }
 }

@@ -52,6 +52,7 @@ public class ScActiveStack extends ScLocalSynthDispatcher {
 
         @Override
         public void apply() {
+            ui_thread.auto_display_first_solution = false;
             ui_thread.gui.fillWithStack(my_stack);
         }
     }

@@ -1,7 +1,9 @@
 package sketch.ui.gui;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.event.ListSelectionEvent;
 
@@ -10,6 +12,8 @@ import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
+import sketch.ui.sourcecode.ScSourceCache;
+import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.util.DebugOut;
 
 /**
@@ -78,16 +82,54 @@ public class ScUiGui extends gui_0_1 {
 
     public void fillWithStack(ScStack stack) {
         // get source
-        HashSet<String> filenames = new HashSet<String>();
+        HashMap<String, Vector<ScCtrlSourceInfo>> info_by_filename =
+                new HashMap<String, Vector<ScCtrlSourceInfo>>();
         for (ScCtrlSourceInfo hole_info : ui_thread.sketch.ctrl_src_info) {
-            filenames.add(hole_info.src_loc.filename);
+            String f = hole_info.src_loc.filename;
+            if (!info_by_filename.containsKey(f)) {
+                info_by_filename.put(f, new Vector<ScCtrlSourceInfo>());
+            }
+            info_by_filename.get(f).add(hole_info);
         }
-        DebugOut.print_mt("hole filenames", filenames);
+        stack.set_fixed_for_illustration(ui_thread.sketch);
+        ScSourceCache.singleton().add_filenames(info_by_filename.keySet());
+        StringBuilder result = new StringBuilder();
+        result.append("<html>\n  <head>\n<style>\nbody {\n"
+                + "font-size: 12pt;\n}\n</style>\n  </head>\n  <body>"
+                + "<p>color indicates how often values are changed: red "
+                + "is very often, yellow is occasionally, blue is never.");
+        for (Entry<String, Vector<ScCtrlSourceInfo>> entry : info_by_filename
+                .entrySet())
+        {
+            result.append("\n<p><pre style=\"font-family: serif;\">");
+            add_source_info(result, entry.getKey(), entry.getValue());
+            result.append("\n</pre></p>");
+        }
+        result.append("\n</body>\n</html>");
+        sourceCodeEditor.setText(result.toString());
+    }
+
+    private void add_source_info(StringBuilder result, String key,
+            Vector<ScCtrlSourceInfo> value)
+    {
         ScCtrlSourceInfo[] hole_info_sorted =
-                ui_thread.sketch.ctrl_src_info.toArray(new ScCtrlSourceInfo[0]);
+                value.toArray(new ScCtrlSourceInfo[0]);
         Arrays.sort(hole_info_sorted);
-        for (ScCtrlSourceInfo hole_info : hole_info_sorted) {
-            DebugOut.print_mt(hole_info);
+        ScSourceLocation start = hole_info_sorted[0].src_loc.contextBefore(3);
+        ScSourceLocation end =
+                hole_info_sorted[hole_info_sorted.length - 1].src_loc
+                        .contextAfter(3);
+        ScStackSourceVisitor v = new ScStackSourceVisitor();
+        // starting context
+        result.append(v.visitCode(start));
+        // visit constructs and all code in between
+        for (int a = 0; a < hole_info_sorted.length; a++) {
+            result.append(v.visitHoleInfo(hole_info_sorted[a]));
+            if (a + 1 < hole_info_sorted.length) {
+                result.append(v.visitCode(hole_info_sorted[a].src_loc
+                        .source_between(hole_info_sorted[a + 1].src_loc)));
+            }
         }
+        result.append(v.visitCode(end));
     }
 }

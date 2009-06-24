@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
@@ -37,11 +38,14 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
             new ConcurrentLinkedQueue<ScUiThread>();
     static ConcurrentLinkedQueue<ScUiModifier> modifier_list =
             new ConcurrentLinkedQueue<ScUiModifier>();
+    public boolean auto_display_first_solution = true;
 
     public ScUiThread(ScStackSynthesis ssr, ScDynamicSketch sketch) {
         super(0.1f);
         this.ssr = ssr;
         this.sketch = sketch;
+        auto_display_first_solution =
+                !BackendOptions.ui_opts.bool_("no_auto_soln_disp");
         gui_list.add(this);
     }
 
@@ -93,8 +97,14 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         final ScUiThread target = this;
         new RunnableModifier(new Runnable() {
             public void run() {
-                new ScSolutionStack(target, target.gui.synthCompletions,
-                        stack_to_add).add();
+                ScSolutionStack solution =
+                        new ScSolutionStack(target,
+                                target.gui.synthCompletions, stack_to_add);
+                solution.add();
+                if (auto_display_first_solution) {
+                    auto_display_first_solution = false;
+                    solution.dispatch();
+                }
             }
         }).add();
     }

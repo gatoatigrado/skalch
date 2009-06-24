@@ -8,4 +8,12 @@ package sketch.dyn.prefix;
  *          make changes, please consider contributing back!
  */
 public class ScDefaultPrefix extends ScSharedPrefix {
+    public ScDefaultPrefix() {
+        super(0);
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultPrefix";
+    }
 }

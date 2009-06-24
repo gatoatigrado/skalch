@@ -82,11 +82,13 @@ public class FactoryStack<T extends ScCloneable<T>> implements Iterable<T> {
     }
 
     protected void realloc() {
+        DebugOut.not_implemented("realloc may be incorrect...");
         Object[] next_array = new Object[2 * array.length];
         System.arraycopy(array, 0, next_array, 0, array.length);
         for (int a = array.length; a < next_array.length; a++) {
             next_array[a] = factory.create();
         }
+        array = next_array;
     }
 
     public class StackIterator implements Iterator<T> {

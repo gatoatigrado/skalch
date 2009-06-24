@@ -2,6 +2,7 @@ package sketch.dyn.synth;
 
 import java.util.EmptyStackException;
 
+import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScCtrlConf;
@@ -9,6 +10,7 @@ import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
 import sketch.dyn.prefix.ScPrefixSearch;
+import sketch.dyn.prefix.ScSharedPrefix;
 import sketch.util.DebugOut;
 import sketch.util.FactoryStack;
 import sketch.util.RichString;
@@ -39,11 +41,11 @@ public class ScStack extends ScPrefixSearch {
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
-    public ScStack(ScConstructInfo[] ctrl_info, ScConstructInfo[] oracle_info,
-            ScPrefix default_prefix)
+    public ScStack(ScConstructInfo[] ctrl_info__,
+            ScConstructInfo[] oracle_info__, ScPrefix default_prefix)
     {
-        this.ctrl_info = ctrl_info.clone();
-        this.oracle_info = oracle_info.clone();
+        ctrl_info = ScClonedConstructInfo.clone_array(ctrl_info__);
+        oracle_info = ScClonedConstructInfo.clone_array(oracle_info__);
         stack =
                 new FactoryStack<ScStackEntry>(ctrl_info.length + 16
                         * oracle_info.length, new ScStackEntry.Factory());
@@ -115,6 +117,8 @@ public class ScStack extends ScPrefixSearch {
     }
 
     protected void next_inner() {
+        boolean was_local = (current_prefix instanceof ScLocalPrefix);
+        int explored_cnt = 0;
         if (!current_prefix.get_all_searched()) {
             try {
                 ScStackEntry last = stack.peek();
@@ -122,14 +126,16 @@ public class ScStack extends ScPrefixSearch {
                 int next_value;
                 if (current_prefix instanceof ScLocalPrefix) {
                     next_value = get_stack_ent(last) + 1;
+                    explored_cnt = current_prefix.nexplored;
                 } else {
-                    next_value = current_prefix.next_value(this);
+                    next_value = current_prefix.next_value();
                     DebugOut.print_mt("got value", next_value, "from prefix",
                             current_prefix, "uid", last.uid);
                 }
                 if (!set_stack_ent(last, next_value)) {
                     current_prefix.set_all_searched();
                 } else {
+                    current_prefix.nexplored++;
                     return;
                 }
             } catch (EmptyStackException e) {
@@ -139,6 +145,12 @@ public class ScStack extends ScPrefixSearch {
         // recurse if this subtree is searched.
         reset_accessed(stack.pop());
         current_prefix = current_prefix.get_parent(this);
+        if (current_prefix instanceof ScSharedPrefix) {
+            if (was_local) {
+                DebugOut.print_mt("popping local prefix, nexplored",
+                        explored_cnt, current_prefix);
+            }
+        }
         next_inner();
     }
 

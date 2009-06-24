@@ -12,6 +12,7 @@ import sketch.dyn.prefix.ScDefaultPrefix;
 import sketch.dyn.prefix.ScPrefixSearchManager;
 import sketch.ui.ScUserInterface;
 import sketch.util.DebugOut;
+import sketch.util.MTReachabilityCheck;
 
 /**
  * cloned Lexin's implementation, then modified for
@@ -37,6 +38,7 @@ public class ScStackSynthesis {
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
     public ExhaustedWaitHandler wait_handler;
+    public MTReachabilityCheck reachability_check;
 
     public ScStackSynthesis(ScDynamicSketch[] sketches) {
         // initialize backends
@@ -61,6 +63,7 @@ public class ScStackSynthesis {
     {
         this.ui = ui;
         wait_handler = new ExhaustedWaitHandler();
+        reachability_check = new MTReachabilityCheck();
         for (ScLocalStackSynthesis local_synth : local_synthesis) {
             ui.addStackSynthesis(local_synth);
             local_synth.run(counterexamples);

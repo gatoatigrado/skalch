@@ -45,6 +45,7 @@ public class ScPrefixSearchManager<SearchType extends ScPrefixSearch> {
     public class ActivePrefixQueue extends FilteredQueue<ScSharedPrefix> {
         @Override
         public boolean apply_filter(ScSharedPrefix elt) {
+            DebugOut.not_implemented("apply filter...");
             return !elt.get_all_searched();
         }
     }

@@ -45,7 +45,7 @@ public class ScSynthesis {
 
     protected ScInputConf[] generate_inputs(ScDynamicSketch sketch) {
         ScTestGenerator tg = sketch.test_generator();
-        tg.init(sketches[0].get_input_info());
+        tg.init(ui_sketch.get_input_info());
         tg.tests();
         return tg.get_inputs();
     }

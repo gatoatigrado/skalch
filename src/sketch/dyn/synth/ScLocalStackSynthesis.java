@@ -8,7 +8,6 @@ import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScCounterexample;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.stats.ScStats;
-import sketch.dyn.synth.result.ScSynthesisResult;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
@@ -31,7 +30,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     protected ScCounterexample[] counterexamples;
     public int uid;
     public SynthesisThread thread;
-    public ScSynthesisResult synthesis_result;
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
     public AsyncMTEvent done_events = new AsyncMTEvent();
     public ScStack longest_stack;
@@ -50,7 +48,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         // need to clone these as the ScFixedInputGenerators have sketch-local
         // indices
         counterexamples = ScCounterexample.from_inputs(inputs);
-        synthesis_result = null;
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
         random_stacks = new Vector<ScStack>();
         done_events.reset();
@@ -89,6 +86,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                     for (ScCounterexample counterexample : counterexamples) {
                         ScStats.stats.try_counterexample();
                         counterexample.set_for_sketch(sketch);
+                        // ssr.reachability_check.check(sketch);
                         if (!sketch.dysketch_main()) {
                             break trycatch;
                         }
@@ -123,6 +121,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         public void run_inner() {
             stack = ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
+            DebugOut.print("stack", stack, "sketch", sketch);
             for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
                     NUM_BLIND_FAST)
             {
@@ -138,6 +137,8 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 if (exhausted) {
                     ssr.wait_handler.wait_exhausted();
                     ssr.wait_handler.throw_if_synthesis_complete();
+                    //
+                    DebugOut.not_implemented("get next active stack");
                     // TODO - use search manager more
                     stack = ssr.search_manager.get_active_prefix();
                     stack.set_for_synthesis(sketch);

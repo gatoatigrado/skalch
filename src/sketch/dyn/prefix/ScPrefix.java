@@ -9,11 +9,13 @@ package sketch.dyn.prefix;
  *          make changes, please consider contributing back!
  */
 public abstract class ScPrefix {
+    public int nexplored = 0;
+
     /**
      * Since a prefix doesn't know about untilv, it might go over it. If this
      * happens, the caller should call set_all_searched().
      */
-    public abstract int next_value(ScPrefixSearch search);
+    public abstract int next_value();
 
     /** have all of the direct descendants of this subtree been searched? */
     public abstract boolean get_all_searched();

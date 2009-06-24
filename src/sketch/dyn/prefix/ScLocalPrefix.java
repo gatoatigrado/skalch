@@ -4,7 +4,8 @@ import sketch.util.DebugOut;
 
 /**
  * A thread-local prefix. This prefix can represent several levels of the stack.
- * If other threads are idle, then it can be converted to a SubtreePrefix.
+ * If other threads are idle, then it can be converted to a SubtreePrefix (not
+ * currently implemented).
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -16,7 +17,7 @@ public class ScLocalPrefix extends ScPrefix {
 
     public ScLocalPrefix(int nlinks_to_shared, ScSharedPrefix current_prefix) {
         this.nlinks_to_shared = nlinks_to_shared;
-        this.base_prefix = current_prefix;
+        base_prefix = current_prefix;
     }
 
     @Override
@@ -32,7 +33,7 @@ public class ScLocalPrefix extends ScPrefix {
         if (nlinks_to_shared == 1) {
             return base_prefix;
         } else {
-            this.nlinks_to_shared -= 1;
+            nlinks_to_shared -= 1;
             return this;
         }
     }
@@ -43,12 +44,12 @@ public class ScLocalPrefix extends ScPrefix {
 
     @Override
     public ScPrefix add_entries(int added_entries) {
-        this.nlinks_to_shared += added_entries;
+        nlinks_to_shared += added_entries;
         return this;
     }
 
     @Override
-    public int next_value(ScPrefixSearch search) {
+    public int next_value() {
         DebugOut.assertFalse("don't call next value with local searches!");
         return 0;
     }

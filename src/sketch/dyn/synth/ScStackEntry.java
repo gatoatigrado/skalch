@@ -42,12 +42,6 @@ public final class ScStackEntry implements ScCloneable<ScStackEntry> {
         return type + 13 * (uid + 13 * subuid);
     }
 
-    public ScStackEntry copy() {
-        ScStackEntry result = new ScStackEntry();
-        result.set(type, uid, subuid);
-        return result;
-    }
-
     public void set(int type, int uid, int subuid) {
         this.type = type;
         this.uid = uid;

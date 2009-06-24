@@ -20,7 +20,6 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
     protected ScConstructInfo info;
     /** used for construction of ScFixedInputGenerator only */
     public boolean overflow_oblivious = false;
-
     public Vector<Integer> values = new Vector<Integer>(10);
     public int untilv;
     int next = 0; // index which will increment as the sketch is run
@@ -31,7 +30,7 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
         this.al = al;
         this.log_type = log_type;
         this.info = info;
-        this.untilv = info.untilv();
+        untilv = info.untilv();
     }
 
     @Override
@@ -62,7 +61,7 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
 
     public boolean set(int subuid, int v) {
         if (v < untilv) {
-            this.values.set(subuid, v);
+            values.set(subuid, v);
             return true;
         } else {
             return false;
@@ -89,17 +88,16 @@ public final class ScSolvingInputGenerator extends ScInputGenerator {
     /** called after the stack is popped */
     public void reset_accessed(int subuid) {
         // TODO - remove asserts and next -= 1
-        if (next != values.size()) {
-            DebugOut.assertFalse("i think this is correct...", next, values
-                    .size());
-        }
-        next -= 1; // N.B. - for asserts ONLY!!! next := 0 from reset_index()
-        if (subuid != next) {
-            DebugOut.assertFalse(
-                    "ScSolvingInputGenerator - bad value to pop from stack",
-                    subuid, next);
-        }
-
+        // if (next != values.size()) {
+        // DebugOut.assertFalse("i think this is correct...", next, values
+        // .size());
+        // }
+        // next -= 1; // N.B. - for asserts ONLY!!! next := 0 from reset_index()
+        // if (subuid != next) {
+        // DebugOut.assertFalse(
+        // "ScSolvingInputGenerator - bad value to pop from stack",
+        // subuid, next);
+        // }
         values.remove(subuid);
     }
 }

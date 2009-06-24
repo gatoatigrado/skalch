@@ -94,9 +94,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                     ssr.add_solution(stack);
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {
-                    if (ssr.print_exceptions) {
-                        e.printStackTrace();
-                    }
                 }
                 // advance the stack (whether it succeeded or not)
                 try {

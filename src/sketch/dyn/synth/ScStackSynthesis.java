@@ -34,7 +34,6 @@ public class ScStackSynthesis {
     // command line options
     protected int nsolutions_to_find;
     protected int debug_stop_after;
-    protected boolean print_exceptions;
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
     public ExhaustedWaitHandler wait_handler;
@@ -55,7 +54,6 @@ public class ScStackSynthesis {
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
         // command line options
         nsolutions_to_find = BackendOptions.synth_opts.int_("num_solutions");
-        print_exceptions = BackendOptions.synth_opts.bool_("print_exceptions");
         debug_stop_after = BackendOptions.synth_opts.int_("debug_stop_after");
     }
 

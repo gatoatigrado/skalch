@@ -32,7 +32,6 @@ public abstract class ScModifierDispatcher {
         try {
             enqueue(new ScUiModifier(ui_thread, get_modifier()));
         } catch (ScUiQueueableInactive e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             list.remove(this);
         }

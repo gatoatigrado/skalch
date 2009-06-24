@@ -10,7 +10,6 @@ import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
 import sketch.dyn.prefix.ScPrefixSearch;
-import sketch.dyn.prefix.ScSharedPrefix;
 import sketch.util.DebugOut;
 import sketch.util.FactoryStack;
 import sketch.util.RichString;
@@ -117,8 +116,6 @@ public class ScStack extends ScPrefixSearch {
     }
 
     protected void next_inner() {
-        boolean was_local = (current_prefix instanceof ScLocalPrefix);
-        int explored_cnt = 0;
         if (!current_prefix.get_all_searched()) {
             try {
                 ScStackEntry last = stack.peek();
@@ -126,7 +123,6 @@ public class ScStack extends ScPrefixSearch {
                 int next_value;
                 if (current_prefix instanceof ScLocalPrefix) {
                     next_value = get_stack_ent(last) + 1;
-                    explored_cnt = current_prefix.nexplored;
                 } else {
                     next_value = current_prefix.next_value();
                     DebugOut.print_mt("got value", next_value, "from prefix",
@@ -135,7 +131,6 @@ public class ScStack extends ScPrefixSearch {
                 if (!set_stack_ent(last, next_value)) {
                     current_prefix.set_all_searched();
                 } else {
-                    current_prefix.nexplored++;
                     return;
                 }
             } catch (EmptyStackException e) {
@@ -145,12 +140,6 @@ public class ScStack extends ScPrefixSearch {
         // recurse if this subtree is searched.
         reset_accessed(stack.pop());
         current_prefix = current_prefix.get_parent(this);
-        if (current_prefix instanceof ScSharedPrefix) {
-            if (was_local) {
-                DebugOut.print_mt("popping local prefix, nexplored",
-                        explored_cnt, current_prefix);
-            }
-        }
         next_inner();
     }
 

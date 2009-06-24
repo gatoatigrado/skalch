@@ -121,7 +121,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         public void run_inner() {
             stack = ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
-            DebugOut.print("stack", stack, "sketch", sketch);
             for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
                     NUM_BLIND_FAST)
             {

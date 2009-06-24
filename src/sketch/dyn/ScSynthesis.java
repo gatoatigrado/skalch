@@ -5,6 +5,7 @@ import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import ec.util.ThreadLocalMT;
 
 /**
  * Where everything begins.
@@ -31,6 +32,8 @@ public class ScSynthesis {
         BackendOptions.initialize_defaults();
         ScStats.initialize();
         nthreads = BackendOptions.synth_opts.int_("num_threads");
+        ThreadLocalMT.disable_use_current_time_millis =
+                BackendOptions.synth_opts.bool_("no_clock_rand");
         // initialize ssr
         sketches = new ScDynamicSketch[nthreads];
         for (int a = 0; a < nthreads; a++) {

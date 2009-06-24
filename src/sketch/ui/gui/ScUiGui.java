@@ -14,6 +14,7 @@ import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceCache;
 import sketch.ui.sourcecode.ScSourceLocation;
+import sketch.ui.sourcecode.ScStackSourceVisitor;
 import sketch.util.DebugOut;
 
 /**

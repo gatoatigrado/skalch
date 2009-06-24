@@ -1,10 +1,7 @@
-package sketch.ui.gui;
+package sketch.ui.sourcecode;
 
 import java.util.regex.Pattern;
 
-import sketch.ui.sourcecode.ScSourceCache;
-import sketch.ui.sourcecode.ScSourceLocation;
-import sketch.ui.sourcecode.ScSourceLocationVisitor;
 import sketch.util.RichString;
 
 public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {

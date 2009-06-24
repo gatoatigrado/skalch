@@ -10,6 +10,7 @@ package ec.util;
 public class ThreadLocalMT extends ThreadLocal<MersenneTwisterFast> {
     public int salt = 0;
     public boolean use_current_time_millis = true;
+    public static boolean disable_use_current_time_millis = false;
 
     public ThreadLocalMT() {
     }
@@ -21,10 +22,11 @@ public class ThreadLocalMT extends ThreadLocal<MersenneTwisterFast> {
 
     @Override
     protected MersenneTwisterFast initialValue() {
-        int salt_local = this.salt;
-        if (this.use_current_time_millis) {
+        int salt_local = salt;
+        if (use_current_time_millis && !disable_use_current_time_millis) {
             salt_local += System.currentTimeMillis();
         }
-        return new MersenneTwisterFast(Thread.currentThread().getId() + salt_local);
+        return new MersenneTwisterFast(Thread.currentThread().getId()
+                + salt_local);
     }
 }

@@ -1,10 +1,9 @@
-package sketch.ui.gui;
+package sketch.ui.sourcecode;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import sketch.dyn.ctrls.ScCtrlSourceInfo;
-import sketch.ui.sourcecode.ScSourceCache;
 import sketch.util.DebugOut;
 
 public class ScStackSourceVisitor extends ScHighlightSourceVisitor {

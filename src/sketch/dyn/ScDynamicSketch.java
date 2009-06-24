@@ -7,7 +7,6 @@ import sketch.dyn.ctrls.ScHoleValue;
 import sketch.dyn.inputs.ScInputGenerator;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.sourcecode.ScSourceLocation;
-import sketch.util.DebugOut;
 
 /**
  * Scala classes inherit this, so the Java code can make nice API calls.
@@ -22,8 +21,9 @@ public abstract class ScDynamicSketch {
     public ScInputGenerator[] oracle_input_backend;
     public Vector<ScCtrlSourceInfo> ctrl_src_info =
             new Vector<ScCtrlSourceInfo>();
+    public boolean debug_print_enable = false;
+    public Vector<String> debug_out;
     public ScSourceLocation dysketch_fcn_location;
-    public boolean failed__ = false;
     protected ScSynthesisAssertFailure assert_inst__ =
             new ScSynthesisAssertFailure();
 
@@ -43,15 +43,14 @@ public abstract class ScDynamicSketch {
         }
     }
 
-    public void synthAssertForgiving(boolean truth) {
-        if (!truth) {
-            failed__ = true;
-        }
+    public void enable_debug() {
+        debug_print_enable = true;
+        debug_out = new Vector<String>();
     }
 
     public synchronized void print(String... text) {
-        DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
-                (Object[]) text);
+        // DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
+        // (Object[]) text);
     }
 
     public void addHoleSourceInfo(ScCtrlSourceInfo info) {

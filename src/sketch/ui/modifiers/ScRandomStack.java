@@ -1,6 +1,7 @@
 package sketch.ui.modifiers;
 
 import sketch.ui.ScUiQueueableInactive;
+import ec.util.ThreadLocalMT;
 
 /**
  * print a random stack
@@ -10,6 +11,8 @@ import sketch.ui.ScUiQueueableInactive;
  *          make changes, please consider contributing back!
  */
 public class ScRandomStack extends ScLocalSynthDispatcher {
+    static ThreadLocalMT rand = new ThreadLocalMT();
+
     public ScRandomStack(ScLocalSynthDispatcher prev) {
         super(prev);
     }
@@ -28,7 +31,8 @@ public class ScRandomStack extends ScLocalSynthDispatcher {
         @Override
         public void apply() {
             ui_thread.auto_display_first_solution = false;
-            ui_thread.gui.fillWithStack(local_ssr.random_stack);
+            int rand_idx = rand.get().nextInt(local_ssr.random_stacks.size());
+            ui_thread.gui.fillWithStack(local_ssr.random_stacks.get(rand_idx));
         }
     }
 

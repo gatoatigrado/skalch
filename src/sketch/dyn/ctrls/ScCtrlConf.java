@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
-import sketch.util.DebugOut;
 import sketch.util.Vector4;
 
 /**
@@ -59,18 +58,18 @@ public class ScCtrlConf {
 
     /** fixed holes with valueString set */
     public ScHoleValue[] fixed_annotated_controls() {
-        int[] generations = new int[ssr_holes.length];
-        float[] color = new float[ssr_holes.length];
+        int[] set_cnt = new int[ssr_holes.length];
         for (int a = 0; a < ssr_holes.length; a++) {
-            generations[a] = ssr_holes[a].set_cnt;
-            color[a] = ((float) a) / (ssr_holes.length - 1);
+            set_cnt[a] = ssr_holes[a].set_cnt;
         }
-        Arrays.sort(generations);
+        Arrays.sort(set_cnt);
         // distribute colors evenly, then go halfway towards closer neighbor.
         for (int a = 0; a < ssr_holes.length; a++) {
             fixed_holes[a].v = ssr_holes[a].v;
+            float c = (a) / (2.f * (ssr_holes.length - 1));
+            c += ssr_holes[a].set_cnt / (2.f * set_cnt[set_cnt.length - 1]);
             fixed_holes[a].myValueString =
-                    gen_value_string(color[a], fixed_holes[a].v);
+                    gen_value_string(c, fixed_holes[a].v);
         }
         return fixed_holes;
     }
@@ -94,7 +93,6 @@ public class ScCtrlConf {
                         second.scalar_multiply(amnt_second)).add(
                         third.scalar_multiply(amnt_third));
         String color = the_color.hexColor();
-        DebugOut.print("color", color);
         return "<span style=\"color: " + color + ";\">" + v + "</span>";
     }
 

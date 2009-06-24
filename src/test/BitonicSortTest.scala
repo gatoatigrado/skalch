@@ -8,6 +8,8 @@ import sketch.dyn.ctrls.ScCtrlSourceInfo
 import sketch.dyn.BackendOptions
 import sketch.util._
 
+object mt extends ThreadLocalMT()
+
 class BitonicSort(val nsteps : Int, val tg_array_length : Int,
         val num_tests : Int) extends DynamicSketch
 {
@@ -63,7 +65,6 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
     }
 
     val test_generator = new TestGenerator {
-        val mt = new ThreadLocalMT()
         // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set(x : Int) {
             put_input(in_lengths, x)

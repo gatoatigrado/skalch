@@ -1,6 +1,7 @@
 package sketch.dyn.synth;
 
 import java.util.NoSuchElementException;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sketch.dyn.ScDynamicSketch;
@@ -34,7 +35,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
     public AsyncMTEvent done_events = new AsyncMTEvent();
     public ScStack longest_stack;
-    public ScStack random_stack;
+    public Vector<ScStack> random_stacks;
     public static ThreadLocalMT rand = new ThreadLocalMT();
 
     public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr,
@@ -51,6 +52,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         counterexamples = ScCounterexample.from_inputs(inputs);
         synthesis_result = null;
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
+        random_stacks = new Vector<ScStack>();
         done_events.reset();
         // really basic stuff for now
         if (thread != null && thread.isAlive()) {
@@ -106,7 +108,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                         longest_stack = stack.clone();
                     }
                     if (rand.get().nextFloat() < replacement_probability) {
-                        random_stack = stack.clone();
+                        random_stacks.add(stack.clone());
                         replacement_probability /= 2.f;
                     }
                     stack.next();

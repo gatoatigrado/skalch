@@ -16,16 +16,16 @@ public final class ScSSRHoleValue extends ScHoleValue {
     protected ScStack al;
     protected int log_type;
     protected ScConstructInfo info;
-
     public int v;
     public int untilv;
+    public int set_cnt = 0;
     public boolean accessed;
 
     public ScSSRHoleValue(ScStack al, int log_type, ScConstructInfo info) {
         this.al = al;
         this.log_type = log_type;
         this.info = info;
-        this.untilv = info.untilv();
+        untilv = info.untilv();
     }
 
     @Override
@@ -34,6 +34,7 @@ public final class ScSSRHoleValue extends ScHoleValue {
     }
 
     public boolean set(int v) {
+        set_cnt += 1;
         if (v < untilv) {
             this.v = v;
             return true;
@@ -60,5 +61,12 @@ public final class ScSSRHoleValue extends ScHoleValue {
                     .assertFalse("ScSSRHoleValue - bad value to pop from stack");
         }
         accessed = false;
+    }
+
+    @Override
+    public String get_value_string() {
+        DebugOut
+                .assertFalse("don't call getValueString on a synthesizing input.");
+        return null;
     }
 }

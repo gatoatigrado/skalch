@@ -73,4 +73,30 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
             return 0;
         }
     }
+
+    public boolean start_eq_to_end() {
+        return (!start.lessThan(end)) && (!end.lessThan(start));
+    }
+
+    public ScSourceLocation source_between(ScSourceLocation other) {
+        if (filename != other.filename) {
+            DebugOut
+                    .assertFalse("requesting source between two different files");
+        }
+        return new ScSourceLocation(filename, end, other.start);
+    }
+
+    public ScSourceLocation contextBefore(int nlines) {
+        LineColumn beforeStart =
+                new LineColumn(Math.max(0, start.line - nlines), 0);
+        return new ScSourceLocation(filename, beforeStart, start);
+    }
+
+    public ScSourceLocation contextAfter(int nlines) {
+        int last_line =
+                ScSourceCache.singleton().cached_files.get(filename).lines.length - 1;
+        LineColumn afterEnd =
+                new LineColumn(Math.min(last_line, end.line + nlines + 1), 0);
+        return new ScSourceLocation(filename, end, afterEnd);
+    }
 }

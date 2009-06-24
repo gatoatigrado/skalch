@@ -1,7 +1,11 @@
 package sketch.dyn.ctrls;
 
+import java.util.Arrays;
+
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
+import sketch.util.DebugOut;
+import sketch.util.Vector4;
 
 /**
  * Wrapper for an array of holes.
@@ -53,6 +57,47 @@ public class ScCtrlConf {
         return fixed_holes;
     }
 
+    /** fixed holes with valueString set */
+    public ScHoleValue[] fixed_annotated_controls() {
+        int[] generations = new int[ssr_holes.length];
+        float[] color = new float[ssr_holes.length];
+        for (int a = 0; a < ssr_holes.length; a++) {
+            generations[a] = ssr_holes[a].set_cnt;
+            color[a] = ((float) a) / (ssr_holes.length - 1);
+        }
+        Arrays.sort(generations);
+        // distribute colors evenly, then go halfway towards closer neighbor.
+        for (int a = 0; a < ssr_holes.length; a++) {
+            fixed_holes[a].v = ssr_holes[a].v;
+            fixed_holes[a].myValueString =
+                    gen_value_string(color[a], fixed_holes[a].v);
+        }
+        return fixed_holes;
+    }
+
+    private String gen_value_string(float f, int v) {
+        float amnt_first, amnt_second, amnt_third;
+        if (f < 0.5) {
+            amnt_first = 1 - 2 * f;
+            amnt_second = 2 * f;
+            amnt_third = 0;
+        } else {
+            amnt_first = 0;
+            amnt_second = 2 - 2 * f;
+            amnt_third = 2 * f - 1;
+        }
+        Vector4 first = new Vector4(0.f, 0.f, 1.f, 1.f);
+        Vector4 second = new Vector4(0.8f, 0.63f, 0.f, 1.f);
+        Vector4 third = new Vector4(1.f, 0.f, 0.f, 1.f);
+        Vector4 the_color =
+                first.scalar_multiply(amnt_first).add(
+                        second.scalar_multiply(amnt_second)).add(
+                        third.scalar_multiply(amnt_third));
+        String color = the_color.hexColor();
+        DebugOut.print("color", color);
+        return "<span style=\"color: " + color + ";\">" + v + "</span>";
+    }
+
     public void reset_accessed(int uid) {
         ssr_holes[uid].reset_accessed();
     }
@@ -61,6 +106,7 @@ public class ScCtrlConf {
         for (int a = 0; a < ctrls.ssr_holes.length; a++) {
             ssr_holes[a].accessed = ctrls.ssr_holes[a].accessed;
             ssr_holes[a].v = ctrls.ssr_holes[a].v;
+            ssr_holes[a].set_cnt = ctrls.ssr_holes[a].set_cnt;
         }
     }
 }

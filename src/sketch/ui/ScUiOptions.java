@@ -9,9 +9,12 @@ package sketch.ui;
  */
 public class ScUiOptions extends sketch.util.CliOptGroup {
     Boolean dis;
+
     public ScUiOptions() {
         prefixes("ui");
         add("--no_gui", "disable the GUI (not recommended)");
+        add("--no_auto_soln_disp",
+                "don't automatically display the first solution");
         add("--accept_gen_filename", "out.scala", "scala file to generate "
                 + "after \"accept\" is clicked");
     }

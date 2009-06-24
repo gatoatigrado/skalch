@@ -7,6 +7,7 @@ import sketch.dyn.ctrls.ScCtrlSourceInfo;
 import sketch.dyn.inputs.ScInputGenerator;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.sourcecode.ScSourceLocation;
+import sketch.util.DebugOut;
 
 /**
  * Scala classes inherit this, so the Java code can make nice API calls.
@@ -49,8 +50,8 @@ public abstract class ScDynamicSketch {
     }
 
     public synchronized void print(String... text) {
-        // DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
-        // (Object[]) text);
+        DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
+                (Object[]) text);
     }
 
     public void addHoleSourceInfo(ScCtrlSourceInfo info) {

@@ -104,6 +104,9 @@ public class ScSynthCtrlConf extends ScCtrlConf {
     }
 
     public void generate_value_strings() {
+        if (set_cnt.length == 0) {
+            return;
+        }
         value_string = new String[set_cnt.length];
         int[] maxv_array = set_cnt.clone();
         Arrays.sort(maxv_array);

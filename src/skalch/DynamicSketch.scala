@@ -95,6 +95,11 @@ abstract class DynamicSketch extends ScDynamicSketch {
             return result
         }
     }
+    class NullTestGeneratorCls extends TestGenerator {
+        def set() { put_default_input(0) }
+        def tests() { test_case() }
+    }
+    def NullTestGenerator() = new NullTestGeneratorCls()
 
 
 

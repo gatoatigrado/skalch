@@ -2,63 +2,67 @@ package plugins
 
 import scala.tools.nsc
 import nsc._
-import nsc.Global
-import nsc.Phase
 import nsc.plugins.Plugin
 import nsc.plugins.PluginComponent
-import nsc.transform._
-import nsc.symtab.Flags._
-
+import nsc.util
 
 class SketchRewriter(val global: Global) extends Plugin {
-    import global._
 
     val name = "sketchrewriter"
     val description = "de-sugars sketchy constructs"
     val components = List[PluginComponent](SketchRewriterComponent)
 
     private object SketchRewriterComponent extends PluginComponent {
-        val global: SketchRewriter.this.global.type = SketchRewriter.this.global
-        val runsAfter = List[String]("namer");
+        val global = SketchRewriter.this.global
+        val runsAfter = List[String]("parser");
+        override val runsBefore = List[String]("namer")
         val phaseName = SketchRewriter.this.name
-        def newPhase(_prev: Phase) = new SketchRewriterPhase(_prev)    
+        def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
+            import global._
+
             override def name = SketchRewriter.this.name
 
             var uid: Int = 0
 
+            var currentHintsFile: java.io.FileWriter = null
+
             def apply(unit: CompilationUnit) {
-                Console.println("I'm applying!")
+                currentHintsFile = new java.io.FileWriter(unit.source.file.path + ".hints")
                 unit.body = CallTransformer.transform(unit.body)
+                currentHintsFile.close()
             }
 
+            // Rewrite calls to ?? to include a call site specific uid
             object CallTransformer extends Transformer {
+                //?? uid line column
+                
+                def isSketchConstruct(tree: Tree): Boolean = {
+                    val sketchConstructs = List[String]("$qmark$qmark", "$bang$bang")
+
+                    return tree.toString.endsWith("$qmark$qmark")
+
+                    for(constructName <- sketchConstructs) {
+                        if(tree.toString.endsWith(constructName)) {
+                            return true
+                        }
+                    }
+
+                    return false
+                }
 
                 import scala.tools.nsc.util.FakePos
 
                 override def transform(tree: Tree) = tree match {
-                    case a @ Apply(select, args) if select.toString.endsWith("??") && args.length == 1 =>
-                        val newArg = Literal(uid)
-                        newArg.setPos(FakePos("Inserted literal for call to ??"))
-                        newArg.setType(ConstantType(Constant(uid)))
+                    case Apply(select, args) if isSketchConstruct(select) && args.length == 1 =>
+                        val uidLit = Literal(uid)
+                        uidLit.setPos(FakePos("Inserted literal for call to ??"))
+                        uidLit.setType(ConstantType(Constant(uid)))
+                        val newTree = treeCopy.Apply(tree, select, uidLit :: transformTrees(args))
+
+                        currentHintsFile.write(select.toString + " " + uid + " " + tree.pos.line.get + " " + tree.pos.column.get + "\n")
                         uid += 1
-                        /*
-                        // The following attempts to set the correct method
-                        // type for the new call to ??, adding the extra argument
-                        // however, for reasons currently beyond my understanding
-                        // it makes everything blow up
-                        // for now, the code *almost works*, but since the type is wrong,
-                        // the second argument to ?? is ignored
-                        val newMethodType = MethodType(List[Symbol](definitions.IntClass, definitions.IntClass), definitions.IntClass.tpe)
-                        select.symbol.setInfo(newMethodType)
-                        select.setType(newMethodType)
-                        Console.println(newMethodType)
-                        Console.println(select.symbol.infosString)
-                        */
-                        var newTree = a.copy(args = newArg :: transformTrees(args))
-                        newTree.setType(a.tpe)
-                        Console.println("Rewrite: " + a + " => " + newTree)
                         newTree
                     case _ => 
                         super.transform(tree)

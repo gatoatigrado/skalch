@@ -1,9 +1,15 @@
 object PluginTest {
-    def ??(y: Int) = y * 100 + 100
-    def ??(x: Int, y: Int) = x + y
+    def ??(y: Int) {
+        Console.println("y: " + y)
+        assert(false)
+    }
+
+    def ??(x: Int, y: Int) {
+        Console.println("x: " + x)
+        Console.println("y: " + y)
+    }
 
     def main(args: Array[String]) {
-        Console.println(??(1, 2))
         Console.println(??(2))
     }
 }

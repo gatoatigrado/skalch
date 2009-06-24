@@ -67,8 +67,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         }
     }
 
-    /** currently doesn't do much, no MT */
-    public final static int NUM_BLIND_FAST = 16;
+    public final static int NUM_BLIND_FAST = 8192;
 
     public class SynthesisThread extends Thread {
         ScStack stack;

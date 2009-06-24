@@ -15,8 +15,8 @@ import sketch.util.DebugOut;
 public final class ScSSRHoleValue extends ScHoleValue {
     protected ScStack al;
     protected int log_type;
-    protected ScConstructInfo info;
     public int v;
+    public int uid;
     public int untilv;
     public int set_cnt = 0;
     public boolean accessed;
@@ -24,13 +24,13 @@ public final class ScSSRHoleValue extends ScHoleValue {
     public ScSSRHoleValue(ScStack al, int log_type, ScConstructInfo info) {
         this.al = al;
         this.log_type = log_type;
-        this.info = info;
+        uid = info.uid();
         untilv = info.untilv();
     }
 
     @Override
     public String toString() {
-        return "Hole[" + info.uid() + "] = " + v;
+        return "Hole[" + uid + "] = " + v;
     }
 
     public boolean set(int v) {
@@ -39,8 +39,6 @@ public final class ScSSRHoleValue extends ScHoleValue {
             this.v = v;
             return true;
         } else {
-            // reset for next stack iteration
-            this.v = 0;
             return false;
         }
     }
@@ -49,7 +47,7 @@ public final class ScSSRHoleValue extends ScHoleValue {
     public int get_value() {
         if (!accessed) {
             // might fail; don't set anything yet.
-            al.add_entry(log_type, info.uid(), 0);
+            al.add_entry(log_type, uid, 0);
         }
         accessed = true;
         return v;
@@ -61,6 +59,7 @@ public final class ScSSRHoleValue extends ScHoleValue {
                     .assertFalse("ScSSRHoleValue - bad value to pop from stack");
         }
         accessed = false;
+        v = 0;
     }
 
     @Override

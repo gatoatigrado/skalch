@@ -7,7 +7,7 @@ import sketch.util._
 class SugaredSketch() extends DynamicSketch {
 
     def dysketch_main() = {
-        assert(??(3) == ??(10))
+        synthAssertTerminal(??(3) == ??(10) + 1)
         true
     }
 
@@ -26,6 +26,8 @@ class SugaredSketch() extends DynamicSketch {
 
 object SugaredTest {
     def main(args: Array[String])  = {
+        val cmdopts = new sketch.util.CliParser(args)
+        BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new SugaredSketch())
     }
 }

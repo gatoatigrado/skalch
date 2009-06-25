@@ -44,8 +44,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
     }
 
     def ??(uid: Int, untilv: Int): Int = {
-        //DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
-        0
+        DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
     }
     
     def ??(untilv: Int): Int = {
@@ -54,7 +53,8 @@ abstract class DynamicSketch extends ScDynamicSketch {
     }
 
     def !!(uid: Int, untilv: Int): Int = {
-        //DynamicSketch.this.oracle_input_backend(uid, untilv).next_dynamic_value()
+        // fixme
+        assert(false)
         0
     }
 

@@ -5,8 +5,8 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.inputs.ScCounterexample;
-import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
@@ -27,7 +27,7 @@ import ec.util.ThreadLocalMT;
 public class ScLocalStackSynthesis implements ScUiQueueable {
     protected ScDynamicSketch sketch;
     protected ScStackSynthesis ssr;
-    protected ScCounterexample[] counterexamples;
+    protected ScFixedInputConf[] counterexamples;
     public int uid;
     public SynthesisThread thread;
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
@@ -44,10 +44,10 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         this.uid = uid;
     }
 
-    public void run(ScInputConf[] inputs) {
+    public void run(ScSolvingInputConf[] inputs) {
         // need to clone these as the ScFixedInputGenerators have sketch-local
         // indices
-        counterexamples = ScCounterexample.from_inputs(inputs);
+        counterexamples = ScFixedInputConf.from_inputs(inputs);
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
         random_stacks = new Vector<ScStack>();
         done_events.reset();
@@ -84,7 +84,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 trycatch: try {
                     nruns++;
                     // DebugOut.print_mt("running test");
-                    for (ScCounterexample counterexample : counterexamples) {
+                    for (ScFixedInputConf counterexample : counterexamples) {
                         ncounterexamples++;
                         counterexample.set_for_sketch(sketch);
                         // ssr.reachability_check.check(sketch);

@@ -107,11 +107,10 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         values[uid] = -1;
     }
 
-    public void copy_values_from(ScSynthCtrlConf ctrls) {
-        for (int a = 0; a < ctrls.values.length; a++) {
-            values[a] = ctrls.values[a];
-            set_cnt[a] = ctrls.set_cnt[a];
-        }
+    public void copy_values_from(ScSynthCtrlConf prev) {
+        values = prev.values.clone();
+        untilv = prev.untilv.clone();
+        set_cnt = prev.set_cnt.clone();
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.util.Vector;
 
 import sketch.dyn.ctrls.ScCtrlConf;
 import sketch.dyn.ctrls.ScCtrlSourceInfo;
-import sketch.dyn.inputs.ScInputGenerator;
+import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.sourcecode.ScSourceLocation;
@@ -19,8 +19,8 @@ import sketch.util.DebugOut;
  */
 public abstract class ScDynamicSketch {
     public ScCtrlConf ctrl_conf;
-    public ScInputGenerator[] input_backend;
-    public ScInputGenerator[] oracle_input_backend;
+    public ScInputConf input_backend;
+    public ScInputConf oracle_input_backend;
     public Vector<ScCtrlSourceInfo> ctrl_src_info =
             new Vector<ScCtrlSourceInfo>();
     public boolean debug_print_enable = false;

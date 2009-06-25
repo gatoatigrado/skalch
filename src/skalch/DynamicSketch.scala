@@ -9,6 +9,7 @@ import sketch.util.RichString
 /**
  * Dynamic sketching library
  * @author gatoatigrado (Nicholas Tung) [ntung at ntung]
+ * @author Casey Rodarmor [casey at rodarmor]
  *
  * See examples in the "test" directory for usage.
  * All holes, oracles inputs, and input generators are created as the class
@@ -101,7 +102,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
     class InputGenerator(val untilv : Int) extends ScConstructInfo {
         val uid : Int = input_gen_list.length
         input_gen_list += this
-        def apply() = DynamicSketch.this.input_backend(uid).next_value()
+        def apply() = DynamicSketch.this.input_backend.nextValue(uid)
     }
     class ArrayInput(val len_untilv : Int, val value_untilv : Int) {
         val len_generator = new InputGenerator(len_untilv)
@@ -125,7 +126,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
     class OracleInput(val untilv : Int) extends ScConstructInfo {
         val uid : Int = oracle_input_list.length
         oracle_input_list += this
-        def apply() : Int = DynamicSketch.this.oracle_input_backend(uid).next_value()
+        def apply() : Int = DynamicSketch.this.oracle_input_backend.nextValue(uid)
     }
     class BooleanOracle {
         val oracle = new OracleInput(2)

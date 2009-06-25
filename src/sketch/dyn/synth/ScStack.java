@@ -6,7 +6,7 @@ import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScSynthCtrlConf;
-import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
 import sketch.dyn.prefix.ScPrefixSearch;
@@ -32,7 +32,7 @@ import sketch.util.RichString;
  */
 public class ScStack extends ScPrefixSearch {
     protected ScSynthCtrlConf ctrls;
-    protected ScInputConf oracle_inputs;
+    protected ScSolvingInputConf oracle_inputs;
     protected FactoryStack<ScStackEntry> stack;
     protected int added_entries = 0;
     protected boolean first_run = true;
@@ -50,7 +50,7 @@ public class ScStack extends ScPrefixSearch {
                         * oracle_info.length, new ScStackEntry.Factory());
         ctrls = new ScSynthCtrlConf(ctrl_info, this, SYNTH_HOLE_LOG_TYPE);
         oracle_inputs =
-                new ScInputConf(oracle_info, this, SYNTH_ORACLE_LOG_TYPE);
+                new ScSolvingInputConf(oracle_info, this, SYNTH_ORACLE_LOG_TYPE);
         current_prefix = default_prefix;
     }
 
@@ -85,7 +85,7 @@ public class ScStack extends ScPrefixSearch {
 
     public void set_for_synthesis(ScDynamicSketch sketch) {
         sketch.ctrl_conf = ctrls;
-        sketch.oracle_input_backend = oracle_inputs.solving_inputs;
+        sketch.oracle_input_backend = oracle_inputs;
     }
 
     protected boolean set_stack_ent(ScStackEntry ent, int v) {
@@ -172,7 +172,7 @@ public class ScStack extends ScPrefixSearch {
         ScStack result = new ScStack(ctrl_info, oracle_info, current_prefix);
         result.added_entries = added_entries;
         result.ctrls.copy_values_from(ctrls);
-        result.oracle_inputs.copy_from(oracle_inputs);
+        result.oracle_inputs.copy_values_from(oracle_inputs);
         // ScStackEntry types don't explicitly link to holes or oracles.
         result.stack = stack.clone();
         result.first_run = first_run;

@@ -1,6 +1,6 @@
 package sketch.dyn;
 
-import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
@@ -43,7 +43,7 @@ public class ScSynthesis {
         ssr = new ScStackSynthesis(sketches);
     }
 
-    protected ScInputConf[] generate_inputs(ScDynamicSketch sketch) {
+    protected ScSolvingInputConf[] generate_inputs(ScDynamicSketch sketch) {
         ScTestGenerator tg = sketch.test_generator();
         tg.init(ui_sketch.get_input_info());
         tg.tests();
@@ -51,7 +51,7 @@ public class ScSynthesis {
     }
 
     public void synthesize() {
-        ScInputConf[] inputs = generate_inputs(ui_sketch);
+        ScSolvingInputConf[] inputs = generate_inputs(ui_sketch);
         // start various utilities
         ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr, ui_sketch);
         ui.set_counterexamples(inputs);

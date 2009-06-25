@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.ctrls.ScCtrlSourceInfo;
-import sketch.dyn.inputs.ScCounterexample;
+import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
@@ -29,7 +29,7 @@ import sketch.util.DebugOut;
 public class ScUiGui extends gui_0_1 {
     private static final long serialVersionUID = 6584583626375432139L;
     public ScUiThread ui_thread;
-    public ScUiList<ScCounterexample> inputChoices;
+    public ScUiList<ScFixedInputConf> inputChoices;
     public ScUiList<ScModifierDispatcher> synthCompletions;
 
     @SuppressWarnings("unchecked")
@@ -39,8 +39,8 @@ public class ScUiGui extends gui_0_1 {
         this.ui_thread = ui_thread;
         // java is very annoying
         inputChoices =
-                new ScUiList<ScCounterexample>(selectInputList,
-                        (Class<ScCounterexample[]>) (new ScCounterexample[0])
+                new ScUiList<ScFixedInputConf>(selectInputList,
+                        (Class<ScFixedInputConf[]>) (new ScFixedInputConf[0])
                                 .getClass());
         synthCompletions =
                 new ScUiList<ScModifierDispatcher>(

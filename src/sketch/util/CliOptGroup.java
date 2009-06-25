@@ -94,7 +94,6 @@ public abstract class CliOptGroup {
             } else if (has_name) {
                 help += " [default " + default_.toString() + "]";
             }
-            DebugOut.print("adding option", this);
             return new Option(null, full_name_, has_name, help);
         }
 

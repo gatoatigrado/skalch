@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScSynthCtrlConf;
-import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.prefix.ScDefaultPrefix;
 import sketch.dyn.prefix.ScPrefixSearchManager;
 import sketch.ui.ScUserInterface;
@@ -28,7 +28,7 @@ import sketch.util.MTReachabilityCheck;
 public class ScStackSynthesis {
     protected ScLocalStackSynthesis[] local_synthesis;
     protected ScSynthCtrlConf ctrls;
-    protected ScInputConf oracle_inputs;
+    protected ScSolvingInputConf oracle_inputs;
     protected ScUserInterface ui;
     protected long nsolutions_found = 0;
     // command line options
@@ -57,7 +57,7 @@ public class ScStackSynthesis {
         debug_stop_after = BackendOptions.synth_opts.long_("debug_stop_after");
     }
 
-    public boolean synthesize(ScInputConf[] counterexamples, ScUserInterface ui)
+    public boolean synthesize(ScSolvingInputConf[] counterexamples, ScUserInterface ui)
     {
         this.ui = ui;
         wait_handler = new ExhaustedWaitHandler();

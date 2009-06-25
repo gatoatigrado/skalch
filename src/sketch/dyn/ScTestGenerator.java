@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
-import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.util.DebugOut;
 
 /**
@@ -17,15 +17,15 @@ import sketch.util.DebugOut;
  *          make changes, please consider contributing back!
  */
 public abstract class ScTestGenerator {
-    protected LinkedList<ScInputConf> inputs;
+    protected LinkedList<ScSolvingInputConf> inputs;
     protected ScConstructInfo[] input_info;
-    protected ScInputConf current_config;
+    protected ScSolvingInputConf current_config;
     protected Method set_method = null;
 
     // === java-side interfaces ===
     public void init(ScConstructInfo[] input_info) {
         this.input_info = input_info;
-        inputs = new LinkedList<ScInputConf>();
+        inputs = new LinkedList<ScSolvingInputConf>();
         for (Method m : this.getClass().getDeclaredMethods()) {
             boolean all_obj = true;
             for (Class<?> type : m.getParameterTypes()) {
@@ -37,8 +37,8 @@ public abstract class ScTestGenerator {
         }
     }
 
-    public ScInputConf[] get_inputs() {
-        return inputs.toArray(new ScInputConf[0]);
+    public ScSolvingInputConf[] get_inputs() {
+        return inputs.toArray(new ScSolvingInputConf[0]);
     }
 
     // === scala-side interfaces ===
@@ -47,7 +47,7 @@ public abstract class ScTestGenerator {
             DebugOut.assertFalse("    [test generator] "
                     + "please provide a method set([emit_test_case_args])");
         }
-        current_config = new ScInputConf(input_info, null, 0);
+        current_config = new ScSolvingInputConf(input_info, null, 0);
         try {
             set_method.invoke(this, args);
         } catch (IllegalArgumentException e) {

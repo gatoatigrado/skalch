@@ -8,8 +8,8 @@ import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.inputs.ScCounterexample;
-import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScStackSynthesis;
@@ -109,13 +109,13 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }).add();
     }
 
-    public void set_counterexamples(ScInputConf[] inputs) {
-        final ScCounterexample[] counterexamples =
-                ScCounterexample.from_inputs(inputs);
+    public void set_counterexamples(ScSolvingInputConf[] inputs) {
+        final ScFixedInputConf[] counterexamples =
+                ScFixedInputConf.from_inputs(inputs);
         final ScUiThread target = this;
         new RunnableModifier(new Runnable() {
             public void run() {
-                for (ScCounterexample elt : counterexamples) {
+                for (ScFixedInputConf elt : counterexamples) {
                     target.gui.inputChoices.add(elt);
                 }
             }

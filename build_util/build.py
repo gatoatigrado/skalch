@@ -7,7 +7,7 @@ import path_resolv
 import custom_compile
 
 options = ["print_lowered"]
-defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s".split(" "),
+defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s -Xplugin:%(plugin_path)s".split(" "),
     "javac": "-classpath %(classpath)s -sourcepath %(src_path)s -d %(out_path)s".split(" "),
     "javap": "-classpath %(classpath)s:%(out_path)s".split(" ") }
 defaultopts["scalac"] = defaultopts["fsc"]

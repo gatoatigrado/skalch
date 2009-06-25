@@ -61,13 +61,13 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         System.arraycopy(values, 0, next_values, 0, values.length);
         System.arraycopy(untilv, 0, next_untilv, 0, untilv.length);
         System.arraycopy(set_cnt, 0, next_set_cnt, 0, set_cnt.length);
+        for (int a = values.length; a < next_length; a++) {
+            next_values[a] = -1;
+            next_untilv[a] = -1;
+        }
         values = next_values;
         untilv = next_untilv;
         set_cnt = next_set_cnt;
-        for (int a = values.length; a < next_length; a++) {
-            values[a] = -1;
-            untilv[a] = -1;
-        }
     }
 
     public boolean set(int uid, int v) {

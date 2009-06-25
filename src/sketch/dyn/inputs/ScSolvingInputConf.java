@@ -106,9 +106,31 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         next = prev.next.clone();
     }
 
+    @SuppressWarnings("unchecked")
+    private void realloc(int min_length) {
+        int next_length = Math.max(min_length, values.length * 2);
+        Vector<Integer>[] next_values = new Vector[next_length];
+        int[] next_untilv = new int[next_length];
+        int[] next_next = new int[next_length];
+        System.arraycopy(values, 0, next_values, 0, values.length);
+        System.arraycopy(untilv, 0, next_untilv, 0, untilv.length);
+        System.arraycopy(next, 0, next_next, 0, next.length);
+        for (int a = values.length; a < next_length; a++) {
+            next_values[a] = new Vector<Integer>(10);
+            untilv[a] = -1;
+        }
+        values = next_values;
+        untilv = next_untilv;
+        next = next_next;
+    }
+
     @Override
     public int dynamicNextValue(int uid, int untilv) {
-        return 0;
+        if (uid > values.length) {
+            realloc(uid + 1);
+        }
+        this.untilv[uid] = untilv;
+        return nextValue(uid);
     }
 
     @Override

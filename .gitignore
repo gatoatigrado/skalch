@@ -4,6 +4,7 @@ build/*
 *.hints
 # compile and symlink it yourself...
 lib/scala-library.jar
+lib/sketchrewriter.jar
 .scala_dependencies
 
 # Casey uses a makefile to save some keystrokes

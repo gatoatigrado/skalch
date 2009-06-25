@@ -16,3 +16,4 @@ cp $XML $TEMP/scalac-plugin.xml
 rm -rf $TEMP
 scalac -Xplugin:$JAR $TEST.scala && scala $TEST
 rm *.class
+cp $JAR ../../../lib

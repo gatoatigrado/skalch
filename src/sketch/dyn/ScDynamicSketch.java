@@ -5,6 +5,7 @@ import java.util.Vector;
 import sketch.dyn.ctrls.ScCtrlConf;
 import sketch.dyn.ctrls.ScCtrlSourceInfo;
 import sketch.dyn.inputs.ScInputGenerator;
+import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.util.DebugOut;
@@ -27,6 +28,8 @@ public abstract class ScDynamicSketch {
     public ScSourceLocation dysketch_fcn_location;
     protected ScSynthesisAssertFailure assert_inst__ =
             new ScSynthesisAssertFailure();
+    protected ScDynamicUntilvException untilv_inst__ =
+            new ScDynamicUntilvException();
 
     public abstract ScConstructInfo[] get_hole_info();
 
@@ -41,6 +44,12 @@ public abstract class ScDynamicSketch {
     public void synthAssertTerminal(boolean truth) {
         if (!truth) {
             throw assert_inst__;
+        }
+    }
+
+    public void dynamicUntilvAssert(boolean truth) {
+        if (!truth) {
+            throw untilv_inst__;
         }
     }
 

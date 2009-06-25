@@ -1,17 +1,13 @@
 package sketch.dyn.synth;
 
 /**
- * exception raised when calling through the nice assert functions
+ * thrown when the stack should pop the last value off instead of incrementing
+ * it.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public final class ScSynthesisAssertFailure extends RuntimeException {
-    private static final long serialVersionUID = -4184978608394059869L;
-
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
-    }
+public class ScDynamicUntilvException extends RuntimeException {
+    private static final long serialVersionUID = 1774721158299378738L;
 }

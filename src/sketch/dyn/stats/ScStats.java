@@ -15,15 +15,15 @@ public abstract class ScStats {
 
     /** currently set by ScSynthesis */
     public static void initialize() {
-        if (BackendOptions.stat_opts.bool_("enable")) {
+        if (BackendOptions.stat_opts.bool_("disable")) {
+            stats = new ScNullStats();
+        } else {
             if (BackendOptions.stat_opts.bool_("no_mt_safe")) {
                 stats = new ScStatsSeq();
             } else {
                 DebugOut.print("using mt stats");
                 stats = new ScStatsMT();
             }
-        } else {
-            stats = new ScNullStats();
         }
     }
 

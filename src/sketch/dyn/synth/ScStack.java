@@ -110,8 +110,8 @@ public class ScStack extends ScPrefixSearch {
         }
     }
 
-    protected void next_inner() {
-        if (!current_prefix.get_all_searched()) {
+    protected void next_inner(boolean force_pop) {
+        if (!force_pop && !current_prefix.get_all_searched()) {
             try {
                 ScStackEntry last = stack.peek();
                 // get the stack exception first
@@ -135,7 +135,7 @@ public class ScStack extends ScPrefixSearch {
         // recurse if this subtree is searched.
         reset_accessed(stack.pop());
         current_prefix = current_prefix.get_parent(this);
-        next_inner();
+        next_inner(false);
     }
 
     protected void reset_accessed(ScStackEntry prev) {
@@ -146,7 +146,7 @@ public class ScStack extends ScPrefixSearch {
         }
     }
 
-    public void next() {
+    public void next(boolean force_pop) {
         // DebugOut.print_mt("   next -", this, first_run, added_entries);
         if (first_run) {
             // now at DefaultPrefix
@@ -155,7 +155,7 @@ public class ScStack extends ScPrefixSearch {
             // need to create a LocalPrefix
             current_prefix = current_prefix.add_entries(added_entries);
         }
-        next_inner();
+        next_inner(force_pop);
         // reset for next run. oracle_input.reset_index() should happen after
         // next_inner()
         added_entries = 0;

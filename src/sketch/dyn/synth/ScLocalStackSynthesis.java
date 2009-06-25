@@ -77,6 +77,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         /** @returns true if exhausted (need to wait) */
         public boolean blind_fast_routine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
+                boolean force_pop = false;
                 // run the program
                 // trycatch doesn't seem slow.
                 trycatch: try {
@@ -93,6 +94,8 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                     ssr.add_solution(stack);
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {
+                } catch (ScDynamicUntilvException e) {
+                    force_pop = true;
                 }
                 // advance the stack (whether it succeeded or not)
                 try {
@@ -105,7 +108,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                         random_stacks.add(stack.clone());
                         replacement_probability /= 2.f;
                     }
-                    stack.next();
+                    stack.next(force_pop);
                 } catch (ScSearchDoneException e) {
                     DebugOut.print_mt("exhausted local search");
                     return true;

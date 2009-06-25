@@ -29,6 +29,7 @@ class SketchRewriter(val global: Global) extends Plugin {
             var hintsSink: java.io.StringWriter = null
 
             def apply(unit: CompilationUnit) {
+                Console.println("applying " + name + " to " + unit.source.file.path)
                 hintsSink = new java.io.StringWriter()
                 unit.body = CallTransformer.transform(unit.body)
                 val hints = hintsSink.toString()
@@ -66,6 +67,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         val newTree = treeCopy.Apply(tree, select, uidLit :: transformTrees(args))
 
                         hintsSink.write(select.toString + " " + uid + " " + tree.pos.line.get + " " + tree.pos.column.get + "\n")
+
                         uid += 1
                         newTree
                     case _ => 

@@ -32,7 +32,10 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         set_cnt = new int[hole_info.length];
         for (int a = 0; a < hole_info.length; a++) {
             int uid = hole_info[a].uid();
-            if (values[uid] != 0) {
+            if (uid >= hole_info.length) {
+                DebugOut.assertFalse("uid greater than hole info length", uid,
+                        hole_info.length);
+            } else if (values[uid] != 0) {
                 DebugOut.assertFalse("double initializing uid", uid);
             }
             values[uid] = -1;
@@ -48,6 +51,23 @@ public class ScSynthCtrlConf extends ScCtrlConf {
             result += value;
         }
         return result;
+    }
+
+    public void realloc(int min_length) {
+        int next_length = Math.max(min_length, values.length * 2);
+        int[] next_values = new int[next_length];
+        int[] next_untilv = new int[next_length];
+        int[] next_set_cnt = new int[next_length];
+        System.arraycopy(values, 0, next_values, 0, values.length);
+        System.arraycopy(untilv, 0, next_untilv, 0, untilv.length);
+        System.arraycopy(set_cnt, 0, next_set_cnt, 0, set_cnt.length);
+        values = next_values;
+        untilv = next_untilv;
+        set_cnt = next_set_cnt;
+        for (int a = values.length; a < next_length; a++) {
+            values[a] = -1;
+            untilv[a] = -1;
+        }
     }
 
     public boolean set(int uid, int v) {
@@ -121,5 +141,14 @@ public class ScSynthCtrlConf extends ScCtrlConf {
     @Override
     public String getValueString(int uid) {
         return value_string[uid];
+    }
+
+    @Override
+    public int getDynamicValue(int uid, int untilv) {
+        if (uid >= values.length) {
+            realloc(uid + 1);
+        }
+        this.untilv[uid] = untilv;
+        return getValue(uid);
     }
 }

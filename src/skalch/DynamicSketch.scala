@@ -43,7 +43,25 @@ abstract class DynamicSketch extends ScDynamicSketch {
         def tests() { test_case() }
     }
 
+    def ??(uid: Int, untilv: Int): Int = {
+        //DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
+        0
+    }
+    
+    def ??(untilv: Int): Int = {
+        assert(false, "??() requires sketchrewriter plugin")
+        0
+    }
 
+    def !!(uid: Int, untilv: Int): Int = {
+        //DynamicSketch.this.oracle_input_backend(uid, untilv).next_dynamic_value()
+        0
+    }
+
+    def !!(untilv: Int): Int = {
+        assert(false, "!!() requires sketchrewriter plugin")
+        0
+    }
 
     // === Holes ===
     class Hole(val untilv : Int) extends ScConstructInfo with ScCtrlConstructInfo {

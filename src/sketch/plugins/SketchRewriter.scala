@@ -26,17 +26,21 @@ class SketchRewriter(val global: Global) extends Plugin {
 
             var uid: Int = 0
 
-            var currentHintsFile: java.io.FileWriter = null
+            var hintsSink: java.io.StringWriter = null
 
             def apply(unit: CompilationUnit) {
-                currentHintsFile = new java.io.FileWriter(unit.source.file.path + ".hints")
+                hintsSink = new java.io.StringWriter()
                 unit.body = CallTransformer.transform(unit.body)
-                currentHintsFile.close()
+                val hints = hintsSink.toString()
+                if(hints.length != 0) {
+                    val fw = new java.io.FileWriter(unit.source.file.path + ".hints")
+                    fw.write(hints)
+                    fw.close()
+                }
             }
 
             // Rewrite calls to ?? to include a call site specific uid
             object CallTransformer extends Transformer {
-                //?? uid line column
                 
                 def isSketchConstruct(tree: Tree): Boolean = {
                     val sketchConstructs = List[String]("$qmark$qmark", "$bang$bang")
@@ -61,7 +65,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         uidLit.setType(ConstantType(Constant(uid)))
                         val newTree = treeCopy.Apply(tree, select, uidLit :: transformTrees(args))
 
-                        currentHintsFile.write(select.toString + " " + uid + " " + tree.pos.line.get + " " + tree.pos.column.get + "\n")
+                        hintsSink.write(select.toString + " " + uid + " " + tree.pos.line.get + " " + tree.pos.column.get + "\n")
                         uid += 1
                         newTree
                     case _ => 

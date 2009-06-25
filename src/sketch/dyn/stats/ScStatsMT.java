@@ -10,13 +10,13 @@ public class ScStatsMT extends ScStats {
     protected long start_time, end_time;
 
     @Override
-    public void run_test() {
-        nrun.incrementAndGet();
+    public void run_test(long ntests) {
+        nrun.addAndGet(ntests);
     }
 
     @Override
-    public void try_counterexample() {
-        ncounterexamples.incrementAndGet();
+    public void try_counterexample(long ncounterexamples_) {
+        ncounterexamples.addAndGet(ncounterexamples_);
     }
 
     @Override

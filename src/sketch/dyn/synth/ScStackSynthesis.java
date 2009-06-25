@@ -30,10 +30,10 @@ public class ScStackSynthesis {
     protected ScSynthCtrlConf ctrls;
     protected ScInputConf oracle_inputs;
     protected ScUserInterface ui;
-    protected int nsolutions_found = 0;
+    protected long nsolutions_found = 0;
     // command line options
-    protected int nsolutions_to_find;
-    protected int debug_stop_after;
+    protected long nsolutions_to_find;
+    protected long debug_stop_after;
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
     public ExhaustedWaitHandler wait_handler;
@@ -53,8 +53,8 @@ public class ScStackSynthesis {
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
         // command line options
-        nsolutions_to_find = BackendOptions.synth_opts.int_("num_solutions");
-        debug_stop_after = BackendOptions.synth_opts.int_("debug_stop_after");
+        nsolutions_to_find = BackendOptions.synth_opts.long_("num_solutions");
+        debug_stop_after = BackendOptions.synth_opts.long_("debug_stop_after");
     }
 
     public boolean synthesize(ScInputConf[] counterexamples, ScUserInterface ui)

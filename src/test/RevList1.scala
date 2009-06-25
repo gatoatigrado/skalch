@@ -101,6 +101,6 @@ object RevListTest {
         val cmdopts = new sketch.util.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
-        skalch.synthesize(() => new RevList1(opts.int_("list_length")))
+        skalch.synthesize(() => new RevList1(opts.long_("list_length").intValue))
     }
 }

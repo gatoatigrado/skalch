@@ -34,7 +34,7 @@ public abstract class CliOptGroup {
                 String as_str = (String) ent;
                 if (as_str.startsWith("--")) {
                     if (as_str.contains("num") || as_str.contains("len")) {
-                        opt.type_ = Integer.class;
+                        opt.type_ = Long.class;
                         if (opt.default_.equals(new Boolean(false))) {
                             opt.default_ = null;
                         }
@@ -53,9 +53,12 @@ public abstract class CliOptGroup {
                     opt.default_ = opt.help_;
                     opt.help_ = as_str;
                 }
-            } else if (ent instanceof Integer) {
-                opt.type_ = Integer.class;
+            } else if (ent instanceof Long) {
+                opt.type_ = Long.class;
                 opt.default_ = ent;
+            } else if (ent instanceof Integer) {
+                opt.type_ = Long.class;
+                opt.default_ = new Long(((Integer) ent).longValue());
             } else if (ent instanceof Float) {
                 opt.type_ = Float.class;
                 opt.default_ = ent;
@@ -84,13 +87,14 @@ public abstract class CliOptGroup {
 
         public Option as_option(String prefix) {
             boolean has_name = !(type_.equals(Boolean.class));
-            full_name_ = prefix.equals("") ? name_ : prefix + "_" + name_;
+            full_name_ = prefix.equals("") ? name_ : (prefix + "_" + name_);
             String help = help_;
             if (default_ == null) {
                 help += " (REQUIRED)";
-            } else {
+            } else if (has_name) {
                 help += " [default " + default_.toString() + "]";
             }
+            DebugOut.print("adding option", this);
             return new Option(null, full_name_, has_name, help);
         }
 
@@ -105,7 +109,6 @@ public abstract class CliOptGroup {
             if (type_.equals(Boolean.class)) {
                 return cmd_line.hasOption(full_name_);
             }
-
             if (!cmd_line.hasOption(full_name_)) {
                 if (default_ == null) {
                     DebugOut.print_colored(DebugOut.BASH_RED, "", " ", false,
@@ -115,10 +118,9 @@ public abstract class CliOptGroup {
                 }
                 return default_;
             }
-
             String v = cmd_line.getOptionValue(full_name_);
-            if (type_.equals(Integer.class)) {
-                return Integer.parseInt(v);
+            if (type_.equals(Long.class)) {
+                return Long.parseLong(v);
             } else if (type_.equals(Float.class)) {
                 return Float.parseFloat(v);
             } else {

@@ -31,7 +31,7 @@ public class ScSynthesis {
         // initialization
         BackendOptions.initialize_defaults();
         ScStats.initialize();
-        nthreads = BackendOptions.synth_opts.int_("num_threads");
+        nthreads = (int) BackendOptions.synth_opts.long_("num_threads");
         ThreadLocalMT.disable_use_current_time_millis =
                 BackendOptions.synth_opts.bool_("no_clock_rand");
         // initialize ssr

@@ -5,13 +5,13 @@ public class ScStatsSeq extends ScStatsMT {
     public long ncounterexample = 0;
 
     @Override
-    public void run_test() {
-        nrun += 1;
+    public void run_test(long ntests) {
+        nrun += ntests;
     }
 
     @Override
-    public void try_counterexample() {
-        ncounterexample += 1;
+    public void try_counterexample(long ncounterexamples) {
+        ncounterexample += ncounterexamples;
     }
 
     @Override

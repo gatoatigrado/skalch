@@ -73,18 +73,19 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         ScStack stack;
         boolean exhausted = false;
         public float replacement_probability = 1.f;
+        protected int nruns, ncounterexamples;
 
         /** @returns true if exhausted (need to wait) */
-        public boolean blind_fast_routine() {
+        protected boolean blind_fast_routine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
                 boolean force_pop = false;
                 // run the program
                 // trycatch doesn't seem slow.
                 trycatch: try {
-                    ScStats.stats.run_test();
+                    nruns++;
                     // DebugOut.print_mt("running test");
                     for (ScCounterexample counterexample : counterexamples) {
-                        ScStats.stats.try_counterexample();
+                        ncounterexamples++;
                         counterexample.set_for_sketch(sketch);
                         // ssr.reachability_check.check(sketch);
                         if (!sketch.dysketch_main()) {
@@ -120,13 +121,20 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         public void run_inner() {
             stack = ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
-            for (int a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
+            for (long a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
                     NUM_BLIND_FAST)
             {
                 if (ssr.debug_stop_after != -1 && a >= ssr.debug_stop_after) {
                     ssr.wait_handler.wait_exhausted();
                 }
+                nruns = 0;
+                ncounterexamples = 0;
+                //
+                // NOTE to readers: main call
                 exhausted = blind_fast_routine();
+                //
+                ScStats.stats.run_test(nruns);
+                ScStats.stats.try_counterexample(ncounterexamples);
                 ssr.wait_handler.throw_if_synthesis_complete();
                 if (!ui_queue.isEmpty()) {
                     ui_queue.remove().setInfo(ScLocalStackSynthesis.this, this,

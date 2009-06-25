@@ -15,7 +15,7 @@ public class OptionResult {
         if (options == null || parser == null) {
             DebugOut.assertFalse();
         }
-        this.cached_results = new HashMap<String, Object>();
+        cached_results = new HashMap<String, Object>();
     }
 
     protected Object get_value(String name) {
@@ -46,8 +46,8 @@ public class OptionResult {
         return (String) get_value(name);
     }
 
-    public int int_(String name) {
-        return (Integer) get_value(name);
+    public long long_(String name) {
+        return (Long) get_value(name);
     }
 
     public float flt_(String name) {

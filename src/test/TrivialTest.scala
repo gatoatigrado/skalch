@@ -44,7 +44,7 @@ object TrivialTest {
     def main(args : Array[String])  = {
         val cmdopts = new sketch.util.CliParser(args)
         BackendOptions.add_opts(cmdopts)
-        val num_tests = TestOptions.parse(cmdopts).int_("num_tests")
+        val num_tests = TestOptions.parse(cmdopts).long_("num_tests").intValue
         skalch.synthesize(() => new TrivialSketch(num_tests))
     }
 }

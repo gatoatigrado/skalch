@@ -95,7 +95,7 @@ object BitonicSortTest {
         val cmdopts = new sketch.util.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
-        skalch.synthesize(() => new BitonicSort(opts.int_("num_steps"),
-                opts.int_("array_length"), opts.int_("num_tests")))
+        skalch.synthesize(() => new BitonicSort(opts.long_("num_steps").intValue,
+                opts.long_("array_length").intValue, opts.long_("num_tests").intValue))
     }
 }

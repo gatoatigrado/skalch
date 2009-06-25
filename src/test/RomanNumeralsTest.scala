@@ -51,7 +51,7 @@ object RomanNumeralsTest {
             "Please contact Nicholas Tung or Joel Galenson if you need it fixed.")
         val cmdopts = new sketch.util.CliParser(args)
         BackendOptions.add_opts(cmdopts)
-        val decimal_number = TestOptions.parse(cmdopts).int_("decimal_number")
+        val decimal_number = TestOptions.parse(cmdopts).long_("decimal_number").intValue
         skalch.synthesize(() => new RomanNumerals1(decimal_number))
     }
 }

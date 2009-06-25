@@ -7,11 +7,11 @@ public class ScNullStats extends ScStats {
     }
 
     @Override
-    public void run_test() {
+    public void run_test(long nruns) {
     }
 
     @Override
-    public void try_counterexample() {
+    public void try_counterexample(long ncounterexamples) {
     }
 
     @Override

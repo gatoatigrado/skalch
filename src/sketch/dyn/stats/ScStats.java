@@ -32,10 +32,10 @@ public abstract class ScStats {
     }
 
     /** called before a test is run (all counterexamples) */
-    public abstract void run_test();
+    public abstract void run_test(long nruns);
 
     /** called before a specific counterexample is run */
-    public abstract void try_counterexample();
+    public abstract void try_counterexample(long ncounterexamples);
 
     public abstract void start_synthesis();
 

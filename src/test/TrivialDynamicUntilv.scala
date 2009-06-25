@@ -48,6 +48,6 @@ object TrivialDynamicUntilvTest {
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new TrivialDynamicUntilv(
-            opts.int_("max_value"), opts.int_("num_tests")))
+            opts.long_("max_value").intValue, opts.long_("num_tests").intValue))
     }
 }

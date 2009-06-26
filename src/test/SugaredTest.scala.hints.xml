@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+<sketchconstruct type="$qmark$qmark" uid="0">
+    <rangepos name="entire_position">
+        <position name="start" line="10" column="9" />
+        <position name="end" line="10" column="48" />
+    </rangepos>
+    <rangepos name="argument_position">
+        <position name="start" line="10" column="20" />
+        <position name="end" line="10" column="47" />
+    </rangepos>
+</sketchconstruct>
+</document>

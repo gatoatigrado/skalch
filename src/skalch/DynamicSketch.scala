@@ -47,10 +47,13 @@ abstract class DynamicSketch extends ScDynamicSketch {
     def ??(uid: Int, untilv: Int): Int = {
         DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
     }
-    
-    def ??(untilv: Int): Int = {
-        assert(false, "??() requires sketchrewriter plugin")
-        0
+
+    def ??[T](uid : Int, list: List[T]) : T = {
+        val v = DynamicSketch.this.ctrl_conf.getDynamicValue(uid, list.length)
+        if (v >= list.length) {
+            print("Warning", "index exceeding list length; this shouldn't happen as untilv is set.", list.toString)
+        }
+        list(v)
     }
 
     def !!(uid: Int, untilv: Int): Int = {

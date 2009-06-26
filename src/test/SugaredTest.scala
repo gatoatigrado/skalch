@@ -7,8 +7,7 @@ import sketch.util._
 class SugaredSketch() extends DynamicSketch {
 
     def dysketch_main() = {
-        synthAssertTerminal(??(3) == ??(10) + 1)
-        true
+        ??[String](List(/* hello */"??", "!!")) == "!!"
     }
 
     val test_generator = new TestGenerator {

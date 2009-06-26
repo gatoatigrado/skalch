@@ -1,0 +1,24 @@
+diff --git a/src/compiler/scala/tools/nsc/Global.scala b/src/compiler/scala/tools/nsc/Global.scala
+index 7b256c1..46b18db 100644
+--- a/src/compiler/scala/tools/nsc/Global.scala
++++ b/src/compiler/scala/tools/nsc/Global.scala
+@@ -12,7 +12,7 @@ import java.nio.charset._
+ import compat.Platform.currentTime
+ import scala.tools.nsc.io.{SourceReader, AbstractFile}
+ import scala.tools.nsc.reporters._
+-import scala.tools.nsc.util.{ClassPath, SourceFile, BatchSourceFile, OffsetPosition}
++import scala.tools.nsc.util.{ClassPath, SourceFile, BatchSourceFile, OffsetPosition, RangePosition}
+ 
+ import scala.collection.mutable.{HashSet, HashMap, ListBuffer}
+ 
+@@ -134,7 +134,9 @@ class Global(var settings: Settings, var reporter: Reporter) extends SymbolTable
+   /** Return a position correponding to tree startaing at `start`, with tip
+    *  at `mid`, and ending at `end`. ^ batch mode errors point at tip.
+    */
+-  def rangePos(source: SourceFile, start: Int, mid: Int, end: Int) = OffsetPosition(source, mid)
++  def rangePos(source: SourceFile, start: Int, mid: Int, end: Int) =
++    new RangePosition(source, start, mid, end)
++    // OffsetPosition(source, mid)
+ 
+   /** Called every time an AST node is succesfully typedchecked in typerPhase.
+    */ 

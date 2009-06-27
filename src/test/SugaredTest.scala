@@ -7,7 +7,7 @@ import sketch.util._
 class SugaredSketch() extends DynamicSketch {
 
     def dysketch_main() = {
-        ??[String](List(/* hello */"??", "!!")) == "!!"
+        ??(3) == 2
     }
 
     val test_generator = new TestGenerator {

@@ -3,11 +3,11 @@
 <sketchconstruct type="$qmark$qmark" uid="0">
     <rangepos name="entire_position">
         <position name="start" line="10" column="9" />
-        <position name="end" line="10" column="48" />
+        <position name="end" line="10" column="14" />
     </rangepos>
     <rangepos name="argument_position">
-        <position name="start" line="10" column="20" />
-        <position name="end" line="10" column="47" />
+        <position name="start" line="10" column="12" />
+        <position name="end" line="10" column="13" />
     </rangepos>
 </sketchconstruct>
 </document>

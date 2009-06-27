@@ -1,10 +1,12 @@
 package sketch.dyn;
 
+import scala.Function0;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import sketch.util.DebugOut;
 import ec.util.ThreadLocalMT;
 
 /**
@@ -37,10 +39,18 @@ public class ScSynthesis {
         // initialize ssr
         sketches = new ScDynamicSketch[nthreads];
         for (int a = 0; a < nthreads; a++) {
-            sketches[a] = f.apply();
+            sketches[a] = load_sketch(f);
         }
-        ui_sketch = f.apply();
+        ui_sketch = load_sketch(f);
         ssr = new ScStackSynthesis(sketches);
+    }
+
+    private ScDynamicSketch load_sketch(Function0<ScDynamicSketch> f) {
+        ScDynamicSketch sketch = f.apply();
+        DebugOut.print_mt(sketch.getClass().getClassLoader().getResource(
+                "/test/SugaredTest.scala.hints.xml"));
+        System.exit(0);
+        return sketch;
     }
 
     protected ScSolvingInputConf[] generate_inputs(ScDynamicSketch sketch) {

@@ -1,13 +1,12 @@
 package sketch.ui.sourcecode;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Set;
 
 import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.DebugOut;
+import sketch.util.EntireFileReader;
 import sketch.util.RichString;
 
 public class ScSourceCache {
@@ -35,27 +34,11 @@ public class ScSourceCache {
 
         public SourceFile(String filename) {
             try {
-                lines = load_file(filename).split("\\n");
+                lines = EntireFileReader.load_file(filename).split("\\n");
             } catch (IOException e) {
                 e.printStackTrace();
                 DebugOut.assertFalse("io exception reading file", filename);
             }
-        }
-
-        public String load_file(String filename) throws IOException {
-            FileInputStream file_in = new FileInputStream(filename);
-            InputStreamReader in = new InputStreamReader(file_in);
-            StringBuilder builder = new StringBuilder();
-            char[] buffer = new char[4096];
-            int length;
-            while (true) {
-                length = in.read(buffer);
-                if (length <= 0) {
-                    break;
-                }
-                builder.append(buffer, 0, length);
-            }
-            return builder.toString();
         }
 
         public String[] getLinesCopy(LineColumn start, LineColumn end) {

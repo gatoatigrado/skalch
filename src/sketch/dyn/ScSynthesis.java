@@ -1,5 +1,9 @@
 package sketch.dyn;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
 import scala.Function0;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStats;
@@ -7,6 +11,7 @@ import sketch.dyn.synth.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
 import sketch.util.DebugOut;
+import sketch.util.EntireFileReader;
 import ec.util.ThreadLocalMT;
 
 /**
@@ -47,8 +52,16 @@ public class ScSynthesis {
 
     private ScDynamicSketch load_sketch(Function0<ScDynamicSketch> f) {
         ScDynamicSketch sketch = f.apply();
-        DebugOut.print_mt(sketch.getClass().getClassLoader().getResource(
-                "/test/SugaredTest.scala.hints.xml"));
+        DebugOut.print("sketch name", sketch.getClass().getName());
+        Class<?> cls = sketch.getClass();
+        String info_rc = cls.getName().replace(".", File.separator) + ".info";
+        URL rc = cls.getClassLoader().getResource(info_rc);
+        try {
+            String text = EntireFileReader.load_file(rc.openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        DebugOut.print("resource", rc);
         System.exit(0);
         return sketch;
     }

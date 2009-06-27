@@ -127,7 +127,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 (new SketchDetector(sketchClasses)).transform(comp_unit.body)
                 for (cls_sym <- sketchClasses) {
                     val cls_out_file = global.getFile(cls_sym, "") + ".info"
-                    (new FileOutputStream(cls_out_file)).write("%s %s".format(
+                    (new FileOutputStream(cls_out_file)).write("%s\n%s".format(
                         out_file, comp_unit.source.file.path).getBytes)
                 }
             }

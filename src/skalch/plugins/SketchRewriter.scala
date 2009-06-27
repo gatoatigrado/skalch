@@ -1,4 +1,4 @@
-package plugins
+package skalch.plugins
 
 import scala.collection.mutable.ListBuffer
 import scala.tools.nsc

@@ -2,6 +2,8 @@
 skalch_proj_dir="$(dirname "$(dirname "$0")")"
 cd "$skalch_proj_dir"
 set -v
-build_util/build.py fsc /plugin print
-cp src/skalch/plugins/scalac-plugin.xml bin/skalch/plugins/
-(cd bin; jar c0f ../lib/sketchrewriter.jar skalch/plugins/*)
+rm -f lib/sketchrewriter.jar
+rm -rf bin/skalch/plugins
+build_util/build.py fsc no_default_opts --option=-classpath "--option=%(classpath)s" --option=-sourcepath "--option=%(src_path)s" /plugin print
+cp src/skalch/plugins/scalac-plugin.xml bin/
+(cd bin; jar c0f ../lib/sketchrewriter.jar scalac-plugin.xml skalch/plugins/*)

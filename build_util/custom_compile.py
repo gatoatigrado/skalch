@@ -23,7 +23,10 @@ class Compiler(object):
         self.print = self.print or self.src_filter
         self.classpath = os.environ["CLASSPATH"]
         self.src_extensions = self.src_extensions.split(",")
-        self.plugin_path = path_resolv.resolve("lib/sketchrewriter.jar")
+        try:
+            self.plugin_path = path_resolv.resolve("lib/sketchrewriter.jar")
+        except:
+            self.plugin_path = ""
         assert self.src_path.exists() and self.out_path.exists()
 
     def clean_dir(self):

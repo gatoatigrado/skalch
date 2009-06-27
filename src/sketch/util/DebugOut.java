@@ -58,8 +58,7 @@ public class DebugOut {
     }
 
     public static void assertFalse(Object... description) {
-        print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false,
-                description);
+        print_colored(BASH_RED, "[ASSERT FAILURE] ", " ", false, description);
         assert (false);
         throw new java.lang.IllegalStateException("please enable asserts.");
     }
@@ -92,4 +91,8 @@ public class DebugOut {
     protected static ThreadIndentation thread_indentation =
             new ThreadIndentation();
 
+    public static void print_exception(String text, Exception e) {
+        print_colored(BASH_RED, "[EXCEPTION]", "\n", false, text);
+        e.printStackTrace();
+    }
 }

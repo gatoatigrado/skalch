@@ -4,6 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.ParsingException;
+import nu.xom.ValidityException;
 import scala.Function0;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStats;
@@ -52,16 +57,23 @@ public class ScSynthesis {
 
     private ScDynamicSketch load_sketch(Function0<ScDynamicSketch> f) {
         ScDynamicSketch sketch = f.apply();
-        DebugOut.print("sketch name", sketch.getClass().getName());
         Class<?> cls = sketch.getClass();
         String info_rc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(info_rc);
         try {
             String text = EntireFileReader.load_file(rc.openStream());
+            String[] names = text.split("\\n");
+            Builder b = new Builder();
+            Document doc = b.build(new File(names[0]));
+            Element elt = doc.getRootElement();
+            DebugOut.print("root elt", elt);
         } catch (IOException e) {
-            e.printStackTrace();
+            DebugOut.print_exception("reading source annotation info ", e);
+        } catch (ValidityException e) {
+            DebugOut.print_exception("reading source annotation info ", e);
+        } catch (ParsingException e) {
+            DebugOut.print_exception("reading source annotation info ", e);
         }
-        DebugOut.print("resource", rc);
         System.exit(0);
         return sketch;
     }

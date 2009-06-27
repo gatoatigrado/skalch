@@ -16,7 +16,7 @@ class TrivialDynamicUntilv(val max_n : Int, val num_tests : Int)
 
     def dysketch_main() = {
         val n = in_length()
-        val x = oracle()
+        val x = !!(max_n)
         dynamicUntilvAssert(x <= n)
         x == n
     }

@@ -62,7 +62,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                 if(hints.length != 0) {
                     val fullString = """<?xml version="1.0" encoding="utf-8"?>
 <document>
-%s</document>""".format(hints)
+%s</document>
+""".format(hints)
                     scalaFileMap += (comp_unit -> fullString)
                 }
             }
@@ -116,8 +117,9 @@ class SketchRewriter(val global: Global) extends Plugin {
                 val fullString = scalaFileMap(comp_unit)
 
                 val out_dir = global.getFile(comp_unit.body.symbol, "")
+                val out_dir_path = out_dir.getCanonicalPath.replaceAll("<empty>$", "")
                 val copy_name = comp_unit.source.file.name + fname_extension
-                val out_file = (new File(out_dir.getAbsolutePath +
+                val out_file = (new File(out_dir_path +
                     File.separator + copy_name)).getCanonicalPath
                 (new FileOutputStream(out_file)).write(fullString.getBytes())
 
@@ -128,11 +130,6 @@ class SketchRewriter(val global: Global) extends Plugin {
                     (new FileOutputStream(cls_out_file)).write("%s %s".format(
                         out_file, comp_unit.source.file.path).getBytes)
                 }
-            }
-
-            def print(x : Object*) : Unit = {
-                for (v <- x) { Console.print(String.format("%20s ", "\"" + v.toString + "\"")) }
-                Console.println()
             }
 
             class SketchDetector(val sketchClasses : ListBuffer[Symbol]) extends Transformer {

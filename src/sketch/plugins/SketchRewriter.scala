@@ -1,5 +1,6 @@
 package plugins
 
+import scala.collection.mutable.ListBuffer
 import scala.tools.nsc
 import java.io.{File, FileInputStream, FileOutputStream}
 import nsc._
@@ -59,13 +60,10 @@ class SketchRewriter(val global: Global) extends Plugin {
                 comp_unit.body = CallTransformer.transform(comp_unit.body)
                 val hints = hintsSink.toString()
                 if(hints.length != 0) {
-                    val fname = comp_unit.source.file.path + fname_extension
-                    val fw = new java.io.FileWriter(fname)
-                    scalaFileMap += (comp_unit -> comp_unit.source.file)
-                    fw.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<document>\n")
-                    fw.write(hints)
-                    fw.write("</document>")
-                    fw.close()
+                    val fullString = """<?xml version="1.0" encoding="utf-8"?>
+<document>
+%s</document>""".format(hints)
+                    scalaFileMap += (comp_unit -> fullString)
                 }
             }
 
@@ -91,8 +89,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         val newTree = treeCopy.Apply(tree, select, uidLit :: transformTrees(args))
 
                         hintsSink.write(toXmlTag(fcnName(select),
-                            new SketchFcnApply(uid, tree.pos, args(0).pos), ""))
-                        // print(global.genJVM.codeGenerator.
+                            new SketchFcnApply(uid, tree.pos, args(0).pos), "    "))
 
                         uid += 1
                         newTree
@@ -116,23 +113,21 @@ class SketchRewriter(val global: Global) extends Plugin {
                 if (!scalaFileMap.keySet.contains(comp_unit)) {
                     return
                 }
-                val copy_from = scalaFileMap(comp_unit)
+                val fullString = scalaFileMap(comp_unit)
 
-                // copy to calculation; comp_unit.body is of type "package".
-                // I'm not sure how great this is.
-                val copy_to = settings.outputDirs.outputDirFor(copy_from)
                 val out_dir = global.getFile(comp_unit.body.symbol, "")
-                val copy_name = copy_from.name + fname_extension
-                val out_file = out_dir.getAbsolutePath + File.separator + copy_name
-                val in_file = copy_from.path + fname_extension
-                SketchDetector.transform(comp_unit.body)
+                val copy_name = comp_unit.source.file.name + fname_extension
+                val out_file = (new File(out_dir.getAbsolutePath +
+                    File.separator + copy_name)).getCanonicalPath
+                (new FileOutputStream(out_file)).write(fullString.getBytes())
 
-                val instream = new FileInputStream(in_file)
-                val outstream = new FileOutputStream(out_file)
-
-                val inbuf = new Array[Byte](instream.available)
-                instream.read(inbuf)
-                outstream.write(inbuf)
+                var sketchClasses = ListBuffer[Symbol]()
+                (new SketchDetector(sketchClasses)).transform(comp_unit.body)
+                for (cls_sym <- sketchClasses) {
+                    val cls_out_file = global.getFile(cls_sym, "") + ".info"
+                    (new FileOutputStream(cls_out_file)).write("%s %s".format(
+                        out_file, comp_unit.source.file.path).getBytes)
+                }
             }
 
             def print(x : Object*) : Unit = {
@@ -140,7 +135,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 Console.println()
             }
 
-            object SketchDetector extends Transformer {
+            class SketchDetector(val sketchClasses : ListBuffer[Symbol]) extends Transformer {
                 /** is a type skalch.DynamicSketch or a subtype of it? */
                 def is_dynamic_sketch(tp : Type) : Boolean = tp match {
                     case ClassInfoType(parents, decls, type_sym) =>
@@ -158,6 +153,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                     tree match {
                         case clsdef : ClassDef =>
                             if (is_dynamic_sketch(clsdef.symbol.info)) {
+                                sketchClasses += clsdef.symbol
                             }
                         case _ => ()
                     }

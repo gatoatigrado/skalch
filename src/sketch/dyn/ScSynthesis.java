@@ -6,7 +6,7 @@ import java.net.URL;
 
 import nu.xom.Builder;
 import nu.xom.Document;
-import nu.xom.Element;
+import nu.xom.Elements;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 import scala.Function0;
@@ -15,6 +15,7 @@ import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
 import ec.util.ThreadLocalMT;
@@ -63,10 +64,15 @@ public class ScSynthesis {
         try {
             String text = EntireFileReader.load_file(rc.openStream());
             String[] names = text.split("\\n");
-            Builder b = new Builder();
-            Document doc = b.build(new File(names[0]));
-            Element elt = doc.getRootElement();
-            DebugOut.print("root elt", elt);
+            Document doc = (new Builder()).build(new File(names[0]));
+            Elements srcinfo =
+                    doc.getRootElement().getChildElements("sketchconstruct");
+            for (int a = 0; a < srcinfo.size(); a++) {
+                ScSourceConstruct info =
+                        ScSourceConstruct.from_node(srcinfo.get(a), names[1],
+                                sketch);
+                sketch.addHoleSourceInfo(info);
+            }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);
         } catch (ValidityException e) {

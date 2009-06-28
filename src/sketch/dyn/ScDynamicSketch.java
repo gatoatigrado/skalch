@@ -3,10 +3,10 @@ package sketch.dyn;
 import java.util.Vector;
 
 import sketch.dyn.ctrls.ScCtrlConf;
-import sketch.dyn.ctrls.ScCtrlSourceInfo;
 import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.util.DebugOut;
 
@@ -21,8 +21,8 @@ public abstract class ScDynamicSketch {
     public ScCtrlConf ctrl_conf;
     public ScInputConf input_backend;
     public ScInputConf oracle_input_backend;
-    public Vector<ScCtrlSourceInfo> ctrl_src_info =
-            new Vector<ScCtrlSourceInfo>();
+    public Vector<ScSourceConstruct> ctrl_src_info =
+            new Vector<ScSourceConstruct>();
     public boolean debug_print_enable = false;
     public Vector<String> debug_out;
     public ScSourceLocation dysketch_fcn_location;
@@ -63,7 +63,8 @@ public abstract class ScDynamicSketch {
                 (Object[]) text);
     }
 
-    public void addHoleSourceInfo(ScCtrlSourceInfo info) {
+    public void addHoleSourceInfo(ScSourceConstruct info) {
+        DebugOut.print(info);
         ctrl_src_info.add(info);
     }
 }

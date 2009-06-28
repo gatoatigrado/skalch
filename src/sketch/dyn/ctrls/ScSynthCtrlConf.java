@@ -122,6 +122,7 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         return values[uid];
     }
 
+    // TODO -- integrate with oracles.
     public void generate_value_strings() {
         if (set_cnt.length == 0) {
             return;

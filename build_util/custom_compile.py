@@ -43,7 +43,7 @@ class Compiler(object):
     def run(self, cmd, save_output=None, file_ext="txt"):
         if self.print:
             self.print_cmd(cmd)
-        save_output = (self.kwrite or self.vim) if save_output is None else save_output
+        save_output = (self.kwrite or self.vim) if save_output else save_output
         pipe_output = { "stdout": subprocess.PIPE } if save_output else { }
         proc = subprocess.Popen(cmd, **pipe_output)
         text = proc.communicate()[0]

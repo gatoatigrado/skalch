@@ -3,6 +3,7 @@ package sketch.ui.sourcecode;
 import java.io.File;
 
 import sketch.util.DebugOut;
+import sketch.util.XmlEltWrapper;
 
 /**
  * a location in source code. always contains a filename, sometimes line number,
@@ -60,6 +61,10 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
             return (line < other.line)
                     || ((line == other.line) && (column < other.column));
         }
+
+        public static LineColumn fromXML(XmlEltWrapper pos) {
+            return new LineColumn(pos.int_attr("line"), pos.int_attr("column"));
+        }
     }
 
     public int compareTo(ScSourceLocation other) {
@@ -98,5 +103,15 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
         LineColumn afterEnd =
                 new LineColumn(Math.min(last_line, end.line + nlines + 1), 0);
         return new ScSourceLocation(filename, end, afterEnd);
+    }
+
+    public static ScSourceLocation fromXML(String filename,
+            XmlEltWrapper location)
+    {
+        XmlEltWrapper start_elt = location.XpathElt("position[@name='start']");
+        XmlEltWrapper end_elt = location.XpathElt("position[@name='end']");
+        LineColumn start_lc = LineColumn.fromXML(start_elt);
+        LineColumn end_lc = LineColumn.fromXML(end_elt);
+        return new ScSourceLocation(filename, start_lc, end_lc);
     }
 }

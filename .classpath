@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="skalch/|test/|sketch/plugins/" kind="src" path="src"/>
+	<classpathentry excluding="test/|sketch/plugins/|skalch/DynamicSketch.scala|skalch/plugins/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar" sourcepath="lib/commons-cli-1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library.jar"/>

@@ -13,6 +13,7 @@ import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceCache;
+import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.ui.sourcecode.ScStackSourceVisitor;
 import sketch.util.DebugOut;
@@ -83,12 +84,12 @@ public class ScUiGui extends gui_0_1 {
 
     public void fillWithStack(ScStack stack) {
         // get source
-        HashMap<String, Vector<ScCtrlSourceInfo>> info_by_filename =
-                new HashMap<String, Vector<ScCtrlSourceInfo>>();
-        for (ScCtrlSourceInfo hole_info : ui_thread.sketch.ctrl_src_info) {
-            String f = hole_info.src_loc.filename;
+        HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
+                new HashMap<String, Vector<ScSourceConstruct>>();
+        for (ScSourceConstruct hole_info : ui_thread.sketch.ctrl_src_info) {
+            String f = hole_info.entire_location.filename;
             if (!info_by_filename.containsKey(f)) {
-                info_by_filename.put(f, new Vector<ScCtrlSourceInfo>());
+                info_by_filename.put(f, new Vector<ScSourceConstruct>());
             }
             info_by_filename.get(f).add(hole_info);
         }
@@ -99,7 +100,7 @@ public class ScUiGui extends gui_0_1 {
                 + "font-size: 12pt;\n}\n</style>\n  </head>\n  <body>"
                 + "<p>color indicates how often values are changed: red "
                 + "is very often, yellow is occasionally, blue is never.");
-        for (Entry<String, Vector<ScCtrlSourceInfo>> entry : info_by_filename
+        for (Entry<String, Vector<ScSourceConstruct>> entry : info_by_filename
                 .entrySet())
         {
             result.append("\n<p><pre style=\"font-family: serif;\">");
@@ -111,10 +112,10 @@ public class ScUiGui extends gui_0_1 {
     }
 
     private void add_source_info(StringBuilder result, String key,
-            Vector<ScCtrlSourceInfo> value)
+            Vector<ScSourceConstruct> vector)
     {
         ScCtrlSourceInfo[] hole_info_sorted =
-                value.toArray(new ScCtrlSourceInfo[0]);
+                vector.toArray(new ScCtrlSourceInfo[0]);
         Arrays.sort(hole_info_sorted);
         ScSourceLocation start = hole_info_sorted[0].src_loc.contextBefore(3);
         ScSourceLocation end =

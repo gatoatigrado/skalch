@@ -44,10 +44,13 @@ abstract class DynamicSketch extends ScDynamicSketch {
         def tests() { test_case() }
     }
 
+    /** NOTE - description annotations are necessary to know how to complete the hole. */
+    @DescriptionAnnotation("[[integer untilv hole]] basic hole")
     def ??(uid: Int, untilv: Int): Int = {
         DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
     }
 
+    @DescriptionAnnotation("[[object apply hole]] list select")
     def ??[T](uid : Int, list: List[T]) : T = {
         val v = DynamicSketch.this.ctrl_conf.getDynamicValue(uid, list.length)
         if (v >= list.length) {
@@ -68,12 +71,13 @@ abstract class DynamicSketch extends ScDynamicSketch {
     }
 
     // === Holes ===
-    class Hole(val untilv : Int) extends ScConstructInfo with ScCtrlConstructInfo {
+    class Hole(val untilv : Int) extends ScConstructInfo {
        val uid : Int = hole_list.length
        hole_list += this
        def apply() = DynamicSketch.this.ctrl_conf.getValue(uid) // hopefully wickedly fast
        override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
-       def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
+       // TODO - remove obsolete code.
+       // def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
     }
     class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
         override def apply() = {
@@ -90,13 +94,13 @@ abstract class DynamicSketch extends ScDynamicSketch {
     class ValueSelectHole[T](num : Int) extends Hole(num) {
         def apply(arr : T*) : T = { assert(arr.length == num); arr(super.apply()) }
     }
-    class HoleArray(val num : Int, untilv : Int) extends ScCtrlConstructInfo {
+    class HoleArray(val num : Int, untilv : Int) {
         val array : Array[Hole] = (for (i <- 0 until num) yield new Hole(untilv)).toArray
         def apply(idx : Int) : Int = array(idx).apply()
-        def valueString() = {
+        /*def valueString() = {
             val values : Array[Object] = (for (i <- 0 until num) yield array(i).valueString()).toArray
             (new RichString(", ")).join(values)
-        }
+        }*/
     }
 
 

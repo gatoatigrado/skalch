@@ -8,101 +8,85 @@ import nsc.plugins.Plugin
 import nsc.plugins.PluginComponent
 import nsc.util
 import scala.tools.nsc.io.{AbstractFile, PlainFile}
-import scala.tools.nsc.util.{OffsetPosition, RangePosition}
+import scala.tools.nsc.util.{FakePos, OffsetPosition, RangePosition}
 
 class SketchRewriter(val global: Global) extends Plugin {
 
     val name = "sketchrewriter"
     val fname_extension = ".hints.xml"
     val description = "de-sugars sketchy constructs"
-    val components = List[PluginComponent](SketchRewriterComponent,
+    val components = List[PluginComponent](ConstructRewriter,
         FileCopyComponent)
-    var scalaFileMap = Map[Object, String]()
+    var scalaFileMap = Map[Object, XmlDoc]()
+    val fake_pos = FakePos("Inserted literal for call to sketch construct")
 
-    private object SketchRewriterComponent extends PluginComponent {
-        val global = SketchRewriter.this.global
+    case class ConstructFcn(val type_ : String, val uid : Int,
+            val entire_pos : Object, val arg_pos : Object)
+    {
+        var parameter_type : String = "undefined"
+    }
+    case class XmlDoc(var cons_fcn_arr : List[ConstructFcn])
+
+    object SketchXMLFormatter extends XmlFormatter {
+        def formatObjectInner(x : Object) = x match {
+            case XmlDoc(cons_fcn_arr) => ("document", List(),
+                (for (construct <- cons_fcn_arr)
+                    yield ("construct_" + construct.uid.toString, construct)).toList)
+            case construct_fcn : ConstructFcn => (construct_fcn.type_,
+                List(("uid", construct_fcn.uid.toString),
+                    ("param_type", construct_fcn.parameter_type.toString)),
+                List(("entire_pos", construct_fcn.entire_pos),
+                    ("arg_pos", construct_fcn.arg_pos)))
+            case rangepos : RangePosition => ("rangepos", List(),
+                List(("start", rangepos.focusStart), ("end", rangepos.focusEnd)))
+            case offsetpos : OffsetPosition => ("position", List(
+                ("line", offsetpos.line.get.toString),
+                ("column", offsetpos.column.get.toString)), List())
+            case _ => ("unknown", List(("stringrep", x.toString)), List())
+        }
+    }
+
+    private object ConstructRewriter extends SketchPluginComponent(global) {
+        import global._
         val runsAfter = List[String]("parser");
         override val runsBefore = List[String]("namer")
         val phaseName = SketchRewriter.this.name
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
-            import global._
-
             override def name = SketchRewriter.this.name
-
-            var uid: Int = 0
-
-            var hintsSink: java.io.StringWriter = null
-
-            class SketchFcnApply(val uid : Int, val entire_pos : Object, val arg_pos : Object)
-
-            def toXmlTag(name : String, x : Object, ident: String) : String = {
-                ident + (x match {
-                    case fcnapply : SketchFcnApply =>
-                        "<sketchconstruct type=\"%s\" uid=\"%d\">\n".format(name, fcnapply.uid) +
-                        toXmlTag("entire_position", fcnapply.entire_pos, ident + "    ") +
-                        toXmlTag("argument_position", fcnapply.arg_pos, ident + "    ") +
-                        ident + "</sketchconstruct>\n"
-                    case rangepos : RangePosition => "<rangepos name=\"%s\">\n".format(name) +
-                        toXmlTag("start", rangepos.focusStart, ident + "    ") +
-                        toXmlTag("end", rangepos.focusEnd, ident + "    ") + ident + "</rangepos>\n"
-                    case pos : OffsetPosition =>
-                        "<position name=\"%s\" line=\"%d\" column=\"%d\" />\n".format(
-                            name, pos.line.get, pos.column.get)
-                    case _ => "<unknown toString=\"" + x.toString + "\" />\n"
-                })
-            }
+            var hintsSink: List[ConstructFcn] = null
 
             def apply(comp_unit: CompilationUnit) {
                 Console.println("applying " + name + " to " + comp_unit.source.file.path)
-                hintsSink = new java.io.StringWriter()
+                hintsSink = List()
                 comp_unit.body = CallTransformer.transform(comp_unit.body)
-                val hints = hintsSink.toString()
-                if(hints.length != 0) {
-                    val fullString = """<?xml version="1.0" encoding="utf-8"?>
-<document>
-%s</document>
-""".format(hints)
-                    scalaFileMap += (comp_unit -> fullString)
+                if (!hintsSink.isEmpty) {
+                    scalaFileMap += (comp_unit -> XmlDoc(hintsSink))
                 }
-            }
-
-            def fcnName(tree : Tree) : String = tree match {
-                case TypeApply(fun, args) => fun.toString()
-                case _ => tree.toString()
+                hintsSink = null
             }
 
             // Rewrite calls to ?? to include a call site specific uid
-            object CallTransformer extends Transformer {
-                def isSketchConstruct(tree: Tree, args : List[Tree]): Boolean = {
-                    val sketchConstructs = List[String]("$qmark$qmark", "$bang$bang")
-                    (args.length == 1) && sketchConstructs.contains(fcnName(tree))
-                }
-
-                import scala.tools.nsc.util.FakePos
-
-                override def transform(tree: Tree) = tree match {
-                    case Apply(select, args) if isSketchConstruct(select, args) =>
-                        val uidLit = Literal(uid)
-                        uidLit.setPos(FakePos("Inserted literal for call to ??"))
-                        uidLit.setType(ConstantType(Constant(uid)))
-                        val newTree = treeCopy.Apply(tree, select, uidLit :: transformTrees(args))
-
-                        hintsSink.write(toXmlTag(fcnName(select),
-                            new SketchFcnApply(uid, tree.pos, args(0).pos), "    "))
-
-                        uid += 1
-                        newTree
-                    case _ => 
-                        super.transform(tree)
+            object CallTransformer extends SketchTransformer {
+                def transformSketchClass(clsdef : ClassDef) = null
+                def transformSketchCall(tree : Apply, ct : CallType) = {
+                    val uid = hintsSink.length
+                    val uidLit = Literal(uid)
+                    uidLit.setPos(fake_pos)
+                    uidLit.setType(ConstantType(Constant(uid)))
+                    val type_ = ct.cons_type match {
+                        case ConstructType.Hole => "holeapply"
+                        case ConstructType.Oracle => "oracleapply"
+                    }
+                    hintsSink ::= new ConstructFcn(type_, uid, tree.pos, tree.args(0).pos)
+                    treeCopy.Apply(tree, tree.fun, uidLit :: transformTrees(tree.args))
                 }
             }
         }
     }
 
-    private object FileCopyComponent extends PluginComponent {
-        val global = SketchRewriter.this.global
+    private object FileCopyComponent extends SketchPluginComponent(global) {
         val runsAfter = List("jvm")
         val phaseName = "sketch_copy_src_desc"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
@@ -114,47 +98,48 @@ class SketchRewriter(val global: Global) extends Plugin {
                 if (!scalaFileMap.keySet.contains(comp_unit)) {
                     return
                 }
-                val fullString = scalaFileMap(comp_unit)
 
+                val xmldoc = scalaFileMap(comp_unit)
                 val out_dir = global.getFile(comp_unit.body.symbol, "")
                 val out_dir_path = out_dir.getCanonicalPath.replaceAll("<empty>$", "")
                 val copy_name = comp_unit.source.file.name + fname_extension
                 val out_file = (new File(out_dir_path +
                     File.separator + copy_name)).getCanonicalPath
-                (new FileOutputStream(out_file)).write(fullString.getBytes())
 
                 var sketchClasses = ListBuffer[Symbol]()
-                (new SketchDetector(sketchClasses)).transform(comp_unit.body)
+                (new SketchDetector(sketchClasses, xmldoc)).transform(comp_unit.body)
                 for (cls_sym <- sketchClasses) {
                     val cls_out_file = global.getFile(cls_sym, "") + ".info"
                     (new FileOutputStream(cls_out_file)).write("%s\n%s".format(
                         out_file, comp_unit.source.file.path).getBytes)
                 }
+
+                // NOTE - the tranformer now also adds info about which construct
+                // was used.
+                val xml : String = SketchXMLFormatter.formatXml(xmldoc)
+                (new FileOutputStream(out_file)).write(xml.getBytes())
             }
 
-            class SketchDetector(val sketchClasses : ListBuffer[Symbol]) extends Transformer {
-                /** is a type skalch.DynamicSketch or a subtype of it? */
-                def is_dynamic_sketch(tp : Type) : Boolean = tp match {
-                    case ClassInfoType(parents, decls, type_sym) =>
-                        parents.exists(is_dynamic_sketch(_))
-
-                    case TypeRef(pre, sym, args) => (pre match {
-                        case TypeRef(_, sym, args) => (sym.name.toString == "skalch")
-                        case _ => false
-                    }) && (sym.name.toString == "DynamicSketch")
-
-                    case _ => false
+            class SketchDetector(val sketchClasses : ListBuffer[Symbol],
+                    val xmldoc : XmlDoc) extends SketchTransformer
+            {
+                def transformSketchClass(clsdef : ClassDef) = {
+                    sketchClasses += clsdef.symbol
+                    null
                 }
 
-                override def transform(tree: Tree) = {
-                    tree match {
-                        case clsdef : ClassDef =>
-                            if (is_dynamic_sketch(clsdef.symbol.info)) {
-                                sketchClasses += clsdef.symbol
+                def transformSketchCall(tree : Apply, ct : CallType) = {
+                    ct match {
+                        case AssignedConstruct(cons_type, param_type) => {
+                            val uid = tree.args(0) match {
+                                case Literal(Constant(v : Int)) => v
+                                case _ => -1
                             }
-                        case _ => ()
+                            xmldoc.cons_fcn_arr(uid).parameter_type = param_type
+                        }
+                        case _ => println("INTERNAL ERROR - NewConstruct after jvm")
                     }
-                    super.transform(tree)
+                    null
                 }
             }
         }

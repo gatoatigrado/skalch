@@ -79,7 +79,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case ConstructType.Hole => "holeapply"
                         case ConstructType.Oracle => "oracleapply"
                     }
-                    hintsSink ::= new ConstructFcn(type_, uid, tree.pos, tree.args(0).pos)
+                    hintsSink = hintsSink ::: List(new ConstructFcn(type_, uid, tree.pos, tree.args(0).pos))
                     treeCopy.Apply(tree, tree.fun, uidLit :: transformTrees(tree.args))
                 }
             }
@@ -135,6 +135,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                                 case Literal(Constant(v : Int)) => v
                                 case _ => -1
                             }
+                            assert(param_type != null,
+                                "please set annotations for call " + tree.toString())
                             xmldoc.cons_fcn_arr(uid).parameter_type = param_type
                         }
                         case _ => println("INTERNAL ERROR - NewConstruct after jvm")

@@ -59,14 +59,10 @@ abstract class DynamicSketch extends ScDynamicSketch {
         list(v)
     }
 
+    @DescriptionAnnotation("[[integer untilv oracle]] basic oracle")
     def !!(uid: Int, untilv: Int): Int = {
         // fixme
         assert(false)
-        0
-    }
-
-    def !!(untilv: Int): Int = {
-        assert(false, "!!() requires sketchrewriter plugin")
         0
     }
 

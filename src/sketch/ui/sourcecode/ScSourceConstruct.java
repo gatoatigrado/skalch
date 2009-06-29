@@ -3,6 +3,7 @@ package sketch.ui.sourcecode;
 import nu.xom.Element;
 import sketch.dyn.ScDynamicSketch;
 import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
+import sketch.util.DebugOut;
 import sketch.util.XmlEltWrapper;
 
 /**
@@ -31,6 +32,11 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
                 + ", arg_loc=" + argument_location.toString() + "]";
     }
 
+    public String getName() {
+        return construct_info.getName() + "@"
+                + entire_location.start.toString();
+    }
+
     public static ScSourceConstruct from_node(Element child_, String filename,
             ScDynamicSketch sketch)
     {
@@ -49,9 +55,19 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
                 cons_info = new ScSourceApplyHole(uid, sketch);
             }
         } else if (elt.getLocalName().equals("oracleapply")) {
+            if (elt.getAttributeValue("param_type").contains(
+                    "[[integer untilv oracle]]"))
+            {
+                cons_info = new ScSourceUntilvOracle(uid, sketch);
+            } else {
+                cons_info = new ScSourceApplyOracle(uid, sketch);
+            }
             LineColumn start =
                     ScSourceLocation.fromXML(filename, entire_loc).start;
             eloc = new ScSourceLocation(filename, start.line);
+        }
+        if (cons_info == null) {
+            DebugOut.assertFalse("no cons_info set.");
         }
         return new ScSourceConstruct(cons_info, eloc, ScSourceLocation.fromXML(
                 filename, argument_loc));

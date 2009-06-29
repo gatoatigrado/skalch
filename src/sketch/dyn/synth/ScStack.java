@@ -6,6 +6,7 @@ import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScSynthCtrlConf;
+import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
@@ -80,12 +81,16 @@ public class ScStack extends ScPrefixSearch {
 
     public void set_fixed_for_illustration(ScDynamicSketch sketch) {
         ctrls.generate_value_strings();
-        set_for_synthesis(sketch);
+        sketch.ctrl_conf = ctrls;
+        //
+        ScFixedInputConf fixed_oracles = oracle_inputs.fixed_inputs();
+        fixed_oracles.generate_value_strings();
+        sketch.oracle_conf = fixed_oracles;
     }
 
     public void set_for_synthesis(ScDynamicSketch sketch) {
         sketch.ctrl_conf = ctrls;
-        sketch.oracle_input_backend = oracle_inputs;
+        sketch.oracle_conf = oracle_inputs;
     }
 
     protected boolean set_stack_ent(ScStackEntry ent, int v) {

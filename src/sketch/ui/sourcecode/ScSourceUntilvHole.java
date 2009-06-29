@@ -30,4 +30,8 @@ public class ScSourceUntilvHole implements ScSourceConstructInfo {
             return "/* not reached */ ??(" + src_args + ")";
         }
     }
+
+    public String getName() {
+        return "UntilvHole[uid=" + uid + "]";
+    }
 }

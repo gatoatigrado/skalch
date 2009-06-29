@@ -19,8 +19,8 @@ import sketch.util.DebugOut;
  */
 public abstract class ScDynamicSketch {
     public ScCtrlConf ctrl_conf;
-    public ScInputConf input_backend;
-    public ScInputConf oracle_input_backend;
+    public ScInputConf input_conf;
+    public ScInputConf oracle_conf;
     public Vector<ScSourceConstruct> ctrl_src_info =
             new Vector<ScSourceConstruct>();
     public boolean debug_print_enable = false;
@@ -58,7 +58,7 @@ public abstract class ScDynamicSketch {
         debug_out = new Vector<String>();
     }
 
-    public synchronized void print(String... text) {
+    public synchronized void skprint(String... text) {
         DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
                 (Object[]) text);
     }

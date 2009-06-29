@@ -29,9 +29,9 @@ abstract class DynamicSketch extends ScDynamicSketch {
             super.toArray(new Array[ScConstructInfo](0))
         }
     }
-    private[this] val hole_list = new FreezableVector[Hole]()
-    private[this] val input_gen_list = new FreezableVector[InputGenerator]()
-    private[this] val oracle_input_list = new FreezableVector[OracleInput]()
+    private[this] val __hole_list = new FreezableVector[Hole]()
+    private[this] val __input_list = new FreezableVector[InputGenerator]()
+    private[this] val __oracle_list = new FreezableVector[OracleInput]()
     // more fields in ScDynamicSketch.java
 
     /** generate test data */
@@ -49,26 +49,33 @@ abstract class DynamicSketch extends ScDynamicSketch {
         DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
     }
 
-    @DescriptionAnnotation("[[object apply hole]] list select")
+    @DescriptionAnnotation("[[object apply hole]] list select hole")
     def ??[T](uid : Int, list: List[T]) : T = {
         val v = DynamicSketch.this.ctrl_conf.getDynamicValue(uid, list.length)
         if (v >= list.length) {
-            print("Warning", "index exceeding list length; this shouldn't happen as untilv is set.", list.toString)
+            skprint("Warning", "index exceeding list length; this shouldn't happen as untilv is set.", list.toString)
         }
         list(v)
     }
 
     @DescriptionAnnotation("[[integer untilv oracle]] basic oracle")
     def !!(uid: Int, untilv: Int): Int = {
-        // fixme
-        assert(false)
-        0
+        DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
+    }
+
+    @DescriptionAnnotation("[[object apply oracle]] list select oracle")
+    def !![T](uid : Int, arr: Array[T]) : T = {
+        val v = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, arr.length)
+        if (v >= arr.length) {
+            skprint("Warning", "index exceeding list length; this shouldn't happen as untilv is set.", arr.toString)
+        }
+        arr(v)
     }
 
     // === Holes ===
     class Hole(val untilv : Int) extends ScConstructInfo {
-       val uid : Int = hole_list.length
-       hole_list += this
+       val uid : Int = __hole_list.length
+       __hole_list += this
        def apply() = DynamicSketch.this.ctrl_conf.getValue(uid) // hopefully wickedly fast
        override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
        // TODO - remove obsolete code.
@@ -102,9 +109,9 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
     // === Inputs ===
     class InputGenerator(val untilv : Int) extends ScConstructInfo {
-        val uid : Int = input_gen_list.length
-        input_gen_list += this
-        def apply() = DynamicSketch.this.input_backend.nextValue(uid)
+        val uid : Int = __input_list.length
+        __input_list += this
+        def apply() = DynamicSketch.this.input_conf.nextValue(uid)
     }
     class ArrayInput(val len_untilv : Int, val value_untilv : Int) {
         val len_generator = new InputGenerator(len_untilv)
@@ -126,9 +133,9 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
     // === Oracles inputs ===
     class OracleInput(val untilv : Int) extends ScConstructInfo {
-        val uid : Int = oracle_input_list.length
-        oracle_input_list += this
-        def apply() : Int = DynamicSketch.this.oracle_input_backend.nextValue(uid)
+        val uid : Int = __oracle_list.length
+        __oracle_list += this
+        def apply() : Int = DynamicSketch.this.oracle_conf.nextValue(uid)
     }
     class BooleanOracle {
         val oracle = new OracleInput(2)
@@ -149,9 +156,9 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
 
 
-    def get_hole_info() = hole_list.get_and_freeze()
-    def get_input_info() = input_gen_list.get_and_freeze()
-    def get_oracle_input_list() = oracle_input_list.get_and_freeze()
+    def get_hole_info() = __hole_list.get_and_freeze()
+    def get_input_info() = __input_list.get_and_freeze()
+    def get_oracle_input_list() = __oracle_list.get_and_freeze()
 }
 
 object synthesize {

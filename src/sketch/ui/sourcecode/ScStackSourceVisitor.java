@@ -21,8 +21,8 @@ public class ScStackSourceVisitor extends ScHighlightSourceVisitor {
                         + line + "'", m.find());
             }
             String indent = m.group(1);
-            DebugOut.todo("support non-line based holes");
-            return indent + "<span style=\"color: #0000ff;\">// hole info: "
+            return indent
+                    + "<span style=\"color: #0000ff;\">// construct info: "
                     + ctrl_src_info.construct_info.valueString(null)
                     + "</span>\n";
         } else {

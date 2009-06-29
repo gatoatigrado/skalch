@@ -62,7 +62,7 @@ class RevList1(val length : Int) extends DynamicSketch {
                 i += 1
             }
         } catch {
-            case ex : java.lang.ArrayIndexOutOfBoundsException =>
+            case ex : java.lang.NullPointerException =>
                 synthAssertTerminal(false)
         }
         return !!(all_nodes)
@@ -72,7 +72,7 @@ class RevList1(val length : Int) extends DynamicSketch {
         val (list, nodes) = buildList(length)
         val reversed = reverse(list, nodes)
         checkReversed(length, reversed)
-        print("reversed", reversed.listString(List()))
+        skprint("reversed", reversed.listString(List()))
         true
     }
 

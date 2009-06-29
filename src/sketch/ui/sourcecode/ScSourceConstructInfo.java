@@ -21,4 +21,6 @@ public abstract interface ScSourceConstructInfo {
     public boolean hasMultipleValues();
 
     public String valueString(String src_args);
+
+    public abstract String getName();
 }

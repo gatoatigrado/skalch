@@ -60,6 +60,9 @@ public class ScSynthesis {
         Class<?> cls = ui_sketch.getClass();
         String info_rc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(info_rc);
+        if (rc == null) {
+            return;
+        }
         try {
             String text = EntireFileReader.load_file(rc.openStream());
             String[] names = text.split("\\n");

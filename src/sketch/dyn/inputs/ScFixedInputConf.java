@@ -1,7 +1,11 @@
 package sketch.dyn.inputs;
 
+import java.util.Vector;
+
 import sketch.dyn.ScDynamicSketch;
+import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.util.DebugOut;
+import sketch.util.RichString;
 
 /**
  * static inputs that may have slightly faster access
@@ -12,12 +16,16 @@ import sketch.util.DebugOut;
  */
 public class ScFixedInputConf extends ScInputConf {
     protected int[][] values;
+    protected int[][] set_cnt;
     protected int[] untilv;
     protected int[] next;
     public String[] value_string;
 
-    public ScFixedInputConf(int[][] values, int[] untilv, int[] next) {
+    public ScFixedInputConf(int[][] values, int[][] set_cnt, int[] untilv,
+            int[] next)
+    {
         this.values = values;
+        this.set_cnt = set_cnt;
         this.untilv = untilv;
         this.next = next;
     }
@@ -72,8 +80,50 @@ public class ScFixedInputConf extends ScInputConf {
     }
 
     public void set_for_sketch(ScDynamicSketch sketch) {
-        sketch.input_backend = this;
+        sketch.input_conf = this;
         reset_index();
+    }
+
+    /** NOTE - a bit of messy (uid, subuid) -> index mapping */
+    public void generate_value_strings() {
+        Vector<ScHighlightValues.Value> value_arr =
+                new Vector<ScHighlightValues.Value>();
+        for (int uid_idx = 0; uid_idx < values.length; uid_idx++) {
+            for (int subuid_idx = 0; subuid_idx < values[uid_idx].length; subuid_idx++)
+            {
+                String value = String.valueOf(values[uid_idx][subuid_idx]);
+                int color_v = set_cnt[uid_idx][subuid_idx];
+                int[] id_arr = { uid_idx, subuid_idx };
+                value_arr.add(new ScHighlightValues.Value(value, color_v,
+                        id_arr));
+            }
+        }
+        ScHighlightValues.gen_value_strings(value_arr);
+        // convert to a 2-d vector
+        Vector<Vector<String>> results = new Vector<Vector<String>>();
+        for (ScHighlightValues.Value value : value_arr) {
+            int[] id_arr = (int[]) value.tag;
+            if (id_arr[0] >= results.size()) {
+                results.setSize(id_arr[0] + 1);
+                results.set(id_arr[0], new Vector<String>());
+            }
+            Vector<String> uid_v = results.get(id_arr[0]);
+            if (id_arr[1] >= uid_v.size()) {
+                uid_v.setSize(id_arr[1] + 1);
+            }
+            uid_v.set(id_arr[1], value.result);
+        }
+        // finally generate strings
+        value_string = new String[values.length];
+        for (int a = 0; a < value_string.length; a++) {
+            if (results.get(a) != null) {
+                value_string[a] =
+                        (new RichString(", ")).join(results.get(a).toArray(
+                                new String[0]));
+            } else {
+                value_string[a] = "/* not encountered */";
+            }
+        }
     }
 
     @Override

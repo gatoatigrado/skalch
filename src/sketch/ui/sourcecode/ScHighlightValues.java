@@ -49,7 +49,7 @@ public class ScHighlightValues {
         protected String inner;
         public String result;
         protected float color_value;
-        protected Object tag;
+        public Object tag;
 
         public Value(String inner, int color_value, Object tag) {
             this.inner = inner;

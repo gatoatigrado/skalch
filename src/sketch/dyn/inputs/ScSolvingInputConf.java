@@ -144,4 +144,10 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         next[uid] += 1;
         return v;
     }
+
+    @Override
+    public String getValueString(int uid) {
+        DebugOut.assertFalse("set fixed input values to get a value string.");
+        return null;
+    }
 }

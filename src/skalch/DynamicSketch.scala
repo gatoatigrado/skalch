@@ -1,7 +1,6 @@
 package skalch
 
 import sketch.dyn._
-import sketch.dyn.ctrls.ScCtrlConstructInfo
 import sketch.util.DebugOut
 import sketch.util.OptionResult
 import sketch.util.RichString

@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import nu.xom.Element;
 import sketch.dyn.ScDynamicSketch;
-import sketch.util.DebugOut;
+import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.XmlEltWrapper;
 
 /**
@@ -12,7 +12,7 @@ import sketch.util.XmlEltWrapper;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScSourceConstruct {
+public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
     public ScSourceConstructInfo construct_info;
     public ScSourceLocation entire_location;
     public ScSourceLocation argument_location;
@@ -35,26 +35,29 @@ public class ScSourceConstruct {
             ScDynamicSketch sketch)
     {
         XmlEltWrapper elt = new XmlEltWrapper(child_);
-        if (!elt.getLocalName().equals("sketchconstruct")) {
-            DebugOut
-                    .assertFalse("call from_node on sketchconstruct tags only.");
+        int uid = elt.int_attr("uid");
+        XmlEltWrapper entire_loc = elt.XpathElt("rangepos[@name='entire_pos']");
+        XmlEltWrapper argument_loc = elt.XpathElt("rangepos[@name='arg_pos']");
+        ScSourceConstructInfo cons_info = null;
+        ScSourceLocation eloc = ScSourceLocation.fromXML(filename, entire_loc);
+        if (elt.getLocalName().equals("holeapply")) {
+            if (elt.getAttributeValue("param_type").contains(
+                    "[[integer untilv hole]]"))
+            {
+                cons_info = new ScSourceUntilvHole(uid, sketch);
+            } else {
+                cons_info = new ScSourceApplyHole(uid, sketch);
+            }
+        } else if (elt.getLocalName().equals("oracleapply")) {
+            LineColumn start =
+                    ScSourceLocation.fromXML(filename, entire_loc).start;
+            eloc = new ScSourceLocation(filename, start.line);
         }
-        if (elt.getAttributeValue("type").equals("$qmark$qmark")) {
-            DebugOut.print("bang bang");
-            int uid = elt.int_attr("uid");
-            // "rangepos[@name='entire_position']"
-            // "rangepos[@name='argument_position']"
-            XmlEltWrapper entire_loc =
-                    elt.XpathElt("rangepos[@name='entire_position']");
-            XmlEltWrapper argument_loc =
-                    elt.XpathElt("rangepos[@name='argument_position']");
-            return new ScSourceConstruct(new ScSourceDynamicHole(uid, sketch),
-                    ScSourceLocation.fromXML(filename, entire_loc),
-                    ScSourceLocation.fromXML(filename, argument_loc));
-            // return new ScSourceConstruct(new ScSourceDynamicHole(uid,
-            // sketch));
-        }
-        DebugOut.assertFalse("unsupported construct info.");
-        return null;
+        return new ScSourceConstruct(cons_info, eloc, ScSourceLocation.fromXML(
+                filename, argument_loc));
+    }
+
+    public int compareTo(ScSourceConstruct other) {
+        return entire_location.compareTo(other.entire_location);
     }
 }

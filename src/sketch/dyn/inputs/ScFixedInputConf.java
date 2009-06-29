@@ -14,6 +14,7 @@ public class ScFixedInputConf extends ScInputConf {
     protected int[][] values;
     protected int[] untilv;
     protected int[] next;
+    public String[] value_string;
 
     public ScFixedInputConf(int[][] values, int[] untilv, int[] next) {
         this.values = values;
@@ -73,5 +74,10 @@ public class ScFixedInputConf extends ScInputConf {
     public void set_for_sketch(ScDynamicSketch sketch) {
         sketch.input_backend = this;
         reset_index();
+    }
+
+    @Override
+    public String getValueString(int uid) {
+        return value_string[uid];
     }
 }

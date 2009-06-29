@@ -9,7 +9,6 @@ import nu.xom.Document;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
-import scala.Function0;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScStackSynthesis;
@@ -50,28 +49,27 @@ public class ScSynthesis {
         // initialize ssr
         sketches = new ScDynamicSketch[nthreads];
         for (int a = 0; a < nthreads; a++) {
-            sketches[a] = load_sketch(f);
+            sketches[a] = f.apply();
         }
-        ui_sketch = load_sketch(f);
+        ui_sketch = f.apply();
+        load_ui_sketch_info();
         ssr = new ScStackSynthesis(sketches);
     }
 
-    private ScDynamicSketch load_sketch(Function0<ScDynamicSketch> f) {
-        ScDynamicSketch sketch = f.apply();
-        Class<?> cls = sketch.getClass();
+    private void load_ui_sketch_info() {
+        Class<?> cls = ui_sketch.getClass();
         String info_rc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(info_rc);
         try {
             String text = EntireFileReader.load_file(rc.openStream());
             String[] names = text.split("\\n");
             Document doc = (new Builder()).build(new File(names[0]));
-            Elements srcinfo =
-                    doc.getRootElement().getChildElements("sketchconstruct");
+            Elements srcinfo = doc.getRootElement().getChildElements();
             for (int a = 0; a < srcinfo.size(); a++) {
                 ScSourceConstruct info =
                         ScSourceConstruct.from_node(srcinfo.get(a), names[1],
-                                sketch);
-                sketch.addHoleSourceInfo(info);
+                                ui_sketch);
+                ui_sketch.addHoleSourceInfo(info);
             }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);
@@ -80,8 +78,6 @@ public class ScSynthesis {
         } catch (ParsingException e) {
             DebugOut.print_exception("reading source annotation info ", e);
         }
-        System.exit(0);
-        return sketch;
     }
 
     protected ScSolvingInputConf[] generate_inputs(ScDynamicSketch sketch) {

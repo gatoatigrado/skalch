@@ -31,6 +31,10 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
         this.filename = filename;
         this.start = start;
         this.end = end;
+        if (!start.lessThan(end)) {
+            DebugOut.assertFalse("constructed invalid source location", start,
+                    end);
+        }
     }
 
     @Override
@@ -63,7 +67,8 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
         }
 
         public static LineColumn fromXML(XmlEltWrapper pos) {
-            return new LineColumn(pos.int_attr("line"), pos.int_attr("column"));
+            return new LineColumn(pos.int_attr("line") - 1, pos
+                    .int_attr("column") - 1);
         }
     }
 

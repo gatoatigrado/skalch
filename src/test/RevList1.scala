@@ -2,8 +2,6 @@ package test
 
 import skalch.DynamicSketch
 
-import sketch.ui.sourcecode.ScSourceLocation
-import sketch.dyn.ctrls.ScCtrlSourceInfo
 import sketch.dyn.BackendOptions
 import sketch.util._
 

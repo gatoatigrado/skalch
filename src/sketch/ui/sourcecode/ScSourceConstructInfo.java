@@ -20,7 +20,5 @@ public abstract interface ScSourceConstructInfo {
      */
     public boolean hasMultipleValues();
 
-    public String valueString();
-
-    public String formatSolution(String src_args);
+    public String valueString(String src_args);
 }

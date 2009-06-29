@@ -1,11 +1,11 @@
 package sketch.dyn.ctrls;
 
-import java.util.Arrays;
+import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
+import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.util.DebugOut;
-import sketch.util.Vector4;
 
 /**
  * Wrapper for an array of holes.
@@ -80,29 +80,6 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         }
     }
 
-    private String gen_value_string(float f, int v) {
-        float amnt_first, amnt_second, amnt_third;
-        if (f < 0.5) {
-            amnt_first = 1 - 2 * f;
-            amnt_second = 2 * f;
-            amnt_third = 0;
-        } else {
-            amnt_first = 0;
-            amnt_second = 2 - 2 * f;
-            amnt_third = 2 * f - 1;
-        }
-        Vector4 first = new Vector4(0.f, 0.f, 1.f, 1.f);
-        Vector4 second = new Vector4(0.8f, 0.63f, 0.f, 1.f);
-        Vector4 third = new Vector4(1.f, 0.f, 0.f, 1.f);
-        Vector4 the_color =
-                first.scalar_multiply(amnt_first).add(
-                        second.scalar_multiply(amnt_second)).add(
-                        third.scalar_multiply(amnt_third));
-        String color = the_color.hexColor();
-        return "<span style=\"color: " + color + ";\">" + Math.max(0, v)
-                + "</span>";
-    }
-
     public void reset_accessed(int uid) {
         values[uid] = -1;
     }
@@ -122,19 +99,17 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         return values[uid];
     }
 
-    // TODO -- integrate with oracles.
     public void generate_value_strings() {
-        if (set_cnt.length == 0) {
-            return;
+        Vector<ScHighlightValues.Value> value_arr =
+                new Vector<ScHighlightValues.Value>();
+        for (int a = 0; a < values.length; a++) {
+            value_arr.add(new ScHighlightValues.Value(String.valueOf(Math.max(
+                    0, values[a])), set_cnt[a], null));
         }
-        value_string = new String[set_cnt.length];
-        int[] maxv_array = set_cnt.clone();
-        Arrays.sort(maxv_array);
-        int maxv = maxv_array[maxv_array.length - 1];
-        for (int a = 0; a < set_cnt.length; a++) {
-            float c = (a) / (2.f * (set_cnt.length - 1));
-            c += set_cnt[a] / (2.f * maxv);
-            value_string[a] = gen_value_string(c, values[a]);
+        value_string = new String[values.length];
+        ScHighlightValues.gen_value_strings(value_arr);
+        for (int a = 0; a < values.length; a++) {
+            value_string[a] = value_arr.get(a).result;
         }
     }
 

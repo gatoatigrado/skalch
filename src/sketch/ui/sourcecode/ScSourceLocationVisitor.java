@@ -1,7 +1,5 @@
 package sketch.ui.sourcecode;
 
-import sketch.dyn.ctrls.ScCtrlSourceInfo;
-
 /**
  * visitor which will e.g. print a string corresponding to a source location
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
@@ -14,7 +12,8 @@ public abstract class ScSourceLocationVisitor {
         return ScSourceCache.singleton().getSourceString(location);
     }
 
-    public String visitHoleInfo(ScCtrlSourceInfo ctrl_src_info) {
-        return ScSourceCache.singleton().getSourceString(ctrl_src_info.src_loc);
+    public String visitHoleInfo(ScSourceConstruct ctrl_src_info) {
+        return ScSourceCache.singleton().getSourceString(
+                ctrl_src_info.argument_location);
     }
 }

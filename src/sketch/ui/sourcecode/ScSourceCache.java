@@ -48,18 +48,20 @@ public class ScSourceCache {
             for (int line = start_line; line <= end_line; line++) {
                 result[line - start_line] = new String(lines[line]);
             }
-            // do it in reverse order if lines.length == 1 (single line)
-            result[result.length - 1] =
-                    result[result.length - 1].substring(0, end.column);
-            result[0] = result[0].substring(start.column);
+            try {
+                // do it in reverse order if lines.length == 1 (single line)
+                result[result.length - 1] =
+                        result[result.length - 1].substring(0, end.column);
+                result[0] = result[0].substring(start.column);
+            } catch (StringIndexOutOfBoundsException e) {
+                e.printStackTrace();
+                DebugOut.print("strings");
+                DebugOut.print((Object[]) result);
+                DebugOut.print("start", start, "end", end);
+                return new String[0];
+            }
             return result;
         }
-    }
-
-    public String getSourceString(ScSourceLocation location) {
-        SourceFile file = cached_files.get(location.filename);
-        String[] lines = file.getLinesCopy(location.start, location.end);
-        return (new RichString("\n")).join(lines);
     }
 
     public String getLine(String filename, int line) {
@@ -72,5 +74,9 @@ public class ScSourceCache {
         }
         SourceFile file = cached_files.get(location.filename);
         return file.getLinesCopy(location.start, location.end);
+    }
+
+    public String getSourceString(ScSourceLocation location) {
+        return (new RichString("\n")).join(getLines(location));
     }
 }

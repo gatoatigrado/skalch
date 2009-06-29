@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import javax.swing.event.ListSelectionEvent;
 
-import sketch.dyn.ctrls.ScCtrlSourceInfo;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiList;
@@ -114,12 +113,13 @@ public class ScUiGui extends gui_0_1 {
     private void add_source_info(StringBuilder result, String key,
             Vector<ScSourceConstruct> vector)
     {
-        ScCtrlSourceInfo[] hole_info_sorted =
-                vector.toArray(new ScCtrlSourceInfo[0]);
+        ScSourceConstruct[] hole_info_sorted =
+                vector.toArray(new ScSourceConstruct[0]);
         Arrays.sort(hole_info_sorted);
-        ScSourceLocation start = hole_info_sorted[0].src_loc.contextBefore(3);
+        ScSourceLocation start =
+                hole_info_sorted[0].entire_location.contextBefore(3);
         ScSourceLocation end =
-                hole_info_sorted[hole_info_sorted.length - 1].src_loc
+                hole_info_sorted[hole_info_sorted.length - 1].entire_location
                         .contextAfter(3);
         ScStackSourceVisitor v = new ScStackSourceVisitor();
         // starting context
@@ -127,9 +127,11 @@ public class ScUiGui extends gui_0_1 {
         // visit constructs and all code in between
         for (int a = 0; a < hole_info_sorted.length; a++) {
             result.append(v.visitHoleInfo(hole_info_sorted[a]));
+            ScSourceLocation loc = hole_info_sorted[a].entire_location;
             if (a + 1 < hole_info_sorted.length) {
-                result.append(v.visitCode(hole_info_sorted[a].src_loc
-                        .source_between(hole_info_sorted[a + 1].src_loc)));
+                ScSourceLocation next_loc =
+                        hole_info_sorted[a + 1].entire_location;
+                result.append(v.visitCode(loc.source_between(next_loc)));
             }
         }
         result.append(v.visitCode(end));

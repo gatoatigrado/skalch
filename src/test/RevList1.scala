@@ -17,11 +17,6 @@ class Node(val value : Int) {
 }
 
 class RevList1(val length : Int) extends DynamicSketch {
-    // include null value
-    val link_from = new OracleInput(untilv=length + 1)
-    val link_to = new OracleInput(untilv=length + 1)
-    val last = new OracleInput(untilv=length + 1)
-
     def checkReversed(len: Int, rev: Node): Unit = {
         var curNum = len
         var curNode = rev
@@ -59,15 +54,18 @@ class RevList1(val length : Int) extends DynamicSketch {
     def reverse(l : Node, all_nodes : Array[Node]) : Node = {
         val len = listLength(l)
         var i = 0
-        while (i < len) {
-            val to = link_to()
-            val from = link_from()
-            synthAssertTerminal(all_nodes(from) != null)
-            // array out of bounds aren't handled as synthesis failure by design
-            all_nodes(from).next = all_nodes(to)
-            i += 1
+        try {
+            while (i < len) {
+                // two different styles
+                !!(all_nodes).next =
+                    all_nodes(!!(all_nodes.length))
+                i += 1
+            }
+        } catch {
+            case ex : java.lang.ArrayIndexOutOfBoundsException =>
+                synthAssertTerminal(false)
         }
-        return all_nodes(last())
+        return !!(all_nodes)
     }
 
     def dysketch_main() = {
@@ -79,15 +77,6 @@ class RevList1(val length : Int) extends DynamicSketch {
     }
 
     val test_generator = NullTestGenerator()
-
-    // generate this code with the plugin
-    {
-        DebugOut.todo("add code annotations")
-//         val filename = "/home/gatoatigrado/sandbox/eclipse/skalch/src/test/BitonicSortTest.scala"
-//         val line_num = (line : Int) => new ScSourceLocation(filename, line)
-//         addHoleSourceInfo(new ScCtrlSourceInfo(swap_first_idx, line_num(41)))
-//         addHoleSourceInfo(new ScCtrlSourceInfo(swap_second_idx, line_num(42)))
-    }
 }
 
 object RevListTest {

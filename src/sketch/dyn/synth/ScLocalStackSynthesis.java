@@ -73,7 +73,14 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         ScStack stack;
         boolean exhausted = false;
         public float replacement_probability = 1.f;
-        protected int nruns, ncounterexamples;
+        protected int nruns = 0, ncounterexamples = 0;
+
+        private void update_stats() {
+            ScStats.stats.run_test(nruns);
+            ScStats.stats.try_counterexample(ncounterexamples);
+            nruns = 0;
+            ncounterexamples = 0;
+        }
 
         /** @returns true if exhausted (need to wait) */
         protected boolean blind_fast_routine() {
@@ -127,14 +134,10 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 if (ssr.debug_stop_after != -1 && a >= ssr.debug_stop_after) {
                     ssr.wait_handler.wait_exhausted();
                 }
-                nruns = 0;
-                ncounterexamples = 0;
                 //
                 // NOTE to readers: main call
                 exhausted = blind_fast_routine();
-                //
-                ScStats.stats.run_test(nruns);
-                ScStats.stats.try_counterexample(ncounterexamples);
+                update_stats();
                 ssr.wait_handler.throw_if_synthesis_complete();
                 if (!ui_queue.isEmpty()) {
                     ui_queue.remove().setInfo(ScLocalStackSynthesis.this, this,
@@ -165,6 +168,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                             stack);
                 }
             } catch (NoSuchElementException e) {
+                update_stats();
                 ui_queue = null;
                 done_events.set_done();
             }

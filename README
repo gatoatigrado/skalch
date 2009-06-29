@@ -6,7 +6,21 @@ Authors: Nicholas Tung (soon Casey Rodarmor as well)
 This project will be made private soon, but public (BSD license) releases will be created when work is ready.
 
 === Building ===
-Currently, as fsc has given me plenty of headaches, the build is done through a custom script.
-Run it with build_util/run.sh
-You may have to set up your PATH and CLASSPATH to include the results of a Scala build tree (most things are in the "pack" directory after building).
-More documentation at http://sketch.cs.berkeley.edu/wiki/index.php/Scala (currently private, sorry!)
+
+The java files can be built with Eclipse (.project files are version controlled). If your Eclipse doesn't automatically build, you can execute it through the Project / Build All item. If you need to clean files (particularly when pulling updates), try Project / Clean.
+
+Currently, as fsc has given me plenty of headaches, scala files are built using a custom script. First, the plugin must be compiled. This can be done with
+
+    >>> build_util/package_plugin.sh
+
+to build all scala files, use
+
+    >>> build_util/build.py fsc
+
+=== Running ===
+
+More options for running and compiling can be found by executing
+
+    >>> build_util/build.py --help
+
+The script should issue warnings if files aren't found. To add a location, add it to any environment variable, e.g. CLASSPATH (separated by your operating system's path sep, on unix ':')

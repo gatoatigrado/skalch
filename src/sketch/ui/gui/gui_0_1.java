@@ -98,7 +98,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
             }
         });
 
-        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        selectInputList.setFont(new java.awt.Font("Dialog", 0, 12));
         selectInputList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
@@ -109,7 +109,12 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         synthCompletionLabel.setText("Select synthesized completions");
 
-        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
+        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        synthCompletionList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                synthCompletionListMouseClicked(evt);
+            }
+        });
         synthCompletionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 synthCompletionListValueChanged(evt);
@@ -231,6 +236,12 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void synthCompletionListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_synthCompletionListMouseClicked
+        if (evt.getClickCount() == 2 && viewSelectionsButton.isEnabled()) {
+            viewSelections();
+        }
+    }//GEN-LAST:event_synthCompletionListMouseClicked
 
     private void monospaceCheckboxActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_monospaceCheckboxActionPerformed

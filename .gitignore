@@ -1,5 +1,5 @@
 bin/*
-build/*
+dist/*
 *.pyc
 *.hints.xml
 # compile and symlink it yourself...

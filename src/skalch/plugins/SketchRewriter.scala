@@ -58,7 +58,6 @@ class SketchRewriter(val global: Global) extends Plugin {
             var hintsSink: List[ConstructFcn] = null
 
             def apply(comp_unit: CompilationUnit) {
-                Console.println("applying " + name + " to " + comp_unit.source.file.path)
                 hintsSink = List()
                 comp_unit.body = CallTransformer.transform(comp_unit.body)
                 if (!hintsSink.isEmpty) {
@@ -94,9 +93,39 @@ class SketchRewriter(val global: Global) extends Plugin {
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             import global._
 
+            var processed = List[String]()
+            var processed_no_holes = List[String]()
+
+            def prefixLen(x0 : String, x1 : String) =
+                (x0 zip x1).prefixLength((x : (Char, Char)) => x._1 == x._2)
+
+            def stripPrefix(arr : List[String], other : List[String]) : List[String] = arr match {
+                case head :: next :: tail =>
+                    val longestPrefix = (for (v <- (arr ::: other)) yield prefixLen(v, head)).min
+                    (for (v <- arr) yield v.substring(longestPrefix)).toList
+                case _ => arr
+            }
+
+            def join_str(sep : String, arr : List[String]) = arr match {
+                case head :: tail => (head /: tail)(_ + sep + _)
+                case _ => ""
+            }
+
+            override def run() {
+                currentRun.units foreach applyPhase
+                val processed_noprefix = stripPrefix(processed, processed_no_holes)
+                val processed_no_holes_noprefix = stripPrefix(processed_no_holes,
+                    processed)
+                println("sketchrewriter processed: " + join_str(", ", processed_noprefix))
+                println("sketchrewriter processed, no holes: " + join_str(", ", processed_no_holes_noprefix))
+            }
+
             def apply(comp_unit : CompilationUnit) {
                 if (!scalaFileMap.keySet.contains(comp_unit)) {
+                    processed_no_holes ::= comp_unit.source.file.path
                     return
+                } else {
+                    processed ::= comp_unit.source.file.path
                 }
 
                 val xmldoc = scalaFileMap(comp_unit)

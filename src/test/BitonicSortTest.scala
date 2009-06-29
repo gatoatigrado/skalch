@@ -74,14 +74,6 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
             for (i <- 0 until num_tests) test_case(tg_array_length : java.lang.Integer)
         }
     }
-
-    // generate this code with the plugin
-    {
-        val filename = "/home/gatoatigrado/sandbox/eclipse/skalch/src/test/BitonicSortTest.scala"
-        val line_num = (line : Int) => new ScSourceLocation(filename, line)
-        addHoleSourceInfo(new ScCtrlSourceInfo(swap_first_idx, line_num(41)))
-        addHoleSourceInfo(new ScCtrlSourceInfo(swap_second_idx, line_num(42)))
-    }
 }
 
 object BitonicSortTest {

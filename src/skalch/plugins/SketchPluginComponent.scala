@@ -36,7 +36,7 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
                 case TypeApply(fun, args) => fun
                 case _ => tree
             }
-            if (fcn_node.symbol.exists) {
+            if (fcn_node.symbol != null && fcn_node.symbol.exists) {
                 fcn_node.symbol.name.toString()
             } else {
                 fcn_node.toString()

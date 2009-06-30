@@ -32,6 +32,40 @@ class RedBlackTreeSketch(val num_ops : Int,
             synthAssertTerminal(num_left == num_right)
             num_left + num_right + (if (isBlack) 1 else 0)
         }
+        /** returns isBlack for convenience */
+        def checkRedChildrenBlack() : Boolean = {
+            val leftBlack = if (leftChild == null) true
+                else leftChild.checkRedChildrenBlack()
+            val rightBlack = if (rightChild == null) true
+                else rightChild.checkRedChildrenBlack()
+            synthAssertTerminal(isBlack || (leftBlack && rightBlack))
+            isBlack
+        }
+        /** number of nodes reachable including this one */
+        def numNodes() : Int = {
+            (if (leftChild == null) 0 else leftChild.numNodes()) +
+            (if (rightChild == null) 0 else rightChild.numNodes()) +
+            1
+        }
+        def checkIsTree() {
+            VisitedList.put(this)
+            if (leftChild != null) { leftChild.checkIsTree() }
+            if (rightChild != null) { rightChild.checkIsTree() }
+        }
+    }
+
+    /** check that the tree is actually a tree -- i.e. contains no circular links */
+    object VisitedList {
+        var length : Int = 0
+        val visitedNodes = new Array[TreeNode](num_ops)
+        def reset() { length = 0 }
+        def put(node : TreeNode) {
+            for (i <- 0 until length) {
+                synthAssertTerminal(!visitedNodes(i).eq(node))
+            }
+            visitedNodes(length) = node
+            length += 1
+        }
     }
 
 
@@ -46,9 +80,6 @@ class RedBlackTreeSketch(val num_ops : Int,
     // === non-sketched functions; mostly array maintenance ===
     def insertNode(value : Int) : TreeNode = {
         val result = all_nodes(num_active_nodes)
-        if (root == null) {
-            root = result
-        }
         num_active_nodes += 1
         // will get switched later.
         result.isBlack = true
@@ -70,7 +101,7 @@ class RedBlackTreeSketch(val num_ops : Int,
 
 
     // === basic operations for the tree ===
-    def recolorOp(node : TreeNode) = (node.isBlack = !!())
+    def recolorOp(node : TreeNode) { if (node != null) { node.isBlack = !!() } }
     def switchValueOp(n1 : TreeNode, n2 : TreeNode) {
         var tmp = n1.value
         n1.value = n2.value
@@ -80,13 +111,17 @@ class RedBlackTreeSketch(val num_ops : Int,
     def switchChildrenTuple(arr : TreeNode*) {
         val possibleChildren = new Array[TreeNode](3 * arr.length)
         for (i <- 0 until arr.length) {
-            possibleChildren(3 * i) = arr(i).leftChild
-            possibleChildren(3 * i + 1) = arr(i).rightChild
-            possibleChildren(3 * i + 2) = arr(i)
+            if (arr(i) != null) {
+                possibleChildren(3 * i) = arr(i).leftChild
+                possibleChildren(3 * i + 1) = arr(i).rightChild
+                possibleChildren(3 * i + 2) = arr(i)
+            }
         }
         for (i <- 0 until arr.length) {
-            arr(i).leftChild = !!(possibleChildren)
-            arr(i).rightChild = !!(possibleChildren)
+            if (arr(i) != null) {
+                arr(i).leftChild = !!(possibleChildren)
+                arr(i).rightChild = !!(possibleChildren)
+            }
         }
     }
 
@@ -99,35 +134,56 @@ class RedBlackTreeSketch(val num_ops : Int,
      */
     def checkTree() {
         assert(root != null) // plain assert, this shouldn't happen at all
+        synthAssertTerminal(root.isBlack)
+
+        VisitedList.reset()
+        root.checkIsTree()
+
         root.checkNumBlack()
+        root.checkRedChildrenBlack()
+        synthAssertTerminal(root.numNodes() == num_active_nodes)
     }
 
 
 
     // === main functions ===
     def mainInsertRoutine(to_insert : TreeNode, parent : TreeNode,
-        grandparent : TreeNode)
+        grandparent : TreeNode) : Boolean =
     {
+        if (root == null) {
+            to_insert.isBlack = true
+            root = to_insert
+            return false
+        }
         // go down the binary tree. using < vs. <= shouldn't matter (symmetry)
-        if (parent.value > to_insert.value) {
+        if (parent.value < to_insert.value) {
             if (parent.rightChild == null) {
                 parent.rightChild = to_insert
             } else {
-                mainInsertRoutine(to_insert, parent.rightChild, parent)
+                if (!mainInsertRoutine(to_insert, parent.rightChild, parent)) {
+                    return false;
+                }
             }
-        } else if (parent.value <= to_insert.value) {
+        } else {
             // NOTE - I don't want to have to spell out this symmetry
             if (parent.leftChild == null) {
                 parent.leftChild = to_insert
             } else {
-                mainInsertRoutine(to_insert, parent.leftChild, parent)
+                if (!mainInsertRoutine(to_insert, parent.leftChild, parent)) {
+                    return false
+                }
             }
         }
+        recursiveUpwardsStep(to_insert, parent, grandparent)
     }
     /** one step of the reorganization procedure. returns true to recurse */
     def recursiveUpwardsStep(node : TreeNode, parent : TreeNode,
         grandparent : TreeNode) : Boolean =
     {
+        recolorOp(node)
+        recolorOp(parent)
+        recolorOp(grandparent)
+        switchChildrenTuple(node, parent, grandparent)
         !!()
     }
 
@@ -137,12 +193,11 @@ class RedBlackTreeSketch(val num_ops : Int,
         root = null
         for (i <- 0 until num_ops) {
             val value = next_int_input()
-            val next = insertNode(value)
-            skprint("got value", value.toString)
-            printTree()
+            mainInsertRoutine(insertNode(value), root, null)
+            checkTree()
+            //printTree()
         }
-        !!()
-        //true
+        true
     }
 
     val test_generator = new TestGenerator {

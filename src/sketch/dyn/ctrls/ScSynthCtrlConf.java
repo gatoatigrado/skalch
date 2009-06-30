@@ -5,6 +5,7 @@ import java.util.Vector;
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.sourcecode.ScHighlightValues;
+import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
 
 /**
@@ -114,7 +115,10 @@ public class ScSynthCtrlConf extends ScCtrlConf {
     }
 
     @Override
-    public String getValueString(int uid) {
+    public String getValueString(int uid) throws ScNoValueStringException {
+        if (uid >= value_string.length) {
+            throw new ScNoValueStringException();
+        }
         return value_string[uid];
     }
 

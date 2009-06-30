@@ -21,9 +21,9 @@ public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {
             line = "<span style=\"color: #666666;\">" + line + "</span>";
         } else {
             line =
-                    line.replaceAll("(val|var|def|while|if|else|for|"
+                    line.replaceAll("([^\\w])(val|var|def|while|if|else|for|"
                             + "return|catch|case|try|match|object|class|"
-                            + "extends)", "<b>$1</b>");
+                            + "extends)([^\\w])", "$1<b>$2</b>$3");
             line =
                     line.replaceAll("(synthAssertTerminal|skprint)",
                             "<i>$1</i>");

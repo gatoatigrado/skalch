@@ -22,10 +22,25 @@ public class ScActiveStack extends ScLocalSynthDispatcher {
         local_ssr.done_events.enqueue(this, "synthDone");
     }
 
+    private class SynthDoneModifier extends ScUiModifierInner {
+        @Override
+        public void apply() {
+            ui_thread.gui.num_synth_active -= 1;
+            if (ui_thread.gui.num_synth_active <= 0) {
+                ui_thread.gui.disableStopButton();
+            }
+            list.remove(ScActiveStack.this);
+            list.add(new ScLongestStack(ScActiveStack.this));
+            list.add(new ScRandomStack(ScActiveStack.this));
+        }
+    }
+
     public void synthDone() {
-        list.remove(this);
-        list.add(new ScLongestStack(this));
-        list.add(new ScRandomStack(this));
+        try {
+            new ScUiModifier(ui_thread, new SynthDoneModifier()).enqueueTo();
+        } catch (ScUiQueueableInactive e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

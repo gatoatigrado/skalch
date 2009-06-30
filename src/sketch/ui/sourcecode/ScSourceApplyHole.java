@@ -16,8 +16,12 @@ public class ScSourceApplyHole extends ScSourceUntilvHole {
 
     @Override
     public String valueString(String src_args) {
-        return "(" + src_args + ")(" + sketch.ctrl_conf.getValueString(uid)
-                + ")";
+        try {
+            return "(" + src_args + ")(" + sketch.ctrl_conf.getValueString(uid)
+                    + ")";
+        } catch (ScNoValueStringException e) {
+            return "/* not reached */ ??(" + src_args + ")";
+        }
     }
 
     @Override

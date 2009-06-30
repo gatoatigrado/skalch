@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.ui.sourcecode.ScHighlightValues;
+import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
 import sketch.util.RichString;
 
@@ -127,7 +128,10 @@ public class ScFixedInputConf extends ScInputConf {
     }
 
     @Override
-    public String getValueString(int uid) {
+    public String getValueString(int uid) throws ScNoValueStringException {
+        if (uid >= value_string.length) {
+            throw new ScNoValueStringException();
+        }
         return value_string[uid];
     }
 }

@@ -24,7 +24,11 @@ public class ScSourceUntilvOracle implements ScSourceConstructInfo {
 
     /** the source location visitor will add the comment above */
     public String valueString(String srcArgs) {
-        return sketch.oracle_conf.getValueString(uid);
+        try {
+            return sketch.oracle_conf.getValueString(uid);
+        } catch (ScNoValueStringException e) {
+            return "not encountered";
+        }
     }
 
     public String getName() {

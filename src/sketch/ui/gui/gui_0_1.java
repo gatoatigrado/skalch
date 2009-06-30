@@ -324,7 +324,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
     public javax.swing.JEditorPane sourceCodeEditor;
     javax.swing.JScrollPane sourceCodePane;
     javax.swing.JLabel sourceViewLabel;
-    javax.swing.JButton stopButton;
+    protected javax.swing.JButton stopButton;
     javax.swing.JLabel synthCompletionLabel;
     public javax.swing.JList synthCompletionList;
     javax.swing.JScrollPane synthCompletionPane;

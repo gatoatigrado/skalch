@@ -31,6 +31,7 @@ public class ScUiGui extends gui_0_1 {
     public ScUiThread ui_thread;
     public ScUiList<ScFixedInputConf> inputChoices;
     public ScUiList<ScModifierDispatcher> synthCompletions;
+    public int num_synth_active = 0;
 
     @SuppressWarnings("unchecked")
     /** FIXME - this is incredibly annoying */
@@ -135,5 +136,9 @@ public class ScUiGui extends gui_0_1 {
             }
         }
         result.append(v.visitCode(end));
+    }
+
+    public void disableStopButton() {
+        stopButton.setEnabled(false);
     }
 }

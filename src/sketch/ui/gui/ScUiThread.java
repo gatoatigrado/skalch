@@ -86,6 +86,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         new RunnableModifier(new Runnable() {
             public void run() {
                 ScUiGui gui = target.gui;
+                gui.num_synth_active += 1;
                 new ScActiveStack(target, gui.synthCompletions, local_ssr)
                         .add();
             }

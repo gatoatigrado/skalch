@@ -8,6 +8,8 @@ import sketch.util.DebugOut;
 public class ScStackSourceVisitor extends ScHighlightSourceVisitor {
     @Override
     public String visitHoleInfo(ScSourceConstruct ctrl_src_info) {
+        ScSourceLocation argloc = ctrl_src_info.argument_location;
+        String arg = ScSourceCache.singleton().getSourceString(argloc);
         if (ctrl_src_info.entire_location.start_eq_to_end()) {
             String line =
                     ScSourceCache.singleton().getLine(
@@ -22,12 +24,11 @@ public class ScStackSourceVisitor extends ScHighlightSourceVisitor {
             }
             String indent = m.group(1);
             return indent
-                    + "<span style=\"color: #0000ff;\">// construct info: "
-                    + ctrl_src_info.construct_info.valueString(null)
+                    + "<span style=\"color: #0000ff;\">// construct info for "
+                    + ctrl_src_info.getName() + ": "
+                    + ctrl_src_info.construct_info.valueString(arg)
                     + "</span>\n";
         } else {
-            ScSourceLocation argloc = ctrl_src_info.argument_location;
-            String arg = ScSourceCache.singleton().getSourceString(argloc);
             return "<b>" + ctrl_src_info.construct_info.valueString(arg)
                     + "</b>";
         }

@@ -173,6 +173,7 @@ public class ScUiGui extends gui_0_1 {
         //
         boolean assert_failed = false;
         trycatch: try {
+            stack.reset_before_run();
             for (ScFixedInputConf counterexample : ui_thread.all_counterexamples)
             {
                 counterexample.set_input_for_sketch(ui_thread.sketch);
@@ -192,12 +193,13 @@ public class ScUiGui extends gui_0_1 {
                 + "ul {\nmargin-left: 20pt;\n}\n</style>\n  </head>"
                 + "\n  <body>\n<ul>");
         for (String debug_entry : ui_thread.sketch.debug_out) {
-            debug_entry = ScHighlightSourceVisitor.html_tag_escape(debug_entry);
-            debug_entry = debug_entry.replace("\n", "<br />");
+            debug_entry =
+                    ScHighlightSourceVisitor.html_nonpre_code(debug_entry);
             debug_text.append("<li>");
             debug_text.append(debug_entry);
             debug_text.append("</li>");
         }
+        ui_thread.sketch.debug_out = null;
         debug_text.append("\n</ul>\n");
         if (assert_failed) {
             StackTraceElement assert_info =

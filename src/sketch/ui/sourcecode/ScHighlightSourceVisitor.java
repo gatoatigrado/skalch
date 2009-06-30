@@ -33,4 +33,12 @@ public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {
     public static String html_tag_escape(String quoted) {
         return quoted.replace("<", "&lt;").replace(">", "&gt;");
     }
+
+    /** converts tags and maintains line formatting */
+    public static String html_nonpre_code(String text) {
+        text = text.replace(" ", "&nbsp;");
+        text = html_tag_escape(text);
+        text = text.replace("\n", "<br />");
+        return text;
+    }
 }

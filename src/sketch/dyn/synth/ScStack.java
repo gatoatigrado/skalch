@@ -103,6 +103,11 @@ public class ScStack extends ScPrefixSearch {
         sketch.oracle_conf = oracle_inputs;
     }
 
+    public void reset_before_run() {
+        added_entries = 0;
+        oracle_inputs.reset_index();
+    }
+
     protected boolean set_stack_ent(ScStackEntry ent, int v) {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
             return ctrls.set(ent.uid, v);
@@ -171,10 +176,6 @@ public class ScStack extends ScPrefixSearch {
             current_prefix = current_prefix.add_entries(added_entries);
         }
         next_inner(force_pop);
-        // reset for next run. oracle_input.reset_index() should happen after
-        // next_inner()
-        added_entries = 0;
-        oracle_inputs.reset_index();
     }
 
     public void add_entry(int type, int uid, int subuid) {

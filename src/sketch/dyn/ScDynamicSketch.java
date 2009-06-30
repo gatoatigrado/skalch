@@ -32,6 +32,13 @@ public abstract class ScDynamicSketch {
     protected ScDynamicUntilvException untilv_inst__ =
             new ScDynamicUntilvException();
 
+    @Override
+    public String toString() {
+        return "=== ScDynamicSketch ===\n    ctrls: " + ctrl_conf
+                + "\n    inputs: " + input_conf + "\n    oracles: "
+                + oracle_conf;
+    }
+
     public abstract ScConstructInfo[] get_hole_info();
 
     public abstract ScConstructInfo[] get_input_info();

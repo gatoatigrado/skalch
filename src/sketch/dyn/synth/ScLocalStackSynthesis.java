@@ -92,6 +92,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 // run the program
                 // trycatch doesn't seem slow.
                 trycatch: try {
+                    stack.reset_before_run();
                     nruns++;
                     // DebugOut.print_mt("running test");
                     for (ScFixedInputConf counterexample : counterexamples) {

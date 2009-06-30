@@ -25,7 +25,7 @@ public class ScSourceUntilvHole implements ScSourceConstructInfo {
 
     public String valueString(String src_args) {
         try {
-            return sketch.ctrl_conf.getValueString(uid);
+            return sketch.ctrl_conf.getValueString(uid).formatString();
         } catch (ScNoValueStringException e) {
             return "/* not reached */ ??(" + src_args + ")";
         }

@@ -1,5 +1,6 @@
 package sketch.dyn.ctrls;
 
+import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
 
 public abstract class ScCtrlConf {
@@ -7,6 +8,6 @@ public abstract class ScCtrlConf {
 
     public abstract int getDynamicValue(int uid, int untilv);
 
-    public abstract String getValueString(int uid)
+    public abstract ScConstructValueString getValueString(int uid)
             throws ScNoValueStringException;
 }

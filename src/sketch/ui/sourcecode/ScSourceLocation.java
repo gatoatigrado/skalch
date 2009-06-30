@@ -28,13 +28,18 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
     }
 
     public ScSourceLocation(String filename, LineColumn start, LineColumn end) {
+        this(filename, start, end, false);
+    }
+
+    public ScSourceLocation(String filename, LineColumn start, LineColumn end,
+            boolean can_be_zero_length)
+    {
         this.filename = filename;
         this.start = start;
         this.end = end;
-        if (!start.lessThan(end)) {
-            DebugOut.assertFalse("constructed invalid source location", start,
-                    end);
-        }
+        DebugOut.assertSlow(start.lessThan(end)
+                || (!end.lessThan(start) && can_be_zero_length),
+                "constructed invalid source location", start, end);
     }
 
     @Override
@@ -111,12 +116,19 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
     }
 
     public static ScSourceLocation fromXML(String filename,
-            XmlEltWrapper location)
+            XmlEltWrapper location, boolean can_be_zero_length)
     {
         XmlEltWrapper start_elt = location.XpathElt("position[@name='start']");
         XmlEltWrapper end_elt = location.XpathElt("position[@name='end']");
         LineColumn start_lc = LineColumn.fromXML(start_elt);
         LineColumn end_lc = LineColumn.fromXML(end_elt);
-        return new ScSourceLocation(filename, start_lc, end_lc);
+        return new ScSourceLocation(filename, start_lc, end_lc,
+                can_be_zero_length);
+    }
+
+    public static ScSourceLocation fromXML(String filename,
+            XmlEltWrapper location)
+    {
+        return fromXML(filename, location, false);
     }
 }

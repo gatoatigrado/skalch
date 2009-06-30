@@ -46,20 +46,26 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         XmlEltWrapper argument_loc = elt.XpathElt("rangepos[@name='arg_pos']");
         ScSourceConstructInfo cons_info = null;
         ScSourceLocation eloc = ScSourceLocation.fromXML(filename, entire_loc);
+        String pt = elt.getAttributeValue("param_type");
+        ScSourceLocation arg_loc = null;
         if (elt.getLocalName().equals("holeapply")) {
-            if (elt.getAttributeValue("param_type").contains(
-                    "[[integer untilv hole]]"))
-            {
+            if (pt.contains("[[integer untilv hole]]")) {
                 cons_info = new ScSourceUntilvHole(uid, sketch);
             } else {
+                DebugOut.assertSlow(pt.contains("[[object apply hole]]"),
+                        "unknown parameter type", pt);
                 cons_info = new ScSourceApplyHole(uid, sketch);
             }
         } else if (elt.getLocalName().equals("oracleapply")) {
-            if (elt.getAttributeValue("param_type").contains(
-                    "[[integer untilv oracle]]"))
-            {
+            if (pt.contains("[[integer untilv oracle]]")) {
                 cons_info = new ScSourceUntilvOracle(uid, sketch);
+            } else if (pt.contains("[[boolean oracle]]")) {
+                arg_loc =
+                        ScSourceLocation.fromXML(filename, argument_loc, true);
+                cons_info = new ScSourceBooleanOracle(uid, sketch);
             } else {
+                DebugOut.assertSlow(pt.contains("[[object apply oracle]]"),
+                        "unknown parameter type", pt);
                 cons_info = new ScSourceApplyOracle(uid, sketch);
             }
             LineColumn start =
@@ -69,8 +75,10 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         if (cons_info == null) {
             DebugOut.assertFalse("no cons_info set.");
         }
-        return new ScSourceConstruct(cons_info, eloc, ScSourceLocation.fromXML(
-                filename, argument_loc));
+        if (arg_loc == null) {
+            arg_loc = ScSourceLocation.fromXML(filename, argument_loc);
+        }
+        return new ScSourceConstruct(cons_info, eloc, arg_loc);
     }
 
     public int compareTo(ScSourceConstruct other) {

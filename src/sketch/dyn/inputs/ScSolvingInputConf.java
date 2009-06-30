@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
+import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
 
 /**
@@ -177,7 +178,7 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     }
 
     @Override
-    public String getValueString(int uid) {
+    public Vector<ScConstructValueString> getValueString(int uid) {
         DebugOut.assertFalse("set fixed input values to get a value string.");
         return null;
     }

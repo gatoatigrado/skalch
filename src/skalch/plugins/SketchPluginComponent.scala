@@ -43,15 +43,18 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
             }
         }
 
+        def alreadyInsertedPos(x : Object) = x match {
+            case FakePos("Inserted literal for call to sketch construct") => true
+            case _ => false
+        }
+
         def applySketchType(fcn: Tree, args : List[Tree]): CallType = {
             val cons_type = fcnName(fcn) match {
                 case "$qmark$qmark" => ConstructType.Hole
                 case "$bang$bang" => ConstructType.Oracle
                 case _ => return null
             }
-            if (args.length == 1) {
-                NewConstruct(cons_type)
-            } else {
+            if (args.length >= 1 && alreadyInsertedPos(args(0).pos)) {
                 var annotation : String = null
                 for (a <- fcn.symbol.annotations) {
                     a match {
@@ -69,6 +72,8 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
                     }
                 }
                 AssignedConstruct(cons_type, annotation)
+            } else {
+                NewConstruct(cons_type)
             }
         }
 

@@ -1,6 +1,9 @@
 package sketch.ui.sourcecode;
 
+import java.util.Vector;
+
 import sketch.dyn.ScDynamicSketch;
+import sketch.util.RichString;
 
 /**
  * an oracle which (if it were a hole) would be rewritten to a single number.
@@ -25,7 +28,14 @@ public class ScSourceUntilvOracle implements ScSourceConstructInfo {
     /** the source location visitor will add the comment above */
     public String valueString(String srcArgs) {
         try {
-            return sketch.oracle_conf.getValueString(uid);
+            Vector<ScConstructValueString> values =
+                    sketch.oracle_conf.getValueString(uid);
+            Vector<String> result_arr = new Vector<String>();
+            for (ScConstructValueString value_string : values) {
+                result_arr.add(value_string.formatString());
+            }
+            return (new RichString(", ")).join(result_arr
+                    .toArray(new String[0]));
         } catch (ScNoValueStringException e) {
             return "not encountered";
         }

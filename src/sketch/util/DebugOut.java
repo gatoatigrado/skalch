@@ -63,6 +63,13 @@ public class DebugOut {
         throw new java.lang.IllegalStateException("please enable asserts.");
     }
 
+    /** NOTE - don't use this in fast loops, as arrays are created */
+    public static void assertSlow(boolean truth, Object... description) {
+        if (!truth) {
+            assertFalse(description);
+        }
+    }
+
     public static void not_implemented(Object... what) {
         Object[] what_prefixed = new Object[what.length + 1];
         what_prefixed[0] = "Not implemented -";

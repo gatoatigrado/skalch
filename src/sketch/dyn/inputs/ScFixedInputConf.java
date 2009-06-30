@@ -3,10 +3,11 @@ package sketch.dyn.inputs;
 import java.util.Vector;
 
 import sketch.dyn.ScDynamicSketch;
+import sketch.ui.sourcecode.ScConstructValue;
+import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
-import sketch.util.RichString;
 
 /**
  * static inputs that may have slightly faster access
@@ -20,7 +21,7 @@ public class ScFixedInputConf extends ScInputConf {
     protected int[][] set_cnt;
     protected int[] untilv;
     protected int[] next;
-    public String[] value_string;
+    public Vector<ScConstructValueString>[] value_string;
 
     public ScFixedInputConf(int[][] values, int[][] set_cnt, int[] untilv,
             int[] next)
@@ -86,13 +87,15 @@ public class ScFixedInputConf extends ScInputConf {
     }
 
     /** NOTE - a bit of messy (uid, subuid) -> index mapping */
+    @SuppressWarnings("unchecked")
     public void generate_value_strings() {
         Vector<ScHighlightValues.Value> value_arr =
                 new Vector<ScHighlightValues.Value>();
         for (int uid_idx = 0; uid_idx < values.length; uid_idx++) {
             for (int subuid_idx = 0; subuid_idx < values[uid_idx].length; subuid_idx++)
             {
-                String value = String.valueOf(values[uid_idx][subuid_idx]);
+                ScConstructValue value =
+                        new ScConstructValue(values[uid_idx][subuid_idx]);
                 int color_v = set_cnt[uid_idx][subuid_idx];
                 int[] id_arr = { uid_idx, subuid_idx };
                 value_arr.add(new ScHighlightValues.Value(value, color_v,
@@ -101,35 +104,25 @@ public class ScFixedInputConf extends ScInputConf {
         }
         ScHighlightValues.gen_value_strings(value_arr);
         // convert to a 2-d vector
-        Vector<Vector<String>> results = new Vector<Vector<String>>();
+        value_string = new Vector[values.length];
+        for (int a = 0; a < value_string.length; a++) {
+            value_string[a] = new Vector<ScConstructValueString>();
+        }
         for (ScHighlightValues.Value value : value_arr) {
             int[] id_arr = (int[]) value.tag;
-            if (id_arr[0] >= results.size()) {
-                results.setSize(id_arr[0] + 1);
-                results.set(id_arr[0], new Vector<String>());
-            }
-            Vector<String> uid_v = results.get(id_arr[0]);
+            Vector<ScConstructValueString> uid_v = value_string[id_arr[0]];
             if (id_arr[1] >= uid_v.size()) {
                 uid_v.setSize(id_arr[1] + 1);
             }
             uid_v.set(id_arr[1], value.result);
         }
-        // finally generate strings
-        value_string = new String[values.length];
-        for (int a = 0; a < value_string.length; a++) {
-            if (results.get(a) != null) {
-                value_string[a] =
-                        (new RichString(", ")).join(results.get(a).toArray(
-                                new String[0]));
-            } else {
-                value_string[a] = "/* not encountered */";
-            }
-        }
     }
 
     @Override
-    public String getValueString(int uid) throws ScNoValueStringException {
-        if (uid >= value_string.length) {
+    public Vector<ScConstructValueString> getValueString(int uid)
+            throws ScNoValueStringException
+    {
+        if (uid >= value_string.length || value_string[uid].size() == 0) {
             throw new ScNoValueStringException();
         }
         return value_string[uid];

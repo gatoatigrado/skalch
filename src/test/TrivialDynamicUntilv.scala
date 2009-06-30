@@ -21,7 +21,10 @@ class TrivialDynamicUntilv(val max_n : Int, val num_tests : Int)
 
     val test_generator = new TestGenerator {
         // this is supposed to be expressive only, recover it with Java reflection if necessary
-        def set() { put_input(in_length, mt.get().nextInt(max_n)) }
+        def set() {
+            val v = TrivialDynamicUntilvTest.mt.get().nextInt(max_n)
+            put_input(in_length, v)
+        }
         def tests() { for (i <- 0 until num_tests) test_case() }
     }
 
@@ -35,6 +38,8 @@ class TrivialDynamicUntilv(val max_n : Int, val num_tests : Int)
 }
 
 object TrivialDynamicUntilvTest {
+    val mt = new ThreadLocalMT()
+
     object TestOptions extends CliOptGroup {
         add("--max_value", 100 : java.lang.Integer, "value for !! to guess")
         add("--num_tests", 10 : java.lang.Integer,

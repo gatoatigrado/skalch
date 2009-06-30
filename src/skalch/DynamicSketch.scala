@@ -43,6 +43,10 @@ abstract class DynamicSketch extends ScDynamicSketch {
         def tests() { test_case() }
     }
 
+    // am I abusing the type inference system? If anything is ambiguous, please email...
+    // NOTE - the "[[string]]" part of the annotations is what is currently recognized 
+    // from the compiler. This should be an associative recognition in the future.
+
     /** NOTE - description annotations are necessary to know how to complete the hole. */
     @DescriptionAnnotation("[[integer untilv hole]] basic hole")
     def ??(uid: Int, untilv: Int): Int = {
@@ -61,6 +65,12 @@ abstract class DynamicSketch extends ScDynamicSketch {
     @DescriptionAnnotation("[[integer untilv oracle]] basic oracle")
     def !!(uid: Int, untilv: Int): Int = {
         DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
+    }
+
+    @DescriptionAnnotation("[[boolean oracle]] boolean oracle")
+    def !!(uid : Int) : Boolean = {
+        val result : Int = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, 2)
+        result == 1
     }
 
     @DescriptionAnnotation("[[object apply oracle]] list select oracle")

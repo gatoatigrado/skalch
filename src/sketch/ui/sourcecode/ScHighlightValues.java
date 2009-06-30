@@ -12,7 +12,9 @@ import sketch.util.Vector4;
  *          make changes, please consider contributing back!
  */
 public class ScHighlightValues {
-    private static String gen_value_string(float f, String inner) {
+    private static ScConstructValueString gen_value_string(float f,
+            ScConstructValue inner)
+    {
         float amnt_first, amnt_second, amnt_third;
         if (f < 0.5) {
             amnt_first = 1 - 2 * f;
@@ -31,7 +33,8 @@ public class ScHighlightValues {
                         second.scalar_multiply(amnt_second)).add(
                         third.scalar_multiply(amnt_third));
         String color = the_color.hexColor();
-        return "<span style=\"color: " + color + ";\">" + inner + "</span>";
+        return new ScConstructValueString("<span style=\"color: " + color
+                + ";\">", inner, "</span>");
     }
 
     public static void gen_value_strings(Vector<Value> values) {
@@ -41,18 +44,18 @@ public class ScHighlightValues {
         float maxv = Value.vector_max(values);
         for (int a = 0; a < values.size(); a++) {
             float c = values.get(a).color_value / maxv;
-            values.get(a).result = gen_value_string(c, values.get(a).inner);
+            values.get(a).result = gen_value_string(c, values.get(a).value);
         }
     }
 
     public static class Value {
-        protected String inner;
-        public String result;
+        protected ScConstructValue value;
+        public ScConstructValueString result;
         protected float color_value;
         public Object tag;
 
-        public Value(String inner, int color_value, Object tag) {
-            this.inner = inner;
+        public Value(ScConstructValue value, float color_value, Object tag) {
+            this.value = value;
             this.color_value = color_value;
             this.tag = tag;
         }

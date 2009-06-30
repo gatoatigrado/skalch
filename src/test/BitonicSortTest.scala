@@ -6,8 +6,6 @@ import skalch.DynamicSketch
 import sketch.dyn.BackendOptions
 import sketch.util._
 
-object mt extends ThreadLocalMT()
-
 class BitonicSort(val nsteps : Int, val tg_array_length : Int,
         val num_tests : Int) extends DynamicSketch
 {
@@ -66,7 +64,7 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
         // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set(x : Int) {
             put_input(in_lengths, x)
-            for (i <- 0 until x) put_input(in_values, mt.get().nextInt() >> 20)
+            for (i <- 0 until x) put_input(in_values, BitonicSortTest.mt.get().nextInt() >> 20)
         }
         def tests() {
             for (i <- 0 until num_tests) test_case(tg_array_length : java.lang.Integer)
@@ -75,6 +73,8 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
 }
 
 object BitonicSortTest {
+    val mt = new ThreadLocalMT()
+
     object TestOptions extends CliOptGroup {
         add("--array_length", "length of array")
         add("--num_steps", "number of steps allowed")

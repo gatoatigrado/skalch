@@ -1,5 +1,8 @@
 package sketch.dyn.inputs;
 
+import java.util.Vector;
+
+import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
 
 public abstract class ScInputConf {
@@ -7,6 +10,6 @@ public abstract class ScInputConf {
 
     public abstract int dynamicNextValue(int uid, int untilv);
 
-    public abstract String getValueString(int uid)
+    public abstract Vector<ScConstructValueString> getValueString(int uid)
             throws ScNoValueStringException;
 }

@@ -68,6 +68,12 @@ class SketchRewriter(val global: Global) extends Plugin {
 
             // Rewrite calls to ?? to include a call site specific uid
             object CallTransformer extends SketchTransformer {
+                def zeroLenPosition(pos : Object) : RangePosition = pos match {
+                    case rp : RangePosition => new RangePosition(
+                        rp.source0, rp.end - 1, rp.end - 1, rp.end - 1)
+                    case _ => assert(false, "please enable range positions"); null
+                }
+
                 def transformSketchClass(clsdef : ClassDef) = null
                 def transformSketchCall(tree : Apply, ct : CallType) = {
                     val uid = hintsSink.length
@@ -78,7 +84,11 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case ConstructType.Hole => "holeapply"
                         case ConstructType.Oracle => "oracleapply"
                     }
-                    hintsSink = hintsSink ::: List(new ConstructFcn(type_, uid, tree.pos, tree.args(0).pos))
+                    assert(hintsSink != null, "internal err - CallTransformer - hintsSink null");
+                    // make a fake 0-length position
+                    val arg_pos = (if (tree.args.length == 0) { zeroLenPosition(tree.pos) }
+                        else { tree.args(0).pos })
+                    hintsSink = hintsSink ::: List(new ConstructFcn(type_, uid, tree.pos, arg_pos))
                     treeCopy.Apply(tree, tree.fun, uidLit :: transformTrees(tree.args))
                 }
             }
@@ -168,7 +178,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                                 "please set annotations for call " + tree.toString())
                             xmldoc.cons_fcn_arr(uid).parameter_type = param_type
                         }
-                        case _ => println("INTERNAL ERROR - NewConstruct after jvm")
+                        case _ => assert(false, "INTERNAL ERROR - NewConstruct after jvm")
                     }
                     null
                 }

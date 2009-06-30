@@ -4,6 +4,8 @@ import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;
 import sketch.dyn.synth.ScStack;
+import sketch.ui.sourcecode.ScConstructValue;
+import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
@@ -21,7 +23,7 @@ public class ScSynthCtrlConf extends ScCtrlConf {
     public int[] values; // -1 for not accessed
     public int[] untilv;
     public int[] set_cnt;
-    public String[] value_string;
+    public ScConstructValueString[] value_string;
 
     public ScSynthCtrlConf(ScConstructInfo[] hole_info, ScStack stack,
             int log_type)
@@ -104,10 +106,11 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         Vector<ScHighlightValues.Value> value_arr =
                 new Vector<ScHighlightValues.Value>();
         for (int a = 0; a < values.length; a++) {
-            value_arr.add(new ScHighlightValues.Value(String.valueOf(Math.max(
-                    0, values[a])), set_cnt[a], null));
+            ScConstructValue value =
+                    new ScConstructValue(Math.max(0, values[a]));
+            value_arr.add(new ScHighlightValues.Value(value, set_cnt[a], null));
         }
-        value_string = new String[values.length];
+        value_string = new ScConstructValueString[values.length];
         ScHighlightValues.gen_value_strings(value_arr);
         for (int a = 0; a < values.length; a++) {
             value_string[a] = value_arr.get(a).result;
@@ -115,7 +118,9 @@ public class ScSynthCtrlConf extends ScCtrlConf {
     }
 
     @Override
-    public String getValueString(int uid) throws ScNoValueStringException {
+    public ScConstructValueString getValueString(int uid)
+            throws ScNoValueStringException
+    {
         if (uid >= value_string.length) {
             throw new ScNoValueStringException();
         }

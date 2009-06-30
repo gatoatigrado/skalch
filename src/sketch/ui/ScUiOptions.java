@@ -17,5 +17,9 @@ public class ScUiOptions extends sketch.util.CliOptGroup {
                 "don't automatically display the first solution");
         add("--accept_gen_filename", "out.scala", "scala file to generate "
                 + "after \"accept\" is clicked");
+        add("--context_len", 3,
+                "number of lines surrounding the line of interest");
+        add("--context_split_len", 9,
+                "maximum amount of context between lines before they are split");
     }
 }

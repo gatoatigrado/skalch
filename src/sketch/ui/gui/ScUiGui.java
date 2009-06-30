@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.swing.event.ListSelectionEvent;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiList;
@@ -32,12 +33,17 @@ public class ScUiGui extends gui_0_1 {
     public ScUiList<ScFixedInputConf> inputChoices;
     public ScUiList<ScModifierDispatcher> synthCompletions;
     public int num_synth_active = 0;
+    public int context_len;
+    public int context_split_len;
 
     @SuppressWarnings("unchecked")
     /** FIXME - this is incredibly annoying */
     public ScUiGui(ScUiThread ui_thread) {
         super();
         this.ui_thread = ui_thread;
+        context_len = (int) BackendOptions.ui_opts.long_("context_len");
+        context_split_len =
+                (int) BackendOptions.ui_opts.long_("context_split_len");
         // java is very annoying
         inputChoices =
                 new ScUiList<ScFixedInputConf>(selectInputList,
@@ -97,17 +103,22 @@ public class ScUiGui extends gui_0_1 {
         ScSourceCache.singleton().add_filenames(info_by_filename.keySet());
         StringBuilder result = new StringBuilder();
         result.append("<html>\n  <head>\n<style>\nbody {\n"
-                + "font-size: 12pt;\n}\n</style>\n  </head>\n  <body>"
-                + "<p>color indicates how often values are changed: red "
+                + "font-size: 12pt;\n}\n</style>\n  </head>\n  "
+                + "<body style=\"margin-top: 0px;\">"
+                + "<p style=\"margin-top: 0.1em;\">"
+                + "color indicates how often values are changed: red "
                 + "is very often, yellow is occasionally, blue is never.");
         for (Entry<String, Vector<ScSourceConstruct>> entry : info_by_filename
                 .entrySet())
         {
             result.append("\n<p><pre style=\"font-family: serif;\">");
             add_source_info(result, entry.getKey(), entry.getValue());
-            result.append("\n</pre></p>");
+            result.append("</pre></p><hr />");
         }
-        result.append("\n</body>\n</html>");
+        result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
+                + "there are bugs above or it's less readable)<br />\n");
+        result.append(stack.htmlDebugString());
+        result.append("\n</p>\n</body>\n</html>");
         sourceCodeEditor.setText(result.toString());
     }
 
@@ -118,10 +129,10 @@ public class ScUiGui extends gui_0_1 {
                 vector.toArray(new ScSourceConstruct[0]);
         Arrays.sort(hole_info_sorted);
         ScSourceLocation start =
-                hole_info_sorted[0].entire_location.contextBefore(3);
+                hole_info_sorted[0].entire_location.contextBefore(context_len);
         ScSourceLocation end =
                 hole_info_sorted[hole_info_sorted.length - 1].entire_location
-                        .contextAfter(3);
+                        .contextAfter(context_len);
         ScStackSourceVisitor v = new ScStackSourceVisitor();
         // starting context
         result.append(v.visitCode(start));
@@ -132,7 +143,16 @@ public class ScUiGui extends gui_0_1 {
             if (a + 1 < hole_info_sorted.length) {
                 ScSourceLocation next_loc =
                         hole_info_sorted[a + 1].entire_location;
-                result.append(v.visitCode(loc.source_between(next_loc)));
+                ScSourceLocation between = loc.source_between(next_loc);
+                if (between.numLines() >= context_split_len) {
+                    // split the context
+                    result.append(v.visitCode(loc.contextAfter(context_len)));
+                    result.append("</pre>\n<hr /><pre>");
+                    result.append(v.visitCode(next_loc
+                            .contextBefore(context_len)));
+                } else {
+                    result.append(v.visitCode(loc.source_between(next_loc)));
+                }
             }
         }
         result.append(v.visitCode(end));

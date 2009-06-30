@@ -69,14 +69,24 @@ public class ScStack extends ScPrefixSearch {
         return result;
     }
 
-    @Override
-    public String toString() {
+    public String[] getStringArrayRep() {
         String[] rv = new String[stack.size()];
         for (int a = 0; a < stack.size(); a++) {
             ScStackEntry ent = stack.get(a);
             rv[a] = "(" + ent.toString() + ", " + get_stack_ent(ent) + ")";
         }
-        return "ScStack[ " + (new RichString(" -> ")).join(rv) + " ]";
+        return rv;
+    }
+
+    @Override
+    public String toString() {
+        return "ScStack[ " + (new RichString(" -> ")).join(getStringArrayRep())
+                + " ]";
+    }
+
+    public String htmlDebugString() {
+        RichString sep = new RichString(" -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
+        return "ScStack[ " + sep.join(getStringArrayRep()) + " ]";
     }
 
     public void set_fixed_for_illustration(ScDynamicSketch sketch) {

@@ -131,4 +131,8 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
     {
         return fromXML(filename, location, false);
     }
+
+    public int numLines() {
+        return (end.line - start.line) + 1;
+    }
 }

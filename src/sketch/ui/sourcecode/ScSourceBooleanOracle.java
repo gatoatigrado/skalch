@@ -5,9 +5,21 @@ import java.util.Vector;
 import sketch.dyn.ScDynamicSketch;
 import sketch.util.RichString;
 
+/**
+ * true / false (parameterless call) to an oracle.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
     public ScSourceBooleanOracle(int uid, ScDynamicSketch sketch) {
         super(uid, sketch);
+    }
+
+    @Override
+    public String getName() {
+        return "BooleanOracle[uid=" + uid + "]";
     }
 
     @Override

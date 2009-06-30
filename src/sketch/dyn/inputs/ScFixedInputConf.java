@@ -82,7 +82,7 @@ public class ScFixedInputConf extends ScInputConf {
         }
     }
 
-    public void set_for_sketch(ScDynamicSketch sketch) {
+    public void set_input_for_sketch(ScDynamicSketch sketch) {
         sketch.input_conf = this;
         reset_index();
     }

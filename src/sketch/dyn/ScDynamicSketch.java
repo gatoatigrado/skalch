@@ -26,6 +26,7 @@ public abstract class ScDynamicSketch {
     public boolean debug_print_enable = false;
     public Vector<String> debug_out;
     public ScSourceLocation dysketch_fcn_location;
+    public StackTraceElement debug_assert_failure_location;
     protected ScSynthesisAssertFailure assert_inst__ =
             new ScSynthesisAssertFailure();
     protected ScDynamicUntilvException untilv_inst__ =
@@ -43,12 +44,20 @@ public abstract class ScDynamicSketch {
 
     public void synthAssertTerminal(boolean truth) {
         if (!truth) {
+            if (debug_print_enable) {
+                debug_assert_failure_location =
+                        (new Exception()).getStackTrace()[1];
+            }
             throw assert_inst__;
         }
     }
 
     public void dynamicUntilvAssert(boolean truth) {
         if (!truth) {
+            if (debug_print_enable) {
+                debug_assert_failure_location =
+                        (new Exception()).getStackTrace()[1];
+            }
             throw untilv_inst__;
         }
     }
@@ -61,6 +70,30 @@ public abstract class ScDynamicSketch {
     public synchronized void skprint(String... text) {
         DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
                 (Object[]) text);
+    }
+
+    public void skdprint_backend(String text) {
+        debug_out.add(text);
+    }
+
+    public void skdprint_pairs_backend(Object... arr) {
+        StringBuilder text = new StringBuilder();
+        for (int a = 0; a < arr.length;) {
+            String name_str = arr[a].toString();
+            text.append(name_str);
+            if (a + 1 < arr.length) {
+                text.append(": ");
+                String value_str = arr[a + 1].toString();
+                text.append(value_str);
+                if (value_str.length() >= 60) {
+                    text.append("\n"); // extra newline for long values
+                }
+                a += 1;
+            }
+            a += 1;
+            text.append("\n");
+        }
+        debug_out.add(text.toString());
     }
 
     public void addHoleSourceInfo(ScSourceConstruct info) {

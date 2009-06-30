@@ -9,9 +9,12 @@ import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScStack;
+import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
+import sketch.ui.sourcecode.ScHighlightSourceVisitor;
 import sketch.ui.sourcecode.ScSourceCache;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceLocation;
@@ -88,6 +91,7 @@ public class ScUiGui extends gui_0_1 {
         ui_thread.ssr.wait_handler.set_synthesis_complete();
     }
 
+    /** this all happens on the UI thread, but it shouldn't be that slow */
     public void fillWithStack(ScStack stack) {
         // get source
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
@@ -120,6 +124,7 @@ public class ScUiGui extends gui_0_1 {
         result.append(stack.htmlDebugString());
         result.append("\n</p>\n</body>\n</html>");
         sourceCodeEditor.setText(result.toString());
+        add_debug_info(stack);
     }
 
     private void add_source_info(StringBuilder result, String key,
@@ -156,6 +161,52 @@ public class ScUiGui extends gui_0_1 {
             }
         }
         result.append(v.visitCode(end));
+    }
+
+    /**
+     * reruns the stack, collecting any debug print statements. NOTE - keep this
+     * in sync with ScLocalStackSynthesis
+     */
+    private void add_debug_info(ScStack stack) {
+        ui_thread.sketch.enable_debug();
+        stack.set_for_synthesis(ui_thread.sketch);
+        //
+        boolean assert_failed = false;
+        trycatch: try {
+            for (ScFixedInputConf counterexample : ui_thread.all_counterexamples)
+            {
+                counterexample.set_input_for_sketch(ui_thread.sketch);
+                if (!ui_thread.sketch.dysketch_main()) {
+                    break trycatch;
+                }
+            }
+        } catch (ScSynthesisAssertFailure e) {
+            assert_failed = true;
+        } catch (ScDynamicUntilvException e) {
+            assert_failed = true;
+        }
+        //
+        StringBuilder debug_text = new StringBuilder();
+        debug_text.append("<html>\n  <head>\n<style>\n"
+                + "body {\nfont-size: 12pt;\n}\n"
+                + "ul {\nmargin-left: 20pt;\n}\n</style>\n  </head>"
+                + "\n  <body>\n<ul>");
+        for (String debug_entry : ui_thread.sketch.debug_out) {
+            debug_entry = ScHighlightSourceVisitor.html_tag_escape(debug_entry);
+            debug_entry = debug_entry.replace("\n", "<br />");
+            debug_text.append("<li>");
+            debug_text.append(debug_entry);
+            debug_text.append("</li>");
+        }
+        debug_text.append("\n</ul>\n");
+        if (assert_failed) {
+            StackTraceElement assert_info =
+                    ui_thread.sketch.debug_assert_failure_location;
+            debug_text.append(String.format("<p>failure at %s (line %d)</p>",
+                    assert_info.getMethodName(), assert_info.getLineNumber()));
+        }
+        debug_text.append("  </body>\n</html>\n");
+        debugOutEditor.setText(debug_text.toString());
     }
 
     public void disableStopButton() {

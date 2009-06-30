@@ -33,6 +33,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public ScStackSynthesis ssr;
     public ScDynamicSketch sketch;
     public ScUiGui gui;
+    public ScFixedInputConf[] all_counterexamples;
     public AtomicInteger modifier_timestamp = new AtomicInteger(0);
     static ConcurrentLinkedQueue<ScUiThread> gui_list =
             new ConcurrentLinkedQueue<ScUiThread>();
@@ -111,13 +112,11 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        final ScFixedInputConf[] counterexamples =
-                ScFixedInputConf.from_inputs(inputs);
-        final ScUiThread target = this;
+        all_counterexamples = ScFixedInputConf.from_inputs(inputs);
         new RunnableModifier(new Runnable() {
             public void run() {
-                for (ScFixedInputConf elt : counterexamples) {
-                    target.gui.inputChoices.add(elt);
+                for (ScFixedInputConf elt : all_counterexamples) {
+                    gui.inputChoices.add(elt);
                 }
             }
         }).add();

@@ -82,7 +82,10 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
             ncounterexamples = 0;
         }
 
-        /** @returns true if exhausted (need to wait) */
+        /**
+         * NOTE - keep this in sync with ScUiGui's rerun method
+         * @returns true if exhausted (need to wait)
+         */
         protected boolean blind_fast_routine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
                 boolean force_pop = false;
@@ -93,7 +96,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                     // DebugOut.print_mt("running test");
                     for (ScFixedInputConf counterexample : counterexamples) {
                         ncounterexamples++;
-                        counterexample.set_for_sketch(sketch);
+                        counterexample.set_input_for_sketch(sketch);
                         // ssr.reachability_check.check(sketch);
                         if (!sketch.dysketch_main()) {
                             break trycatch;

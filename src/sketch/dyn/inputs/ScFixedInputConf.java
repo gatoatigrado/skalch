@@ -10,7 +10,8 @@ import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
 
 /**
- * static inputs that may have slightly faster access
+ * Static inputs that may have slightly faster access. This is also used for
+ * formatting values according to their access frequency.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you

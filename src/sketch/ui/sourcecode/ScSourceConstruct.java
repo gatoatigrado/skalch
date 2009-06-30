@@ -15,12 +15,16 @@ import sketch.util.XmlEltWrapper;
  */
 public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
     public ScSourceConstructInfo construct_info;
+    /** location to print for identification only */
+    public ScSourceLocation real_location;
     public ScSourceLocation entire_location;
     public ScSourceLocation argument_location;
 
     public ScSourceConstruct(ScSourceConstructInfo construct_info,
-            ScSourceLocation entire_location, ScSourceLocation argument_location)
+            ScSourceLocation real_location, ScSourceLocation entire_location,
+            ScSourceLocation argument_location)
     {
+        this.real_location = real_location;
         this.construct_info = construct_info;
         this.entire_location = entire_location;
         this.argument_location = argument_location;
@@ -33,8 +37,7 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
     }
 
     public String getName() {
-        return construct_info.getName() + "@"
-                + entire_location.start.toString();
+        return construct_info.getName() + "@" + real_location.start.toString();
     }
 
     public static ScSourceConstruct from_node(Element child_, String filename,
@@ -46,6 +49,7 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         XmlEltWrapper argument_loc = elt.XpathElt("rangepos[@name='arg_pos']");
         ScSourceConstructInfo cons_info = null;
         ScSourceLocation eloc = ScSourceLocation.fromXML(filename, entire_loc);
+        ScSourceLocation rloc = eloc;
         String pt = elt.getAttributeValue("param_type");
         ScSourceLocation arg_loc = null;
         if (elt.getLocalName().equals("holeapply")) {
@@ -78,7 +82,7 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         if (arg_loc == null) {
             arg_loc = ScSourceLocation.fromXML(filename, argument_loc);
         }
-        return new ScSourceConstruct(cons_info, eloc, arg_loc);
+        return new ScSourceConstruct(cons_info, rloc, eloc, arg_loc);
     }
 
     public int compareTo(ScSourceConstruct other) {

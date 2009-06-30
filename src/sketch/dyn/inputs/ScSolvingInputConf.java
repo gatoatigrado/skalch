@@ -8,8 +8,8 @@ import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
 
 /**
- * Common functions on an array of solving inputs. Most importantly, these can
- * be converted to fixed inputs.
+ * Common functions on an array of solving inputs. These can be converted to
+ * fixed inputs.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -159,6 +159,8 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     public int dynamicNextValue(int uid, int untilv) {
         if (uid >= values.length) {
             realloc(uid + 1);
+        }
+        if (uid >= num_uids) {
             num_uids = uid + 1;
         }
         this.untilv[uid] = untilv;

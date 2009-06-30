@@ -166,6 +166,17 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
 
 
+    // === Utility functions ===
+    // Most of these should be in ScDynamicSketch if possible, but some
+    // constructs like "def" params are only available for Scala.
+    def skdprint(x : => String) {
+        if (debug_print_enable) {
+            skdprint_backend(x)
+        }
+    }
+
+
+
     def get_hole_info() = __hole_list.get_and_freeze()
     def get_input_info() = __input_list.get_and_freeze()
     def get_oracle_input_list() = __oracle_list.get_and_freeze()

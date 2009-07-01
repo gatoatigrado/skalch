@@ -107,20 +107,21 @@ class RedBlackTreeSketch(val num_ops : Int,
         n1.value = n2.value
         n2.value = tmp
     }
-    // do a rotation
-    def switchChildrenTuple(arr : TreeNode*) {
-        val possibleChildren = new Array[TreeNode](3 * arr.length)
-        for (i <- 0 until arr.length) {
+    // do a rotation. needed to move array "outside" for speed reasons
+    val possibleChildrenArr = new Array[TreeNode](30)
+    def switchChildrenTuple(arr : Array[TreeNode], length : Int) {
+        val num_possible_children = 3 * length
+        for (i <- 0 until length) {
             if (arr(i) != null) {
-                possibleChildren(3 * i) = arr(i).leftChild
-                possibleChildren(3 * i + 1) = arr(i).rightChild
-                possibleChildren(3 * i + 2) = arr(i)
+                possibleChildrenArr(3 * i) = arr(i).leftChild
+                possibleChildrenArr(3 * i + 1) = arr(i).rightChild
+                possibleChildrenArr(3 * i + 2) = arr(i)
             }
         }
-        for (i <- 0 until arr.length) {
+        for (i <- 0 until length) {
             if (arr(i) != null) {
-                arr(i).leftChild = !!(possibleChildren)
-                arr(i).rightChild = !!(possibleChildren)
+                arr(i).leftChild = possibleChildrenArr(!!(num_possible_children))
+                arr(i).rightChild = possibleChildrenArr(!!(num_possible_children))
             }
         }
     }
@@ -134,21 +135,26 @@ class RedBlackTreeSketch(val num_ops : Int,
      */
     def checkTree() {
         assert(root != null) // plain assert, this shouldn't happen at all
-        synthAssertTerminal(root.isBlack)
+        if (!root.isBlack) {
+            skdprint("root: " + root.toString)
+        }
 
+        // asserts that don't rely upon the tree
+        synthAssertTerminal(root.isBlack)
         VisitedList.reset()
         root.checkIsTree()
 
+        synthAssertTerminal(root.numNodes() == num_active_nodes)
         root.checkNumBlack()
         root.checkRedChildrenBlack()
-        synthAssertTerminal(root.numNodes() == num_active_nodes)
     }
 
 
 
     // === main functions ===
+    // ugh help me....
     def mainInsertRoutine(to_insert : TreeNode, parent : TreeNode,
-        grandparent : TreeNode) : Boolean =
+        grandparent : TreeNode) : TreeNode =
     {
         if (root == null) {
             to_insert.isBlack = true
@@ -176,17 +182,32 @@ class RedBlackTreeSketch(val num_ops : Int,
                 }
             }
         }
-        recursiveUpwardsStep(to_insert, parent, grandparent)
+        // reread the links, as the subtrees may have rotated
+        if (grandparent == null)
+            recursiveUpwardsStep(parent)
+        else
+            recursiveUpwardsStep(grandparent)
     }
     /** one step of the reorganization procedure. returns true to recurse */
-    def recursiveUpwardsStep(node : TreeNode, parent : TreeNode,
-        grandparent : TreeNode) : Boolean =
+    def recursiveUpwardsStep(grandparent : TreeNode) : Boolean =
     {
+        // be stingy, use !! to start with only a few nodes
+        val num_to_expand : Int = !!(4) + 1 // number of nodes to recolor
         recolorOp(node)
         recolorOp(parent)
         recolorOp(grandparent)
-        switchChildrenTuple(node, parent, grandparent)
+        switchChildrenTuple(SmallSubtree.arr, SmallSubtree.length)
         !!()
+    }
+
+    object SmallSubtree {
+        val arr = new Array[TreeNode](10)
+        val length = 0
+        val addNode(node : TreeNode, budget : Int) {
+            arr(length) = node
+            length += 1
+            budget - 1
+        }
     }
 
 

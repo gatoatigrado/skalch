@@ -132,7 +132,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         private void add_random_stack() {
             random_stacks.add(stack.clone());
             if (random_stacks.size() > ssr.max_num_random) {
-                int length1 = random_stacks.size();
+                int length1 = random_stacks.size() / 2;
                 for (int c = 0; c < length1; c++) {
                     random_stacks.remove(rand.get().nextInt(
                             random_stacks.size()));

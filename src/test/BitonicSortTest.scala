@@ -47,6 +47,13 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
                 }
                 a += 1
             }
+            def format_swap_indices(hole_arr : HoleArray) = {
+                val arr = (for (i <- 0 until nsteps) yield hole_arr(i)).toArray
+                ("" /: arr)((x : String, y : Int) => if (x.isEmpty) y.toString else x + ", " + y)
+            }
+            skdprint("=== arrays ===")
+            skdprint(format_swap_indices(swap_first_idx))
+            skdprint(format_swap_indices(swap_second_idx))
         }
         // print("sorted array", in_arr.toString)
         {

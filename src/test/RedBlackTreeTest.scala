@@ -159,6 +159,7 @@ class RedBlackTreeSketch(val num_ops : Int,
         if (parent.value < to_insert.value) {
             if (parent.rightChild == null) {
                 parent.rightChild = to_insert
+                skdprint("inserted to the right; tree before mutation: " + root.formatTree(""))
             } else {
                 if (!mainInsertRoutine(to_insert, parent.rightChild, parent)) {
                     return false;
@@ -168,6 +169,7 @@ class RedBlackTreeSketch(val num_ops : Int,
             // NOTE - I don't want to have to spell out this symmetry
             if (parent.leftChild == null) {
                 parent.leftChild = to_insert
+                skdprint("inserted to the left; tree before mutation: " + root.formatTree(""))
             } else {
                 if (!mainInsertRoutine(to_insert, parent.leftChild, parent)) {
                     return false
@@ -188,14 +190,16 @@ class RedBlackTreeSketch(val num_ops : Int,
     }
 
 
+
     def dysketch_main() = {
         num_active_nodes = 0
         root = null
         for (i <- 0 until num_ops) {
             val value = next_int_input()
+            skdprint("adding value " + value)
             mainInsertRoutine(insertNode(value), root, null)
             checkTree()
-            //printTree()
+            skdprint(root.formatTree(""))
         }
         true
     }

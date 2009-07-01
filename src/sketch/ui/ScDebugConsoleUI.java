@@ -33,7 +33,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (BackendOptions.synth_opts.bool_("print_counterexamples")) {
+        if (BackendOptions.ui_opts.bool_("print_counterexamples")) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);

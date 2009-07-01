@@ -34,6 +34,7 @@ public class ScStackSynthesis {
     // command line options
     protected long nsolutions_to_find;
     protected long debug_stop_after;
+    public int max_num_random;
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
     public ExhaustedWaitHandler wait_handler;
@@ -55,9 +56,11 @@ public class ScStackSynthesis {
         // command line options
         nsolutions_to_find = BackendOptions.synth_opts.long_("num_solutions");
         debug_stop_after = BackendOptions.synth_opts.long_("debug_stop_after");
+        max_num_random = (int) BackendOptions.ui_opts.long_("max_num_random");
     }
 
-    public boolean synthesize(ScSolvingInputConf[] counterexamples, ScUserInterface ui)
+    public boolean synthesize(ScSolvingInputConf[] counterexamples,
+            ScUserInterface ui)
     {
         this.ui = ui;
         wait_handler = new ExhaustedWaitHandler();

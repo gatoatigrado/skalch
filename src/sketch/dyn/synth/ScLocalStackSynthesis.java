@@ -117,8 +117,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                         longest_stack = stack.clone();
                     }
                     if (rand.get().nextFloat() < replacement_probability) {
-                        random_stacks.add(stack.clone());
-                        replacement_probability /= 2.f;
+                        add_random_stack();
                     }
                     stack.next(force_pop);
                 } catch (ScSearchDoneException e) {
@@ -127,6 +126,19 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 }
             }
             return false; // not exhausted
+        }
+
+        /** add to the random stacks list and remove half of it */
+        private void add_random_stack() {
+            random_stacks.add(stack.clone());
+            if (random_stacks.size() > ssr.max_num_random) {
+                int length1 = random_stacks.size();
+                for (int c = 0; c < length1; c++) {
+                    random_stacks.remove(rand.get().nextInt(
+                            random_stacks.size()));
+                }
+                replacement_probability /= 2.f;
+            }
         }
 
         public void run_inner() {

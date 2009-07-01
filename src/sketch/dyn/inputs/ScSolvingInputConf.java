@@ -21,7 +21,7 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     protected int log_type;
     protected Vector<Integer>[] values;
     protected Vector<Integer>[] set_cnt;
-    protected int[] untilv;
+    public int[] untilv;
     protected int[] next;
     protected int num_uids;
 

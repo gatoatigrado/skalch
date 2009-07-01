@@ -73,7 +73,9 @@ public class ScStack extends ScPrefixSearch {
         String[] rv = new String[stack.size()];
         for (int a = 0; a < stack.size(); a++) {
             ScStackEntry ent = stack.get(a);
-            rv[a] = "(" + ent.toString() + ", " + get_stack_ent(ent) + ")";
+            rv[a] =
+                    "(" + ent.toString() + ", untilv=" + get_untilv(ent) + ", "
+                            + get_stack_ent(ent) + ")";
         }
         return rv;
     }
@@ -127,6 +129,17 @@ public class ScStack extends ScPrefixSearch {
                 DebugOut.assertFalse("uknown stack entry type", ent.type);
             }
             return oracle_inputs.get(ent.uid, ent.subuid);
+        }
+    }
+
+    protected int get_untilv(ScStackEntry ent) {
+        if (ent.type == SYNTH_HOLE_LOG_TYPE) {
+            return ctrls.untilv[ent.uid];
+        } else {
+            if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
+                DebugOut.assertFalse("uknown stack entry type", ent.type);
+            }
+            return oracle_inputs.untilv[ent.uid];
         }
     }
 

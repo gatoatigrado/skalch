@@ -35,9 +35,7 @@ def set_classpath_from_eclipse():
             path_elts.append(path_resolv.resolve(entry.getAttribute("path")))
     os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(*path_elts)
 
-def print_help():
-    proc = subprocess.Popen(["less"], stdin=subprocess.PIPE)
-    proc.communicate(r"""usage: build.py [%s] [actions] [options] [/filter]
+usage_text = r"""usage: build.py [%s] [actions] [options] [/filter]
     [run_app=qualified.name
         [run_cmd_opts <options to java>]
         [run_opt_list <opts to program>]]
@@ -66,14 +64,21 @@ build.py actions:
 === options to custom_compile.py ===
 
 all other options passed to compiler. common ones: include [clean | src_java_names]
-%s""" %(" | ".join(compilers), custom_compile.get_options_help()))
+%s""" %(" | ".join(compilers), custom_compile.get_options_help())
+
+def print_help():
+    try:
+        proc = subprocess.Popen(["less"], stdin=subprocess.PIPE)
+        proc.communicate(usage_text)
+    except:
+        print(usage_text)
     sys.exit(1)
 
 if __name__ == "__main__":
-    set_classpath_from_eclipse()
-    in_args = sys.argv[1:]
-    run_after = False
+    main(sys.argv[1:])
 
+def main(in_args):
+    set_classpath_from_eclipse()
     compiler = "scalac"
     if in_args and in_args[0] in compilers:
         compiler = in_args[0]

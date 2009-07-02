@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import sketch.dyn.BackendOptions;
 import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
@@ -34,7 +35,14 @@ public class ScSourceCache {
 
         public SourceFile(String filename) {
             try {
-                lines = EntireFileReader.load_file(filename).split("\\n");
+                String linesep = BackendOptions.ui_opts.str_("linesep_regex");
+                lines = EntireFileReader.load_file(filename).split(linesep);
+                for (String line : lines) {
+                    if (line.contains("\r")) {
+                        DebugOut.assertFalse("carriage return newline style, "
+                                + "try editing --ui_linesep_regex");
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 DebugOut.assertFalse("io exception reading file", filename);

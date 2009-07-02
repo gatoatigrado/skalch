@@ -5,6 +5,7 @@ import sketch.dyn.ScDynamicSketch;
 import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.DebugOut;
 import sketch.util.XmlEltWrapper;
+import sketch.util.XmlNoXpathMatchException;
 
 /**
  * A source construct info bound to a location in source.
@@ -40,18 +41,31 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         return construct_info.getName() + "@" + real_location.start.toString();
     }
 
+    public static ScSourceLocation get_location(XmlEltWrapper root,
+            String filename, String name, boolean can_be_zero_len)
+    {
+        try {
+            XmlEltWrapper loc = root.XpathElt("rangepos[@name='" + name + "']");
+            return ScSourceLocation.fromXML(filename, loc, can_be_zero_len);
+        } catch (XmlNoXpathMatchException e) {
+            XmlEltWrapper loc = root.XpathElt("position[@name='" + name + "']");
+            LineColumn lc = LineColumn.fromXML(loc);
+            return new ScSourceLocation(filename, lc.line);
+        }
+    }
+
     public static ScSourceConstruct from_node(Element child_, String filename,
             ScDynamicSketch sketch)
     {
         XmlEltWrapper elt = new XmlEltWrapper(child_);
         int uid = elt.int_attr("uid");
-        XmlEltWrapper entire_loc = elt.XpathElt("rangepos[@name='entire_pos']");
-        XmlEltWrapper argument_loc = elt.XpathElt("rangepos[@name='arg_pos']");
-        ScSourceConstructInfo cons_info = null;
-        ScSourceLocation eloc = ScSourceLocation.fromXML(filename, entire_loc);
+        ScSourceLocation eloc =
+                get_location(elt, filename, "entire_pos", false);
         ScSourceLocation rloc = eloc;
         String pt = elt.getAttributeValue("param_type");
-        ScSourceLocation arg_loc = null;
+        // vars for individual cases to set
+        ScSourceConstructInfo cons_info = null;
+        boolean zero_len_arg_loc = false;
         if (elt.getLocalName().equals("holeapply")) {
             if (pt.contains("[[integer untilv hole]]")) {
                 cons_info = new ScSourceUntilvHole(uid, sketch);
@@ -64,24 +78,20 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
             if (pt.contains("[[integer untilv oracle]]")) {
                 cons_info = new ScSourceUntilvOracle(uid, sketch);
             } else if (pt.contains("[[boolean oracle]]")) {
-                arg_loc =
-                        ScSourceLocation.fromXML(filename, argument_loc, true);
+                zero_len_arg_loc = true;
                 cons_info = new ScSourceBooleanOracle(uid, sketch);
             } else {
                 DebugOut.assertSlow(pt.contains("[[object apply oracle]]"),
                         "unknown parameter type", pt);
                 cons_info = new ScSourceApplyOracle(uid, sketch);
             }
-            LineColumn start =
-                    ScSourceLocation.fromXML(filename, entire_loc).start;
-            eloc = new ScSourceLocation(filename, start.line);
+            eloc = new ScSourceLocation(filename, eloc.start.line);
         }
         if (cons_info == null) {
             DebugOut.assertFalse("no cons_info set.");
         }
-        if (arg_loc == null) {
-            arg_loc = ScSourceLocation.fromXML(filename, argument_loc);
-        }
+        ScSourceLocation arg_loc =
+                get_location(elt, filename, "arg_pos", zero_len_arg_loc);
         return new ScSourceConstruct(cons_info, rloc, eloc, arg_loc);
     }
 

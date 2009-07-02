@@ -25,7 +25,9 @@ public class XmlEltWrapper extends Element {
 
     public XmlEltWrapper XpathElt(String querystr) {
         Nodes nodes = query(querystr);
-        if (nodes.size() != 1) {
+        if (nodes.size() == 0) {
+            throw new XmlNoXpathMatchException();
+        } else if (nodes.size() > 1) {
             DebugOut
                     .assertFalse("multiple nodes returned from query", querystr);
         } else if (!(nodes.get(0) instanceof Element)) {

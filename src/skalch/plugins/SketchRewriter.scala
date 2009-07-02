@@ -71,6 +71,10 @@ class SketchRewriter(val global: Global) extends Plugin {
                 def zeroLenPosition(pos : Object) : RangePosition = pos match {
                     case rp : RangePosition => new RangePosition(
                         rp.source0, rp.end - 1, rp.end - 1, rp.end - 1)
+                    case OffsetPosition(src, off) => {
+                        println("note - range positions are not being used.")
+                        new RangePosition( src, off - 1, off - 1, off - 1)
+                    }
                     case _ => assert(false, "please enable range positions"); null
                 }
 

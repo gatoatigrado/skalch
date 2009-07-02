@@ -17,12 +17,12 @@ public class ScStackSourceVisitor extends ScHighlightSourceVisitor {
                             ctrl_src_info.entire_location.start.line);
             Pattern whitespace = Pattern.compile("(\\s*).*");
             Matcher m = whitespace.matcher(line);
+            String indent = "";
             if (!m.matches()) {
-                DebugOut.assertFalse("empty-set regex '"
-                        + whitespace.toString() + "' must be able to match + '"
-                        + line + "'", m.find());
+                DebugOut.print("empty-set regex '" + whitespace.toString()
+                        + "' must be able to match + '" + line + "'", m.find());
+                indent = m.group(1);
             }
-            String indent = m.group(1);
             return indent
                     + "<span style=\"color: #0000ff;\">// construct info for "
                     + ctrl_src_info.getName() + ": "

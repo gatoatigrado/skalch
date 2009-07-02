@@ -39,8 +39,8 @@ public class ScSourceCache {
                 lines = EntireFileReader.load_file(filename).split(linesep);
                 for (String line : lines) {
                     if (line.contains("\r")) {
-                        DebugOut.assertFalse("carriage return newline style, "
-                                + "try editing --ui_linesep_regex");
+                        DebugOut.print("WARNING - carriage return newline "
+                                + "style, try editing --ui_linesep_regex");
                     }
                 }
             } catch (IOException e) {

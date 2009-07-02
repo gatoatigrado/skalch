@@ -6,7 +6,7 @@ from __future__ import print_function
 from collections import namedtuple
 import optparse, os, shutil, subprocess, types
 
-home=os.environ["HOME"]
+home=os.path.expanduser("~")
 assert os.path.isdir(home), "home directory must be present"
 
 class Path(str):
@@ -61,7 +61,7 @@ class Path(str):
 
 class PathResolver:
     def get_file(self, basename):
-        raise NotImplementedError, "abstract"
+        raise NotImplementedError("abstract")
 
 class DirArrayPathResolver:
     def __init__(self, array):

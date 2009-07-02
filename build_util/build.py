@@ -74,9 +74,6 @@ def print_help():
         print(usage_text)
     sys.exit(1)
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
-
 def main(in_args):
     set_classpath_from_eclipse()
     compiler = "scalac"
@@ -120,3 +117,6 @@ def main(in_args):
         [compile_args.extend(["--option", opt]) for opt in defaultopts[compiler]]
 
     custom_compile.main(compile_args)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

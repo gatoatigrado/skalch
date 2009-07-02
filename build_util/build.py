@@ -6,9 +6,11 @@ import os, subprocess, sys
 import path_resolv
 import custom_compile
 
+pathsep = os.path.pathsep
+
 defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s -Xplugin:%(plugin_path)s -optimise".split(" "),
     "javac": "-classpath %(classpath)s -sourcepath %(src_path)s -d %(out_path)s".split(" "),
-    "javap": "-classpath %(classpath)s:%(out_path)s".split(" ") }
+    "javap": ("-classpath %(classpath)s" + os.path.pathsep +  "%(out_path)s").split(" ") }
 defaultopts["scalac"] = defaultopts["fsc"]
 for k, v in defaultopts.items():
     defaultopts[k + ".bat"] = v

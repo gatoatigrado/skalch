@@ -10,6 +10,8 @@ defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s -Xplug
     "javac": "-classpath %(classpath)s -sourcepath %(src_path)s -d %(out_path)s".split(" "),
     "javap": "-classpath %(classpath)s:%(out_path)s".split(" ") }
 defaultopts["scalac"] = defaultopts["fsc"]
+for k, v in defaultopts.items():
+    defaultopts[k + ".bat"] = v
 compilers = defaultopts.keys()
 
 os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(

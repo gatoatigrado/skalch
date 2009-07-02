@@ -45,10 +45,15 @@ class Compiler(object):
             self.print_cmd(cmd)
         save_output = (self.kwrite or self.vim) if save_output else save_output
         pipe_output = { "stdout": subprocess.PIPE } if save_output else { }
-        proc = subprocess.Popen(cmd, **pipe_output)
-        text = proc.communicate()[0]
+        try:
+            proc = subprocess.Popen(cmd, **pipe_output)
+            text = proc.communicate()[0]
+        except Exception, e:
+            proc = namedtuple("anon", "returncode")(1)
+            text = "ERROR RUNNING COMMAND - " + str(e)
         if proc.returncode != 0:
-            if not self.print: print("command", cmd)
+            print("=== error compiling ===")
+            if not self.print: self.print_cmd(cmd)
             if text: print(text)
             sys.exit(1)
         elif not save_output:

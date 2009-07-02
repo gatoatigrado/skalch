@@ -1,3 +1,7 @@
+/** NOTE - CURRENTLY BROKEN
+ * will work on it soon --ntung 2009-07-01
+ */
+
 package test
 
 import ec.util.ThreadLocalMT
@@ -152,24 +156,25 @@ class RedBlackTreeSketch(val num_ops : Int,
 
 
     // === main functions ===
-    // ugh help me....
-    def mainInsertRoutine(to_insert : TreeNode, parent : TreeNode,
+    // ugh help me.... search not abstract enough
+    /** returns the new child node (if the tree was rotated) */
+    def mainInsertRoutine(to_insert__ : TreeNode, parent : TreeNode,
         grandparent : TreeNode) : TreeNode =
     {
+        var to_insert = to_insert__
         if (root == null) {
             to_insert.isBlack = true
             root = to_insert
-            return false
+            return null
         }
+
         // go down the binary tree. using < vs. <= shouldn't matter (symmetry)
         if (parent.value < to_insert.value) {
             if (parent.rightChild == null) {
                 parent.rightChild = to_insert
                 skdprint("inserted to the right; tree before mutation: " + root.formatTree(""))
             } else {
-                if (!mainInsertRoutine(to_insert, parent.rightChild, parent)) {
-                    return false;
-                }
+                to_insert = mainInsertRoutine(to_insert, parent.rightChild, parent)
             }
         } else {
             // NOTE - I don't want to have to spell out this symmetry
@@ -177,38 +182,54 @@ class RedBlackTreeSketch(val num_ops : Int,
                 parent.leftChild = to_insert
                 skdprint("inserted to the left; tree before mutation: " + root.formatTree(""))
             } else {
-                if (!mainInsertRoutine(to_insert, parent.leftChild, parent)) {
-                    return false
-                }
+                to_insert = mainInsertRoutine(to_insert, parent.leftChild, parent)
             }
         }
-        // reread the links, as the subtrees may have rotated
-        if (grandparent == null)
-            recursiveUpwardsStep(parent)
-        else
-            recursiveUpwardsStep(grandparent)
+        if (to_insert == null) {
+            null
+        } else {
+            recursiveUpwardsStep(to_insert, parent, grandparent)
+        }
     }
+
     /** one step of the reorganization procedure. returns true to recurse */
-    def recursiveUpwardsStep(grandparent : TreeNode) : Boolean =
+    def recursiveUpwardsStep(node : TreeNode, parent : TreeNode,
+        grandparent : TreeNode) : TreeNode =
     {
         // be stingy, use !! to start with only a few nodes
         val num_to_expand : Int = !!(4) + 1 // number of nodes to recolor
         recolorOp(node)
         recolorOp(parent)
         recolorOp(grandparent)
-        switchChildrenTuple(SmallSubtree.arr, SmallSubtree.length)
-        !!()
+        // switchChildrenTuple(SmallSubtree.arr, SmallSubtree.length)
+        if (!!()) {
+            val arr = Array(grandparent.leftChild,
+                grandparent.rightChild)
+            !!(arr)
+        } else {
+            // explored first
+            null
+        }
     }
 
+    /*
     object SmallSubtree {
         val arr = new Array[TreeNode](10)
         val length = 0
-        val addNode(node : TreeNode, budget : Int) {
+        val addNode(node : TreeNode, budget : Int) = {
             arr(length) = node
             length += 1
             budget - 1
+            if (budget > 0 && node.leftChild != null) {
+                budget = addNode(node.leftChild, budget)
+            }
+            if (budget > 0 && node.rightChild != null) {
+                budget = addNode(node.rightChild, budget)
+            }
+            budget
         }
     }
+    */
 
 
 

@@ -81,16 +81,20 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
         def transformSketchCall(tree : Apply, ct : CallType) : Tree
 
         /** is a type skalch.DynamicSketch or a subtype of it? */
-        def is_dynamic_sketch(tp : Type) : Boolean = tp match {
-            case ClassInfoType(parents, decls, type_sym) =>
-                parents.exists(is_dynamic_sketch(_))
+        def is_dynamic_sketch(tp : Type, ref_recurse : Boolean) : Boolean = {
+            tp match {
+                case ClassInfoType(parents, decls, type_sym) =>
+                    parents.exists(is_dynamic_sketch(_, true))
 
-            case TypeRef(pre, sym, args) => (pre match {
-                case TypeRef(_, sym, args) => (sym.name.toString == "skalch")
+                case TypeRef(pre, sym, args) => { for (cls <- tp.baseClasses) {
+                        if (cls.fullNameString == "skalch.DynamicSketch") {
+                            return true
+                        }
+                    }
+                    false }
+
                 case _ => false
-            }) && (sym.name.toString == "DynamicSketch")
-
-            case _ => false
+            }
         }
 
         var transformCallDepth = 0
@@ -107,7 +111,7 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
             var result : Tree = null
             tree match {
                 case clsdef : ClassDef =>
-                    if (is_dynamic_sketch(clsdef.symbol.info)) {
+                    if (is_dynamic_sketch(clsdef.symbol.info, true)) {
                         result = transformSketchClass(clsdef)
                     }
                 case apply @ Apply(fcn, args) =>

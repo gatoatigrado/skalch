@@ -1,88 +1,25 @@
 /** NOTE - CURRENTLY BROKEN
  * will work on it soon --ntung 2009-07-01
  */
-
 package test
 
 import ec.util.ThreadLocalMT
-import skalch.DynamicSketch
-
 import sketch.dyn.BackendOptions
 import sketch.util._
 
 /** N.B. compile me with optimise */
 class RedBlackTreeSketch(val num_ops : Int,
-    val num_tests : Int) extends DynamicSketch
+    val num_tests : Int) extends RBTreeSketchBase
 {
-    /** nodes only link to their children. the algorithm should
-     * maintain a stack of parents when traversing the tree.
-     */
-    class TreeNode(var isBlack : Boolean, var value : Int) {
-        var leftChild : TreeNode = null
-        var rightChild : TreeNode = null
-        /** assumes ident was already inserted. responsible for the newline */
-        def formatTree(ident_ : String) : String = {
-            val ident = ident_ + "    "
-            val lcString = if (leftChild == null) "null\n" else leftChild.formatTree(ident)
-            val rcString = if (rightChild == null) "null\n" else rightChild.formatTree(ident)
-            toString() + "\n" + ident + "< " + lcString + ident + "> " + rcString
-        }
-        override def toString() = (if (isBlack) "B" else "R") + "(" + value + ")"
-
-        // sketch-related
-        def checkNumBlack() : Int = {
-            val num_left = if (leftChild == null) 1 else leftChild.checkNumBlack()
-            val num_right = if (rightChild == null) 1 else rightChild.checkNumBlack()
-            synthAssertTerminal(num_left == num_right)
-            num_left + num_right + (if (isBlack) 1 else 0)
-        }
-        /** returns isBlack for convenience */
-        def checkRedChildrenBlack() : Boolean = {
-            val leftBlack = if (leftChild == null) true
-                else leftChild.checkRedChildrenBlack()
-            val rightBlack = if (rightChild == null) true
-                else rightChild.checkRedChildrenBlack()
-            synthAssertTerminal(isBlack || (leftBlack && rightBlack))
-            isBlack
-        }
-        /** number of nodes reachable including this one */
-        def numNodes() : Int = {
-            (if (leftChild == null) 0 else leftChild.numNodes()) +
-            (if (rightChild == null) 0 else rightChild.numNodes()) +
-            1
-        }
-        def checkIsTree() {
-            VisitedList.put(this)
-            if (leftChild != null) { leftChild.checkIsTree() }
-            if (rightChild != null) { rightChild.checkIsTree() }
-        }
-    }
-
-    /** check that the tree is actually a tree -- i.e. contains no circular links */
-    object VisitedList {
-        var length : Int = 0
-        val visitedNodes = new Array[TreeNode](num_ops)
-        def reset() { length = 0 }
-        def put(node : TreeNode) {
-            for (i <- 0 until length) {
-                synthAssertTerminal(!visitedNodes(i).eq(node))
-            }
-            visitedNodes(length) = node
-            length += 1
-        }
-    }
-
-
-
     // array of nodes
-    val all_nodes = (for (i <- 0 until num_ops) yield new TreeNode(false, 0)).toArray
+    val all_nodes = (for (i <- 0 until num_ops) yield new RBTreeNode(false, 0)).toArray
     var num_active_nodes = 0
-    var root : TreeNode = null
+    var root : RBTreeNode = null
 
 
 
     // === non-sketched functions; mostly array maintenance ===
-    def insertNode(value : Int) : TreeNode = {
+    def insertNode(value : Int) : RBTreeNode = {
         val result = all_nodes(num_active_nodes)
         num_active_nodes += 1
         // will get switched later.
@@ -94,32 +31,30 @@ class RedBlackTreeSketch(val num_ops : Int,
         result.rightChild = null
         result
     }
-    def printTree() {
-        if (root == null) {
-            skprint("null root")
-        } else {
-            skprint("=== tree ===\n" + root.formatTree(""))
-        }
-    }
 
 
 
     // === basic operations for the tree ===
-    def recolorOp(node : TreeNode) { if (node != null) { node.isBlack = !!() } }
-    def switchValueOp(n1 : TreeNode, n2 : TreeNode) {
+    def recolorOp(node : RBTreeNode) { if (node != null) { node.isBlack = !!() } }
+    def switchValueOp(n1 : RBTreeNode, n2 : RBTreeNode) {
         var tmp = n1.value
         n1.value = n2.value
         n2.value = tmp
     }
     // do a rotation. needed to move array "outside" for speed reasons
-    val possibleChildrenArr = new Array[TreeNode](30)
-    def switchChildrenTuple(arr : Array[TreeNode], length : Int) {
+    val possibleChildrenArr = new Array[RBTreeNode](30)
+    def switchChildrenTuple(arr : Array[RBTreeNode], length : Int) {
         val num_possible_children = 3 * length
         for (i <- 0 until length) {
             if (arr(i) != null) {
                 possibleChildrenArr(3 * i) = arr(i).leftChild
                 possibleChildrenArr(3 * i + 1) = arr(i).rightChild
                 possibleChildrenArr(3 * i + 2) = arr(i)
+            } else {
+                // need to clear nodes from last time
+                possibleChildrenArr(3 * i) = null
+                possibleChildrenArr(3 * i + 1) = null
+                possibleChildrenArr(3 * i + 2) = null
             }
         }
         for (i <- 0 until length) {
@@ -145,8 +80,8 @@ class RedBlackTreeSketch(val num_ops : Int,
 
         // asserts that don't rely upon the tree
         synthAssertTerminal(root.isBlack)
-        VisitedList.reset()
         root.checkIsTree()
+        skdprint("valid tree: " + root.formatTree(""))
 
         synthAssertTerminal(root.numNodes() == num_active_nodes)
         root.checkNumBlack()
@@ -158,8 +93,8 @@ class RedBlackTreeSketch(val num_ops : Int,
     // === main functions ===
     // ugh help me.... search not abstract enough
     /** returns the new child node (if the tree was rotated) */
-    def mainInsertRoutine(to_insert__ : TreeNode, parent : TreeNode,
-        grandparent : TreeNode) : TreeNode =
+    def mainInsertRoutine(to_insert__ : RBTreeNode, parent : RBTreeNode,
+        grandparent : RBTreeNode) : RBTreeNode =
     {
         var to_insert = to_insert__
         if (root == null) {
@@ -185,51 +120,37 @@ class RedBlackTreeSketch(val num_ops : Int,
                 to_insert = mainInsertRoutine(to_insert, parent.leftChild, parent)
             }
         }
-        if (to_insert == null) {
+        if ( (to_insert == null) || !( !!() ) ) {
             null
         } else {
             recursiveUpwardsStep(to_insert, parent, grandparent)
+            if (grandparent == null) {
+                grandparent
+            } else if (!!()) {
+                grandparent.rightChild
+            } else {
+                grandparent.leftChild
+            }
         }
     }
 
     /** one step of the reorganization procedure. returns true to recurse */
-    def recursiveUpwardsStep(node : TreeNode, parent : TreeNode,
-        grandparent : TreeNode) : TreeNode =
+    /*val switchChildrenArray = new Array[RBTreeNode](30)
+    var switchChildrenArrayLength = 0
+    def addNodes(node : RBTreeNode) {
+    }*/
+    def recursiveUpwardsStep(node : RBTreeNode, parent : RBTreeNode,
+        grandparent : RBTreeNode)
     {
         // be stingy, use !! to start with only a few nodes
-        val num_to_expand : Int = !!(4) + 1 // number of nodes to recolor
+        
+        val num_to_expand : Int = 10 - !!(4) + 1 // number of nodes to recolor
+        skAddCost(num_to_expand)
         recolorOp(node)
         recolorOp(parent)
         recolorOp(grandparent)
         // switchChildrenTuple(SmallSubtree.arr, SmallSubtree.length)
-        if (!!()) {
-            val arr = Array(grandparent.leftChild,
-                grandparent.rightChild)
-            !!(arr)
-        } else {
-            // explored first
-            null
-        }
     }
-
-    /*
-    object SmallSubtree {
-        val arr = new Array[TreeNode](10)
-        val length = 0
-        val addNode(node : TreeNode, budget : Int) = {
-            arr(length) = node
-            length += 1
-            budget - 1
-            if (budget > 0 && node.leftChild != null) {
-                budget = addNode(node.leftChild, budget)
-            }
-            if (budget > 0 && node.rightChild != null) {
-                budget = addNode(node.rightChild, budget)
-            }
-            budget
-        }
-    }
-    */
 
 
 

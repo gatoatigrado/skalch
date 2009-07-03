@@ -37,8 +37,14 @@ public class ScSolutionStack extends ScModifierDispatcher {
     }
 
     @Override
+    public int getCost() {
+        return my_stack.solution_cost;
+    }
+
+    @Override
     public String toString() {
-        return "solution " + my_stack.hashCode();
+        return "solution [cost=" + my_stack.solution_cost + "] "
+                + my_stack.hashCode();
     }
 
     @Override

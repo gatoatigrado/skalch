@@ -26,6 +26,7 @@ public abstract class ScDynamicSketch {
     public boolean debug_print_enable = false;
     public Vector<String> debug_out;
     public ScSourceLocation dysketch_fcn_location;
+    public int solution_cost = 0;
     public StackTraceElement debug_assert_failure_location;
     protected ScSynthesisAssertFailure assert_inst__ =
             new ScSynthesisAssertFailure();
@@ -77,6 +78,10 @@ public abstract class ScDynamicSketch {
     public synchronized void skprint(String... text) {
         DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
                 (Object[]) text);
+    }
+
+    public void skAddCost(int cost) {
+        solution_cost += cost;
     }
 
     public void skdprint_backend(String text) {

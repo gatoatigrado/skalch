@@ -93,6 +93,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                 // trycatch doesn't seem slow.
                 trycatch: try {
                     stack.reset_before_run();
+                    sketch.solution_cost = 0;
                     nruns++;
                     // DebugOut.print_mt("running test");
                     for (ScFixedInputConf counterexample : counterexamples) {
@@ -103,7 +104,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                             break trycatch;
                         }
                     }
-                    ssr.add_solution(stack);
+                    ssr.add_solution(stack, sketch.solution_cost);
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {
                 } catch (ScDynamicUntilvException e) {

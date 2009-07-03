@@ -13,6 +13,7 @@ import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.ScUiList;
+import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScHighlightSourceVisitor;
 import sketch.ui.sourcecode.ScSourceCache;
@@ -34,7 +35,7 @@ public class ScUiGui extends gui_0_1 {
     private static final long serialVersionUID = 6584583626375432139L;
     public ScUiThread ui_thread;
     public ScUiList<ScFixedInputConf> inputChoices;
-    public ScUiList<ScModifierDispatcher> synthCompletions;
+    public ScUiSortedList<ScModifierDispatcher> synthCompletions;
     public int num_synth_active = 0;
     public int context_len;
     public int context_split_len;
@@ -48,15 +49,17 @@ public class ScUiGui extends gui_0_1 {
         context_split_len =
                 (int) BackendOptions.ui_opts.long_("context_split_len");
         // java is very annoying
+        int max_list_length =
+                (int) BackendOptions.ui_opts.long_("max_list_length");
         inputChoices =
                 new ScUiList<ScFixedInputConf>(selectInputList,
                         (Class<ScFixedInputConf[]>) (new ScFixedInputConf[0])
-                                .getClass());
+                                .getClass(), max_list_length);
         synthCompletions =
-                new ScUiList<ScModifierDispatcher>(
+                new ScUiSortedList<ScModifierDispatcher>(
                         synthCompletionList,
                         (Class<ScModifierDispatcher[]>) (new ScModifierDispatcher[0])
-                                .getClass());
+                                .getClass(), max_list_length);
     }
 
     // === ui functions ===
@@ -84,6 +87,8 @@ public class ScUiGui extends gui_0_1 {
 
     @Override
     protected void setMonospace(boolean monospace) {
+        DebugOut.todo("set monospace to", monospace,
+                "doesn't work with jdk 1.7");
     }
 
     @Override

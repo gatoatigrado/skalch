@@ -37,6 +37,7 @@ public class ScStack extends ScPrefixSearch {
     protected FactoryStack<ScStackEntry> stack;
     protected int added_entries = 0;
     protected boolean first_run = true;
+    public int solution_cost = -1;
     protected ScConstructInfo[] ctrl_info, oracle_info;
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
@@ -205,6 +206,11 @@ public class ScStack extends ScPrefixSearch {
         // ScStackEntry types don't explicitly link to holes or oracles.
         result.stack = stack.clone();
         result.first_run = first_run;
+        result.solution_cost = solution_cost;
         return result;
+    }
+
+    public void setCost(int solution_cost) {
+        this.solution_cost = solution_cost;
     }
 }

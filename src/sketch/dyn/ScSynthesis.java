@@ -61,6 +61,7 @@ public class ScSynthesis {
         String info_rc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(info_rc);
         if (rc == null) {
+            DebugOut.print_mt("no info file found", info_rc);
             return;
         }
         try {

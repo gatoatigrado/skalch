@@ -18,19 +18,23 @@ public class ScUiList<T> {
     protected DefaultListModel list_model = new DefaultListModel();
     protected JList list;
     protected Class<T[]> array_cls;
+    protected int max_entries;
     protected HashSet<T> remove_queue = new HashSet<T>();
 
-    public ScUiList(JList list, Class<T[]> array_cls) {
+    public ScUiList(JList list, Class<T[]> array_cls, int max_entries) {
         this.list = list;
         list.setModel(list_model);
         this.array_cls = array_cls;
+        this.max_entries = max_entries;
     }
 
     public void add(T element) {
         if (remove_queue.contains(element)) {
             remove_queue.remove(element);
         } else {
-            list_model.addElement(element);
+            if (list_model.getSize() < max_entries) {
+                list_model.addElement(element);
+            }
         }
     }
 

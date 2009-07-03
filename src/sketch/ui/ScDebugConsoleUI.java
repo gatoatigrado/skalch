@@ -28,7 +28,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
         return 0;
     }
 
-    public void addSolution(ScStack stack) {
+    public void addSolution(ScStack stack, int solution_cost) {
         DebugOut.print_mt("solution with stack", stack);
     }
 

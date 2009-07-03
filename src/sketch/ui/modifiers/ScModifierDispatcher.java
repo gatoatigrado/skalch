@@ -13,7 +13,9 @@ import sketch.ui.gui.ScUiThread;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public abstract class ScModifierDispatcher {
+public abstract class ScModifierDispatcher implements
+        Comparable<ScModifierDispatcher>
+{
     public ScUiThread ui_thread;
     public ScUiList<ScModifierDispatcher> list;
 
@@ -34,6 +36,22 @@ public abstract class ScModifierDispatcher {
         } catch (ScUiQueueableInactive e) {
             e.printStackTrace();
             list.remove(this);
+        }
+    }
+
+    public int getCost() {
+        return 1000000000;
+    }
+
+    public int compareTo(ScModifierDispatcher other) {
+        int my_cost = getCost();
+        int other_cost = other.getCost();
+        if (my_cost < other_cost) {
+            return -1;
+        } else if (my_cost == other_cost) {
+            return 0;
+        } else {
+            return -1;
         }
     }
 

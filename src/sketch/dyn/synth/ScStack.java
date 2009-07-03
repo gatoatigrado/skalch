@@ -140,7 +140,7 @@ public class ScStack extends ScPrefixSearch {
             if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
                 DebugOut.assertFalse("uknown stack entry type", ent.type);
             }
-            return oracle_inputs.untilv[ent.uid];
+            return oracle_inputs.untilv[ent.uid].get(ent.subuid);
         }
     }
 

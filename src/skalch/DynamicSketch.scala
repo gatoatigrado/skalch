@@ -73,7 +73,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
         result == 1
     }
 
-    @DescriptionAnnotation("[[object apply oracle]] list select oracle")
+    @DescriptionAnnotation("[[object apply oracle]] array select oracle")
     def !![T](uid : Int, arr: Array[T]) : T = {
         val v = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, arr.length)
         if (v >= arr.length) {

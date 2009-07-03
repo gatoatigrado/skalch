@@ -20,8 +20,9 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     protected ScStack stack;
     protected int log_type;
     protected Vector<Integer>[] values;
+    public Vector<Integer>[] untilv;
     protected Vector<Integer>[] set_cnt;
-    public int[] untilv;
+    protected int[] default_untilv;
     protected int[] next;
     protected int num_uids;
 
@@ -34,7 +35,8 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         num_uids = input_info.length;
         values = new Vector[input_info.length]; // can't create generic array
         set_cnt = new Vector[input_info.length];
-        untilv = new int[input_info.length];
+        untilv = new Vector[input_info.length]; // can't create generic array
+        default_untilv = new int[input_info.length];
         next = new int[input_info.length];
         for (int a = 0; a < input_info.length; a++) {
             int uid = input_info[a].uid();
@@ -46,7 +48,8 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
             }
             values[uid] = new Vector<Integer>(10);
             set_cnt[uid] = new Vector<Integer>(10);
-            untilv[uid] = input_info[a].untilv();
+            untilv[uid] = new Vector<Integer>(10);
+            default_untilv[uid] = input_info[a].untilv();
         }
     }
 
@@ -90,12 +93,14 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
                 }
             }
         }
-        return new ScFixedInputConf(fixed_values, set_cnt_values, untilv
-                .clone(), next.clone());
+        // default_untilv is only used for the inputs, not the oracles
+        // FIXME - make it correct for both.
+        return new ScFixedInputConf(fixed_values, set_cnt_values,
+                default_untilv.clone(), next.clone());
     }
 
     public boolean set(int uid, int subuid, int v) {
-        if (v < untilv[uid]) {
+        if (v < untilv[uid].get(subuid)) {
             if (set_cnt[uid].size() <= subuid) {
                 set_cnt[uid].setSize(subuid + 1);
             }
@@ -145,7 +150,7 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         int next_length = Math.max(min_length, values.length * 2);
         Vector<Integer>[] next_values = new Vector[next_length];
         Vector<Integer>[] next_set_cnt = new Vector[next_length];
-        int[] next_untilv = new int[next_length];
+        Vector<Integer>[] next_untilv = new Vector[next_length];
         int[] next_next = new int[next_length];
         System.arraycopy(values, 0, next_values, 0, values.length);
         System.arraycopy(set_cnt, 0, next_set_cnt, 0, set_cnt.length);
@@ -154,7 +159,7 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         for (int a = values.length; a < next_length; a++) {
             next_values[a] = new Vector<Integer>(10);
             next_set_cnt[a] = new Vector<Integer>(10);
-            next_untilv[a] = -1;
+            next_untilv[a] = new Vector<Integer>(10);
         }
         values = next_values;
         set_cnt = next_set_cnt;
@@ -163,23 +168,27 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     }
 
     @Override
-    public int dynamicNextValue(int uid, int untilv) {
+    public int dynamicNextValue(int uid, int untilv_) {
         if (uid >= values.length) {
             realloc(uid + 1);
         }
         if (uid >= num_uids) {
             num_uids = uid + 1;
         }
-        this.untilv[uid] = untilv;
-        return nextValue(uid);
+        return nextValueWithUntilv(uid, untilv_);
     }
 
     @Override
     public int nextValue(int uid) {
+        return nextValueWithUntilv(uid, default_untilv[uid]);
+    }
+
+    private int nextValueWithUntilv(int uid, int untilv_) {
         final int uid_next = next[uid];
         if (uid_next >= values[uid].size()) {
             stack.add_entry(log_type, uid, uid_next);
             values[uid].add(0);
+            untilv[uid].add(untilv_);
         }
         int v = values[uid].get(uid_next);
         next[uid] += 1;

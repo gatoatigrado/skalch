@@ -13,28 +13,43 @@ class SortedListInsertSketch(val list_length : Int,
     val arr = new Array[Int](list_length)
     var length = 0
 
+    def printArray() : String = {
+        var result = ""
+        for (i <- 0 until length) {
+            result += (if (result.isEmpty) "" else ", ") + arr(i)
+        }
+        result
+    }
+
     def insert(idx : Int, v : Int) {
+        skdprint("")
+        skdprint("before insert:\n" + printArray())
         length += 1
+        assert(idx < length)
         // NOTE - buggy sketch, see if I can detect it
-        for (i <- idx until (length - 1)) {
+        for (i <- (length - 2) to idx by -1) {
             arr(i + 1) = arr(i)
         }
         arr(idx) = v
+        skdprint("after insert " + v + " at " + idx + ":\n" + printArray())
     }
 
     def dysketch_main() : Boolean = {
         length = 0
+        var sum = 0
         for (a <- 0 until list_length) {
             val in = next_int_input()
+            sum += in
             insert(!!(length + 1), in)
         }
 
         // check is sorted
-        skdprint("unsorted list: " + arr.toString)
+        var sorted_sum = arr(length - 1)
         for (i <- 0 until (length - 1)) {
+            sorted_sum += arr(i)
             if (arr(i) > arr(i + 1)) { return false }
         }
-        skdprint("sorted list: " + arr.toString)
+        skAddCost(Math.abs(sorted_sum - sum))
         true
     }
 

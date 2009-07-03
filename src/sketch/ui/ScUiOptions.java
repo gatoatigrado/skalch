@@ -27,5 +27,7 @@ public class ScUiOptions extends sketch.util.CliOptGroup {
         add("--linesep_regex", "\\n", "regex to split lines");
         add("--max_list_length", 10000, "maximum number of counterexamples "
                 + "and solutions (to avoid overflowing the JList)");
+        add("--no_console_skdprint",
+                "don't re-execute the program to get skdprint values");
     }
 }

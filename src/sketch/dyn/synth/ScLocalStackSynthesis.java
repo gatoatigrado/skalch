@@ -83,7 +83,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
         }
 
         /**
-         * NOTE - keep this in sync with ScUiGui's rerun method
+         * NOTE - keep this in sync with ScDebugSketchRun
          * @returns true if exhausted (need to wait)
          */
         protected boolean blind_fast_routine() {

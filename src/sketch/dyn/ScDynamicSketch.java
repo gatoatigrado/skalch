@@ -72,6 +72,7 @@ public abstract class ScDynamicSketch {
 
     public void enable_debug() {
         debug_print_enable = true;
+        debug_assert_failure_location = null;
         debug_out = new Vector<String>();
     }
 

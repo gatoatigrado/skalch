@@ -9,9 +9,8 @@ import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.inputs.ScFixedInputConf;
-import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScStack;
-import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.ui.ScDebugSketchRun;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
@@ -175,40 +174,26 @@ public class ScUiGui extends gui_0_1 {
     private void add_debug_info(ScStack stack) {
         ui_thread.sketch.enable_debug();
         stack.set_for_synthesis(ui_thread.sketch);
-        //
-        boolean assert_failed = false;
-        trycatch: try {
-            stack.reset_before_run();
-            for (ScFixedInputConf counterexample : ui_thread.all_counterexamples)
-            {
-                counterexample.set_input_for_sketch(ui_thread.sketch);
-                if (!ui_thread.sketch.dysketch_main()) {
-                    break trycatch;
-                }
-            }
-        } catch (ScSynthesisAssertFailure e) {
-            assert_failed = true;
-        } catch (ScDynamicUntilvException e) {
-            assert_failed = true;
-        }
+        ScDebugSketchRun sketch_run =
+                new ScDebugSketchRun(ui_thread.sketch, stack,
+                        ui_thread.all_counterexamples);
+        sketch_run.run();
         //
         StringBuilder debug_text = new StringBuilder();
         debug_text.append("<html>\n  <head>\n<style>\n"
                 + "body {\nfont-size: 12pt;\n}\n"
                 + "ul {\nmargin-left: 20pt;\n}\n</style>\n  </head>"
                 + "\n  <body>\n<ul>");
-        for (String debug_entry : ui_thread.sketch.debug_out) {
+        for (String debug_entry : sketch_run.debug_out) {
             debug_entry =
                     ScHighlightSourceVisitor.html_nonpre_code(debug_entry);
             debug_text.append("<li>");
             debug_text.append(debug_entry);
             debug_text.append("</li>");
         }
-        ui_thread.sketch.debug_out = null;
         debug_text.append("\n</ul>\n");
-        if (assert_failed) {
-            StackTraceElement assert_info =
-                    ui_thread.sketch.debug_assert_failure_location;
+        if (sketch_run.assert_failed() && sketch_run.assert_info != null) {
+            StackTraceElement assert_info = sketch_run.assert_info;
             debug_text.append(String.format("<p>failure at %s (line %d)</p>",
                     assert_info.getMethodName(), assert_info.getLineNumber()));
         }

@@ -65,6 +65,7 @@ class RevList1(val length : Int) extends DynamicSketch {
             case ex : java.lang.NullPointerException =>
                 synthAssertTerminal(false)
         }
+        skdprint("all nodes: " + all_nodes)
         return !!(all_nodes)
     }
 

@@ -1,6 +1,8 @@
 package sketch.ui;
 
 import sketch.dyn.BackendOptions;
+import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
@@ -15,6 +17,13 @@ import sketch.util.DebugOut;
  *          make changes, please consider contributing back!
  */
 public class ScDebugConsoleUI implements ScUserInterface {
+    ScFixedInputConf[] all_counterexamples;
+    ScDynamicSketch ui_sketch;
+
+    public ScDebugConsoleUI(ScDynamicSketch ui_sketch) {
+        this.ui_sketch = ui_sketch;
+    }
+
     public void addStackSynthesis(ScLocalStackSynthesis local_ssr) {
         DebugOut.print("ui add stack synthesis", local_ssr);
     }
@@ -28,8 +37,19 @@ public class ScDebugConsoleUI implements ScUserInterface {
         return 0;
     }
 
-    public void addSolution(ScStack stack, int solution_cost) {
-        DebugOut.print_mt("solution with stack", stack);
+    public void addSolution(ScStack stack__, int solution_cost) {
+        DebugOut.print_mt("solution with stack", stack__);
+        if (BackendOptions.ui_opts.bool_("no_console_skdprint")) {
+            return;
+        }
+        ScStack stack = stack__.clone();
+        ScDebugSketchRun sketch_run =
+                new ScDebugSketchRun(ui_sketch, stack, all_counterexamples);
+        sketch_run.run();
+        for (String debug_entry : sketch_run.debug_out) {
+            DebugOut.print_colored(DebugOut.BASH_GREEN, "[skdprint]", " ",
+                    false, debug_entry);
+        }
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
@@ -38,5 +58,6 @@ public class ScDebugConsoleUI implements ScUserInterface {
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);
         }
+        all_counterexamples = ScFixedInputConf.from_inputs(inputs);
     }
 }

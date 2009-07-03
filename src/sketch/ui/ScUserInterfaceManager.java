@@ -23,7 +23,7 @@ public class ScUserInterfaceManager {
             ScDynamicSketch sketch)
     {
         if (BackendOptions.ui_opts.bool_("no_gui")) {
-            return new ScDebugConsoleUI();
+            return new ScDebugConsoleUI(sketch);
         } else {
             ScUiThread thread = new ScUiThread(ssr, sketch);
             thread.start();

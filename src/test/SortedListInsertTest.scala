@@ -60,10 +60,9 @@ class SortedListInsertSketch(val list_length : Int,
                 if (idx == length - 1) {
                     return length
                 } else {
-                    // sometimes returns zero for the solution
-                    val oracle_value = `!!d`(length - idx)
-                    assert(oracle_value + idx < length/* - idx + idx*/)
-                    return oracle_value + idx + 1
+                    // search right subtree
+                    skdprint("search right subtree")
+                    idx += Math.max(1, step)
                 }
             }
         }

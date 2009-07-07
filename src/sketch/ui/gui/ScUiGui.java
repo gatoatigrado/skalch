@@ -1,10 +1,16 @@
 package sketch.ui.gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.BackendOptions;
@@ -44,6 +50,20 @@ public class ScUiGui extends gui_0_1 {
     public ScUiGui(ScUiThread ui_thread) {
         super();
         this.ui_thread = ui_thread;
+        KeyStroke escKeyStroke =
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        Action escapeAction = new AbstractAction() {
+            private static final long serialVersionUID = 1173509525674124142L;
+
+            public void actionPerformed(ActionEvent e) {
+                stopSolver();
+                setVisible(false);
+                dispose();
+            }
+        };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                escKeyStroke, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
         context_len = (int) BackendOptions.ui_opts.long_("context_len");
         context_split_len =
                 (int) BackendOptions.ui_opts.long_("context_split_len");

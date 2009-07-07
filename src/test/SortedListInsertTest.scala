@@ -34,13 +34,36 @@ class SortedListInsertSketch(val list_length : Int,
         skdprint("after insert " + v + " at " + idx + ":\n" + printArray())
     }
 
+    def get_insert_index(v : Int) : Int = {
+        var step = length / 2
+        var idx = step / 2
+        while (idx < length) {
+            step /= 2
+            var other = arr(idx)
+            if (v <= other) {
+                // an index at or before $other$
+                return !!(idx + 1)
+            } else {
+                // an index after $other$
+                // $idx < length$ from loop, so $untilv > 0$
+                if (idx == length - 1) {
+                    return length
+                } else {
+                    // sometimes returns zero for the solution
+                    return !!(length - idx) + idx + 1
+                }
+            }
+        }
+        idx
+    }
+
     def dysketch_main() : Boolean = {
         length = 0
         var sum = 0
         for (a <- 0 until list_length) {
             val in = next_int_input()
             sum += in
-            insert(!!(length + 1), in)
+            insert(get_insert_index(in), in)
         }
 
         // check is sorted

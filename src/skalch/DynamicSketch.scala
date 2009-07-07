@@ -67,6 +67,16 @@ abstract class DynamicSketch extends ScDynamicSketch {
         DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
     }
 
+    @DescriptionAnnotation("[[integer untilv oracle]] basic oracle with debugging")
+    def `!!d`(uid: Int, untilv: Int): Int = {
+        import java.lang.Integer
+        assert(untilv > 0, "sketch provided bad untilv, not greater than zero. untilv=" + untilv)
+        val rv = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
+        skCompilerAssert(rv >= 0 && rv < untilv, "compiler returned bad result",
+            "result", rv : Integer, "untilv", untilv : Integer)
+        rv
+    }
+
     @DescriptionAnnotation("[[boolean oracle]] boolean oracle")
     def !!(uid : Int) : Boolean = {
         val result : Int = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, 2)

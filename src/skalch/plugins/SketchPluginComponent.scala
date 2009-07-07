@@ -52,6 +52,7 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
             val cons_type = fcnName(fcn) match {
                 case "$qmark$qmark" => ConstructType.Hole
                 case "$bang$bang" => ConstructType.Oracle
+                case "$bang$bangd" => ConstructType.Oracle
                 case _ => return null
             }
             if (args.length >= 1 && alreadyInsertedPos(args(0).pos)) {

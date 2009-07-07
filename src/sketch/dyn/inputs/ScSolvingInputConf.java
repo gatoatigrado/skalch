@@ -65,8 +65,9 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
 
     @Override
     public String toString() {
-        return "ScSolvingInputConf[ " + (new RichString(", ")).join(values)
-                + " ]";
+        return "ScSolvingInputConf[ values="
+                + (new RichString(", ")).join(values) + ",\nuntilv="
+                + (new RichString(", ")).join(untilv) + " ]";
     }
 
     /** for clone method only */
@@ -129,17 +130,19 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
 
     public void reset_accessed(int uid, int subuid) {
         values[uid].remove(subuid);
+        untilv[uid].remove(subuid);
     }
 
     @SuppressWarnings("unchecked")
     public void copy_values_from(ScSolvingInputConf prev) {
         values = new Vector[prev.values.length];
+        untilv = new Vector[prev.untilv.length];
         set_cnt = new Vector[prev.set_cnt.length];
         for (int a = 0; a < values.length; a++) {
             values[a] = (Vector<Integer>) prev.values[a].clone();
+            untilv[a] = (Vector<Integer>) prev.untilv[a].clone();
             set_cnt[a] = (Vector<Integer>) prev.set_cnt[a].clone();
         }
-        untilv = prev.untilv.clone();
         next = prev.next.clone();
         num_uids = prev.num_uids;
     }

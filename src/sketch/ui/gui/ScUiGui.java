@@ -59,6 +59,7 @@ public class ScUiGui extends gui_0_1 {
                 stopSolver();
                 setVisible(false);
                 dispose();
+                ScUiGui.this.ui_thread.set_stop();
             }
         };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(

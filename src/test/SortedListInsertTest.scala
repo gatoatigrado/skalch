@@ -25,7 +25,7 @@ class SortedListInsertSketch(val list_length : Int,
         skdprint("")
         skdprint("before insert:\n" + printArray())
         length += 1
-        assert(idx < length)
+        assert(idx < length, "bad index. index=" + idx + "; length=" + length)
         // NOTE - buggy sketch, see if I can detect it
         for (i <- (length - 2) to idx by -1) {
             arr(i + 1) = arr(i)
@@ -34,7 +34,7 @@ class SortedListInsertSketch(val list_length : Int,
         skdprint("after insert " + v + " at " + idx + ":\n" + printArray())
     }
 
-    def get_insert_index(v : Int) : Int = {
+    def get_insert_index_inner(v : Int) : Int = {
         var step = length / 2
         var idx = step / 2
         while (idx < length) {
@@ -50,10 +50,18 @@ class SortedListInsertSketch(val list_length : Int,
                     return length
                 } else {
                     // sometimes returns zero for the solution
-                    return !!(length - idx) + idx + 1
+                    val oracle_value = `!!d`(length - idx)
+                    assert(oracle_value + idx < length/* - idx + idx*/)
+                    return oracle_value + idx + 1
                 }
             }
         }
+        idx
+    }
+
+    def get_insert_index(v : Int) : Int = {
+        val idx = get_insert_index_inner(v)
+        assert(idx <= length)
         idx
     }
 

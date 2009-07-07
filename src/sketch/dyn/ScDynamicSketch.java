@@ -76,6 +76,27 @@ public abstract class ScDynamicSketch {
         debug_out = new Vector<String>();
     }
 
+    public synchronized void skCompilerAssertInternal(Object... arr) {
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
+                false, "FAILED COMPILER ASSERT");
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
+                false, arr);
+        (new Exception()).printStackTrace();
+        DebugOut.print_colored(DebugOut.BASH_RED,
+                "[critical failure] - oracles:", "\n", false, oracle_conf
+                        .toString());
+        DebugOut.print_colored(DebugOut.BASH_RED,
+                "[critical failure] - ctrls:", "\n", false, ctrl_conf
+                        .toString());
+        DebugOut.assertFalse("compiler failure");
+    }
+
+    public void skCompilerAssert(boolean truth, Object... arr) {
+        if (!truth) {
+            skCompilerAssertInternal(arr);
+        }
+    }
+
     public synchronized void skprint(String... text) {
         DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
                 (Object[]) text);

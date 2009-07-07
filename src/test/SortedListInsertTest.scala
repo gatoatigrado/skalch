@@ -22,8 +22,6 @@ class SortedListInsertSketch(val list_length : Int,
     }
 
     def insert(idx : Int, v : Int) {
-        skdprint_loc("insert routine")
-        skdprint("before insert:\n" + printArray())
         length += 1
         assert(idx < length, "bad index. index=" + idx + "; length=" + length)
         // NOTE - buggy sketch, see if I can detect it
@@ -31,18 +29,27 @@ class SortedListInsertSketch(val list_length : Int,
             arr(i + 1) = arr(i)
         }
         arr(idx) = v
-        skdprint("after insert " + v + " at " + idx + ":\n" + printArray())
+        skdprint("after insert array: " + printArray())
     }
 
-    def get_insert_index_inner(v : Int) : Int = {
+    def get_insert_index(v : Int) : Int = {
         var step = length / 2
         var idx = step / 2
         while (idx < length) {
             step /= 2
-            var other = arr(idx)
+            val other = arr(idx)
             if (v <= other) {
                 // an index at or before $other$
-                return !!(idx + 1)
+                if (idx == 0) {
+                    return 0
+                } else {
+                    val other2 = arr(idx - 1)
+                    if (other2 <= v) {
+                        skdprint("returning idx " + idx)
+                        return idx
+                    }
+                    return !!(idx + 1)
+                }
             } else {
                 // an index after $other$
                 // $idx < length$ from loop, so $untilv > 0$
@@ -56,12 +63,6 @@ class SortedListInsertSketch(val list_length : Int,
                 }
             }
         }
-        idx
-    }
-
-    def get_insert_index(v : Int) : Int = {
-        val idx = get_insert_index_inner(v)
-        assert(idx <= length)
         idx
     }
 

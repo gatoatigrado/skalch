@@ -44,28 +44,42 @@ abstract class DynamicSketch extends ScDynamicSketch {
     }
 
     // am I abusing the type inference system? If anything is ambiguous, please email...
-    // NOTE - the "[[string]]" part of the annotations is what is currently recognized 
+    // NOTE - the "[[string]]" part of the annotations is what is currently recognized
     // from the compiler. This should be an associative recognition in the future.
 
     /** NOTE - description annotations are necessary to know how to complete the hole. */
     @DescriptionAnnotation("[[integer untilv hole]] basic hole")
-    def ??(uid: Int, untilv: Int): Int = {
+    def ??(uid: Int, untilv: Int): Int =
         DynamicSketch.this.ctrl_conf.getDynamicValue(uid, untilv)
-    }
 
     @DescriptionAnnotation("[[object apply hole]] list select hole")
-    def ??[T](uid : Int, list: List[T]) : T = {
-        val v = DynamicSketch.this.ctrl_conf.getDynamicValue(uid, list.length)
-        if (v >= list.length) {
-            skprint("Warning", "index exceeding list length; this shouldn't happen as untilv is set.", list.toString)
-        }
-        list(v)
-    }
+    def ??[T](uid : Int, list: List[T]) : T =
+        list(DynamicSketch.this.ctrl_conf.getDynamicValue(uid, list.length))
+
+    @DescriptionAnnotation("[[object apply hole]] array select hole")
+    def ??[T](uid : Int, arr: Array[T]) : T =
+        arr(DynamicSketch.this.ctrl_conf.getDynamicValue(uid, arr.length))
+
+
+
+
+    @DescriptionAnnotation("[[boolean oracle]] boolean oracle")
+    def !!(uid : Int) : Boolean =
+        DynamicSketch.this.oracle_conf.dynamicNextValue(uid, 2) == 1
 
     @DescriptionAnnotation("[[integer untilv oracle]] basic oracle")
-    def !!(uid: Int, untilv: Int): Int = {
+    def !!(uid: Int, untilv: Int): Int =
         DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
-    }
+
+    @DescriptionAnnotation("[[object apply oracle]] array select oracle")
+    def !![T](uid : Int, arr: Array[T]) : T =
+        arr(DynamicSketch.this.oracle_conf.dynamicNextValue(uid, arr.length))
+
+    @DescriptionAnnotation("[[object apply oracle]] list select oracle")
+    def !![T](uid : Int, list: List[T]) : T =
+        list(DynamicSketch.this.oracle_conf.dynamicNextValue(uid, list.length))
+
+
 
     @DescriptionAnnotation("[[integer untilv oracle]] basic oracle with debugging")
     def `!!d`(uid: Int, untilv: Int): Int = {
@@ -77,19 +91,15 @@ abstract class DynamicSketch extends ScDynamicSketch {
         rv
     }
 
-    @DescriptionAnnotation("[[boolean oracle]] boolean oracle")
-    def !!(uid : Int) : Boolean = {
-        val result : Int = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, 2)
-        result == 1
-    }
-
-    @DescriptionAnnotation("[[object apply oracle]] array select oracle")
-    def !![T](uid : Int, arr: Array[T]) : T = {
-        val v = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, arr.length)
-        if (v >= arr.length) {
-            skprint("Warning", "index exceeding list length; this shouldn't happen as untilv is set.", arr.toString)
-        }
-        arr(v)
+    @DescriptionAnnotation("[[object apply oracle]] array select oracle with debugging")
+    def `!!d`[T](uid : Int, arr: Array[T]) : T = {
+        import java.lang.Integer
+        val untilv = arr.length
+        assert(untilv > 0, "sketch provided bad untilv, not greater than zero. untilv=" + untilv)
+        val rv = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
+        skCompilerAssert(rv >= 0 && rv < untilv, "compiler returned bad result",
+            "result", rv : Integer, "untilv", untilv : Integer)
+        arr(rv)
     }
 
     // === Holes ===

@@ -143,7 +143,7 @@ class RedBlackTreeSketch(val num_ops : Int,
         grandparent : RBTreeNode)
     {
         // be stingy, use !! to start with only a few nodes
-        
+
         val num_to_expand : Int = 10 - !!(4) + 1 // number of nodes to recolor
         skAddCost(num_to_expand)
         recolorOp(node)

@@ -32,10 +32,15 @@ def check_file(f, show_info, override_ignores):
         # the following only apply to uncommented code
         if line.lstrip().startswith("//"):
             continue
-        if "System.exit" in line: # @code standards ignore
+
+        # the following do not apply to this file
+        if f.endswith("build_util/code_standards.py"):
+            continue
+
+        if "System.exit" in line:
             warn("raw system exit")
-        if "DebugOut.print" in line:
-            info("debug statement")
+        if "DebugOut.assertSlow" in line:
+            info("debug assert slow call")
 
 def main(srcdir, file_extensions, **kwargs):
     assert type(file_extensions) == list

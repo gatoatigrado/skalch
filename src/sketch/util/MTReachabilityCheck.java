@@ -102,7 +102,7 @@ public class MTReachabilityCheck {
             DebugOut.print_mt("num reachable", check_visitor.num_reachable);
             lock.release();
         }
-        System.exit(0);
+        System.exit(0); // @code standards ignore
     }
 
     public abstract class Visitor {

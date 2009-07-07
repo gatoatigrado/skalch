@@ -34,13 +34,14 @@ class SortedListInsertSketch(val list_length : Int,
 
     def get_insert_index(v : Int) : Int = {
         var step = length / 2
-        var idx = step / 2
+        var idx = step
         while (idx < length) {
             step /= 2
             val other = arr(idx)
             if (v <= other) {
                 // an index at or before $other$
                 if (idx == 0) {
+                    skdprint("at zero, return zero")
                     return 0
                 } else {
                     val other2 = arr(idx - 1)
@@ -58,6 +59,7 @@ class SortedListInsertSketch(val list_length : Int,
                 // an index after $other$
                 // $idx < length$ from loop, so $untilv > 0$
                 if (idx == length - 1) {
+                    skdprint("at end, return length")
                     return length
                 } else {
                     // search right subtree

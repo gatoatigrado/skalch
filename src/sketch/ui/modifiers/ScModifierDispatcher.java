@@ -51,7 +51,7 @@ public abstract class ScModifierDispatcher implements
         } else if (my_cost == other_cost) {
             return 0;
         } else {
-            return -1;
+            return 1;
         }
     }
 

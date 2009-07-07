@@ -44,8 +44,12 @@ public class ScUiSortedList<T extends Comparable<T>> extends ScUiList<T> {
                         }
                     }
                 } else {
-                    // have other[i] < element, go to right subtree
-                    insert_idx += Math.max(1, step);
+                    if (insert_idx == sz - 1) {
+                        insert_idx = sz;
+                        break;
+                    } else {
+                        insert_idx += Math.max(1, step);
+                    }
                 }
             }
             list_model.add(insert_idx, element);

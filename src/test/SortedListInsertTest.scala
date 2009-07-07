@@ -47,8 +47,12 @@ class SortedListInsertSketch(val list_length : Int,
                     if (other2 <= v) {
                         skdprint("returning idx " + idx)
                         return idx
+                    } else {
+                        // search left subtree
+                        skdprint("search left subtree")
+                        idx -= Math.max(1, step)
                     }
-                    return !!(idx + 1)
+                    //return !!(idx + 1)
                 }
             } else {
                 // an index after $other$

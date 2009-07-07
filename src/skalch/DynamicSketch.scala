@@ -185,6 +185,12 @@ abstract class DynamicSketch extends ScDynamicSketch {
         }
     }
 
+    def skdprint_loc(x : => String) {
+        if (debug_print_enable) {
+            skdprint_location_backend(x)
+        }
+    }
+
 
 
     def get_hole_info() = __hole_list.get_and_freeze()

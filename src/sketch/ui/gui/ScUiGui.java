@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Vector;
 import java.util.Map.Entry;
 
@@ -11,16 +12,17 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.BackendOptions;
+import sketch.dyn.debug.ScDebugEntry;
+import sketch.dyn.debug.ScDebugSketchRun;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.synth.ScStack;
-import sketch.ui.ScDebugSketchRun;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
-import sketch.ui.sourcecode.ScHighlightSourceVisitor;
 import sketch.ui.sourcecode.ScSourceCache;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceLocation;
@@ -150,6 +152,9 @@ public class ScUiGui extends gui_0_1 {
         result.append("\n</p>\n</body>\n</html>");
         sourceCodeEditor.setText(result.toString());
         add_debug_info(stack);
+        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+            scroll_topleft();
+        }
     }
 
     private void add_source_info(StringBuilder result, String key,
@@ -188,6 +193,17 @@ public class ScUiGui extends gui_0_1 {
         result.append(v.visitCode(end));
     }
 
+    private void scroll_topleft() {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                debugOutPane.getHorizontalScrollBar().setValue(0);
+                debugOutPane.getVerticalScrollBar().setValue(0);
+                sourceCodePane.getHorizontalScrollBar().setValue(0);
+                sourceCodePane.getVerticalScrollBar().setValue(0);
+            }
+        });
+    }
+
     /**
      * reruns the stack, collecting any debug print statements. NOTE - keep this
      * in sync with ScLocalStackSynthesis
@@ -205,12 +221,11 @@ public class ScUiGui extends gui_0_1 {
                 + "body {\nfont-size: 12pt;\n}\n"
                 + "ul {\nmargin-left: 20pt;\n}\n</style>\n  </head>"
                 + "\n  <body>\n<ul>");
-        for (String debug_entry : sketch_run.debug_out) {
-            debug_entry =
-                    ScHighlightSourceVisitor.html_nonpre_code(debug_entry);
-            debug_text.append("<li>");
-            debug_text.append(debug_entry);
-            debug_text.append("</li>");
+        LinkedList<String> html_contexts = new LinkedList<String>();
+        html_contexts.add("body");
+        html_contexts.add("ul");
+        for (ScDebugEntry debug_entry : sketch_run.debug_out) {
+            debug_text.append(debug_entry.htmlString(html_contexts));
         }
         debug_text.append("\n</ul>\n");
         if (sketch_run.assert_failed() && sketch_run.assert_info != null) {

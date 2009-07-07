@@ -2,6 +2,8 @@ package sketch.ui;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.debug.ScDebugEntry;
+import sketch.dyn.debug.ScDebugSketchRun;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.ScLocalStackSynthesis;
@@ -46,9 +48,9 @@ public class ScDebugConsoleUI implements ScUserInterface {
         ScDebugSketchRun sketch_run =
                 new ScDebugSketchRun(ui_sketch, stack, all_counterexamples);
         sketch_run.run();
-        for (String debug_entry : sketch_run.debug_out) {
+        for (ScDebugEntry debug_entry : sketch_run.debug_out) {
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[skdprint]", " ",
-                    false, debug_entry);
+                    false, debug_entry.consoleString());
         }
     }
 

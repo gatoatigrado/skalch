@@ -22,7 +22,7 @@ class SortedListInsertSketch(val list_length : Int,
     }
 
     def insert(idx : Int, v : Int) {
-        skdprint("")
+        skdprint_loc("insert routine")
         skdprint("before insert:\n" + printArray())
         length += 1
         assert(idx < length, "bad index. index=" + idx + "; length=" + length)

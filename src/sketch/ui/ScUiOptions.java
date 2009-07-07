@@ -29,5 +29,7 @@ public class ScUiOptions extends sketch.util.CliOptGroup {
                 + "and solutions (to avoid overflowing the JList)");
         add("--no_console_skdprint",
                 "don't re-execute the program to get skdprint values");
+        add("--no_scroll_topleft",
+                "don't scroll the debug out and source panes to the top left");
     }
 }

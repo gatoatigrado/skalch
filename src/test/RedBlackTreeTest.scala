@@ -116,7 +116,7 @@ class RedBlackTreeSketch(val num_ops : Int,
             to_insert.isBlack = true
             return to_insert
         }
-        val before_insert = parent.formatTree("")
+        var recolorInsert = true
 
         // go down the binary tree. using < vs. <= shouldn't matter (symmetry)
         if (parent.value < to_insert.value) {
@@ -125,6 +125,7 @@ class RedBlackTreeSketch(val num_ops : Int,
             } else {
                 parent = recursiveInsertRoutine(to_insert, parent.rightChild, parent)
                 to_insert = if (parent == null) { null } else { !!(parent.leftChild, parent.rightChild) }
+                recolorInsert = false
             }
         } else {
             // NOTE - I don't want to have to spell out this symmetry
@@ -133,24 +134,19 @@ class RedBlackTreeSketch(val num_ops : Int,
             } else {
                 parent = recursiveInsertRoutine(to_insert, parent.leftChild, parent)
                 to_insert = if (parent == null) { null } else { !!(parent.leftChild, parent.rightChild) }
+                recolorInsert = false
             }
         }
 
         if (parent == null) {
             // previous step signaled null
             null
-        }
-        else if (to_insert == null) {
+        } else if (to_insert == null) {
             parent
-        }
-        else if (!(!!())) {
-            skdprint_loc("oracle returning null")
-            skdprint("before insert: " + before_insert)
-            skdprint("after insert: " + parent.formatTree(""))
-            null
-        }
-        else if (grandparent == null) {
-            to_insert.isBlack = false
+        } else if (grandparent == null) {
+            if (recolorInsert) {
+                to_insert.isBlack = false
+            }
             parent
         } else {
             recursiveUpwardsStep(to_insert, parent, grandparent)

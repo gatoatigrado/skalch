@@ -11,7 +11,7 @@ import scala.runtime.RichInt
 
 class DfsSketch() extends DynamicSketch {
     def dysketch_main() = {
-        val g = new Graph(10)
+        val g = new Graph(2)
         g.checkpoint
 
         dfs(g)
@@ -39,7 +39,7 @@ class DfsSketch() extends DynamicSketch {
             rng.setSeed(seed)
 
             i = 0
-            while(i < n * 3) {
+            while(i < n * 10) {
                 val parent = nodes(rng.nextInt(nodes.length))
                 val child  = nodes(rng.nextInt(nodes.length))
                 parent.children += child
@@ -97,15 +97,88 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    class AngelicStack[A] {
-        val storage = new ArrayBuffer[A]
+    abstract class Location[A] {
+        def read(): A
+        def write(x: A)
+    }
+
+    class GeneralLocation[A](val reader: () => A, val writer: (A) => Unit) extends Location[A] {
+        def read() = {
+            reader()
+        }
+
+        def write(x: A) {
+            writer(x)
+        }
+    }
+
+    class BufferLocation[A](buffer: Buffer[A], index: Int) extends Location[A] {
+        override def read() = {
+            buffer(index)
+        }
+
+        override def write(x: A) {
+            buffer(index) = x
+        }
+    }
+
+    class BlackHole[A >: Null] extends Location[A] {
+        override def read(): A = {
+            assert(false, "You can't get anything out of a black hole!")
+            null
+        }
+
+        override def write(x: A) { }
+    }
+
+    class ParasiticStack[A](val givenLocations: Seq[Location[A]]) {
+        val locations = new ArrayBuffer[Location[A]]
+        locations ++= givenLocations
 
         def push(x: A) {
-            storage += x
+            skdprint_loc("push")
+            !!(locations).write(x)
+
+            val storage = locations.clone
+
+            for(value <- locations.map(l => l.read)) {
+                storage.remove(!!(storage.length)).write(value)
+            }
+
+            /*
+            for(location <- locations) {
+                skdprint(location.read.name)
+            }
+            */
         }
 
         def pop() = {
-            storage.remove(!!(storage.length))
+            skdprint_loc("pop")
+            val value = !!(locations).read
+
+            val storage = locations.clone
+
+            for(value <- locations.map(l => l.read)) {
+                storage.remove(!!(storage.length)).write(value)
+            }
+
+            value
+        }
+    }
+
+    /*
+    a class where you add locations over time
+    */
+
+    class AngelicStack[A]() {
+        val cheat = new ArrayBuffer[A]
+
+        def push(x: A) {
+            cheat += x
+        }
+
+        def pop() = {
+            cheat.remove(!!(cheat.length))
         }
     }
 
@@ -118,10 +191,31 @@ class DfsSketch() extends DynamicSketch {
         val stack = new Stack[Node]
         stack.push(origin)
 
-        val mystack = new AngelicStack[Node]
+        val locations = new ArrayBuffer[Location[Node]]
+
+        for(node <- g.nodes) {
+            for(i <- 0 until node.children.length) {
+                locations += new BufferLocation(node.children, i)
+            }
+        }
+
+        // we may need an extra variable??!? who knows
+        var v0: Node = null
+        locations += new GeneralLocation[Node](() => v0, (x) => v0 = x)
+        
+        val mystack = new ParasiticStack[Node](locations)
         mystack.push(origin)
 
+        var step = 0
         while(current != origin) {
+            synthAssertTerminal(step < g.nodes.length * 2)
+            step += 1
+
+            for(child <- current.children) {
+                synthAssertTerminal(child != null)
+            }
+
+
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
             } else {

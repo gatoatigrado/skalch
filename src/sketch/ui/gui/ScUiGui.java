@@ -228,10 +228,12 @@ public class ScUiGui extends gui_0_1 {
             debug_text.append(debug_entry.htmlString(html_contexts));
         }
         debug_text.append("\n</ul>\n");
-        if (sketch_run.assert_failed() && sketch_run.assert_info != null) {
+        if (sketch_run.assert_failed()) {
             StackTraceElement assert_info = sketch_run.assert_info;
             debug_text.append(String.format("<p>failure at %s (line %d)</p>",
                     assert_info.getMethodName(), assert_info.getLineNumber()));
+        } else {
+            debug_text.append("<p>dysketch_main returned false</p>");
         }
         debug_text.append("  </body>\n</html>\n");
         debugOutEditor.setText(debug_text.toString());

@@ -7,6 +7,7 @@ import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.util.DebugOut;
 
 /**
  * static functions b/c I can't put them in ScUserInterface (java annoyance)
@@ -47,15 +48,25 @@ public class ScDebugSketchRun {
             }
             succeeded = true;
         } catch (ScSynthesisAssertFailure e) {
-            assert_info = sketch.debug_assert_failure_location;
+            set_assert_info(sketch.debug_assert_failure_location, e);
         } catch (ScDynamicUntilvException e) {
-            assert_info = sketch.debug_assert_failure_location;
+            set_assert_info(sketch.debug_assert_failure_location, e);
+        } catch (Exception e) {
+            DebugOut.print_exception("should not have any other failures", e);
+            DebugOut.assertFalse("exiting");
         }
         debug_out = sketch.debug_out;
         sketch.debug_out = null;
     }
 
+    private void set_assert_info(StackTraceElement assert_info, Exception e) {
+        if (assert_info == null) {
+            DebugOut.assertFalse("assert info null after failure", e);
+        }
+        this.assert_info = assert_info;
+    }
+
     public boolean assert_failed() {
-        return assert_info == null;
+        return assert_info != null;
     }
 }

@@ -35,9 +35,10 @@ class Path(str):
         def inner(*argv, **kwargs):
             result = fcn(self, *argv, **kwargs)
             if type(result) == str:
-                return Path(result)
-            else:
-                return result
+                pathresult = Path(result)
+                if pathresult.exists() or result == str(pathresult):
+                    return pathresult
+            return result
         return inner
 
     def subpath(self, *argv):

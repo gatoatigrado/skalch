@@ -157,13 +157,17 @@ class RedBlackTreeSketch(val num_ops : Int,
     def dysketch_main() = {
         num_active_nodes = 0
         root = null
+        skdprint_loc("start dysketch main")
         for (i <- 0 until num_ops) {
             val value = next_int_input()
             skdprint("adding value " + value)
             mainInsertRoutine(insertNode(value), root, null)
+            skdprint_loc("check tree")
             checkTree()
+            skdprint_loc("end check tree")
             skdprint(root.formatTree(""))
         }
+        skdprint("finish dysketch main")
         true
     }
 

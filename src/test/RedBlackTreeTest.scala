@@ -11,7 +11,8 @@ import sketch.util._
 
 /** N.B. compile me with optimise */
 class RedBlackTreeSketch(val num_ops : Int,
-    val num_tests : Int) extends RBTreeSketchBase
+    val num_tests : Int, val rand_input : Boolean)
+    extends RBTreeSketchBase
 {
     // array of nodes
     val all_nodes = (for (i <- 0 until num_ops) yield new RBTreeNode(false, 0)).toArray
@@ -60,10 +61,15 @@ class RedBlackTreeSketch(val num_ops : Int,
         childrenPossibilitiesList.insertAll(0, switchChildrenPossibilities)
         var num_remaining = childrenPossibilitiesList.length
 
+        for (node <- childrenPossibilitiesList) {
+            node.isBlack = !!()
+        }
+
         def next_child() : RBTreeNode = {
             if (!!() && (num_remaining > 0)) {
+                val node = childrenPossibilitiesList.remove(!!(num_remaining))
                 num_remaining -= 1
-                childrenPossibilitiesList.remove(!!(num_remaining + 1))
+                node
             } else {
                 null
             }
@@ -110,6 +116,7 @@ class RedBlackTreeSketch(val num_ops : Int,
             to_insert.isBlack = true
             return to_insert
         }
+        val before_insert = parent.formatTree("")
 
         // go down the binary tree. using < vs. <= shouldn't matter (symmetry)
         if (parent.value < to_insert.value) {
@@ -132,11 +139,17 @@ class RedBlackTreeSketch(val num_ops : Int,
         if (parent == null) {
             // previous step signaled null
             null
-        } else if (!(!!())) {
-            null
-        } else if (to_insert == null) {
+        }
+        else if (to_insert == null) {
             parent
-        } else if (grandparent == null) {
+        }
+        else if (!(!!())) {
+            skdprint_loc("oracle returning null")
+            skdprint("before insert: " + before_insert)
+            skdprint("after insert: " + parent.formatTree(""))
+            null
+        }
+        else if (grandparent == null) {
             to_insert.isBlack = false
             parent
         } else {
@@ -155,9 +168,9 @@ class RedBlackTreeSketch(val num_ops : Int,
     {
         // be stingy, use !! to start with only a few nodes
 
-        node.isBlack = !!()
+        /*node.isBlack = !!()
         parent.isBlack = !!()
-        grandparent.isBlack = !!()
+        grandparent.isBlack = !!()*/
         switchChildrenTuple(node, parent, grandparent)
     }
 
@@ -196,9 +209,11 @@ class RedBlackTreeSketch(val num_ops : Int,
                 val isInsert : Boolean = true
                     // RedBlackTreeTest.mt.get().nextBoolean()
 
-                // make the values human readable and easy to compare
-                // val value : Int = RedBlackTreeTest.mt.get().nextInt(100)
-                val value = i
+                val value = if (rand_input) {
+                    RedBlackTreeTest.mt.get().nextInt(100)
+                } else {
+                    i
+                }
                 put_default_input(value)
             }
         }
@@ -213,6 +228,7 @@ object RedBlackTreeTest {
         import java.lang.Integer
         add("--num_ops", 3 : Integer, "operations to process")
         add("--num_tests", 1 : Integer, "number of tests")
+        add("--rand_input", "use random inputs (otherwise, debug inputs)")
     }
 
     def main(args : Array[String])  = {
@@ -221,6 +237,7 @@ object RedBlackTreeTest {
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new RedBlackTreeSketch(
             opts.long_("num_ops").intValue,
-            opts.long_("num_tests").intValue))
+            opts.long_("num_tests").intValue,
+            opts.bool_("rand_input")))
     }
 }

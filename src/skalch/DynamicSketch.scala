@@ -79,6 +79,21 @@ abstract class DynamicSketch extends ScDynamicSketch {
     def !![T](uid : Int, list: List[T]) : T =
         list(DynamicSketch.this.oracle_conf.dynamicNextValue(uid, list.length))
 
+    @DescriptionAnnotation("[[object apply oracle]] 2 value select oracle")
+    def !![T](uid : Int, v1 : T, v2 : T) : T =
+        DynamicSketch.this.oracle_conf.dynamicNextValue(uid, 2) match {
+            case 0 => v1
+            case 1 => v2
+        }
+
+    @DescriptionAnnotation("[[object apply oracle]] 3 value select oracle")
+    def !![T](uid : Int, v1 : T, v2 : T, v3 : T) : T =
+        DynamicSketch.this.oracle_conf.dynamicNextValue(uid, 3) match {
+            case 0 => v1
+            case 1 => v2
+            case 2 => v3
+        }
+
 
 
     @DescriptionAnnotation("[[integer untilv oracle]] basic oracle with debugging")

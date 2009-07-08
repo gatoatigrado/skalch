@@ -1,5 +1,7 @@
 package test
 
+import scala.collection.mutable.HashSet
+
 import skalch.DynamicSketch
 
 abstract class RBTreeSketchBase extends DynamicSketch {
@@ -44,25 +46,24 @@ abstract class RBTreeSketchBase extends DynamicSketch {
         /** check that the tree is actually a tree -- i.e. contains no circular links */
         private def checkIsTreeInner() {
             RBTreeVisitedList.put(this)
-            if (leftChild != null) { leftChild.checkIsTree() }
-            if (rightChild != null) { rightChild.checkIsTree() }
+            if (leftChild != null) { leftChild.checkIsTreeInner() }
+            if (rightChild != null) { rightChild.checkIsTreeInner() }
         }
         def checkIsTree() {
             RBTreeVisitedList.reset()
             checkIsTreeInner()
         }
+        def getSelf() : RBTreeNode = this
+    }
+    object NullRBTreeNode extends RBTreeNode(false, -1) {
+        override def getSelf() : RBTreeNode = null
     }
 
     object RBTreeVisitedList {
-        var length : Int = 0
-        val visitedNodes = new Array[RBTreeNode](100)
-        def reset() { length = 0 }
+        val visitedNodes = new HashSet[RBTreeNode]()
+        def reset() { visitedNodes.clear() }
         def put(node : RBTreeNode) {
-            for (i <- 0 until length) {
-                synthAssertTerminal(!visitedNodes(i).eq(node))
-            }
-            visitedNodes(length) = node
-            length += 1
+            synthAssertTerminal(visitedNodes.add(node))
         }
     }
 }

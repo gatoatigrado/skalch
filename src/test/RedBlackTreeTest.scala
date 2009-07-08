@@ -3,7 +3,7 @@
  */
 package test
 
-import scala.collection.mutable.LinkedHashSet
+import scala.collection.mutable.{LinkedHashSet, ListBuffer}
 
 import ec.util.ThreadLocalMT
 import sketch.dyn.BackendOptions
@@ -44,10 +44,9 @@ class RedBlackTreeSketch(val num_ops : Int,
     }
     // do a rotation. needed to move array "outside" for speed reasons
     val switchChildrenPossibilities = new LinkedHashSet[RBTreeNode]()
-    val childrenPossibilitiesArr = new Array[RBTreeNode](30)
+    val childrenPossibilitiesList = new ListBuffer[RBTreeNode]()
     def switchChildrenTuple(arr : RBTreeNode*) {
         switchChildrenPossibilities.clear()
-        switchChildrenPossibilities += NullRBTreeNode
         for (node <- arr if (node != null)) {
             switchChildrenPossibilities += node
             if (node.leftChild != null) {
@@ -57,11 +56,22 @@ class RedBlackTreeSketch(val num_ops : Int,
                 switchChildrenPossibilities += node.rightChild
             }
         }
-        switchChildrenPossibilities.copyToArray(childrenPossibilitiesArr, 0)
-        val num_to_choose = switchChildrenPossibilities.size
+        childrenPossibilitiesList.clear()
+        childrenPossibilitiesList.insertAll(0, switchChildrenPossibilities)
+        var num_remaining = childrenPossibilitiesList.length
+
+        def next_child() : RBTreeNode = {
+            if (!!() && (num_remaining > 0)) {
+                num_remaining -= 1
+                childrenPossibilitiesList.remove(!!(num_remaining + 1))
+            } else {
+                null
+            }
+        }
+
         for (node <- arr if (node != null)) {
-            node.leftChild = childrenPossibilitiesArr(!!(num_to_choose)).getSelf()
-            node.rightChild = childrenPossibilitiesArr(!!(num_to_choose)).getSelf()
+            node.leftChild = next_child()
+            node.rightChild = next_child()
         }
     }
 
@@ -105,7 +115,6 @@ class RedBlackTreeSketch(val num_ops : Int,
         if (parent.value < to_insert.value) {
             if (parent.rightChild == null) {
                 parent.rightChild = to_insert
-                skdprint("inserted to the right; tree before mutation: " + root.formatTree(""))
             } else {
                 parent = recursiveInsertRoutine(to_insert, parent.rightChild, parent)
                 to_insert = if (parent == null) { null } else { !!(parent.leftChild, parent.rightChild) }
@@ -114,30 +123,23 @@ class RedBlackTreeSketch(val num_ops : Int,
             // NOTE - I don't want to have to spell out this symmetry
             if (parent.leftChild == null) {
                 parent.leftChild = to_insert
-                skdprint("inserted to the left; tree before mutation: " + root.formatTree(""))
             } else {
                 parent = recursiveInsertRoutine(to_insert, parent.leftChild, parent)
                 to_insert = if (parent == null) { null } else { !!(parent.leftChild, parent.rightChild) }
             }
         }
 
-        // previous step signaled null
         if (parent == null) {
-            skdprint("parent null")
+            // previous step signaled null
             null
         } else if (!(!!())) {
-            skdprint("oracle directing null return")
             null
         } else if (to_insert == null) {
-            skdprint(" to_insert null, parent " + parent)
             parent
         } else if (grandparent == null) {
-            skdprint("grandparent null, parent " + parent)
-            to_insert.isBlack = !!()
+            to_insert.isBlack = false
             parent
         } else {
-            skdprint("grandparent not null; grandparent = " + grandparent +
-                ", parent = " + parent + ", to_insert = " + to_insert)
             recursiveUpwardsStep(to_insert, parent, grandparent)
             !!(grandparent, parent, to_insert)
         }
@@ -153,8 +155,6 @@ class RedBlackTreeSketch(val num_ops : Int,
     {
         // be stingy, use !! to start with only a few nodes
 
-        val num_to_expand : Int = 10 - !!(4) + 1 // number of nodes to recolor
-        skAddCost(num_to_expand)
         node.isBlack = !!()
         parent.isBlack = !!()
         grandparent.isBlack = !!()
@@ -184,7 +184,6 @@ class RedBlackTreeSketch(val num_ops : Int,
             checkTree()
             skdprint(root.formatTree(""))
         }
-        skdprint("finish dysketch main")
         true
     }
 

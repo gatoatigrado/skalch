@@ -44,19 +44,21 @@ abstract class RBTreeSketchBase extends DynamicSketch {
         }
 
         /** check that the tree is actually a tree, and node order is correct. */
-        private def checkIsTreeInner() : Int = {
+        private def checkIsTreeInner(leftBound : Int, rightBound : Int) : Int = {
             RBTreeVisitedList.put(this)
             if (leftChild != null) {
-                synthAssertTerminal(leftChild.checkIsTreeInner() <= value)
+                val left_child = leftChild.checkIsTreeInner(leftBound, value)
+                synthAssertTerminal(leftBound < left_child && left_child <= value)
             }
             if (rightChild != null) {
-                synthAssertTerminal(value <= rightChild.checkIsTreeInner())
+                val right_child = rightChild.checkIsTreeInner(value, rightBound)
+                synthAssertTerminal(value <= right_child && right_child < rightBound)
             }
             value
         }
         def checkIsTree() {
             RBTreeVisitedList.reset()
-            checkIsTreeInner()
+            checkIsTreeInner(-1 << 30, 1 << 30)
         }
     }
 

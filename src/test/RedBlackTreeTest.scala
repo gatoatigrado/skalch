@@ -133,7 +133,7 @@ class RedBlackTreeSketch(val num_ops : Int,
                 parent.rightChild = to_insert
             } else {
                 parent = recursiveInsertRoutine(to_insert, parent.rightChild, parent)
-                to_insert = if (parent == null) { null } else { !!(parent.leftChild, parent.rightChild) }
+                to_insert = if (parent == null) { null } else { parent.rightChild }
                 recolorInsert = false
             }
         } else {
@@ -142,7 +142,9 @@ class RedBlackTreeSketch(val num_ops : Int,
                 parent.leftChild = to_insert
             } else {
                 parent = recursiveInsertRoutine(to_insert, parent.leftChild, parent)
-                to_insert = if (parent == null) { null } else { !!(parent.leftChild, parent.rightChild) }
+                // NOTE - doesn't seem to remove solutions when restricting from
+                // !!(parent.leftChild, parent.rightChild)
+                to_insert = if (parent == null) { null } else { parent.leftChild }
                 recolorInsert = false
             }
         }

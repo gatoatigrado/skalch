@@ -48,18 +48,23 @@ class RedBlackTreeSketch(val num_ops : Int,
     val childrenPossibilitiesList = new ListBuffer[RBTreeNode]()
     def switchChildrenTuple(arr : RBTreeNode*) {
         switchChildrenPossibilities.clear()
-        for (node <- arr if (node != null)) {
+        var num_children = 0
+        for (node <- arr) {
+            assert(node != null)
             switchChildrenPossibilities += node
             if (node.leftChild != null) {
                 switchChildrenPossibilities += node.leftChild
+                num_children += 1
             }
             if (node.rightChild != null) {
                 switchChildrenPossibilities += node.rightChild
+                num_children += 1
             }
         }
         childrenPossibilitiesList.clear()
         childrenPossibilitiesList.insertAll(0, switchChildrenPossibilities)
         var num_remaining = childrenPossibilitiesList.length
+        var num_added = 0
 
         for (node <- childrenPossibilitiesList) {
             node.isBlack = !!()
@@ -69,16 +74,20 @@ class RedBlackTreeSketch(val num_ops : Int,
             if (!!() && (num_remaining > 0)) {
                 val node = childrenPossibilitiesList.remove(!!(num_remaining))
                 num_remaining -= 1
+                num_added += 1
                 node
             } else {
                 null
             }
         }
 
-        for (node <- arr if (node != null)) {
+        for (node <- arr) {
+            assert(node != null)
             node.leftChild = next_child()
             node.rightChild = next_child()
         }
+
+        synthAssertTerminal(num_added == num_children)
     }
 
 

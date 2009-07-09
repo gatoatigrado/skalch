@@ -8,7 +8,8 @@ import custom_compile
 
 pathsep = os.path.pathsep
 
-defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s -Xplugin:%(plugin_path)s -optimise".split(" "),
+# NOTE - unfortunately, -optimise doesn't terminate on RegexGen.
+defaultopts = { "fsc": "-classpath %(classpath)s -sourcepath %(src_path)s -Xplugin:%(plugin_path)s".split(" "),
     "javac": "-classpath %(classpath)s -sourcepath %(src_path)s -d %(out_path)s".split(" "),
     "javap": ("-classpath %(classpath)s" + os.path.pathsep +  "%(out_path)s").split(" ") }
 defaultopts["scalac"] = defaultopts["fsc"]
@@ -18,6 +19,7 @@ compilers = defaultopts.keys()
 
 os.environ["CLASSPATH"] = path_resolv.Path.pathjoin(
     os.environ["CLASSPATH"],
+    path_resolv.resolve("lib/gnu-regexp-1.1.4.jar"),
     path_resolv.resolve("lib/swing-layout-1.0.3.jar"))
 # reinit with updated classpath
 path_resolv.resolvers[0] = path_resolv.EnvironPathResolver()

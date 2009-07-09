@@ -66,7 +66,7 @@ class Compiler(object):
         if self.kwrite:
             subprocess.Popen(["kwrite", tf.name], stderr=subprocess.PIPE)
         elif self.vim:
-            subprocess.Popen(["vim", tf.name], stderr=subprocess.PIPE).wait()
+            subprocess.Popen(["vim", tf.name]).wait()
 
     def compile_(self, src_files, file_ext="scala"):
         assert all([src_file.exists() for src_file in src_files])

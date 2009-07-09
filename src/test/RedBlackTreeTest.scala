@@ -84,7 +84,9 @@ class RedBlackTreeSketch(val num_ops : Int,
         for (node <- arr) {
             assert(node != null)
             node.leftChild = next_child()
+            synthAssertTerminal(node.leftChild != node)
             node.rightChild = next_child()
+            synthAssertTerminal(node.rightChild != node)
         }
 
         synthAssertTerminal(num_added == num_children)
@@ -160,8 +162,12 @@ class RedBlackTreeSketch(val num_ops : Int,
             }
             parent
         } else {
+            skdprint("nodes before selection: " + to_insert + ", " + parent + ", " + grandparent)
             recursiveUpwardsStep(to_insert, parent, grandparent)
-            !!(grandparent, parent, to_insert)
+            val rv = !!(grandparent, parent, to_insert)
+            // rv.checkIsTree()
+            skdprint("node selected: " + rv)
+            rv
         }
     }
 
@@ -208,8 +214,8 @@ class RedBlackTreeSketch(val num_ops : Int,
     }
 
     val test_generator = new TestGenerator {
+        // todo - try with [ 39 98 59 14 99 88 89 ]
         def set() {
-            DebugOut.todo("more realistic tests")
             for (i <- 0 until num_ops) {
                 // at least for now, synthesize insert before remove, hopefully fix a few
                 // oracles so it can synthesize fast.

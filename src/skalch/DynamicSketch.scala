@@ -126,6 +126,10 @@ abstract class DynamicSketch extends ScDynamicSketch {
        // TODO - remove obsolete code.
        // def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
     }
+    class BooleanHole {
+        val hole = new Hole(2)
+        def apply() : Boolean = (hole.apply() == 1)
+    }
     class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
         override def apply() = {
             val v = super.apply()

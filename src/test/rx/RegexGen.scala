@@ -72,6 +72,26 @@ object RegexGen {
         }
     }
 
+    def get_random_input() : String = {
+        var random_input_string = ""
+        for (i <- 0 until 30) {
+            random_input_string += literals(mt.get().nextInt(literals.length))
+        }
+        random_input_string
+    }
+
+    def test_re(re : gnu.regexp.RE, input : String) : String = {
+        Console.flush()
+        val re_m = re.getMatch(input)
+        if (re_m == null || re_m.getStartIndex() != 0) { null } else { re_m.toString() }
+    }
+
+    def test_rx(regex : Regex, input : String) : String = {
+        Console.flush()
+        val rx_m = regex.findPrefixOf(input)
+        if (rx_m.isDefined) { rx_m.get } else { null }
+    }
+
     def generate_tests(pattern : String, ntests : Int) {
         println()
         println("pattern: " + pattern)
@@ -94,28 +114,20 @@ object RegexGen {
                 random_input_string += literals(mt.get().nextInt(literals.length))
             }
             println("input: " + random_input_string)
-            Console.flush()
-            /*
-            val re_m = re.getMatch(random_input_string)
-            val re_mstr = if (re_m == null || re_m.getStartIndex() != 0) { null } else { re_m.toString() }
-            println("re matching: " + re_mstr)
-            */
-            Console.flush()
-            try {
-                val rx_m = regex.findPrefixOf(random_input_string)
-                val rx_mstr = if (rx_m.isDefined) { rx_m.get } else { null }
-                println("rx matching: " + rx_mstr)
-            } catch {
-                case e => println(e)
-            }
+            println("re matching: " + test_re(re, random_input_string))
+            println("rx matching: " + test_rx(regex, random_input_string))
         }
     }
 
     def main(args : Array[String]) {
+        test_re(new gnu.regexp.RE("(((a|c|b)|(b|a|b)|(baba))*)"),
+            "bcccbccbbaaccacaaccaabbbcacaca")
+        /*
         for (i <- 0 until 100) {
             val re = generate_rx(4, false)
             generate_tests(re.getPattern(), 1)
         }
+        */
         // println("random regex")
         // println("pattern: " + re.getPattern())
     }

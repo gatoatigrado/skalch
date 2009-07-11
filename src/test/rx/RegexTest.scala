@@ -11,16 +11,18 @@ class RegexSketch(input_rx : String, input_length : Int, num_inputs : Int)
 {
     val in_result = new InputGenerator(untilv=input_length)
     val in_string = new InputGenerator(untilv=3)
-    class NFANode {
+    class NFANode(val idx : Int) {
         // each entry is a bit vector, with every bit representing
         // whether the edge is taken
-        val transitions = new HoleArray(3, 1 << 16)
-        var is_active = false
+        val transitions = new HoleArray(3, 1 << 2)
+        val state_mask = (1 << idx)
+        def is_active() : Boolean = (state & state_mask) > 0
         var is_final = new BooleanHole()
     }
-    val nodes = (for (i <- 0 until 16) yield new NFANode()).toArray
+    val nodes = (for (i <- 0 until 2) yield new NFANode(i)).toArray
+    var state = 0
 
-    def transition(previous : Int, input : Int) = {
+    def transition(input : Int) = {
         var next_state = 0
         for (node <- nodes if (node.is_active)) {
             next_state |= node.transitions(input)
@@ -35,19 +37,15 @@ class RegexSketch(input_rx : String, input_length : Int, num_inputs : Int)
         false
     }
 
-    def nfa_reset() {
-        for (node <- nodes) { node.is_active = false }
-        nodes(0).is_active = true
-    }
-
     def dysketch_main() : Boolean = {
         for (input_idx <- 0 until num_inputs) {
             skdprint_loc("new input")
-            nfa_reset()
-            var state = 0
+            state = 1
             var longest_match = if (any_final()) { 0 } else { -1 }
+            // skdprint("first is_final uid: " + nodes(0).is_final.hole.uid)
             for (characters_consumed <- 1 to input_length) {
-                state = transition(state, in_string())
+                skdprint("state: " + state)
+                state = transition(in_string())
                 if (any_final()) {
                     skdprint("final at index = " + characters_consumed)
                     longest_match = characters_consumed

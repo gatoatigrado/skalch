@@ -8,6 +8,7 @@ import java.util.Vector;
 import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScGaInputConf;
 import sketch.dyn.synth.ScDynamicUntilvException;

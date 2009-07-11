@@ -6,6 +6,9 @@ import static sketch.util.ScArrayUtil.deep_clone;
 import java.util.LinkedList;
 import java.util.Vector;
 
+import sketch.dyn.ga.base.ScGaIndividual;
+import sketch.dyn.ga.base.ScGenotype;
+import sketch.dyn.ga.base.ScPhenotypeMap;
 import sketch.util.DebugOut;
 import sketch.util.ScCloneable;
 import ec.util.MersenneTwisterFast;

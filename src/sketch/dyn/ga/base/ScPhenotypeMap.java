@@ -1,4 +1,4 @@
-package sketch.dyn.ga;
+package sketch.dyn.ga.base;
 
 import java.util.Vector;
 

@@ -1,7 +1,7 @@
 package sketch.dyn.ctrls;
 
 import sketch.dyn.ScConstructInfo;
-import sketch.dyn.ga.ScGaIndividual;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;

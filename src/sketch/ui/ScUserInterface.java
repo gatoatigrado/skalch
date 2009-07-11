@@ -1,7 +1,7 @@
 package sketch.ui;
 
-import sketch.dyn.ga.ScGaIndividual;
 import sketch.dyn.ga.ScGaSynthesis;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stack.ScLocalStackSynthesis;
 import sketch.dyn.stack.ScStack;

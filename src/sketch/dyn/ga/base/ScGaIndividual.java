@@ -1,4 +1,4 @@
-package sketch.dyn.ga;
+package sketch.dyn.ga.base;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
@@ -22,7 +22,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public int num_constructs_accessed;
     public int age;
     public int cost;
-    boolean done;
+    public boolean done;
 
     public ScGaIndividual(ScGenotype genotype, ScPhenotypeMap phenotype) {
         this.genotype = genotype;
@@ -82,7 +82,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
      * called when added to the queue of individuals to test
      * @return
      */
-    ScGaIndividual reset_fitness() {
+    public ScGaIndividual reset_fitness() {
         num_asserts_passed = 0;
         num_constructs_accessed = 0;
         age = 0;

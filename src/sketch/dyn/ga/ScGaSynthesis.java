@@ -2,6 +2,7 @@ package sketch.dyn.ga;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;

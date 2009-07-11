@@ -8,8 +8,8 @@ import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.ga.ScGaIndividual;
 import sketch.dyn.ga.ScGaSynthesis;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stack.ScLocalStackSynthesis;

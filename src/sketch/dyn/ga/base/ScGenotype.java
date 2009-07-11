@@ -1,4 +1,4 @@
-package sketch.dyn.ga;
+package sketch.dyn.ga.base;
 
 import static ec.util.ThreadLocalMT.mt;
 import static sketch.util.DebugOut.BASH_GREY;

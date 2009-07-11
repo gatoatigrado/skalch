@@ -1,4 +1,4 @@
-package sketch.dyn.ga;
+package sketch.dyn.ga.base;
 
 /**
  * meta-info about a phenotype entry; it's index is the same as the

@@ -1,5 +1,6 @@
 package sketch.dyn.ctrls;
 
+import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ga.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
@@ -16,9 +17,11 @@ public class ScGaCtrlConf extends ScCtrlConf {
     public ScGaIndividual base;
     public int[] default_untilv;
 
-    public ScGaCtrlConf(ScGaIndividual base, int[] default_untilv) {
-        this.base = base;
-        this.default_untilv = default_untilv;
+    public ScGaCtrlConf(ScClonedConstructInfo[] info) {
+        default_untilv = new int[info.length];
+        for (int a = 0; a < info.length; a++) {
+            default_untilv[info[a].uid()] = info[a].untilv();
+        }
     }
 
     @Override

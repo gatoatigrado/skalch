@@ -3,7 +3,7 @@ package sketch.dyn.inputs;
 import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
 import sketch.util.RichString;

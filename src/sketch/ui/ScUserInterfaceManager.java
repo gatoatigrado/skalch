@@ -2,7 +2,7 @@ package sketch.ui;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.synth.ScStackSynthesis;
+import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.gui.ScUiThread;
 
 /**
@@ -19,13 +19,13 @@ public class ScUserInterfaceManager {
      *            This should be removed sometime, using calls to
      *            ScUserInterface from appropriate solvers.
      */
-    public static ScUserInterface start_ui(ScStackSynthesis ssr,
+    public static ScUserInterface start_ui(ScSynthesis<?> synth_runtime,
             ScDynamicSketch sketch)
     {
         if (BackendOptions.ui_opts.bool_("no_gui")) {
             return new ScDebugConsoleUI(sketch);
         } else {
-            ScUiThread thread = new ScUiThread(ssr, sketch);
+            ScUiThread thread = new ScUiThread(synth_runtime, sketch);
             thread.start();
             return thread;
         }

@@ -13,21 +13,23 @@ import sketch.ui.ScUserInterface;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScGASynthesis extends ScSynthesis {
-    protected ScLocalGASynthesis[] local_synthesis;
+public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
     protected ScExhaustedWaitHandler wait_handler;
 
-    public ScGASynthesis(ScDynamicSketch[] sketches) {
-        local_synthesis = new ScLocalGASynthesis[sketches.length];
+    public ScGaSynthesis(ScDynamicSketch[] sketches) {
+        local_synthesis = new ScLocalGaSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
-            local_synthesis[a] = new ScLocalGASynthesis(sketches[a], this, a);
+            local_synthesis[a] = new ScLocalGaSynthesis(sketches[a], this, a);
         }
     }
 
     @Override
-    public boolean synthesize(ScSolvingInputConf[] counterexamples,
+    public void synthesize_inner(ScSolvingInputConf[] counterexamples,
             ScUserInterface ui)
     {
-        return false;
+        ui.addGaSynthesis(this);
+        for (ScLocalGaSynthesis local_synth : local_synthesis) {
+            local_synth.run(counterexamples);
+        }
     }
 }

@@ -8,17 +8,19 @@ import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
-import sketch.dyn.synth.ScStackSynthesis;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
+import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
 import sketch.ui.modifiers.ScActiveStack;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
+import sketch.util.DebugOut;
 import sketch.util.InteractiveThread;
 
 /**
@@ -30,7 +32,7 @@ import sketch.util.InteractiveThread;
  *          make changes, please consider contributing back!
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
-    public ScStackSynthesis ssr;
+    public ScSynthesis<?> synth_runtime;
     public ScDynamicSketch sketch;
     public ScUiGui gui;
     public ScFixedInputConf[] all_counterexamples;
@@ -41,9 +43,9 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
             new ConcurrentLinkedQueue<ScUiModifier>();
     public boolean auto_display_first_solution = true;
 
-    public ScUiThread(ScStackSynthesis ssr, ScDynamicSketch sketch) {
+    public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketch sketch) {
         super(0.1f);
-        this.ssr = ssr;
+        this.synth_runtime = synth_runtime;
         this.sketch = sketch;
         auto_display_first_solution =
                 !BackendOptions.ui_opts.bool_("no_auto_soln_disp");
@@ -155,5 +157,9 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         public void apply() {
             runnable.run();
         }
+    }
+
+    public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis) {
+        DebugOut.todo("add ga synthesis");
     }
 }

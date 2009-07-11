@@ -4,8 +4,8 @@ import java.util.Vector;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.stack.ScStack;
 import sketch.dyn.synth.ScDynamicUntilvException;
-import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.util.DebugOut;
 

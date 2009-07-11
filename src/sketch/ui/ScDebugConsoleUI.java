@@ -4,10 +4,11 @@ import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.debug.ScDebugEntry;
 import sketch.dyn.debug.ScDebugSketchRun;
+import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
@@ -61,5 +62,9 @@ public class ScDebugConsoleUI implements ScUserInterface {
                     "[user requested print]", "\n", true, text);
         }
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
+    }
+
+    public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis) {
+        DebugOut.todo("add ga synthesis for debug");
     }
 }

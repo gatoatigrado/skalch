@@ -1,8 +1,8 @@
 package sketch.ui.modifiers;
 
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
 import sketch.dyn.stats.ScStats;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
 import sketch.util.DebugOut;
 
 public abstract class ScUiModifierInner {

@@ -1,6 +1,6 @@
 package sketch.ui.modifiers;
 
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.gui.ScUiThread;

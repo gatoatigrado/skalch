@@ -9,9 +9,11 @@ import nu.xom.Document;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
+import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.stack.ScStackSynthesis;
 import sketch.dyn.stats.ScStats;
-import sketch.dyn.synth.ScStackSynthesis;
+import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -30,7 +32,7 @@ public class ScSynthesisMain {
     protected int nthreads;
     protected ScDynamicSketch[] sketches;
     protected ScDynamicSketch ui_sketch;
-    protected ScStackSynthesis ssr;
+    protected ScSynthesis<?> synthesis_runtime;
 
     /**
      * Where everything begins.
@@ -53,7 +55,11 @@ public class ScSynthesisMain {
         }
         ui_sketch = f.apply();
         load_ui_sketch_info();
-        ssr = new ScStackSynthesis(sketches);
+        if (BackendOptions.synth_opts.bool_("use_ga")) {
+            synthesis_runtime = new ScGaSynthesis(sketches);
+        } else {
+            synthesis_runtime = new ScStackSynthesis(sketches);
+        }
     }
 
     private void load_ui_sketch_info() {
@@ -94,11 +100,12 @@ public class ScSynthesisMain {
     public void synthesize() {
         ScSolvingInputConf[] inputs = generate_inputs(ui_sketch);
         // start various utilities
-        ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr, ui_sketch);
+        ScUserInterface ui =
+                ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
         ui.set_counterexamples(inputs);
         ScStats.stats.start_synthesis();
         // actual synthesize call
-        ssr.synthesize(inputs, ui);
+        synthesis_runtime.synthesize_inner(inputs, ui);
         // stop utilities
         ScStats.stats.stop_synthesis();
     }

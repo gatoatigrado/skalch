@@ -2,11 +2,11 @@ package sketch.ui.modifiers;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import sketch.dyn.ga.ScLocalGASynthesis;
-import sketch.dyn.ga.ScLocalGASynthesis.SynthesisThread;
+import sketch.dyn.ga.ScLocalGaSynthesis;
+import sketch.dyn.ga.ScLocalGaSynthesis.SynthesisThread;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
 import sketch.dyn.stats.ScStats;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
@@ -66,7 +66,7 @@ public final class ScUiModifier {
         setInfoComplete();
     }
 
-    public void setInfo(ScLocalGASynthesis gaSynthesis, SynthesisThread thread,
+    public void setInfo(ScLocalGaSynthesis gaSynthesis, SynthesisThread thread,
             Object nothing)
     {
         DebugOut.not_implemented("setInfo for ga synth");

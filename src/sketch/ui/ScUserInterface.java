@@ -1,8 +1,9 @@
 package sketch.ui;
 
+import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.modifiers.ScUiModifier;
 
 /**
@@ -22,4 +23,6 @@ public interface ScUserInterface {
     public void addStackSolution(ScStack stack, int solution_cost);
 
     public void set_counterexamples(ScSolvingInputConf[] inputs);
+
+    public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis);
 }

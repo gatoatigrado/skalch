@@ -19,7 +19,7 @@ import sketch.dyn.BackendOptions;
 import sketch.dyn.debug.ScDebugEntry;
 import sketch.dyn.debug.ScDebugSketchRun;
 import sketch.dyn.inputs.ScFixedInputConf;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
@@ -115,7 +115,7 @@ public class ScUiGui extends gui_0_1 {
 
     @Override
     protected void stopSolver() {
-        ui_thread.ssr.wait_handler.set_synthesis_complete();
+        ui_thread.synth_runtime.wait_handler.set_synthesis_complete();
     }
 
     /** this all happens on the UI thread, but it shouldn't be that slow */

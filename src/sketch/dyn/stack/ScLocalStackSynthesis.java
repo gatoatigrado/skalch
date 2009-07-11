@@ -1,19 +1,16 @@
-package sketch.dyn.synth;
+package sketch.dyn.stack;
 
-import java.util.NoSuchElementException;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScFixedInputConf;
-import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.stats.ScStats;
-import sketch.ui.ScUiQueueable;
+import sketch.dyn.synth.ScDynamicUntilvException;
+import sketch.dyn.synth.ScLocalSynthesis;
+import sketch.dyn.synth.ScSearchDoneException;
+import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
-import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
-import ec.util.ThreadLocalMT;
 
 /**
  * Container for a synthesis thread. The actual thread is an inner class because
@@ -24,63 +21,30 @@ import ec.util.ThreadLocalMT;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScLocalStackSynthesis implements ScUiQueueable {
-    protected ScDynamicSketch sketch;
+public class ScLocalStackSynthesis extends ScLocalSynthesis {
     protected ScStackSynthesis ssr;
-    protected ScFixedInputConf[] counterexamples;
-    public int uid;
     public SynthesisThread thread;
-    public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
-    public AsyncMTEvent done_events = new AsyncMTEvent();
     public ScStack longest_stack;
     public Vector<ScStack> random_stacks;
-    public static ThreadLocalMT rand = new ThreadLocalMT();
 
     public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr,
             int uid)
     {
-        this.sketch = sketch;
+        super(sketch, uid);
         this.ssr = ssr;
-        this.uid = uid;
     }
 
-    public void run(ScSolvingInputConf[] inputs) {
-        // need to clone these as the ScFixedInputGenerators have sketch-local
-        // indices
-        counterexamples = ScFixedInputConf.from_inputs(inputs);
-        ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
+    @Override
+    public void run_inner() {
         random_stacks = new Vector<ScStack>();
-        done_events.reset();
-        // really basic stuff for now
-        if (thread != null && thread.isAlive()) {
-            DebugOut.assertFalse("localsynthesis thead alive");
-        }
         thread = new SynthesisThread();
         thread.start();
     }
 
-    public void thread_wait() {
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            DebugOut.assertFalse("interrupted waiting for ScLocalSynthesis");
-        }
-    }
-
-    public final static int NUM_BLIND_FAST = 8192;
-
-    public class SynthesisThread extends Thread {
+    public class SynthesisThread extends AbstractSynthesisThread {
         ScStack stack;
         boolean exhausted = false;
         public float replacement_probability = 1.f;
-        protected int nruns = 0, ncounterexamples = 0;
-
-        private void update_stats() {
-            ScStats.stats.run_test(nruns);
-            ScStats.stats.try_counterexample(ncounterexamples);
-            nruns = 0;
-            ncounterexamples = 0;
-        }
 
         /**
          * NOTE - keep this in sync with ScDebugSketchRun
@@ -117,7 +81,7 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                     {
                         longest_stack = stack.clone();
                     }
-                    if (rand.get().nextFloat() < replacement_probability) {
+                    if (mt_local.nextFloat() < replacement_probability) {
                         add_random_stack();
                     }
                     stack.next(force_pop);
@@ -135,13 +99,14 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
             if (random_stacks.size() > ssr.max_num_random) {
                 int length1 = random_stacks.size() / 2;
                 for (int c = 0; c < length1; c++) {
-                    random_stacks.remove(rand.get().nextInt(
-                            random_stacks.size()));
+                    random_stacks
+                            .remove(mt_local.nextInt(random_stacks.size()));
                 }
                 replacement_probability /= 2.f;
             }
         }
 
+        @Override
         public void run_inner() {
             stack = ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
@@ -171,26 +136,13 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
             }
         }
 
-        /** doc in images/scala/synth_loop/ */
         @Override
-        public void run() {
-            try {
-                run_inner();
-            } catch (ScSynthesisCompleteException e) {
-            }
-            try {
-                while (true) {
-                    ui_queue.remove().setInfo(ScLocalStackSynthesis.this, this,
-                            stack);
-                }
-            } catch (NoSuchElementException e) {
-                update_stats();
-                ui_queue = null;
-                done_events.set_done();
-            }
+        public void process_ui_queue(ScUiModifier ui_modifier) {
+            ui_modifier.setInfo(ScLocalStackSynthesis.this, this, stack);
         }
     }
 
+    @Override
     public void queueModifier(ScUiModifier m) throws ScUiQueueableInactive {
         if (ui_queue == null) {
             throw new ScUiQueueableInactive();

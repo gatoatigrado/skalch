@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ga.ScGaIndividual;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
@@ -161,5 +162,9 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis) {
         DebugOut.todo("add ga synthesis");
+    }
+
+    public void addGaSolution(ScGaIndividual individual) {
+        DebugOut.todo("solution ga synthesis individual", individual);
     }
 }

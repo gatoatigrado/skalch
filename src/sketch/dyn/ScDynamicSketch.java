@@ -47,7 +47,7 @@ public abstract class ScDynamicSketch {
 
     public abstract ScConstructInfo[] get_input_info();
 
-    public abstract ScConstructInfo[] get_oracle_input_list();
+    public abstract ScConstructInfo[] get_oracle_info();
 
     public abstract boolean dysketch_main();
 

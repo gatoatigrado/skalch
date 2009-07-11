@@ -27,6 +27,20 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
         entries = new Vector<ScPhenotypeEntry>(2 * spine_length);
     }
 
+    @Override
+    public String toString() {
+        return "ScPhenotypeMap [entries=" + entries + ", spine_length="
+                + spine_length + "]";
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public ScPhenotypeMap clone() {
+        ScPhenotypeMap next = new ScPhenotypeMap(spine_length);
+        next.entries = (Vector<ScPhenotypeEntry>) entries.clone();
+        return next;
+    }
+
     public int get_index(boolean type, int uid, int subuid) {
         int idx = get_hash(type, uid, subuid);
         while (true) {
@@ -45,14 +59,6 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
             idx = entry.next;
         }
         return idx;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public ScPhenotypeMap clone() {
-        ScPhenotypeMap next = new ScPhenotypeMap(spine_length);
-        next.entries = (Vector<ScPhenotypeEntry>) entries.clone();
-        return next;
     }
 
     public int get_hash(boolean type, int uid, int subuid) {

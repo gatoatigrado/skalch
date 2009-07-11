@@ -41,8 +41,8 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         return wait_handler.synthesis_complete.get();
     }
 
-    public abstract void synthesize_inner(ScSolvingInputConf[] counterexamples,
-            ScUserInterface ui);
+    protected abstract void synthesize_inner(
+            ScSolvingInputConf[] counterexamples, ScUserInterface ui);
 
     protected final void increment_num_solutions() {
         nsolutions_found += 1;

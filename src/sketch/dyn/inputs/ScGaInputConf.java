@@ -4,12 +4,20 @@ import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Vector;
 
+import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ga.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.ScCloneable;
 
+/**
+ * proxy class which will call into a ScGaIndividual
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class ScGaInputConf extends ScInputConf implements
         ScCloneable<ScGaInputConf>
 {
@@ -17,8 +25,16 @@ public class ScGaInputConf extends ScInputConf implements
     public int[] next;
     public int[] default_untilv;
 
-    public ScGaInputConf(int[] default_untilv) {
-        next = new int[default_untilv.length];
+    public ScGaInputConf(ScConstructInfo[] oracle_info) {
+        next = new int[oracle_info.length];
+        default_untilv = new int[oracle_info.length];
+        for (int a = 0; a < oracle_info.length; a++) {
+            default_untilv[oracle_info[a].uid()] = oracle_info[a].untilv();
+        }
+    }
+
+    protected ScGaInputConf(int[] next, int[] default_untilv) {
+        this.next = next;
         this.default_untilv = default_untilv;
     }
 
@@ -59,9 +75,7 @@ public class ScGaInputConf extends ScInputConf implements
 
     @Override
     public ScGaInputConf clone() {
-        ScGaInputConf result = new ScGaInputConf(default_untilv);
-        result.next = next.clone();
-        return result;
+        return new ScGaInputConf(next.clone(), default_untilv.clone());
     }
 
     public void reset_accessed() {

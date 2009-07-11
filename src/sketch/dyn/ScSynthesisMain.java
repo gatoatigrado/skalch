@@ -105,7 +105,7 @@ public class ScSynthesisMain {
         ui.set_counterexamples(inputs);
         ScStats.stats.start_synthesis();
         // actual synthesize call
-        synthesis_runtime.synthesize_inner(inputs, ui);
+        synthesis_runtime.synthesize(inputs, ui);
         // stop utilities
         ScStats.stats.stop_synthesis();
     }

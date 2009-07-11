@@ -11,7 +11,7 @@ import sketch.util.CliOptGroup;
  */
 public class ScSynthesisOptions extends CliOptGroup {
     public ScSynthesisOptions() {
-        prefixes("sy", "synth", "synthesis");
+        super("sy", "synthesis options");
         add("--use_ga", "use the genetic algorithm instead of stack synthesis");
         add("--num_solutions", -1, "number of solutions to find");
         add("--num_threads", Runtime.getRuntime().availableProcessors(),

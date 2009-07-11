@@ -27,14 +27,12 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         this.phenotype = phenotype;
     }
 
-    public void set_for_synthesis(ScDynamicSketch sketch,
-            ScGaCtrlConf ctrl_conf, ScGaInputConf oracle_conf)
-    {
-        ctrl_conf.base = this;
-        oracle_conf.base = this;
-        oracle_conf.reset_accessed();
-        sketch.ctrl_conf = ctrl_conf;
-        sketch.oracle_conf = oracle_conf;
+    @Override
+    public String toString() {
+        return "ScGaIndividual [age=" + age + ", genotype=" + genotype
+                + ", num_asserts_passed=" + num_asserts_passed
+                + ", num_constructs_accessed=" + num_constructs_accessed
+                + ", phenotype=" + phenotype + "]";
     }
 
     @Override
@@ -44,6 +42,16 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         result.num_constructs_accessed = num_constructs_accessed;
         result.age = age;
         return result;
+    }
+
+    public void set_for_synthesis(ScDynamicSketch sketch,
+            ScGaCtrlConf ctrl_conf, ScGaInputConf oracle_conf)
+    {
+        ctrl_conf.base = this;
+        oracle_conf.base = this;
+        oracle_conf.reset_accessed();
+        sketch.ctrl_conf = ctrl_conf;
+        sketch.oracle_conf = oracle_conf;
     }
 
     /**

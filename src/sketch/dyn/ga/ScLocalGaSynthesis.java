@@ -1,10 +1,15 @@
 package sketch.dyn.ga;
 
+import java.util.Vector;
+
 import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
+import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScGaInputConf;
+import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScLocalSynthesis;
+import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
@@ -19,12 +24,13 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
     }
 
     @Override
-    public void run_inner() {
+    protected void run_inner() {
+        DebugOut.assertSlow(gasynth.wait_handler != null, "wait_null");
         thread = new SynthesisThread();
         thread.start();
     }
 
-    public final static int NUM_BLIND_FAST = 8192;
+    public static final int SPINE_LENGTH = 128;
 
     public class SynthesisThread extends AbstractSynthesisThread {
         protected boolean exhausted;
@@ -32,22 +38,60 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         protected ScGaIndividual current_individual;
         protected ScGaCtrlConf ctrl_conf;
         protected ScGaInputConf oracle_conf;
+        protected ScGaInputConf input_conf;
+        protected Vector<ScPopulation> local_populations;
 
-        private boolean blind_fast_routine() {
-            for (int a = 0; a < NUM_BLIND_FAST; a++) {
-                DebugOut.not_implemented("blind_fast_routine() for ga");
+        protected void evaluate() {
+            current_individual
+                    .set_for_synthesis(sketch, ctrl_conf, oracle_conf);
+            sketch.solution_cost = 0;
+            nruns++;
+            trycatch: try {
+                for (ScFixedInputConf counterexample : counterexamples) {
+                    ncounterexamples++;
+                    counterexample.set_input_for_sketch(sketch);
+                    if (!sketch.dysketch_main()) {
+                        break trycatch;
+                    }
+                }
+                gasynth.add_solution(current_individual);
+            } catch (ScSynthesisAssertFailure e) {
+            } catch (ScDynamicUntilvException e) {
+                DebugOut.assertFalse("ga shouldn't get any "
+                        + "dynamic untilv exceptions.");
             }
-            return false;
+        }
+
+        private void blind_fast_routine() {
+            for (ScPopulation population : local_populations) {
+                while (!population.test_queue.isEmpty()) {
+                    current_individual = population.test_queue.remove();
+                    evaluate();
+                }
+            }
+        }
+
+        protected void iterate_populations() {
+            for (ScPopulation population : local_populations) {
+                population.generate_new_phase();
+                population.death_phase();
+            }
         }
 
         @Override
-        public void run_inner() {
+        protected void run_inner() {
             ScClonedConstructInfo[] info =
                     ScClonedConstructInfo.clone_array(sketch.get_hole_info());
+            ScClonedConstructInfo[] oracle_info =
+                    ScClonedConstructInfo.clone_array(sketch.get_oracle_info());
+            local_populations = new Vector<ScPopulation>();
+            local_populations.add(new ScPopulation(SPINE_LENGTH));
             ctrl_conf = new ScGaCtrlConf(info);
+            input_conf = new ScGaInputConf(oracle_info);
             for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=
-                    NUM_BLIND_FAST)
+                    nruns)
             {
+                update_stats();
                 if (gasynth.debug_stop_after != -1
                         && a >= gasynth.debug_stop_after)
                 {
@@ -55,22 +99,17 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                 }
                 //
                 // NOTE to readers: main call
-                exhausted = blind_fast_routine();
-                update_stats();
+                blind_fast_routine();
+                iterate_populations();
                 gasynth.wait_handler.throw_if_synthesis_complete();
                 if (!ui_queue.isEmpty()) {
-                    ui_queue.remove().setInfo(ScLocalGaSynthesis.this, this,
-                            null);
-                }
-                if (exhausted) {
-                    gasynth.wait_handler.wait_exhausted();
-                    gasynth.wait_handler.throw_if_synthesis_complete();
+                    process_ui_queue(ui_queue.remove());
                 }
             }
         }
 
         @Override
-        public void process_ui_queue(ScUiModifier ui_modifier) {
+        protected void process_ui_queue(ScUiModifier ui_modifier) {
             ui_modifier.setInfo(ScLocalGaSynthesis.this, this,
                     current_individual);
         }

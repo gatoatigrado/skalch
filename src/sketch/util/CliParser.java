@@ -6,6 +6,13 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
+/**
+ * parse command line with a number of option groups.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class CliParser extends org.apache.commons.cli.PosixParser {
     public LinkedList<CliOptGroup> opt_groups = new LinkedList<CliOptGroup>();
     public CommandLine cmd_line;
@@ -16,7 +23,7 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
         this.args = args;
     }
 
-    public void parse() {
+    protected void parse() {
         if (cmd_line != null) {
             return;
         }
@@ -24,13 +31,12 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
         Options options = new Options();
         options.addOption("h", "help", false, "display help");
         for (CliOptGroup group : opt_groups) {
-            String prefix = (group.prefixes == null) ? "" : group.prefixes[0];
             for (CliOptGroup.CmdOption cmd_opt : group.opt_set.values()) {
-                options.addOption(cmd_opt.as_option(prefix));
+                options.addOption(cmd_opt.as_option(group.prefix));
             }
         }
         try {
-            cmd_line = super.parse(options, this.args, true);
+            cmd_line = super.parse(options, args, true);
             boolean print_help = cmd_line.hasOption("help");
             for (String arg : cmd_line.getArgs()) {
                 if (arg.equals("--")) {
@@ -42,7 +48,14 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
             }
             if (print_help) {
                 HelpFormatter hf = new HelpFormatter();
-                hf.printHelp("[options]", options);
+                StringBuilder description = new StringBuilder();
+                description.append("\n");
+                for (CliOptGroup group : opt_groups) {
+                    description.append(group.prefix + " - " + group.description
+                            + "\n");
+                }
+                description.append(" \n");
+                hf.printHelp("[options]", description.toString(), options, "");
                 System.exit(1); // @code standards ignore
             }
         } catch (org.apache.commons.cli.ParseException e) {

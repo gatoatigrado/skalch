@@ -2,7 +2,6 @@ package sketch.dyn.ga;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.synth.ScExhaustedWaitHandler;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
 
@@ -14,7 +13,7 @@ import sketch.ui.ScUserInterface;
  *          make changes, please consider contributing back!
  */
 public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
-    protected ScExhaustedWaitHandler wait_handler;
+    public int spine_length;
 
     public ScGaSynthesis(ScDynamicSketch[] sketches) {
         local_synthesis = new ScLocalGaSynthesis[sketches.length];
@@ -31,5 +30,10 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
         for (ScLocalGaSynthesis local_synth : local_synthesis) {
             local_synth.run(counterexamples);
         }
+    }
+
+    public void add_solution(ScGaIndividual current_individual) {
+        ui.addGaSolution(current_individual);
+        increment_num_solutions();
     }
 }

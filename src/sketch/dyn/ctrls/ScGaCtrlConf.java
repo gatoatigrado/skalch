@@ -1,13 +1,13 @@
 package sketch.dyn.ctrls;
 
-import sketch.dyn.ScClonedConstructInfo;
+import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ga.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
 
 /**
- * proxy object which will call into a ScGaIndividual
+ * proxy class which will call into a ScGaIndividual
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -17,7 +17,7 @@ public class ScGaCtrlConf extends ScCtrlConf {
     public ScGaIndividual base;
     public int[] default_untilv;
 
-    public ScGaCtrlConf(ScClonedConstructInfo[] info) {
+    public ScGaCtrlConf(ScConstructInfo[] info) {
         default_untilv = new int[info.length];
         for (int a = 0; a < info.length; a++) {
             default_untilv[info[a].uid()] = info[a].untilv();

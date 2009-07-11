@@ -30,7 +30,7 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
         this.uid = uid;
     }
 
-    public abstract void run_inner();
+    protected abstract void run_inner();
 
     public final void run(ScSolvingInputConf[] inputs) {
         counterexamples = ScFixedInputConf.from_inputs(inputs);
@@ -71,9 +71,9 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
             ncounterexamples = 0;
         }
 
-        public abstract void run_inner();
+        protected abstract void run_inner();
 
-        public abstract void process_ui_queue(ScUiModifier ui_modifier);
+        protected abstract void process_ui_queue(ScUiModifier ui_modifier);
 
         @Override
         public final void run() {

@@ -33,10 +33,22 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
                 max_population_sz);
     }
 
-    /** initialize an empty population */
+    /** initialize a population with a single individual */
     public ScPopulation(int spine_length) {
         phenotype = new ScPhenotypeMap(spine_length);
         add(new ScGaIndividual(new ScGenotype(), phenotype));
+    }
+
+    @Override
+    public ScPopulation clone() {
+        Vector<ScGaIndividual> next =
+                new Vector<ScGaIndividual>(done_queue.size());
+        for (ScGaIndividual elt : done_queue) {
+            next.add(elt.clone());
+        }
+        ScPopulation rv = new ScPopulation(phenotype.clone());
+        rv.done_queue = next;
+        return rv;
     }
 
     public void add(ScGaIndividual individual) {
@@ -113,17 +125,5 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
             }
         }
         return selected;
-    }
-
-    @Override
-    public ScPopulation clone() {
-        Vector<ScGaIndividual> next =
-                new Vector<ScGaIndividual>(done_queue.size());
-        for (ScGaIndividual elt : done_queue) {
-            next.add(elt.clone());
-        }
-        ScPopulation rv = new ScPopulation(phenotype.clone());
-        rv.done_queue = next;
-        return rv;
     }
 }

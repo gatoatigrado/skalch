@@ -224,7 +224,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
     def get_hole_info() = __hole_list.get_and_freeze()
     def get_input_info() = __input_list.get_and_freeze()
-    def get_oracle_input_list() = __oracle_list.get_and_freeze()
+    def get_oracle_info() = __oracle_list.get_and_freeze()
 }
 
 object synthesize {

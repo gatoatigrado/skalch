@@ -11,7 +11,7 @@ import sketch.util.CliOptGroup;
  */
 public class ScStatOptions extends CliOptGroup {
     public ScStatOptions() {
-        prefixes("stat", "statistics");
+        super("stat", "statistics options");
         add("--disable", "disable statistics");
         add("--no_mt_safe",
                 "use sequential (non-threadsafe) stats classes (may be faster)");

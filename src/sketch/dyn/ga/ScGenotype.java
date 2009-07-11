@@ -2,6 +2,9 @@ package sketch.dyn.ga;
 
 import static ec.util.ThreadLocalMT.mt;
 import static sketch.util.ScArrayUtil.extend_arr;
+
+import java.util.Arrays;
+
 import sketch.util.DebugOut;
 import sketch.util.ScCloneable;
 import ec.util.MersenneTwisterFast;
@@ -29,6 +32,12 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
             data[idx] = result;
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ScGenotype [active_data=" + Arrays.toString(active_data)
+                + ", data=" + Arrays.toString(data) + "]";
     }
 
     /** does not clone; changes this object's values */

@@ -16,10 +16,18 @@ import org.apache.commons.cli.Option;
 public abstract class CliOptGroup {
     protected HashMap<String, CmdOption> opt_set =
             new HashMap<String, CmdOption>();
-    protected String[] prefixes;
+    protected String prefix;
+    protected String description;
 
-    public void prefixes(String... prefixes) {
-        this.prefixes = prefixes;
+    public CliOptGroup(String prefix, String description) {
+        this.prefix = prefix;
+        this.description = description;
+    }
+
+    public CliOptGroup() {
+        prefix = "";
+        description =
+                "[default prefix] options to " + this.getClass().getName();
     }
 
     public OptionResult parse(CliParser p) {

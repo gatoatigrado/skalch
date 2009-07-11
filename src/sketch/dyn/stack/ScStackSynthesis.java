@@ -35,7 +35,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         ScDefaultPrefix prefix = new ScDefaultPrefix();
         ScStack stack =
                 new ScStack(sketches[0].get_hole_info(), sketches[0]
-                        .get_oracle_input_list(), prefix);
+                        .get_oracle_info(), prefix);
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
     }

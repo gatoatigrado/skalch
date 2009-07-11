@@ -11,7 +11,7 @@ public class ScUiOptions extends sketch.util.CliOptGroup {
     Boolean dis;
 
     public ScUiOptions() {
-        prefixes("ui");
+        super("ui", "user interface options");
         add("--no_gui", "disable the GUI (not recommended)");
         add("--no_auto_soln_disp",
                 "don't automatically display the first solution");

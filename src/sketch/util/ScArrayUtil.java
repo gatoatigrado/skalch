@@ -28,17 +28,36 @@ public class ScArrayUtil {
         return next;
     }
 
+    /**
+     * @param clone
+     *            <ul>
+     *            <li>2 to deep clone (clone all elements within all vectors).
+     *            Elements must extend ScCloneable.</li>
+     *            <li>1 to clone vectors themselves</li>
+     *            <li>0 to copy vector references</li>
+     *            </ul>
+     * @param empty_not_null_sz
+     *            -1 to create null elements, $n$ to create empty vectors with
+     *            $n$ capacity.
+     */
     @SuppressWarnings("unchecked")
-    public static Vector<?>[] extend_arr(Vector<?>[] arr, int sz,
-            boolean emptyNotNull)
+    public static <T> Vector<T>[] extend_arr(Vector<T>[] arr, int sz,
+            int empty_not_null_sz, int clone)
     {
-        Vector<?>[] next = new Vector[sz];
+        Vector<T>[] next = new Vector[sz];
         for (int i = 0; i < arr.length; i++) {
-            next[i] = (Vector<?>) arr[i].clone();
+            if (clone == 2) {
+                next[i] =
+                        (Vector<T>) deep_clone((Vector<ScCloneable<?>>) arr[i]);
+            } else if (clone == 1) {
+                next[i] = (Vector<T>) arr[i].clone();
+            } else {
+                next[i] = arr[i];
+            }
         }
-        if (emptyNotNull) {
+        if (empty_not_null_sz >= 0) {
             for (int a = arr.length; a < sz; a++) {
-                next[a] = new Vector();
+                next[a] = new Vector(empty_not_null_sz);
             }
         }
         return next;
@@ -70,5 +89,14 @@ public class ScArrayUtil {
             next[a] = defaultv;
         }
         return next;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ScCloneable> Vector<T> deep_clone(Vector<T> arr) {
+        Vector result = new Vector(arr.size());
+        for (ScCloneable elt : arr) {
+            result.add(elt.clone());
+        }
+        return result;
     }
 }

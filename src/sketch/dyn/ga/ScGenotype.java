@@ -1,11 +1,12 @@
 package sketch.dyn.ga;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.util.DebugOut.BASH_GREY;
+import static sketch.util.DebugOut.print_colored;
 import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Arrays;
 
-import sketch.util.DebugOut;
 import sketch.util.ScCloneable;
 import ec.util.MersenneTwisterFast;
 
@@ -21,8 +22,20 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
     public int[] data = new int[0];
     public boolean[] active_data = new boolean[0];
 
+    @Override
+    public String toString() {
+        return "ScGenotype [active_data=" + Arrays.toString(active_data)
+                + ", data=" + Arrays.toString(data) + "]";
+    }
+
+    public void reset_accessed() {
+        for (int a = 0; a < active_data.length; a++) {
+            active_data[a] = false;
+        }
+    }
+
     public int getValue(int idx, int untilv) {
-        if (idx > data.length) {
+        if (idx >= data.length) {
             realloc(2 * idx + 1);
         }
         int result = data[idx];
@@ -34,24 +47,19 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         return result;
     }
 
-    @Override
-    public String toString() {
-        return "ScGenotype [active_data=" + Arrays.toString(active_data)
-                + ", data=" + Arrays.toString(data) + "]";
-    }
-
     /** does not clone; changes this object's values */
     public void mutate() {
+        print_colored(BASH_GREY, "[ga]", " ", false, "mutate");
         MersenneTwisterFast local_mt = mt();
         for (int a = 0; a < 16; a++) {
             int idx = local_mt.nextInt(data.length);
-            data[idx] = local_mt.nextInt();
+            data[idx] = Math.abs(local_mt.nextInt());
             if (active_data[idx]) {
                 return;
             }
         }
-        DebugOut.print_mt("didn't mutate anything; "
-                + "consider searching for longer.");
+        // DebugOut.print_mt("didn't mutate anything; "
+        // + "consider searching for longer.");
     }
 
     @Override
@@ -69,16 +77,55 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         active_data = extend_arr(active_data, length);
         MersenneTwisterFast mt_local = mt();
         for (int a = prev_length; a < length; a++) {
-            data[a] = mt_local.nextInt();
+            data[a] = Math.abs(mt_local.nextInt());
         }
     }
 
-    public void crossover(ScGenotype other) {
+    private int mutate_different(int change_idx, ScGenotype other,
+            MersenneTwisterFast mt_local)
+    {
+        for (; change_idx < other.data.length; change_idx += 1) {
+            if (active_data[change_idx]
+                    && (data[change_idx] != other.data[change_idx]))
+            {
+                print_colored(BASH_GREY, "[ga]", " ", false, "mutate index",
+                        change_idx);
+                data[change_idx] = Math.abs(mt_local.nextInt());
+                return change_idx + 1;
+            }
+        }
+        return -1;
+    }
+
+    public void crossover(ScGenotype other, float prob_mutate_different) {
         if (other.data.length > data.length) {
             realloc(other.data.length);
         }
-        int randidx = mt().nextInt(other.data.length);
-        System.arraycopy(other.data, randidx, data, randidx, other.data.length
-                - randidx);
+        MersenneTwisterFast mt_local = mt();
+        if (mt_local.nextFloat() < prob_mutate_different) {
+            print_colored(BASH_GREY, "[ga]", " ", false, "crossover mutate");
+            int change_idx = 0;
+            while (change_idx != -1) {
+                // find next differing, and set to a random value
+                change_idx = mutate_different(change_idx, other, mt_local);
+                if (mt_local.nextFloat() >= prob_mutate_different) {
+                    return;
+                }
+            }
+        } else {
+            print_colored(BASH_GREY, "[ga]", " ", false, "one-point crossover");
+            int randidx = mt_local.nextInt(other.data.length);
+            System.arraycopy(other.data, randidx, data, randidx,
+                    other.data.length - randidx);
+        }
+    }
+
+    public String formatIndex(int idx) {
+        if (idx >= data.length) {
+            return "(out of bounds)";
+        } else {
+            return data[idx] + ", "
+                    + (active_data[idx] ? "active" : "inactive");
+        }
     }
 }

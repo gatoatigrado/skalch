@@ -55,7 +55,7 @@ public class ScSynthesisMain {
         }
         ui_sketch = f.apply();
         load_ui_sketch_info();
-        if (BackendOptions.synth_opts.bool_("use_ga")) {
+        if (BackendOptions.ga_opts.bool_("enable")) {
             synthesis_runtime = new ScGaSynthesis(sketches);
         } else {
             synthesis_runtime = new ScStackSynthesis(sketches);

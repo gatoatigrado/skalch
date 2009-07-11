@@ -21,6 +21,8 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public int num_asserts_passed;
     public int num_constructs_accessed;
     public int age;
+    public int cost;
+    boolean done;
 
     public ScGaIndividual(ScGenotype genotype, ScPhenotypeMap phenotype) {
         this.genotype = genotype;
@@ -29,49 +31,79 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
 
     @Override
     public String toString() {
-        return "ScGaIndividual [age=" + age + ", genotype=" + genotype
-                + ", num_asserts_passed=" + num_asserts_passed
+        return "ScGaIndividual [" + System.identityHashCode(this) + ", age="
+                + age + ", num_asserts_passed=" + num_asserts_passed
                 + ", num_constructs_accessed=" + num_constructs_accessed
-                + ", phenotype=" + phenotype + "]";
+                + ", genotype=" + genotype + ", values=<<<\n"
+                + phenotype.formatValuesString(genotype) + ">>>]";
     }
 
     @Override
     public ScGaIndividual clone() {
-        ScGaIndividual result = new ScGaIndividual(genotype, phenotype);
+        ScGaIndividual result = new ScGaIndividual(genotype.clone(), phenotype);
         result.num_asserts_passed = num_asserts_passed;
         result.num_constructs_accessed = num_constructs_accessed;
         result.age = age;
         return result;
     }
 
-    public void set_for_synthesis(ScDynamicSketch sketch,
+    public void set_for_synthesis_and_reset(ScDynamicSketch sketch,
             ScGaCtrlConf ctrl_conf, ScGaInputConf oracle_conf)
     {
         ctrl_conf.base = this;
         oracle_conf.base = this;
         oracle_conf.reset_accessed();
+        genotype.reset_accessed();
         sketch.ctrl_conf = ctrl_conf;
         sketch.oracle_conf = oracle_conf;
     }
 
     /**
-     * NOTE - features could be a linear combination, e.g. f_0 =
-     * num_constructs_accessed + num_asserts_passed
+     * pareto-optimality is a false-dominant metric, such that random
+     * individuals have a low probability of being replaced by another one
+     * ($this$), unless the other one is better in many ways.
      */
     public boolean pareto_optimal(ScGaIndividual selected) {
-        return (age < selected.age)
-                && (num_constructs_accessed > selected.num_constructs_accessed);
+        if (age > selected.age) {
+            return false;
+        } else if (num_constructs_accessed < selected.num_constructs_accessed) {
+            return false;
+        } else if (num_constructs_accessed > selected.num_constructs_accessed) {
+            // NOTE - don't compare costs if this one accessed more values,
+            // since skAddCost() calls can be anywhere.
+            return true;
+        } else if (cost >= selected.cost) {
+            return false;
+        }
+        return true;
     }
 
-    /** called when added to the queue of individuals to test */
-    public void reset_fitness() {
+    /**
+     * called when added to the queue of individuals to test
+     * @return
+     */
+    ScGaIndividual reset_fitness() {
         num_asserts_passed = 0;
         num_constructs_accessed = 0;
         age = 0;
+        cost = 0;
+        done = false;
+        return this;
     }
 
-    public int getValue(boolean type, int uid, int subuid, int untilv) {
+    public ScGaIndividual set_done(int cost) {
+        this.cost = cost;
+        done = true;
+        return this;
+    }
+
+    public int synthGetValue(boolean type, int uid, int subuid, int untilv) {
         num_constructs_accessed += 1;
+        int idx = phenotype.get_index(type, uid, subuid);
+        return genotype.getValue(idx, untilv);
+    }
+
+    public int displayGetValue(boolean type, int uid, int subuid, int untilv) {
         int idx = phenotype.get_index(type, uid, subuid);
         return genotype.getValue(idx, untilv);
     }

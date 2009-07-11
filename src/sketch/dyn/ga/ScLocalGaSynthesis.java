@@ -1,5 +1,8 @@
 package sketch.dyn.ga;
 
+import static sketch.util.DebugOut.BASH_DEFAULT;
+import static sketch.util.DebugOut.print_colored;
+
 import java.util.Vector;
 
 import sketch.dyn.ScClonedConstructInfo;
@@ -30,22 +33,24 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         thread.start();
     }
 
-    public static final int SPINE_LENGTH = 128;
-
     public class SynthesisThread extends AbstractSynthesisThread {
         protected boolean exhausted;
         protected int nruns = 0, ncounterexamples = 0;
         protected ScGaIndividual current_individual;
         protected ScGaCtrlConf ctrl_conf;
         protected ScGaInputConf oracle_conf;
-        protected ScGaInputConf input_conf;
         protected Vector<ScPopulation> local_populations;
 
         protected void evaluate() {
-            current_individual
-                    .set_for_synthesis(sketch, ctrl_conf, oracle_conf);
+            current_individual.set_for_synthesis_and_reset(sketch, ctrl_conf,
+                    oracle_conf);
             sketch.solution_cost = 0;
             nruns++;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
             trycatch: try {
                 for (ScFixedInputConf counterexample : counterexamples) {
                     ncounterexamples++;
@@ -63,15 +68,23 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         }
 
         private void blind_fast_routine() {
+            print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
+                    "=== generation eval ===");
             for (ScPopulation population : local_populations) {
-                while (!population.test_queue.isEmpty()) {
-                    current_individual = population.test_queue.remove();
+                while (population.test_queue_nonempty()) {
+                    current_individual =
+                            population.get_individual_for_testing();
                     evaluate();
+                    DebugOut.print_mt(current_individual);
+                    population.add_done(current_individual
+                            .set_done(sketch.solution_cost));
                 }
             }
         }
 
         protected void iterate_populations() {
+            print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
+                    "=== generation iterate ===");
             for (ScPopulation population : local_populations) {
                 population.generate_new_phase();
                 population.death_phase();
@@ -85,12 +98,14 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             ScClonedConstructInfo[] oracle_info =
                     ScClonedConstructInfo.clone_array(sketch.get_oracle_info());
             local_populations = new Vector<ScPopulation>();
-            local_populations.add(new ScPopulation(SPINE_LENGTH));
+            local_populations.add(new ScPopulation(gasynth.spine_length));
             ctrl_conf = new ScGaCtrlConf(info);
-            input_conf = new ScGaInputConf(oracle_info);
+            oracle_conf = new ScGaInputConf(oracle_info);
             for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=
                     nruns)
             {
+                print_colored(BASH_DEFAULT, "\n\n\n[ga-synth]", " ", false,
+                        "=== generation start ===");
                 update_stats();
                 if (gasynth.debug_stop_after != -1
                         && a >= gasynth.debug_stop_after)

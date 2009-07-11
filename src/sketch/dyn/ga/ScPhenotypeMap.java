@@ -44,7 +44,7 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
     public int get_index(boolean type, int uid, int subuid) {
         int idx = get_hash(type, uid, subuid);
         while (true) {
-            if (idx > entries.size()) {
+            if (idx >= entries.size()) {
                 entries.setSize(2 * idx + 1);
             }
             ScPhenotypeEntry entry = entries.get(idx);
@@ -63,5 +63,17 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
 
     public int get_hash(boolean type, int uid, int subuid) {
         return (uid * 31 + subuid * 3 + (type ? 1 : 0)) & spine_mask;
+    }
+
+    public String formatValuesString(ScGenotype genotype) {
+        StringBuilder result = new StringBuilder();
+        for (int a = 0; a < entries.size(); a++) {
+            ScPhenotypeEntry entry = entries.get(a);
+            if (entry != null) {
+                result.append("    at " + a + ": " + entry.toString() + " = "
+                        + genotype.formatIndex(a) + "\n");
+            }
+        }
+        return result.toString();
     }
 }

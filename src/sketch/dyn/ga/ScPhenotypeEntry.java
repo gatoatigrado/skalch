@@ -21,6 +21,12 @@ public class ScPhenotypeEntry {
         this.next = next;
     }
 
+    @Override
+    public String toString() {
+        return "ScPhenotypeEntry [type=" + type + ", uid=" + uid + ", subuid="
+                + subuid + "]";
+    }
+
     public boolean match(boolean type, int uid, int subuid) {
         return (this.type == type) && (this.uid == uid)
                 && (this.subuid == subuid);

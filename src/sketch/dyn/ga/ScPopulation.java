@@ -1,6 +1,7 @@
 package sketch.dyn.ga;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.util.ScArrayUtil.deep_clone;
 
 import java.util.LinkedList;
 import java.util.Vector;
@@ -18,19 +19,19 @@ import ec.util.MersenneTwisterFast;
  *          make changes, please consider contributing back!
  */
 public class ScPopulation implements ScCloneable<ScPopulation> {
-    LinkedList<ScGaIndividual> test_queue = new LinkedList<ScGaIndividual>();
+    private LinkedList<ScGaIndividual> test_queue =
+            new LinkedList<ScGaIndividual>();
     /** the population */
-    Vector<ScGaIndividual> done_queue = new Vector<ScGaIndividual>();
+    private Vector<ScGaIndividual> done_queue = new Vector<ScGaIndividual>();
     ScPhenotypeMap phenotype;
-    public static float prob_mutation_clone = 0.4f;
-    public static float prob_reselect = 0.3f;
-    public static int max_population_sz = 4;
+    public static float prob_mutation_clone = 0.2f;
+    public static float prob_crossover_mutate_different = 0.8f;
+    public static float prob_reselect = 0.9f;
+    public static int max_population_sz = 8;
     static {
         // TODO - make these adjustable
         DebugOut.print("GA Parameter 'ScPopulation.prob_mutation_clone':",
                 prob_mutation_clone);
-        DebugOut.print("GA Parameter 'ScPopulation.max_population_sz':",
-                max_population_sz);
     }
 
     /** initialize a population with a single individual */
@@ -39,15 +40,14 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         add(new ScGaIndividual(new ScGenotype(), phenotype));
     }
 
+    protected ScPopulation(ScPhenotypeMap phenotype) {
+        this.phenotype = phenotype;
+    }
+
     @Override
     public ScPopulation clone() {
-        Vector<ScGaIndividual> next =
-                new Vector<ScGaIndividual>(done_queue.size());
-        for (ScGaIndividual elt : done_queue) {
-            next.add(elt.clone());
-        }
         ScPopulation rv = new ScPopulation(phenotype.clone());
-        rv.done_queue = next;
+        rv.done_queue = deep_clone(done_queue);
         return rv;
     }
 
@@ -56,8 +56,20 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         test_queue.add(individual);
     }
 
-    protected ScPopulation(ScPhenotypeMap phenotype) {
-        this.phenotype = phenotype;
+    public boolean test_queue_nonempty() {
+        return !test_queue.isEmpty();
+    }
+
+    public ScGaIndividual get_individual_for_testing() {
+        return test_queue.remove().reset_fitness();
+    }
+
+    public void add_done(ScGaIndividual individual) {
+        if (!individual.done) {
+            DebugOut
+                    .assertFalse("call individual.set_done() before add_done()");
+        }
+        done_queue.add(individual);
     }
 
     private void clone_and_mutate(ScGaIndividual individual) {
@@ -69,7 +81,9 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     private void clone_and_crossover(ScGaIndividual first, ScGaIndividual other)
     {
         ScGaIndividual clone = first.clone();
-        clone.genotype.crossover(other.genotype);
+        clone.genotype.crossover(other.genotype,
+                prob_crossover_mutate_different);
+        add(clone);
     }
 
     public void generate_new_phase() {
@@ -120,7 +134,9 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         while (mt_local.nextFloat() < prob_reselect) {
             ScGaIndividual other =
                     done_queue.get(mt_local.nextInt(done_queue.size()));
-            if (other.pareto_optimal(selected) ^ select_bad) {
+            if (other == selected) {
+                break;
+            } else if (other.pareto_optimal(selected) ^ select_bad) {
                 selected = other;
             }
         }

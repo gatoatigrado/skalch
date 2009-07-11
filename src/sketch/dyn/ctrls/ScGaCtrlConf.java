@@ -26,12 +26,12 @@ public class ScGaCtrlConf extends ScCtrlConf {
 
     @Override
     public int getDynamicValue(int uid, int untilv) {
-        return base.getValue(true, uid, 0, untilv);
+        return base.synthGetValue(true, uid, 0, untilv);
     }
 
     @Override
     public int getValue(int uid) {
-        return base.getValue(true, uid, 0, default_untilv[uid]);
+        return base.synthGetValue(true, uid, 0, default_untilv[uid]);
     }
 
     @Override
@@ -39,7 +39,8 @@ public class ScGaCtrlConf extends ScCtrlConf {
             throws ScNoValueStringException
     {
         ScConstructValue value =
-                new ScConstructValue(base.getValue(true, uid, 0, 1 << 20));
+                new ScConstructValue(base
+                        .displayGetValue(true, uid, 0, 1 << 20));
         return new ScConstructValueString("", value, "");
     }
 }

@@ -7,24 +7,52 @@ import sketch.util._
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Buffer
+import scala.collection.mutable.ListBuffer
 import scala.runtime.RichInt
 
 class DfsSketch() extends DynamicSketch {
     def dysketch_main() = {
-        val g = new Graph(2)
+        val g = new Graph(3)
         g.checkpoint
 
         dfs(g)
 
         synthAssertTerminal(g.unchanged)
-        
+
+        for(node <- g.nodes) {
+            synthAssertTerminal(node.visited)
+        }
+
         true
     }
+
+    /*
+    each child with multiple children gives the oracle to re-order those children, and the fix them sometime on the way up, giving more valid traces
+
+    a node with two children that point to the same node will also introduce new multiple traces
+    */
 
     class Graph(n: Int, seed: Long = 1983) {
         val nodes = new ArrayBuffer[Node]
 
-        val root = {
+        //val e = new Node("e")
+        //val d = new Node("d")
+        val c = new Node("c")
+        val b = new Node("b")
+        val a = new Node("a", b, c)
+
+        /*
+            e.children += e
+            e.children += e
+            e.children += e
+        */
+
+        val root = a
+
+        nodes ++= List(a,b,c)
+        
+        /* // code for randomly generating a graph
+        {
             var i: Int = 0
 
             import scala.util.Random
@@ -48,6 +76,7 @@ class DfsSketch() extends DynamicSketch {
 
             nodes(0)
         }
+        */
 
         def checkpoint() {
             for(node <- nodes) {
@@ -62,12 +91,27 @@ class DfsSketch() extends DynamicSketch {
 
             true
         }
+
+        override def toString(): String = {
+            var string = ""
+
+            for(node <- nodes) {
+                string += node.name + ": ["
+                for(child <- node.children) {
+                    string += child.name + " "
+                }
+                string += "]\n"
+            }
+            
+            string
+        }
     }
 
     class Node(val name: String, newChildren: Node*) {
-        var visited  = false
         var children = new ArrayBuffer[Node]()
         var checkpointChildren: Buffer[Node] = null
+
+        var visited  = false
 
         for(child <- newChildren) children += child
 
@@ -94,6 +138,10 @@ class DfsSketch() extends DynamicSketch {
             }
 
             true
+        }
+
+        override def toString(): String = {
+            name
         }
     }
 
@@ -122,54 +170,6 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    class BlackHole[A >: Null] extends Location[A] {
-        override def read(): A = {
-            assert(false, "You can't get anything out of a black hole!")
-            null
-        }
-
-        override def write(x: A) { }
-    }
-
-    class ParasiticStack[A](val givenLocations: Seq[Location[A]]) {
-        val locations = new ArrayBuffer[Location[A]]
-        locations ++= givenLocations
-
-        def push(x: A) {
-            skdprint_loc("push")
-            !!(locations).write(x)
-
-            val storage = locations.clone
-
-            for(value <- locations.map(l => l.read)) {
-                storage.remove(!!(storage.length)).write(value)
-            }
-
-            /*
-            for(location <- locations) {
-                skdprint(location.read.name)
-            }
-            */
-        }
-
-        def pop() = {
-            skdprint_loc("pop")
-            val value = !!(locations).read
-
-            val storage = locations.clone
-
-            for(value <- locations.map(l => l.read)) {
-                storage.remove(!!(storage.length)).write(value)
-            }
-
-            value
-        }
-    }
-
-    /*
-    a class where you add locations over time
-    */
-
     class AngelicStack[A]() {
         val cheat = new ArrayBuffer[A]
 
@@ -182,39 +182,85 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
+    class KeyholeStack[A >: Null](allowedExtraStorage: Int = 0) {
+        val reference = new Stack[A]
+
+        val extraStorage = new ArrayBuffer[A]
+
+        var i = 0
+        while(i < allowedExtraStorage) {
+            extraStorage += null
+            i += 1
+        }
+        
+        val extraLocations = mkLocations(extraStorage)
+
+        def push(x: A, to: Seq[Location[A]]) {
+            reference.push(x)
+
+            val storage = to ++ extraLocations
+            !!(storage).write(x)
+
+            val values = new ListBuffer[A]
+
+            for(location <- storage) {
+                values += location.read
+            }
+
+            for(location <- storage) {
+                location.write(values.remove(!!(values.length)))
+            }
+        }
+
+        def pop(from: Seq[Location[A]]) = {
+            synthAssertTerminal(reference.size > 0)
+
+            val need = reference.pop
+
+            var found = false
+
+            val storage = from ++ extraLocations
+
+            for(location <- storage) {
+                if(need == location.read)
+                    found = true
+            }
+
+            synthAssertTerminal(found)
+
+            val values = new ListBuffer[A]
+
+            for(location <- storage) {
+                values += location.read
+            }
+
+            for(location <- storage) {
+                location.write(values.remove(!!(values.length)))
+            }
+
+            need
+        }
+    }
+
+    def mkLocations[A](b: Buffer[A]): Seq[Location[A]] = (0 until b.length).map(i => new BufferLocation(b, i))
+
     def dfs(g: Graph) {
         val root   = g.root
         val origin = new Node("origin", root)
 
         var current  = root
 
-        val stack = new Stack[Node]
-        stack.push(origin)
+        var extraLocations = List[Location[Node]](new GeneralLocation[Node](() => current, (x) => current = x))
 
-        val locations = new ArrayBuffer[Location[Node]]
-
-        for(node <- g.nodes) {
-            for(i <- 0 until node.children.length) {
-                locations += new BufferLocation(node.children, i)
-            }
-        }
-
-        // we may need an extra variable??!? who knows
-        var v0: Node = null
-        locations += new GeneralLocation[Node](() => v0, (x) => v0 = x)
-        
-        val mystack = new ParasiticStack[Node](locations)
-        mystack.push(origin)
+        val stack = new KeyholeStack[Node](1)
+        stack.push(origin, new ArrayBuffer[Location[Node]])
 
         var step = 0
         while(current != origin) {
-            synthAssertTerminal(step < g.nodes.length * 2)
+            synthAssertTerminal(step < 10)
             step += 1
 
-            for(child <- current.children) {
-                synthAssertTerminal(child != null)
-            }
-
+            skdprint(stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
 
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
@@ -225,23 +271,20 @@ class DfsSketch() extends DynamicSketch {
 
             var next: Node = null
 
-            for(child <- current.children if !child.visited && next == null) {
+            for(child <- current.children if child != null && !child.visited && next == null) {
                 next = child
             }
 
-            if(next == null) {
-                val previous = mystack.pop
-                val correct  = stack.pop
-
-                synthAssertTerminal(previous == correct)
-
-                current = previous
-            } else {
-                stack.push(current)
-                mystack.push(current)
+            if(next != null) {
+                stack.push(current, mkLocations(current.children))
                 current = next
+            } else {
+                // backtrack
+                current = stack.pop(mkLocations(current.children) ++ extraLocations)
             }
         }
+
+        skdprint(stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
     }
 
     val test_generator = NullTestGenerator

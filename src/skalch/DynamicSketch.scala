@@ -229,7 +229,7 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
 object synthesize {
     def apply(f : (() => DynamicSketch)) {
-        val synth = new ScSynthesis(f)
+        val synth = new ScSynthesisMain(f)
         synth.synthesize()
     }
 }

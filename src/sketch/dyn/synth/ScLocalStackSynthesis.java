@@ -165,7 +165,6 @@ public class ScLocalStackSynthesis implements ScUiQueueable {
                     ssr.wait_handler.throw_if_synthesis_complete();
                     //
                     DebugOut.not_implemented("get next active stack");
-                    // TODO - use search manager more
                     stack = ssr.search_manager.get_active_prefix();
                     stack.set_for_synthesis(sketch);
                 }

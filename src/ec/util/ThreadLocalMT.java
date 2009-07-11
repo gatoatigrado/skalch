@@ -11,6 +11,11 @@ public class ThreadLocalMT extends ThreadLocal<MersenneTwisterFast> {
     public int salt = 0;
     public boolean use_current_time_millis = true;
     public static boolean disable_use_current_time_millis = false;
+    public static ThreadLocalMT _mt = new ThreadLocalMT();
+
+    public static MersenneTwisterFast mt() {
+        return _mt.get();
+    }
 
     public ThreadLocalMT() {
     }

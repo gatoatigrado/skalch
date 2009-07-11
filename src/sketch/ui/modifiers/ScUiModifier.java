@@ -2,12 +2,15 @@ package sketch.ui.modifiers;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import sketch.dyn.ga.ScLocalGASynthesis;
+import sketch.dyn.ga.ScLocalGASynthesis.SynthesisThread;
 import sketch.dyn.stats.ScStats;
 import sketch.dyn.synth.ScLocalStackSynthesis;
 import sketch.dyn.synth.ScStack;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
+import sketch.util.DebugOut;
 
 /**
  * An object which will modify the user interface. It will be enqueued to
@@ -61,5 +64,11 @@ public final class ScUiModifier {
     public final void setInfo(ScStats stats) {
         modifier.setInfo(stats);
         setInfoComplete();
+    }
+
+    public void setInfo(ScLocalGASynthesis gaSynthesis, SynthesisThread thread,
+            Object nothing)
+    {
+        DebugOut.not_implemented("setInfo for ga synth");
     }
 }

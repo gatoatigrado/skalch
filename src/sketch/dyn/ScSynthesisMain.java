@@ -26,7 +26,7 @@ import ec.util.ThreadLocalMT;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScSynthesis {
+public class ScSynthesisMain {
     protected int nthreads;
     protected ScDynamicSketch[] sketches;
     protected ScDynamicSketch ui_sketch;
@@ -39,7 +39,7 @@ public class ScSynthesis {
      * @param cmdopts
      *            Command options
      */
-    public ScSynthesis(scala.Function0<ScDynamicSketch> f) {
+    public ScSynthesisMain(scala.Function0<ScDynamicSketch> f) {
         // initialization
         BackendOptions.initialize_defaults();
         ScStats.initialize();

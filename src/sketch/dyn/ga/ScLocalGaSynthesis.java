@@ -48,7 +48,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             sketch.solution_cost = 0;
             nruns++;
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }

@@ -1,8 +1,13 @@
 package sketch.dyn.ga;
 
+import static sketch.util.DebugOut.assertSlow;
+
+import java.util.HashSet;
+
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ga.base.ScGaIndividual;
+import sketch.dyn.ga.base.ScGaSolutionId;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
@@ -16,6 +21,7 @@ import sketch.ui.ScUserInterface;
  */
 public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
     public int spine_length;
+    public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
 
     public ScGaSynthesis(ScDynamicSketch[] sketches) {
         local_synthesis = new ScLocalGaSynthesis[sketches.length];
@@ -35,8 +41,12 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
         }
     }
 
-    public void add_solution(ScGaIndividual current_individual) {
-        ui.addGaSolution(current_individual);
-        increment_num_solutions();
+    public synchronized void add_solution(ScGaIndividual current_individual) {
+        if (solutions.add(current_individual.generate_solution_id())) {
+            ui.addGaSolution(current_individual);
+            increment_num_solutions();
+            assertSlow(solutions.contains(current_individual
+                    .generate_solution_id()), "solution not added?");
+        }
     }
 }

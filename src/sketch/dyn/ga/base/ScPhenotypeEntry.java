@@ -9,6 +9,7 @@ package sketch.dyn.ga.base;
  *          make changes, please consider contributing back!
  */
 public class ScPhenotypeEntry {
+    /** true if control, false if oracle */
     public boolean type;
     public int uid;
     public int subuid;

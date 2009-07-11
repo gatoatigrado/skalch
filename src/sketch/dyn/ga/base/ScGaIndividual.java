@@ -2,6 +2,7 @@ package sketch.dyn.ga.base;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
+import sketch.dyn.ga.base.ScGaSolutionId.ScGaSolutionIdEntry;
 import sketch.dyn.inputs.ScGaInputConf;
 import sketch.util.ScCloneable;
 
@@ -106,5 +107,20 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public int displayGetValue(boolean type, int uid, int subuid, int untilv) {
         int idx = phenotype.get_index(type, uid, subuid);
         return genotype.getValue(idx, untilv);
+    }
+
+    public ScGaSolutionId generate_solution_id() {
+        ScGaSolutionId result = new ScGaSolutionId();
+        for (int a = 0; a < phenotype.entries.size()
+                && a < genotype.data.length; a++)
+        {
+            ScPhenotypeEntry entry = phenotype.entries.get(a);
+            if (entry != null && genotype.active_data[a]) {
+                result.entries.add(new ScGaSolutionIdEntry(entry.type,
+                        entry.uid, entry.subuid, genotype.data[a]));
+            }
+        }
+        result.create_array();
+        return result;
     }
 }

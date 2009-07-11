@@ -40,14 +40,14 @@ class TrivialDynamicUntilv(val max_n : Int, val num_tests : Int)
 object TrivialDynamicUntilvTest {
     val mt = new ThreadLocalMT()
 
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         add("--max_value", 100 : java.lang.Integer, "value for !! to guess")
         add("--num_tests", 10 : java.lang.Integer,
             "number of randomly generated input sequences to test")
     }
 
     def main(args : Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new TrivialDynamicUntilv(

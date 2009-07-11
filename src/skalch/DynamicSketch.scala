@@ -2,7 +2,6 @@ package skalch
 
 import sketch.dyn._
 import sketch.util.DebugOut
-import sketch.util.OptionResult
 import sketch.util.RichString
 
 /**

@@ -82,14 +82,14 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
 object BitonicSortTest {
     val mt = new ThreadLocalMT()
 
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         add("--array_length", "length of array")
         add("--num_steps", "number of steps allowed")
         add("--num_tests", 100 : java.lang.Integer, "number of randomly generated input sequences to test")
     }
 
     def main(args : Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new BitonicSort(opts.long_("num_steps").intValue,

@@ -4,15 +4,15 @@ import sketch.dyn.ga.ScGaOptions;
 import sketch.dyn.stats.ScStatOptions;
 import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.ui.ScUiOptions;
-import sketch.util.CliParser;
 import sketch.util.DebugOut;
-import sketch.util.OptionResult;
+import sketch.util.cli.CliParser;
+import sketch.util.cli.CliOptionResult;
 
 public class BackendOptions {
-    public static OptionResult synth_opts;
-    public static OptionResult stat_opts;
-    public static OptionResult ui_opts;
-    public static OptionResult ga_opts;
+    public static CliOptionResult synth_opts;
+    public static CliOptionResult stat_opts;
+    public static CliOptionResult ui_opts;
+    public static CliOptionResult ga_opts;
 
     /** add default lazy options to a parser */
     public static void add_opts(CliParser p) {

@@ -1,15 +1,16 @@
-package sketch.util;
+package sketch.util.cli;
 
 import java.util.HashMap;
 
-import sketch.util.CliOptGroup.CmdOption;
+import sketch.util.DebugOut;
 
-public class OptionResult {
-    CliOptGroup options;
+
+public class CliOptionResult {
+    CliOptionGroup options;
     CliParser parser;
     protected HashMap<String, Object> cached_results;
 
-    public OptionResult(CliOptGroup options, CliParser parser) {
+    public CliOptionResult(CliOptionGroup options, CliParser parser) {
         this.options = options;
         this.parser = parser;
         if (options == null || parser == null) {
@@ -28,7 +29,7 @@ public class OptionResult {
             if (options.opt_set == null) {
                 DebugOut.assertFalse();
             }
-            CmdOption opt = options.opt_set.get(name);
+            CliOption opt = options.opt_set.get(name);
             if (opt == null) {
                 DebugOut.assertFalse("invalid name", name);
             }

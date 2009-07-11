@@ -54,6 +54,10 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         return rv;
     }
 
+    public void perturb_parameters() {
+        // ...
+    }
+
     public void add(ScGaIndividual individual) {
         individual.reset_fitness();
         test_queue.add(individual);

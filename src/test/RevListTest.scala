@@ -81,12 +81,12 @@ class RevList1(val length : Int) extends DynamicSketch {
 }
 
 object RevListTest {
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         add("--list_length", "length of list")
     }
 
     def main(args : Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new RevList1(opts.long_("list_length").intValue))

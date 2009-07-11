@@ -83,7 +83,7 @@ class RegexSketch(input_rx : String, input_length : Int, num_inputs : Int)
 }
 
 object RegexTest {
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
         add("--input_rx", "", "operations to process")
         add("--input_length", 10 : Integer, "number of tests")
@@ -92,7 +92,7 @@ object RegexTest {
     }
 
     def main(args: Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new RegexSketch(

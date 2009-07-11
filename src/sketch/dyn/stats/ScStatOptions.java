@@ -1,6 +1,6 @@
 package sketch.dyn.stats;
 
-import sketch.util.CliOptGroup;
+import sketch.util.cli.CliOptionGroup;
 
 /**
  * options for stats, set in BackendOptions.add_opts()
@@ -9,7 +9,7 @@ import sketch.util.CliOptGroup;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScStatOptions extends CliOptGroup {
+public class ScStatOptions extends CliOptionGroup {
     public ScStatOptions() {
         super("stat", "statistics options");
         add("--disable", "disable statistics");

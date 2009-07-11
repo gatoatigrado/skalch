@@ -22,6 +22,7 @@ import sketch.ui.ScUserInterface;
 public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
     public int spine_length;
     public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
+    public ScPopulationManager population_mgr;
 
     public ScGaSynthesis(ScDynamicSketch[] sketches) {
         local_synthesis = new ScLocalGaSynthesis[sketches.length];
@@ -35,6 +36,7 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
     public void synthesize_inner(ScSolvingInputConf[] counterexamples,
             ScUserInterface ui)
     {
+        population_mgr = new ScPopulationManager();
         ui.addGaSynthesis(this);
         for (ScLocalGaSynthesis local_synth : local_synthesis) {
             local_synth.run(counterexamples);

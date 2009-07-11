@@ -1,6 +1,6 @@
 package sketch.dyn.synth;
 
-import sketch.util.CliOptGroup;
+import sketch.util.cli.CliOptionGroup;
 
 /**
  * command line options for synthesis.
@@ -9,7 +9,7 @@ import sketch.util.CliOptGroup;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScSynthesisOptions extends CliOptGroup {
+public class ScSynthesisOptions extends CliOptionGroup {
     public ScSynthesisOptions() {
         super("sy", "synthesis options");
         add("--num_solutions", -1, "number of solutions to find");

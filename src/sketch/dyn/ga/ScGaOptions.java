@@ -1,8 +1,8 @@
 package sketch.dyn.ga;
 
-import sketch.util.CliOptGroup;
+import sketch.util.cli.CliOptionGroup;
 
-public class ScGaOptions extends CliOptGroup {
+public class ScGaOptions extends CliOptionGroup {
     public ScGaOptions() {
         super("ga", "genetic algorithm options");
         add("--enable", "use the genetic algorithm instead of stack synthesis");

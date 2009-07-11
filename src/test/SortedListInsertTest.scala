@@ -104,14 +104,14 @@ class SortedListInsertSketch(val list_length : Int,
 object SortedListInsertTest {
     val mt = new ThreadLocalMT()
 
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
         add("--list_length", 10 : Integer, "length of list")
         add("--num_tests", 1 : Integer, "number of tests")
     }
 
     def main(args : Array[String]) = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new SortedListInsertSketch(

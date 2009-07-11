@@ -1,10 +1,12 @@
-package sketch.util;
+package sketch.util.cli;
 
 import java.util.LinkedList;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+
+import sketch.util.DebugOut;
 
 /**
  * parse command line with a number of option groups.
@@ -14,7 +16,7 @@ import org.apache.commons.cli.Options;
  *          make changes, please consider contributing back!
  */
 public class CliParser extends org.apache.commons.cli.PosixParser {
-    public LinkedList<CliOptGroup> opt_groups = new LinkedList<CliOptGroup>();
+    public LinkedList<CliOptionGroup> opt_groups = new LinkedList<CliOptionGroup>();
     public CommandLine cmd_line;
     public String[] args;
 
@@ -30,8 +32,8 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
         // add names
         Options options = new Options();
         options.addOption("h", "help", false, "display help");
-        for (CliOptGroup group : opt_groups) {
-            for (CliOptGroup.CmdOption cmd_opt : group.opt_set.values()) {
+        for (CliOptionGroup group : opt_groups) {
+            for (CliOption cmd_opt : group.opt_set.values()) {
                 options.addOption(cmd_opt.as_option(group.prefix));
             }
         }
@@ -50,7 +52,7 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
                 HelpFormatter hf = new HelpFormatter();
                 StringBuilder description = new StringBuilder();
                 description.append("\n");
-                for (CliOptGroup group : opt_groups) {
+                for (CliOptionGroup group : opt_groups) {
                     description.append(group.prefix + " - " + group.description
                             + "\n");
                 }

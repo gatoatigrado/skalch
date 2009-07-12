@@ -26,7 +26,7 @@ import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceCache;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceLocation;
-import sketch.ui.sourcecode.ScStackSourceVisitor;
+import sketch.ui.sourcecode.ScSourceTraceVisitor;
 import sketch.util.DebugOut;
 
 /**
@@ -168,7 +168,7 @@ public class ScUiGui extends gui_0_1 {
         ScSourceLocation end =
                 hole_info_sorted[hole_info_sorted.length - 1].entire_location
                         .contextAfter(context_len);
-        ScStackSourceVisitor v = new ScStackSourceVisitor();
+        ScSourceTraceVisitor v = new ScSourceTraceVisitor();
         // starting context
         result.append(v.visitCode(start));
         // visit constructs and all code in between

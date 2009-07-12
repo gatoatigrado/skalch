@@ -6,7 +6,7 @@ import sketch.dyn.ga.ScLocalGaSynthesis;
 import sketch.dyn.ga.ScLocalGaSynthesis.SynthesisThread;
 import sketch.dyn.stack.ScLocalStackSynthesis;
 import sketch.dyn.stack.ScStack;
-import sketch.dyn.stats.ScStats;
+import sketch.dyn.stats.ScStatsMT;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
@@ -61,7 +61,7 @@ public final class ScUiModifier {
         setInfoComplete();
     }
 
-    public final void setInfo(ScStats stats) {
+    public final void setInfo(ScStatsMT stats) {
         modifier.setInfo(stats);
         setInfoComplete();
     }

@@ -5,7 +5,14 @@ import java.util.regex.Pattern;
 
 import sketch.util.DebugOut;
 
-public class ScStackSourceVisitor extends ScHighlightSourceVisitor {
+/**
+ * formats values chosen by the synthesizer.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
+public class ScSourceTraceVisitor extends ScSourceHighlightVisitor {
     @Override
     public String visitHoleInfo(ScSourceConstruct ctrl_src_info) {
         ScSourceLocation argloc = ctrl_src_info.argument_location;

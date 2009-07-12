@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import sketch.util.DebugOut;
 
-
 /**
  * a group of options. subclasses are initialized by making calls in the
  * constructor; see e.g. ScSynthesisOptions for an example.
@@ -69,6 +68,12 @@ public abstract class CliOptionGroup {
                 opt.default_ = new Long(((Integer) ent).longValue());
             } else if (ent instanceof Float) {
                 opt.type_ = Float.class;
+                opt.default_ = ent;
+            } else if (ent instanceof Class<?>) {
+                opt.type_ = (Class<?>) ent;
+                opt.default_ = null;
+            } else if (ent instanceof CliOptionType<?>) {
+                opt.type_ = ent.getClass();
                 opt.default_ = ent;
             }
         }

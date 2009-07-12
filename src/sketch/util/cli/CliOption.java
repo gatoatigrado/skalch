@@ -5,7 +5,15 @@ import org.apache.commons.cli.Option;
 
 import sketch.util.DebugOut;
 
-final class CliOption {
+/**
+ * A wrapper for a command line option, including a default value, name, and
+ * help string.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
+public final class CliOption {
     public Class<?> type_ = Boolean.class;
     public Object default_ = new Boolean(false);
     public String name_ = null;
@@ -49,6 +57,8 @@ final class CliOption {
             return Long.parseLong(v);
         } else if (type_.equals(Float.class)) {
             return Float.parseFloat(v);
+        } else if (CliOptionType.class.isAssignableFrom(type_)) {
+            return ((CliOptionType<?>) default_).fromString(v);
         } else {
             if (!type_.equals(String.class)) {
                 DebugOut.assertFalse("can't parse type ", type_);

@@ -1,16 +1,21 @@
 package sketch.dyn;
 
 import sketch.dyn.ga.ScGaOptions;
-import sketch.dyn.stats.ScStatOptions;
 import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.ui.ScUiOptions;
 import sketch.util.DebugOut;
-import sketch.util.cli.CliParser;
 import sketch.util.cli.CliOptionResult;
+import sketch.util.cli.CliParser;
 
+/**
+ * all options used by the backend
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class BackendOptions {
     public static CliOptionResult synth_opts;
-    public static CliOptionResult stat_opts;
     public static CliOptionResult ui_opts;
     public static CliOptionResult ga_opts;
 
@@ -20,7 +25,6 @@ public class BackendOptions {
             DebugOut.assertFalse("adding command line options twice");
         }
         synth_opts = (new ScSynthesisOptions()).parse(p);
-        stat_opts = (new ScStatOptions()).parse(p);
         ui_opts = (new ScUiOptions()).parse(p);
         ga_opts = (new ScGaOptions()).parse(p);
     }

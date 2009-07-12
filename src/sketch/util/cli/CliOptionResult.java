@@ -4,7 +4,14 @@ import java.util.HashMap;
 
 import sketch.util.DebugOut;
 
-
+/**
+ * returns values for command line options. this is lazy in the sense that the
+ * command line will only be parsed when the first value is requested.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class CliOptionResult {
     CliOptionGroup options;
     CliParser parser;
@@ -53,5 +60,10 @@ public class CliOptionResult {
 
     public float flt_(String name) {
         return (Float) get_value(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T other_type_(String name) {
+        return (T) get_value(name);
     }
 }

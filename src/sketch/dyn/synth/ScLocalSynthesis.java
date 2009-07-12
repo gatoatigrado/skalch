@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.stats.ScStats;
+import sketch.dyn.stats.ScStatsMT;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
@@ -65,8 +65,8 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
         protected int nruns = 0, ncounterexamples = 0;
 
         protected void update_stats() {
-            ScStats.stats.run_test(nruns);
-            ScStats.stats.try_counterexample(ncounterexamples);
+            ScStatsMT.stats_singleton.run_test(nruns);
+            ScStatsMT.stats_singleton.try_counterexample(ncounterexamples);
             nruns = 0;
             ncounterexamples = 0;
         }

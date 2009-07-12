@@ -5,6 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+/**
+ * read an entire file python-style
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class EntireFileReader {
     public static String load_file(InputStream file_in) throws IOException {
         InputStreamReader in = new InputStreamReader(file_in);

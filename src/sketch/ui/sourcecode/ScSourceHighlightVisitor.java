@@ -4,7 +4,14 @@ import java.util.regex.Pattern;
 
 import sketch.util.RichString;
 
-public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {
+/**
+ * basic scala source code highlighting (bold keywords)
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
+public class ScSourceHighlightVisitor extends ScSourceLocationVisitor {
     @Override
     public String visitCode(ScSourceLocation location) {
         String[] lines = ScSourceCache.singleton().getLines(location);

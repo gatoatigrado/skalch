@@ -12,7 +12,7 @@ import nu.xom.ValidityException;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stack.ScStackSynthesis;
-import sketch.dyn.stats.ScStats;
+import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
@@ -44,7 +44,7 @@ public class ScSynthesisMain {
     public ScSynthesisMain(scala.Function0<ScDynamicSketch> f) {
         // initialization
         BackendOptions.initialize_defaults();
-        ScStats.initialize();
+        new ScStatsMT();
         nthreads = (int) BackendOptions.synth_opts.long_("num_threads");
         ThreadLocalMT.disable_use_current_time_millis =
                 BackendOptions.synth_opts.bool_("no_clock_rand");
@@ -103,10 +103,10 @@ public class ScSynthesisMain {
         ScUserInterface ui =
                 ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
         ui.set_counterexamples(inputs);
-        ScStats.stats.start_synthesis();
+        ScStatsMT.stats_singleton.start_synthesis();
         // actual synthesize call
         synthesis_runtime.synthesize(inputs, ui);
         // stop utilities
-        ScStats.stats.stop_synthesis();
+        ScStatsMT.stats_singleton.stop_synthesis();
     }
 }

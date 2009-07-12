@@ -44,6 +44,7 @@ public class ScSynthesisMain {
     public ScSynthesisMain(scala.Function0<ScDynamicSketch> f) {
         // initialization
         BackendOptions.initialize_defaults();
+        BackendOptions.initialize_annotated();
         new ScStatsMT();
         nthreads = (int) BackendOptions.synth_opts.long_("num_threads");
         ThreadLocalMT.disable_use_current_time_millis =
@@ -55,7 +56,7 @@ public class ScSynthesisMain {
         }
         ui_sketch = f.apply();
         load_ui_sketch_info();
-        if (BackendOptions.ga_opts.bool_("enable")) {
+        if (BackendOptions.ga_opts.enable) {
             synthesis_runtime = new ScGaSynthesis(sketches);
         } else {
             synthesis_runtime = new ScStackSynthesis(sketches);

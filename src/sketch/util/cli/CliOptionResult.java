@@ -46,6 +46,12 @@ public class CliOptionResult {
         return result;
     }
 
+    public boolean is_set(String name) {
+        parser.parse();
+        CliOption opt = options.opt_set.get(name);
+        return parser.cmd_line.hasOption(opt.full_name_);
+    }
+
     public boolean bool_(String name) {
         return (Boolean) get_value(name);
     }
@@ -63,7 +69,7 @@ public class CliOptionResult {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T other_type_(String name) {
+    public <T extends CliOptionType> T other_type_(String name) {
         return (T) get_value(name);
     }
 }

@@ -6,6 +6,8 @@ import static sketch.util.ScArrayUtil.deep_clone;
 import java.util.LinkedList;
 import java.util.Vector;
 
+import sketch.dyn.BackendOptions;
+import sketch.dyn.ga.ScGaOptions.ScGaParameter;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.ga.base.ScGenotype;
 import sketch.dyn.ga.base.ScPhenotypeMap;
@@ -27,20 +29,20 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     /** the population */
     private Vector<ScGaIndividual> done_queue = new Vector<ScGaIndividual>();
     ScPhenotypeMap phenotype;
-    public static float prob_mutation_clone = 0.2f;
-    public static float prob_crossover_mutate_different = 0.8f;
-    public static float prob_reselect = 0.9f;
-    public static int max_population_sz = 8;
-    static {
-        // TODO - make these adjustable
-        DebugOut.print("GA Parameter 'ScPopulation.prob_mutation_clone':",
-                prob_mutation_clone);
-    }
+    public ScGaParameter prob_clone_mutate;
+    public ScGaParameter prob_crossover_mutate_different;
+    public ScGaParameter prob_reselect;
+    public static int max_population_sz;
 
     /** initialize a population with a single individual */
     public ScPopulation(int spine_length) {
         phenotype = new ScPhenotypeMap(spine_length);
         add(new ScGaIndividual(new ScGenotype(), phenotype));
+        prob_clone_mutate = BackendOptions.ga_opts.prob_clone_mutate;
+        prob_crossover_mutate_different =
+                BackendOptions.ga_opts.prob_crossover_mutate_different;
+        prob_reselect = BackendOptions.ga_opts.prob_reselect;
+        max_population_sz = BackendOptions.ga_opts.max_population_sz;
     }
 
     protected ScPopulation(ScPhenotypeMap phenotype) {
@@ -51,11 +53,17 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     public ScPopulation clone() {
         ScPopulation rv = new ScPopulation(phenotype.clone());
         rv.done_queue = deep_clone(done_queue);
+        rv.prob_clone_mutate = prob_clone_mutate.clone();
+        rv.prob_crossover_mutate_different =
+                prob_crossover_mutate_different.clone();
+        rv.prob_reselect = prob_reselect.clone();
         return rv;
     }
 
     public void perturb_parameters() {
-        // ...
+        prob_clone_mutate.perturb();
+        prob_crossover_mutate_different.perturb();
+        prob_reselect.perturb();
     }
 
     public void add(ScGaIndividual individual) {
@@ -89,7 +97,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     {
         ScGaIndividual clone = first.clone();
         clone.genotype.crossover(other.genotype,
-                prob_crossover_mutate_different);
+                prob_crossover_mutate_different.value);
         add(clone);
     }
 
@@ -101,7 +109,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
                 return;
             } else {
                 ScGaIndividual first = select_individual(mt_local, false);
-                if (mt_local.nextFloat() < prob_mutation_clone) {
+                if (mt_local.nextFloat() < prob_clone_mutate.value) {
                     clone_and_mutate(first);
                 } else {
                     ScGaIndividual other = select_individual(mt_local, false);
@@ -138,7 +146,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     {
         ScGaIndividual selected =
                 done_queue.get(mt_local.nextInt(done_queue.size()));
-        while (mt_local.nextFloat() < prob_reselect) {
+        while (mt_local.nextFloat() < prob_reselect.value) {
             ScGaIndividual other =
                     done_queue.get(mt_local.nextInt(done_queue.size()));
             if (other == selected) {

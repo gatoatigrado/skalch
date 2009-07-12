@@ -29,7 +29,7 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> {
         for (int a = 0; a < sketches.length; a++) {
             local_synthesis[a] = new ScLocalGaSynthesis(sketches[a], this, a);
         }
-        spine_length = (int) BackendOptions.ga_opts.long_("spine_len");
+        spine_length = BackendOptions.ga_opts.spine_len;
     }
 
     @Override

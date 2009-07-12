@@ -16,7 +16,10 @@ import sketch.util.DebugOut;
  *          make changes, please consider contributing back!
  */
 public class CliParser extends org.apache.commons.cli.PosixParser {
-    public LinkedList<CliOptionGroup> opt_groups = new LinkedList<CliOptionGroup>();
+    public LinkedList<CliOptionGroup> opt_groups =
+            new LinkedList<CliOptionGroup>();
+    public LinkedList<CliAnnotatedOptionGroup> set_on_parse =
+            new LinkedList<CliAnnotatedOptionGroup>();
     public CommandLine cmd_line;
     public String[] args;
 
@@ -62,6 +65,9 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
             }
         } catch (org.apache.commons.cli.ParseException e) {
             DebugOut.assertFalse(e.getMessage());
+        }
+        for (CliAnnotatedOptionGroup elt : set_on_parse) {
+            elt.set_values();
         }
     }
 }

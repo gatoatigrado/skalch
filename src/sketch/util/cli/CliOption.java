@@ -49,6 +49,8 @@ public final class CliOption {
                         "argument", name_, "is required.\n    argument info:",
                         this);
                 System.exit(1); // @code standards ignore
+            } else if (CliOptionType.class.isAssignableFrom(type_)) {
+                return ((CliOptionType<?>) default_).clone();
             }
             return default_;
         }

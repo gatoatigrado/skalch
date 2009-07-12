@@ -17,7 +17,7 @@ import sketch.util.cli.CliParser;
 public class BackendOptions {
     public static CliOptionResult synth_opts;
     public static CliOptionResult ui_opts;
-    public static CliOptionResult ga_opts;
+    public static ScGaOptions ga_opts;
 
     /** add default lazy options to a parser */
     public static void add_opts(CliParser p) {
@@ -26,7 +26,8 @@ public class BackendOptions {
         }
         synth_opts = (new ScSynthesisOptions()).parse(p);
         ui_opts = (new ScUiOptions()).parse(p);
-        ga_opts = (new ScGaOptions()).parse(p);
+        ga_opts = new ScGaOptions();
+        ga_opts.parse(p);
     }
 
     /** initialize default options if the frontend didn't initialize them */
@@ -37,5 +38,9 @@ public class BackendOptions {
                     + "in your frontend.");
             add_opts(new CliParser(no_args));
         }
+    }
+
+    public static void initialize_annotated() {
+        ga_opts.set_values();
     }
 }

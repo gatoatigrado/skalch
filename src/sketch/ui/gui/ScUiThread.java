@@ -118,6 +118,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                 solution.add();
                 if (auto_display_first_solution) {
                     auto_display_first_solution = false;
+                    gui.synthCompletions.set_selected(solution);
                     solution.dispatch();
                 }
             }

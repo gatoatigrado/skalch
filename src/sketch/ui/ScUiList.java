@@ -67,6 +67,10 @@ public class ScUiList<T> {
         return (T) list_model.elementAt(idx);
     }
 
+    public void set_selected(T elt) {
+        list.setSelectedIndex(list_model.indexOf(elt));
+    }
+
     // 1.5 compatibility
     @SuppressWarnings("unchecked")
     public static <NEW, OLD> NEW[] arrayCopy(OLD[] original, int newLength,

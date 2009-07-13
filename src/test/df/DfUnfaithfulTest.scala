@@ -6,8 +6,12 @@ import DebugOut.print
 
 class DfUnfaithfulSketch() extends AbstractDfSketch() {
     def df_main() {
-        for (i <- (0 to !!(num_buckets))) {
-            swap(!!(buckets.length), !!(buckets.length))
+        skdprint_loc("df_main()")
+        val num_steps = !!(num_buckets + 1)
+        skAddCost(num_steps)
+        for (i <- (0 until num_steps)) {
+            swap(!!(num_buckets), !!(num_buckets))
+            skdprint(abbrev_str())
         }
     }
 }

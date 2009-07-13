@@ -4,18 +4,10 @@ import skalch.DynamicSketch
 import sketch.util._
 
 abstract class AbstractDfSketch() extends DynamicSketch {
-    val example_idx = AbstractDfOptions.result.long_("example_idx").intValue
-    val examples = Array(
-        Array(White(), Blue(), Red()),
-        Array(Blue(), White(), Red(), Blue(), Red(), White(), Red()),
-        Array(Red(), White(), Blue(), Red()),
-        Array[Pebble]()
-        )
-    val num_buckets = (if (example_idx == -1) {
-        AbstractDfOptions.result.long_("num_buckets").intValue
-    } else {
-        examples(example_idx).length
-    })
+    var num_buckets = -1
+    var max_num_buckets = Math.max(30,
+        AbstractDfOptions.result.long_("num_buckets").intValue)
+    val num_buckets_input = new InputGenerator(max_num_buckets)
 
     case class Pebble(val order : Int, val color : String) {
         override def toString = color
@@ -25,15 +17,20 @@ abstract class AbstractDfSketch() extends DynamicSketch {
     case class White() extends Pebble(1, "white")
     case class Blue() extends Pebble(2, "blue")
 
-    val buckets = new Array[Pebble](num_buckets)
+    val buckets = new Array[Pebble](max_num_buckets)
+
+    def abbrev_str() : String =
+        (("" /: (buckets.view(0, num_buckets)))(_ + ", " + _)).substring(2)
 
     def read_from_input() = {
         var i = 0
+        num_buckets = num_buckets_input()
         while (i < num_buckets) {
             buckets(i) = next_int_input() match {
                 case 0 => Red()
                 case 1 => White()
                 case 2 => Blue()
+                case v => assert(false, "invalid input " + v); null
             }
             i += 1
         }
@@ -43,6 +40,9 @@ abstract class AbstractDfSketch() extends DynamicSketch {
         // (buckets.slice(0, n - 1) zip buckets.slice(1, n)).forall(x => x._1 <= x._2)
         var i = 0
         while (i < (n - 1)) {
+            assert((i + 1) < num_buckets)
+            assert(buckets(i) != null)
+            assert(buckets(i + 1) != null)
             if (buckets(i).order > buckets(i + 1).order) {
                 return false
             }
@@ -54,6 +54,10 @@ abstract class AbstractDfSketch() extends DynamicSketch {
     def isCorrect() : Boolean = isCorrect(num_buckets)
 
     def swap(i : Int, j : Int) {
+        assert((i < num_buckets) && (j < num_buckets))
+        skdprint("swap(buckets[" + i + "]=" + buckets(i) +
+            " with buckets[" + j + "]=" + buckets(j) + " )")
+        assert((buckets(i) != null) && (buckets(j) != null))
         val tmp = buckets(i)
         buckets(i) = buckets(j)
         buckets(j) = tmp
@@ -72,16 +76,35 @@ abstract class AbstractDfSketch() extends DynamicSketch {
     final def dysketch_main() : Boolean = {
         read_from_input()
         df_main()
-        isCorrect(buckets.length)
+        isCorrect()
     }
 
     def df_main()
 
     val test_generator = new TestGenerator() {
+        import ec.util.ThreadLocalMT.mt
+        val examples = Array(
+            Array(White(), Blue(), Red()),
+            Array(Blue(), White(), Red(), Blue(), Red(), White(), Red()),
+            Array(Red(), White(), Blue(), Red()),
+            Array[Pebble]()
+            )
+        val example_idx = AbstractDfOptions("example_idx")
+        val rand_num_buckets = AbstractDfOptions("num_buckets")
+        val num_tests = AbstractDfOptions("num_random_tests")
         def set() {
-            val example_arr = examples(example_idx)
-            for (a <- 0 until num_buckets) {
-                put_default_input(example_arr(a).order)
+            if (example_idx != -1) {
+                val example_arr = examples(example_idx)
+                put_input(num_buckets_input, example_arr.length)
+                for (a <- 0 until example_arr.length) {
+                    put_default_input(example_arr(a).order)
+                }
+            }
+            for (tcidx <- 0 until num_tests) {
+                put_input(num_buckets_input, rand_num_buckets)
+                for (a <- 0 until rand_num_buckets) {
+                    put_default_input(mt().nextInt(3))
+                }
             }
         }
         def tests() { test_case() }
@@ -91,6 +114,8 @@ abstract class AbstractDfSketch() extends DynamicSketch {
 object AbstractDfOptions extends cli.CliOptionGroup("df", "Dutch flag options") {
     var result : cli.CliOptionResult = null
     import java.lang.Integer
-    add("--num_buckets", 10 : Integer, "number of buckets (for random generation)")
+    add("--num_buckets", 8 : Integer, "number of buckets for random tests")
+    add("--num_random_tests", 2 : Integer, "number of random tests")
     add("--example_idx", -1 : Integer, "select an example, overriding the num_buckets")
+    def apply(x : String) : Int = result.long_(x).intValue
 }

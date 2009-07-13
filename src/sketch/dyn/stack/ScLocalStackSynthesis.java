@@ -111,7 +111,7 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
             for (long a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
                     NUM_BLIND_FAST)
             {
-                if (ssr.debug_stop_after != -1 && a >= ssr.debug_stop_after) {
+                if (a >= ssr.debug_stop_after) {
                     ssr.wait_handler.wait_exhausted();
                 }
                 //

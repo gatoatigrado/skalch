@@ -12,10 +12,10 @@ import sketch.util.cli.CliOptionGroup;
 public class ScSynthesisOptions extends CliOptionGroup {
     public ScSynthesisOptions() {
         super("sy", "synthesis options");
-        add("--num_solutions", -1, "number of solutions to find");
+        add("--num_solutions", 1L << 50, "number of solutions to find");
         add("--num_threads", Runtime.getRuntime().availableProcessors(),
                 "override number of threads (default # of processors)");
-        add("--debug_stop_after", -1, "stop after a number of runs");
+        add("--debug_stop_after", 1L << 50, "stop after a number of runs");
         add("--no_clock_rand",
                 "don't seed the random number generator with the clock.");
     }

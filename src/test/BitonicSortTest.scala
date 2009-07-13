@@ -56,15 +56,15 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
             skdprint(format_swap_indices(swap_second_idx))
         }
         // print("sorted array", in_arr.toString)
-        {
-            var a = 0
-            while (a < array_len - 1) {
-                synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
-                a += 1
-            }
+        var a = 0
+        var num_violations = 0
+        while (a < array_len - 1) {
+            num_violations += (if (in_arr(a) <= in_arr(a + 1)) 0 else 1)
+            a += 1
         }
+        skAddCost(num_violations)
 //         for (a <- 0 until (array_len - 1)) synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
-        true
+        (num_violations == 0)
     }
 
     val test_generator = new TestGenerator {

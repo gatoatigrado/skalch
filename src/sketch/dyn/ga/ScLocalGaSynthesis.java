@@ -41,7 +41,6 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
 
     public class SynthesisThread extends AbstractSynthesisThread {
         protected boolean exhausted;
-        protected int nruns = 0, ncounterexamples = 0;
         protected ScGaIndividual current_individual;
         protected ScGaCtrlConf ctrl_conf;
         protected ScGaInputConf oracle_conf;
@@ -110,19 +109,18 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                 // print_colored(BASH_DEFAULT, "\n\n\n[ga-synth]", " ", false,
                 // "=== generation start ===");
                 update_stats();
-                if (gasynth.debug_stop_after != -1
-                        && a >= gasynth.debug_stop_after)
-                {
+                if (a >= gasynth.debug_stop_after) {
+                    DebugOut.print("wait exhausted...", a,
+                            gasynth.debug_stop_after);
                     gasynth.wait_handler.wait_exhausted();
                 }
                 //
                 // NOTE to readers: main call
                 blind_fast_routine();
-                iterate_populations();
-                gasynth.wait_handler.throw_if_synthesis_complete();
                 if (!ui_queue.isEmpty()) {
                     process_ui_queue(ui_queue.remove());
                 }
+                iterate_populations();
             }
         }
 

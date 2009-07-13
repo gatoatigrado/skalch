@@ -159,7 +159,7 @@ public class ScUiGui extends gui_0_1 {
                 + "<body style=\"margin-top: 0px;\">"
                 + "<p style=\"margin-top: 0.1em;\">"
                 + "color indicates how often values are changed: red "
-                + "is very often, yellow is occasionally, blue is never.");
+                + "is very often, yellow is occasionally, blue is never.</p>");
         for (Entry<String, Vector<ScSourceConstruct>> entry : info_by_filename
                 .entrySet())
         {
@@ -170,7 +170,7 @@ public class ScUiGui extends gui_0_1 {
         return result;
     }
 
-    /** sub-method for the above */
+    /** sub-method for the above (getSourceWithSynthesisValues) */
     protected void add_source_info(StringBuilder result, String key,
             Vector<ScSourceConstruct> vector)
     {
@@ -241,7 +241,8 @@ public class ScUiGui extends gui_0_1 {
             debug_text.append(String.format("<p>failure at %s (line %d)</p>",
                     assert_info.getMethodName(), assert_info.getLineNumber()));
         } else {
-            debug_text.append("<p>dysketch_main returned false</p>");
+            debug_text.append("<p>dysketch_main returned "
+                    + (debug_run.succeeded ? "true" : "false") + "</p>");
         }
         debug_text.append("  </body>\n</html>\n");
         debugOutEditor.setText(debug_text.toString());

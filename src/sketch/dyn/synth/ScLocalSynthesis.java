@@ -52,6 +52,10 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
         }
     }
 
+    public final boolean thread_alive() {
+        return (thread != null) && (thread.isAlive());
+    }
+
     public final static int NUM_BLIND_FAST = 8192;
 
     public void queueModifier(ScUiModifier m) throws ScUiQueueableInactive {

@@ -4,8 +4,8 @@ import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.ga.base.ScGaSolutionId.ScGaSolutionIdEntry;
 import sketch.dyn.inputs.ScGaInputConf;
-import sketch.ui.sourcecode.ScSourceHighlightVisitor;
 import sketch.util.ScCloneable;
+import sketch.util.ScHtmlUtil;
 
 /**
  * pretty much a tuple with a clone function. will not become the equivalent of
@@ -51,6 +51,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         result.num_asserts_passed = num_asserts_passed;
         result.num_constructs_accessed = num_constructs_accessed;
         result.age = age;
+        result.solution_id_hash = solution_id_hash;
         return result;
     }
 
@@ -133,6 +134,6 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     }
 
     public String htmlDebugString() {
-        return ScSourceHighlightVisitor.html_nonpre_code(toString());
+        return ScHtmlUtil.html_nonpre_code(toString());
     }
 }

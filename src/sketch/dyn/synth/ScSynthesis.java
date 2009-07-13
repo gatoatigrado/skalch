@@ -3,6 +3,7 @@ package sketch.dyn.synth;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.ui.ScUserInterface;
+import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
 
 /**
@@ -21,6 +22,7 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
     protected ScUserInterface ui;
     public ScExhaustedWaitHandler wait_handler;
     protected long nsolutions_found = 0;
+    public AsyncMTEvent done_events = new AsyncMTEvent();
 
     public ScSynthesis() {
         // command line options
@@ -29,16 +31,17 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         max_num_random = (int) BackendOptions.ui_opts.long_("max_num_random");
     }
 
-    public final boolean synthesize(ScSolvingInputConf[] counterexamples,
+    public final void synthesize(ScSolvingInputConf[] counterexamples,
             ScUserInterface ui)
     {
         this.ui = ui;
         wait_handler = new ScExhaustedWaitHandler(local_synthesis.length);
+        done_events.reset();
         synthesize_inner(counterexamples, ui);
         for (ScLocalSynthesis local_synth : local_synthesis) {
             local_synth.thread_wait();
         }
-        return wait_handler.synthesis_complete.get();
+        done_events.set_done();
     }
 
     protected abstract void synthesize_inner(

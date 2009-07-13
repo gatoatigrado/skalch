@@ -12,10 +12,10 @@ import sketch.ui.gui.ScUiThread;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScGaSolutionIndividual extends ScModifierDispatcher {
+public class ScGaSolutionDispatcher extends ScModifierDispatcher {
     protected ScGaIndividual my_individual;
 
-    public ScGaSolutionIndividual(ScGaIndividual individual,
+    public ScGaSolutionDispatcher(ScGaIndividual individual,
             ScUiThread ui_thread, ScUiList<ScModifierDispatcher> list)
     {
         super(ui_thread, list);

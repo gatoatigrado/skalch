@@ -19,12 +19,12 @@ import sketch.dyn.stack.ScStack;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
+import sketch.ui.modifiers.ScActiveGaDispatcher;
 import sketch.ui.modifiers.ScActiveStack;
-import sketch.ui.modifiers.ScGaSolutionIndividual;
+import sketch.ui.modifiers.ScGaSolutionDispatcher;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
-import sketch.util.DebugOut;
 import sketch.util.InteractiveThread;
 
 /**
@@ -124,6 +124,32 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }).add();
     }
 
+    public void addGaSynthesis(final ScGaSynthesis sc_ga_synthesis) {
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                gui.num_synth_active += 1;
+                new ScActiveGaDispatcher(ScUiThread.this, gui.synthCompletions,
+                        sc_ga_synthesis).add();
+            }
+        }).add();
+    }
+
+    public void addGaSolution(ScGaIndividual individual__) {
+        final ScGaIndividual individual = individual__.clone();
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                ScGaSolutionDispatcher solution_individual =
+                        new ScGaSolutionDispatcher(individual, ScUiThread.this,
+                                gui.synthCompletions);
+                solution_individual.add();
+                if (auto_display_first_solution) {
+                    auto_display_first_solution = false;
+                    solution_individual.dispatch();
+                }
+            }
+        }).add();
+    }
+
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
         new RunnableModifier(new Runnable() {
@@ -167,25 +193,5 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         public void apply() {
             runnable.run();
         }
-    }
-
-    public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis) {
-        DebugOut.todo("add ga synthesis");
-    }
-
-    public void addGaSolution(ScGaIndividual individual__) {
-        final ScGaIndividual individual = individual__.clone();
-        new RunnableModifier(new Runnable() {
-            public void run() {
-                ScGaSolutionIndividual solution_individual =
-                        new ScGaSolutionIndividual(individual, ScUiThread.this,
-                                gui.synthCompletions);
-                solution_individual.add();
-                if (auto_display_first_solution) {
-                    auto_display_first_solution = false;
-                    solution_individual.dispatch();
-                }
-            }
-        }).add();
     }
 }

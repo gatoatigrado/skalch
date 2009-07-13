@@ -15,15 +15,14 @@ import sketch.util.DebugOut;
  *          make changes, please consider contributing back!
  */
 public class ScExhaustedWaitHandler {
+    protected AtomicInteger n_exhausted = new AtomicInteger(0);
+    protected Semaphore wait = new Semaphore(0);
     private final int num_synthesis;
+    public AtomicBoolean synthesis_complete = new AtomicBoolean(false);
 
     ScExhaustedWaitHandler(int num_synthesis) {
         this.num_synthesis = num_synthesis;
     }
-
-    protected AtomicInteger n_exhausted = new AtomicInteger(0);
-    protected Semaphore wait = new Semaphore(0);
-    public AtomicBoolean synthesis_complete = new AtomicBoolean(false);
 
     public void wait_exhausted() {
         if (n_exhausted.incrementAndGet() >= num_synthesis) {

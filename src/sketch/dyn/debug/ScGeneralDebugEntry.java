@@ -2,7 +2,7 @@ package sketch.dyn.debug;
 
 import java.util.LinkedList;
 
-import sketch.ui.sourcecode.ScSourceHighlightVisitor;
+import sketch.util.ScHtmlUtil;
 
 public class ScGeneralDebugEntry extends ScDebugEntry {
     String text;
@@ -18,7 +18,7 @@ public class ScGeneralDebugEntry extends ScDebugEntry {
 
     @Override
     public String htmlString(LinkedList<String> active_html_contexts) {
-        String rv = ScSourceHighlightVisitor.html_nonpre_code(text);
+        String rv = ScHtmlUtil.html_nonpre_code(text);
         rv = "<li>" + rv + "</li>";
         if (!active_html_contexts.contains("ul")) {
             rv = "<ul>" + rv + "</ul>";

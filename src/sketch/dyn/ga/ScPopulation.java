@@ -32,6 +32,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     public ScGaParameter prob_clone_mutate;
     public ScGaParameter prob_crossover_mutate_different;
     public ScGaParameter prob_reselect;
+    protected int num_mutate_failed;
     public static int max_population_sz;
 
     /** initialize a population with a single individual */
@@ -89,7 +90,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
 
     private void clone_and_mutate(ScGaIndividual individual) {
         ScGaIndividual clone = individual.clone();
-        clone.genotype.mutate();
+        num_mutate_failed += clone.genotype.mutate() ? 0 : 1;
         add(clone);
     }
 

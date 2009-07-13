@@ -55,14 +55,13 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
             } else if (entry.match(type, uid, subuid)) {
                 break;
             }
-            DebugOut.print("following hash table chain...");
             idx = entry.next;
         }
         return idx;
     }
 
     public int get_hash(boolean type, int uid, int subuid) {
-        return (uid * 31 + subuid * 3 + (type ? 1 : 0)) & spine_mask;
+        return (uid * 36061 + subuid * 64063 + (type ? 1 : 0)) & spine_mask;
     }
 
     public String formatValuesString(ScGenotype genotype) {

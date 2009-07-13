@@ -46,16 +46,17 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
     }
 
     /** does not clone; changes this object's values */
-    public void mutate() {
+    public boolean mutate() {
         // print_colored(BASH_GREY, "[ga]", " ", false, "mutate");
         MersenneTwisterFast local_mt = mt();
         for (int a = 0; a < 16; a++) {
             int idx = local_mt.nextInt(data.length);
             data[idx] = Math.abs(local_mt.nextInt());
             if (active_data[idx]) {
-                return;
+                return true;
             }
         }
+        return false;
         // DebugOut.print_mt("didn't mutate anything; "
         // + "consider searching for longer.");
     }

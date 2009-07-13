@@ -1,8 +1,22 @@
 package test.df
 
 import skalch.DynamicSketch
+import sketch.util._
 
-abstract class AbstractDfSketch(val num_buckets : Int) extends DynamicSketch {
+abstract class AbstractDfSketch() extends DynamicSketch {
+    val example_idx = AbstractDfOptions.result.long_("example_idx").intValue
+    val examples = Array(
+        Array(White(), Blue(), Red()),
+        Array(Blue(), White(), Red(), Blue(), Red(), White(), Red()),
+        Array(Red(), White(), Blue(), Red()),
+        Array[Pebble]()
+        )
+    val num_buckets = (if (example_idx == -1) {
+        AbstractDfOptions.result.long_("num_buckets").intValue
+    } else {
+        examples(example_idx).length
+    })
+
     case class Pebble(val order : Int, val color : String) {
         override def toString = color
     }
@@ -37,10 +51,22 @@ abstract class AbstractDfSketch(val num_buckets : Int) extends DynamicSketch {
         true
     }
 
+    def isCorrect() : Boolean = isCorrect(num_buckets)
+
     def swap(i : Int, j : Int) {
         val tmp = buckets(i)
         buckets(i) = buckets(j)
         buckets(j) = tmp
+    }
+
+    def useful_swap(i : Int, j : Int) {
+        synthAssertTerminal(i != j)
+        swap(i, j)
+    }
+
+    def swap_ordered(i : Int, j : Int) {
+        synthAssertTerminal(i < j)
+        swap(i, j)
     }
 
     final def dysketch_main() : Boolean = {
@@ -52,13 +78,19 @@ abstract class AbstractDfSketch(val num_buckets : Int) extends DynamicSketch {
     def df_main()
 
     val test_generator = new TestGenerator() {
-        val arr = Array(White(), Blue(), Red())
-        assert(arr.length == num_buckets)
         def set() {
+            val example_arr = examples(example_idx)
             for (a <- 0 until num_buckets) {
-                put_default_input(arr(a).order)
+                put_default_input(example_arr(a).order)
             }
         }
         def tests() { test_case() }
     }
+}
+
+object AbstractDfOptions extends cli.CliOptionGroup("df", "Dutch flag options") {
+    var result : cli.CliOptionResult = null
+    import java.lang.Integer
+    add("--num_buckets", 10 : Integer, "number of buckets (for random generation)")
+    add("--example_idx", -1 : Integer, "select an example, overriding the num_buckets")
 }

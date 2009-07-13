@@ -30,7 +30,7 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
         this.uid = uid;
     }
 
-    protected abstract void run_inner();
+    protected abstract AbstractSynthesisThread create_synth_thread();
 
     public final void run(ScSolvingInputConf[] inputs) {
         counterexamples = ScFixedInputConf.from_inputs(inputs);
@@ -39,7 +39,8 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
         if (thread != null && thread.isAlive()) {
             DebugOut.assertFalse("localsynthesis thead alive");
         }
-        run_inner();
+        thread = create_synth_thread();
+        thread.start();
     }
 
     public final void thread_wait() {

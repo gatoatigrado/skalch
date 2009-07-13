@@ -4,6 +4,7 @@ import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.ga.base.ScGaSolutionId.ScGaSolutionIdEntry;
 import sketch.dyn.inputs.ScGaInputConf;
+import sketch.ui.sourcecode.ScSourceHighlightVisitor;
 import sketch.util.ScCloneable;
 
 /**
@@ -23,6 +24,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public int num_constructs_accessed;
     public int age;
     public int cost;
+    public int solution_id_hash = -1;
     public boolean done;
 
     public ScGaIndividual(ScGenotype genotype, ScPhenotypeMap phenotype) {
@@ -39,6 +41,10 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
                 + phenotype.formatValuesString(genotype) + ">>>]";
     }
 
+    /**
+     * NOTE - doesn't change the phenotype, but that should only be adding
+     * entries, so it shouldn't change the semantics of the genotype.
+     */
     @Override
     public ScGaIndividual clone() {
         ScGaIndividual result = new ScGaIndividual(genotype.clone(), phenotype);
@@ -48,6 +54,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         return result;
     }
 
+    /** resets accessed bits in the genotype and resets the oracle configuration */
     public void set_for_synthesis_and_reset(ScDynamicSketch sketch,
             ScGaCtrlConf ctrl_conf, ScGaInputConf oracle_conf)
     {
@@ -121,6 +128,11 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
             }
         }
         result.create_array();
+        solution_id_hash = result.hashCode();
         return result;
+    }
+
+    public String htmlDebugString() {
+        return ScSourceHighlightVisitor.html_nonpre_code(toString());
     }
 }

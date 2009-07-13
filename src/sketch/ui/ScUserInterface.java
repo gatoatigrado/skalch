@@ -27,5 +27,6 @@ public interface ScUserInterface {
 
     public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis);
 
+    /** as with stack synthesis, the individual has not been cloned yet */
     public void addGaSolution(ScGaIndividual individual);
 }

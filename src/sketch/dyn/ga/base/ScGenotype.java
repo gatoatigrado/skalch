@@ -1,8 +1,6 @@
 package sketch.dyn.ga.base;
 
 import static ec.util.ThreadLocalMT.mt;
-import static sketch.util.DebugOut.BASH_GREY;
-import static sketch.util.DebugOut.print_colored;
 import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Arrays;
@@ -49,7 +47,7 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
 
     /** does not clone; changes this object's values */
     public void mutate() {
-        print_colored(BASH_GREY, "[ga]", " ", false, "mutate");
+        // print_colored(BASH_GREY, "[ga]", " ", false, "mutate");
         MersenneTwisterFast local_mt = mt();
         for (int a = 0; a < 16; a++) {
             int idx = local_mt.nextInt(data.length);
@@ -88,8 +86,8 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
             if (active_data[change_idx]
                     && (data[change_idx] != other.data[change_idx]))
             {
-                print_colored(BASH_GREY, "[ga]", " ", false, "mutate index",
-                        change_idx);
+                // print_colored(BASH_GREY, "[ga]", " ", false, "mutate index",
+                // change_idx);
                 data[change_idx] = Math.abs(mt_local.nextInt());
                 return change_idx + 1;
             }
@@ -103,7 +101,7 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         }
         MersenneTwisterFast mt_local = mt();
         if (mt_local.nextFloat() < prob_mutate_different) {
-            print_colored(BASH_GREY, "[ga]", " ", false, "crossover mutate");
+            // print_colored(BASH_GREY, "[ga]", " ", false, "crossover mutate");
             int change_idx = 0;
             while (change_idx != -1) {
                 // find next differing, and set to a random value
@@ -113,7 +111,8 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
                 }
             }
         } else {
-            print_colored(BASH_GREY, "[ga]", " ", false, "one-point crossover");
+            // print_colored(BASH_GREY, "[ga]", " ", false,
+            // "one-point crossover");
             int randidx = mt_local.nextInt(other.data.length);
             System.arraycopy(other.data, randidx, data, randidx,
                     other.data.length - randidx);

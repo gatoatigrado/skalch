@@ -1,8 +1,5 @@
 package sketch.dyn.ga;
 
-import static sketch.util.DebugOut.BASH_DEFAULT;
-import static sketch.util.DebugOut.print_colored;
-
 import java.util.Vector;
 
 import sketch.dyn.ScClonedConstructInfo;
@@ -17,6 +14,15 @@ import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
+/**
+ * Container for a GA synthesis thread. The actual thread is an inner class
+ * because the threads will die between synthesis rounds, whereas the sketch
+ * object doesn't need to be deleted.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class ScLocalGaSynthesis extends ScLocalSynthesis {
     protected ScGaSynthesis gasynth;
 
@@ -28,10 +34,9 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
     }
 
     @Override
-    protected void run_inner() {
+    protected AbstractSynthesisThread create_synth_thread() {
         DebugOut.assertSlow(gasynth.wait_handler != null, "wait_null");
-        thread = new SynthesisThread();
-        thread.start();
+        return new SynthesisThread();
     }
 
     public class SynthesisThread extends AbstractSynthesisThread {
@@ -42,16 +47,12 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         protected ScGaInputConf oracle_conf;
         protected Vector<ScPopulation> local_populations;
 
+        /** evaluate $this.current_individual$ */
         protected void evaluate() {
             current_individual.set_for_synthesis_and_reset(sketch, ctrl_conf,
                     oracle_conf);
             sketch.solution_cost = 0;
             nruns++;
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
             trycatch: try {
                 for (ScFixedInputConf counterexample : counterexamples) {
                     ncounterexamples++;
@@ -68,24 +69,25 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             }
         }
 
+        /** evaluate all pending individuals from all local populations */
         private void blind_fast_routine() {
-            print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
-                    "=== generation eval ===");
+            // print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
+            // "=== generation eval ===");
             for (ScPopulation population : local_populations) {
                 while (population.test_queue_nonempty()) {
                     current_individual =
                             population.get_individual_for_testing();
                     evaluate();
-                    DebugOut.print_mt(current_individual);
                     population.add_done(current_individual
                             .set_done(sketch.solution_cost));
                 }
             }
         }
 
+        /** generate new individuals and kill off unfit or old ones */
         protected void iterate_populations() {
-            print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
-                    "=== generation iterate ===");
+            // print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
+            // "=== generation iterate ===");
             for (ScPopulation population : local_populations) {
                 population.generate_new_phase();
                 population.death_phase();
@@ -105,8 +107,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=
                     nruns)
             {
-                print_colored(BASH_DEFAULT, "\n\n\n[ga-synth]", " ", false,
-                        "=== generation start ===");
+                // print_colored(BASH_DEFAULT, "\n\n\n[ga-synth]", " ", false,
+                // "=== generation start ===");
                 update_stats();
                 if (gasynth.debug_stop_after != -1
                         && a >= gasynth.debug_stop_after)

@@ -3,7 +3,8 @@ package sketch.ui;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.debug.ScDebugEntry;
-import sketch.dyn.debug.ScDebugSketchRun;
+import sketch.dyn.debug.ScDebugRun;
+import sketch.dyn.debug.ScDebugStackRun;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
@@ -47,8 +48,10 @@ public class ScDebugConsoleUI implements ScUserInterface {
             return;
         }
         ScStack stack = stack__.clone();
-        ScDebugSketchRun sketch_run =
-                new ScDebugSketchRun(ui_sketch, stack, all_counterexamples);
+        printDebugRun(new ScDebugStackRun(ui_sketch, stack, all_counterexamples));
+    }
+
+    protected void printDebugRun(ScDebugRun sketch_run) {
         sketch_run.run();
         for (ScDebugEntry debug_entry : sketch_run.debug_out) {
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[skdprint]", " ",

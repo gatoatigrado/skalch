@@ -8,9 +8,11 @@ import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.inputs.ScGaInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stack.ScLocalStackSynthesis;
 import sketch.dyn.stack.ScStack;
@@ -18,6 +20,7 @@ import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
 import sketch.ui.modifiers.ScActiveStack;
+import sketch.ui.modifiers.ScGaSolutionIndividual;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
@@ -35,6 +38,8 @@ import sketch.util.InteractiveThread;
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public ScSynthesis<?> synth_runtime;
     public ScDynamicSketch sketch;
+    public ScGaCtrlConf ga_ctrl_conf;
+    public ScGaInputConf ga_oracle_conf;
     public ScUiGui gui;
     public ScFixedInputConf[] all_counterexamples;
     public AtomicInteger modifier_timestamp = new AtomicInteger(0);
@@ -45,9 +50,13 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public boolean auto_display_first_solution = true;
 
     public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketch sketch) {
-        super(0.1f);
+        super(0.05f);
         this.synth_runtime = synth_runtime;
         this.sketch = sketch;
+        if (BackendOptions.ga_opts.enable) {
+            ga_ctrl_conf = new ScGaCtrlConf(sketch.get_hole_info());
+            ga_oracle_conf = new ScGaInputConf(sketch.get_oracle_info());
+        }
         auto_display_first_solution =
                 !BackendOptions.ui_opts.bool_("no_auto_soln_disp");
         gui_list.add(this);
@@ -164,7 +173,19 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         DebugOut.todo("add ga synthesis");
     }
 
-    public void addGaSolution(ScGaIndividual individual) {
-        DebugOut.todo("solution ga synthesis individual", individual);
+    public void addGaSolution(ScGaIndividual individual__) {
+        final ScGaIndividual individual = individual__.clone();
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                ScGaSolutionIndividual solution_individual =
+                        new ScGaSolutionIndividual(individual, ScUiThread.this,
+                                gui.synthCompletions);
+                solution_individual.add();
+                if (auto_display_first_solution) {
+                    auto_display_first_solution = false;
+                    solution_individual.dispatch();
+                }
+            }
+        }).add();
     }
 }

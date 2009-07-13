@@ -23,7 +23,6 @@ import sketch.util.DebugOut;
  */
 public class ScLocalStackSynthesis extends ScLocalSynthesis {
     protected ScStackSynthesis ssr;
-    public SynthesisThread thread;
     public ScStack longest_stack;
     public Vector<ScStack> random_stacks;
 
@@ -35,10 +34,9 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
     }
 
     @Override
-    public void run_inner() {
+    public SynthesisThread create_synth_thread() {
         random_stacks = new Vector<ScStack>();
-        thread = new SynthesisThread();
-        thread.start();
+        return new SynthesisThread();
     }
 
     public class SynthesisThread extends AbstractSynthesisThread {

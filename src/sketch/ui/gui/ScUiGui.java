@@ -17,7 +17,10 @@ import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.debug.ScDebugEntry;
-import sketch.dyn.debug.ScDebugSketchRun;
+import sketch.dyn.debug.ScDebugGaRun;
+import sketch.dyn.debug.ScDebugRun;
+import sketch.dyn.debug.ScDebugStackRun;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
@@ -121,6 +124,25 @@ public class ScUiGui extends gui_0_1 {
     /** this all happens on the UI thread, but it shouldn't be that slow */
     public void fillWithStack(ScStack stack) {
         // get source
+        stack.set_fixed_for_illustration(ui_thread.sketch);
+        StringBuilder result = getSourceWithSynthesisValues();
+        result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
+                + "there are bugs above or it's less readable)<br />\n");
+        result.append(stack.htmlDebugString());
+        result.append("\n</p>\n</body>\n</html>");
+        sourceCodeEditor.setText(result.toString());
+        add_debug_info(new ScDebugStackRun(ui_thread.sketch, stack,
+                ui_thread.all_counterexamples));
+        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+            scroll_topleft();
+        }
+    }
+
+    /**
+     * get a string builder with html representing the source and filled in
+     * values; most work done by add_source_info()
+     */
+    protected StringBuilder getSourceWithSynthesisValues() {
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
         for (ScSourceConstruct hole_info : ui_thread.sketch.ctrl_src_info) {
@@ -130,7 +152,6 @@ public class ScUiGui extends gui_0_1 {
             }
             info_by_filename.get(f).add(hole_info);
         }
-        stack.set_fixed_for_illustration(ui_thread.sketch);
         ScSourceCache.singleton().add_filenames(info_by_filename.keySet());
         StringBuilder result = new StringBuilder();
         result.append("<html>\n  <head>\n<style>\nbody {\n"
@@ -146,18 +167,11 @@ public class ScUiGui extends gui_0_1 {
             add_source_info(result, entry.getKey(), entry.getValue());
             result.append("</pre></p><hr />");
         }
-        result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
-                + "there are bugs above or it's less readable)<br />\n");
-        result.append(stack.htmlDebugString());
-        result.append("\n</p>\n</body>\n</html>");
-        sourceCodeEditor.setText(result.toString());
-        add_debug_info(stack);
-        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
-            scroll_topleft();
-        }
+        return result;
     }
 
-    private void add_source_info(StringBuilder result, String key,
+    /** sub-method for the above */
+    protected void add_source_info(StringBuilder result, String key,
             Vector<ScSourceConstruct> vector)
     {
         ScSourceConstruct[] hole_info_sorted =
@@ -205,16 +219,10 @@ public class ScUiGui extends gui_0_1 {
     }
 
     /**
-     * reruns the stack, collecting any debug print statements. NOTE - keep this
-     * in sync with ScLocalStackSynthesis
+     * reruns the stack, collecting any debug print statements.
      */
-    private void add_debug_info(ScStack stack) {
-        ui_thread.sketch.enable_debug();
-        stack.set_for_synthesis(ui_thread.sketch);
-        ScDebugSketchRun sketch_run =
-                new ScDebugSketchRun(ui_thread.sketch, stack,
-                        ui_thread.all_counterexamples);
-        sketch_run.run();
+    private void add_debug_info(ScDebugRun debug_run) {
+        debug_run.run();
         //
         StringBuilder debug_text = new StringBuilder();
         debug_text.append("<html>\n  <head>\n<style>\n"
@@ -224,12 +232,12 @@ public class ScUiGui extends gui_0_1 {
         LinkedList<String> html_contexts = new LinkedList<String>();
         html_contexts.add("body");
         html_contexts.add("ul");
-        for (ScDebugEntry debug_entry : sketch_run.debug_out) {
+        for (ScDebugEntry debug_entry : debug_run.debug_out) {
             debug_text.append(debug_entry.htmlString(html_contexts));
         }
         debug_text.append("\n</ul>\n");
-        if (sketch_run.assert_failed()) {
-            StackTraceElement assert_info = sketch_run.assert_info;
+        if (debug_run.assert_failed()) {
+            StackTraceElement assert_info = debug_run.assert_info;
             debug_text.append(String.format("<p>failure at %s (line %d)</p>",
                     assert_info.getMethodName(), assert_info.getLineNumber()));
         } else {
@@ -241,5 +249,24 @@ public class ScUiGui extends gui_0_1 {
 
     public void disableStopButton() {
         stopButton.setEnabled(false);
+    }
+
+    public void fillWithGaIndividual(ScGaIndividual individual) {
+        ScGaIndividual clone = individual.clone();
+        clone.reset_fitness();
+        clone.set_for_synthesis_and_reset(ui_thread.sketch,
+                ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf);
+        StringBuilder result = getSourceWithSynthesisValues();
+        result.append("<p style=\"color: #aaaaaa;\"> ga synthesis "
+                + "individual<br />\n");
+        result.append(individual.htmlDebugString());
+        result.append("\n</p>\n</body>\n</html>");
+        sourceCodeEditor.setText(result.toString());
+        add_debug_info(new ScDebugGaRun(ui_thread.sketch,
+                ui_thread.all_counterexamples, individual,
+                ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf));
+        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+            scroll_topleft();
+        }
     }
 }

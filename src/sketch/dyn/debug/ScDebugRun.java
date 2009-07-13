@@ -34,6 +34,7 @@ public abstract class ScDebugRun {
 
     /** feel free to change this method if you need more hooks */
     public final void run() {
+        run_init();
         sketch.solution_cost = 0;
         sketch.enable_debug();
         assert_info = null;

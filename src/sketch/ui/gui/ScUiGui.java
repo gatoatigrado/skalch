@@ -9,7 +9,6 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -55,21 +54,7 @@ public class ScUiGui extends gui_0_1 {
     public ScUiGui(ScUiThread ui_thread) {
         super();
         this.ui_thread = ui_thread;
-        KeyStroke escKeyStroke =
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        Action escapeAction = new AbstractAction() {
-            private static final long serialVersionUID = 1173509525674124142L;
-
-            public void actionPerformed(ActionEvent e) {
-                stopSolver();
-                setVisible(false);
-                dispose();
-                ScUiGui.this.ui_thread.set_stop();
-            }
-        };
-        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                escKeyStroke, "ESCAPE");
-        getRootPane().getActionMap().put("ESCAPE", escapeAction);
+        setupKeys();
         context_len = (int) BackendOptions.ui_opts.long_("context_len");
         context_split_len =
                 (int) BackendOptions.ui_opts.long_("context_split_len");
@@ -85,6 +70,62 @@ public class ScUiGui extends gui_0_1 {
                         synthCompletionList,
                         (Class<ScModifierDispatcher[]>) (new ScModifierDispatcher[0])
                                 .getClass(), max_list_length);
+    }
+
+    @SuppressWarnings("serial")
+    public abstract class KeyAction extends AbstractAction {
+        public abstract void action();
+
+        public final void add(int key_event0, boolean key_release) {
+            KeyStroke my_keystroke =
+                    KeyStroke.getKeyStroke(key_event0, 0, key_release);
+            getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    my_keystroke, this);
+            getRootPane().getActionMap().put(this, this);
+        }
+
+        public final void actionPerformed(ActionEvent e) {
+            action();
+        }
+    }
+
+    /** setup keyboard shortcuts */
+    protected void setupKeys() {
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                stopSolver();
+                setVisible(false);
+                dispose();
+                ui_thread.set_stop();
+            }
+        }).add(KeyEvent.VK_ESCAPE, false);
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                ScModifierDispatcher[] selected =
+                        synthCompletions.getSelected();
+                if (selected.length >= 1) {
+                    synthCompletions.select_next(selected[0]).dispatch();
+                }
+            }
+        }).add(KeyEvent.VK_J, true);
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                ScModifierDispatcher[] selected =
+                        synthCompletions.getSelected();
+                if (selected.length >= 1) {
+                    synthCompletions.select_prev(selected[0]).dispatch();
+                }
+            }
+        }).add(KeyEvent.VK_K, true);
     }
 
     // === ui functions ===

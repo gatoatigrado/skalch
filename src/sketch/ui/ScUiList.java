@@ -53,6 +53,20 @@ public class ScUiList<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public T select_next(T elt) {
+        int idx = Math.min(list_model.indexOf(elt) + 1, list_model.size() - 1);
+        list.setSelectedIndex(idx);
+        return (T) list_model.elementAt(idx);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T select_prev(T elt) {
+        int idx = Math.max(0, list_model.indexOf(elt) - 1);
+        list.setSelectedIndex(idx);
+        return (T) list_model.elementAt(idx);
+    }
+
     // 1.5 compatibility
     @SuppressWarnings("unchecked")
     public static <NEW, OLD> NEW[] arrayCopy(OLD[] original, int newLength,

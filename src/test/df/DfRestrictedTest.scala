@@ -32,18 +32,24 @@ class DfRestrictedSketch() extends AbstractDfSketch() {
                 swap(registers(color).value, i)
             }
 
-            if (color != ??(3)) {
-                val regidx0 = !!(num_registers)
-                val regidx1 = !!(num_registers)
+            synthAssertTerminal(registers(2).value == i)
+
+            if (!!()) {
+                val regidx0 = 1  // !!(num_registers)
+                val regidx1 = 2  // !!(num_registers)
                 // NOTE - this is too restrictive...
                 // swap(registers(color).value, registers(!!(num_registers)).value)
                 // while this works
+                skdprint_loc("swap 1 and 2")
+                skdprint("idx " + i)
+                skdprint(abbrev_str())
                 swap(registers(regidx0).value, registers(regidx1).value)
                 skAddCost(1)
                 // I only want to learn about these ones
                 //synthAssertTerminal(registers(regidx0).value != registers(regidx1).value)
                 //synthAssertTerminal(regidx0 != regidx1)
             }
+            synthAssertTerminal(isCorrect(i + 1))
 
             // I want the registers to be indices in which to insert the next element of a particular color
             while (color < 3) {

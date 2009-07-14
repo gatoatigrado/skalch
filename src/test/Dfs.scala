@@ -26,58 +26,26 @@ class DfsSketch() extends DynamicSketch {
         true
     }
 
-    /*
-    each child with multiple children gives the oracle to re-order those children, and the fix them sometime on the way up, giving more valid traces
-
-    a node with two children that point to the same node will also introduce new multiple traces
-    */
-
     class Graph(n: Int, seed: Long = 1983) {
         val nodes = new ArrayBuffer[Node]
 
-        //val e = new Node("e")
-        //val d = new Node("d")
+        /*
+        val d = new Node("d")
+        val c = new Node("c", d)
+        val b = new Node("b", d)
+        val a = new Node("a", b, c)
+
+        nodes ++= List(a,b,c,d)
+        */
+
         val c = new Node("c")
         val b = new Node("b")
         val a = new Node("a", b, c)
 
-        /*
-            e.children += e
-            e.children += e
-            e.children += e
-        */
+        nodes ++= List(a,b,c)
 
         val root = a
-
-        nodes ++= List(a,b,c)
         
-        /* // code for randomly generating a graph
-        {
-            var i: Int = 0
-
-            import scala.util.Random
-          
-            i = 0
-            while(i < n) {
-                nodes += new Node("" + i)
-                i += 1
-            }
-
-            val rng = new Random
-            rng.setSeed(seed)
-
-            i = 0
-            while(i < n * 10) {
-                val parent = nodes(rng.nextInt(nodes.length))
-                val child  = nodes(rng.nextInt(nodes.length))
-                parent.children += child
-                i += 1
-            }
-
-            nodes(0)
-        }
-        */
-
         def checkpoint() {
             for(node <- nodes) {
                 node.checkpoint()
@@ -115,8 +83,9 @@ class DfsSketch() extends DynamicSketch {
 
         for(child <- newChildren) children += child
 
+        var uninspected = 0
+
         def visit() {
-            synthAssertTerminal(visited == false)
             this.visited = true
         }
         
@@ -198,7 +167,12 @@ class DfsSketch() extends DynamicSketch {
         def push(x: A, to: Seq[Location[A]]) {
             reference.push(x)
 
-            val storage = to ++ extraLocations
+            var storage = List() ++ extraLocations
+
+            if(to.length > 0) {
+                storage ++= List(!!(to))
+            }
+
             !!(storage).write(x)
 
             val values = new ListBuffer[A]
@@ -210,6 +184,10 @@ class DfsSketch() extends DynamicSketch {
             for(location <- storage) {
                 location.write(values.remove(!!(values.length)))
             }
+
+            for(location <- to) {
+                synthAssertTerminal(location.read != null)
+            }
         }
 
         def pop(from: Seq[Location[A]]) = {
@@ -219,14 +197,15 @@ class DfsSketch() extends DynamicSketch {
 
             var found = false
 
-            val storage = from ++ extraLocations
-
-            for(location <- storage) {
-                if(need == location.read)
+            for(location <- extraLocations) {
+                if(need == location.read) {
                     found = true
+                }
             }
 
             synthAssertTerminal(found)
+
+            val storage = extraLocations ++ from
 
             val values = new ListBuffer[A]
 
@@ -242,7 +221,21 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    def mkLocations[A](b: Buffer[A]): Seq[Location[A]] = (0 until b.length).map(i => new BufferLocation(b, i))
+    def mkLocations[A](b: Buffer[A]): Seq[Location[A]] = {
+        val locations = new ArrayBuffer[Location[A]]
+
+        var i = 0
+        while(i < b.length) {
+            locations += new BufferLocation(b, i)
+            i += 1
+        }
+
+        locations
+    }
+
+    def printState(s: String, stack: KeyholeStack[Node], g: Graph) {
+        skdprint(s + "\n" + stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
+    }
 
     def dfs(g: Graph) {
         val root   = g.root
@@ -253,15 +246,11 @@ class DfsSketch() extends DynamicSketch {
         var extraLocations = List[Location[Node]](new GeneralLocation[Node](() => current, (x) => current = x))
 
         val stack = new KeyholeStack[Node](1)
-        stack.push(origin, new ArrayBuffer[Location[Node]])
+        stack.push(origin, mkLocations(origin.children))
 
-        var step = 0
+        printState("original state: ", stack, g);
+
         while(current != origin) {
-            synthAssertTerminal(step < 10)
-            step += 1
-
-            skdprint(stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
-
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
             } else {
@@ -271,23 +260,35 @@ class DfsSketch() extends DynamicSketch {
 
             var next: Node = null
 
+            /*
+            while(current.uninspected < current.children.length && next == null) {
+                if(!current.children(current.uninspected).visited) {
+                    next = current.children(current.uninspected)
+                    //current.uninspected -= 1
+                }
+
+                current.uninspected += 1
+            }
+            */
+
             for(child <- current.children if child != null && !child.visited && next == null) {
                 next = child
             }
 
             if(next != null) {
-                stack.push(current, mkLocations(current.children))
+                stack.push(current, mkLocations(current.children) ++ extraLocations)
+                printState("going to visit " + next.name + ", graph after pushing " + current.name + ":", stack, g);
                 current = next
             } else {
                 // backtrack
+                var s = " from " + current.name
                 current = stack.pop(mkLocations(current.children) ++ extraLocations)
+                printState("going back to " + current.name + s + ", graph after pop: ", stack, g)
             }
         }
-
-        skdprint(stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
     }
 
-    val test_generator = NullTestGenerator
+    val test_generator = NullTestGenerator;
 }
 
 object Dfs {

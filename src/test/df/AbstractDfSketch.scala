@@ -63,7 +63,7 @@ abstract class AbstractDfSketch() extends DynamicSketch {
         buckets(j) = tmp
     }
 
-    def useful_swap(i : Int, j : Int) {
+    def swap_useful(i : Int, j : Int) {
         synthAssertTerminal(i != j)
         swap(i, j)
     }
@@ -74,11 +74,20 @@ abstract class AbstractDfSketch() extends DynamicSketch {
     }
 
     final def dysketch_main() : Boolean = {
-        read_from_input()
-        df_main()
-        isCorrect()
+        var i = 0
+        df_init()
+        while (i < num_total_tests) {
+            read_from_input()
+            df_main()
+            if (!isCorrect()) {
+                return false
+            }
+            i += 1
+        }
+        true
     }
 
+    def df_init() { }
     def df_main()
 
     val test_generator = new TestGenerator() {
@@ -92,6 +101,7 @@ abstract class AbstractDfSketch() extends DynamicSketch {
         val example_idx = AbstractDfOptions("example_idx")
         val rand_num_buckets = AbstractDfOptions("num_buckets")
         val num_tests = AbstractDfOptions("num_random_tests")
+        val num_total_tests = num_tests + (if (example_idx != -1) 1 else 0)
         def set() {
             if (example_idx != -1) {
                 val example_arr = examples(example_idx)
@@ -109,13 +119,14 @@ abstract class AbstractDfSketch() extends DynamicSketch {
         }
         def tests() { test_case() }
     }
+    val num_total_tests = test_generator.num_total_tests
 }
 
 object AbstractDfOptions extends cli.CliOptionGroup("df", "Dutch flag options") {
     var result : cli.CliOptionResult = null
     import java.lang.Integer
     add("--num_buckets", 8 : Integer, "number of buckets for random tests")
-    add("--num_random_tests", 2 : Integer, "number of random tests")
+    add("--num_random_tests", 10 : Integer, "number of random tests")
     add("--example_idx", -1 : Integer, "select an example, overriding the num_buckets")
     def apply(x : String) : Int = result.long_(x).intValue
 }

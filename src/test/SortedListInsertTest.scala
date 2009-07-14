@@ -38,7 +38,7 @@ class SortedListInsertSketch(val list_length : Int,
         while (idx < length) {
             step /= 2
             val other = arr(idx)
-            if (v <= other) {
+            if (v < other) {
                 // an index at or before $other$
                 if (idx == 0) {
                     skdprint("at zero, return zero")
@@ -107,7 +107,7 @@ object SortedListInsertTest {
     object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
         add("--list_length", 10 : Integer, "length of list")
-        add("--num_tests", 1 : Integer, "number of tests")
+        add("--num_tests", 10 : Integer, "number of tests")
     }
 
     def main(args : Array[String]) = {

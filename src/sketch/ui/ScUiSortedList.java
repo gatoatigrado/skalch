@@ -27,8 +27,8 @@ public class ScUiSortedList<T extends Comparable<T>> extends ScUiList<T> {
             while (insert_idx < sz) {
                 step /= 2;
                 T other = (T) list_model.getElementAt(insert_idx);
-                boolean elt_leq_other = (element.compareTo(other) <= 0);
-                if (elt_leq_other) {
+                boolean elt_lt_other = (element.compareTo(other) < 0);
+                if (elt_lt_other) {
                     if (insert_idx == 0) {
                         // have element <= other[0], insert at position 0
                         break;
@@ -36,7 +36,7 @@ public class ScUiSortedList<T extends Comparable<T>> extends ScUiList<T> {
                         T other_left =
                                 (T) list_model.getElementAt(insert_idx - 1);
                         if (other_left.compareTo(element) <= 0) {
-                            // other_left <= element <= other
+                            // other_left <= element < other
                             break;
                         } else {
                             // search left subtree to find closer values
@@ -52,9 +52,13 @@ public class ScUiSortedList<T extends Comparable<T>> extends ScUiList<T> {
                     }
                 }
             }
-            list_model.add(insert_idx, element);
             if (list_model.getSize() >= max_entries) {
-                list_model.removeElementAt(list_model.getSize() - 1);
+                if (insert_idx < max_entries - 1) {
+                    list_model.add(insert_idx, element);
+                    list_model.removeElementAt(list_model.getSize() - 1);
+                }
+            } else {
+                list_model.add(insert_idx, element);
             }
         }
     }

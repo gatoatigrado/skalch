@@ -1,10 +1,10 @@
 package sketch.dyn.stats;
 
+import static sketch.util.DebugOut.BASH_SALMON;
 import static sketch.util.DebugOut.assertFalse;
+import static sketch.util.DebugOut.print_colored;
 
 import java.util.concurrent.atomic.AtomicLong;
-
-import sketch.util.DebugOut;
 
 /**
  * the only stats class. update the num_runs and num_counterexamples at a coarse
@@ -17,6 +17,7 @@ import sketch.util.DebugOut;
 public class ScStatsMT {
     protected AtomicLong nrun = new AtomicLong(0);
     protected AtomicLong ncounterexamples = new AtomicLong(0);
+    protected AtomicLong nsolutions = new AtomicLong(0);
     protected long start_time, end_time;
     public static ScStatsMT stats_singleton;
 
@@ -35,28 +36,29 @@ public class ScStatsMT {
         ncounterexamples.addAndGet(ncounterexamples_);
     }
 
-    public long num_run_test() {
-        return nrun.get();
-    }
-
-    public long num_try_counterexample() {
-        return ncounterexamples.get();
+    public void num_solutions(int nsolutions) {
+        this.nsolutions.addAndGet(nsolutions);
     }
 
     public void start_synthesis() {
         start_time = System.currentTimeMillis();
     }
 
+    private void print_line(String line) {
+        print_colored(BASH_SALMON, "[stats] ", "", false, line);
+    }
+
     public void stop_synthesis() {
         end_time = System.currentTimeMillis();
         float synth_time = (get_synthesis_time()) / 1000.f;
-        float ncouterexamples = num_try_counterexample();
-        float ntests = num_run_test();
+        float ntests = nrun.get();
         float tests_per_sec = ntests / synth_time;
-        DebugOut.print_colored(DebugOut.BASH_SALMON, "[stats] ", "\n", false,
-                "=== statistics ===", "num tests run: " + ntests,
-                "    num counterexamples run: " + ncouterexamples,
-                "time taken: " + synth_time, "runs / sec: " + tests_per_sec);
+        print_line("=== statistics ===");
+        print_line("num tests run: " + ntests);
+        print_line("    num counterexamples run: " + ncounterexamples.get());
+        print_line("    num solutions: " + nsolutions.get());
+        print_line("time taken: " + synth_time);
+        print_line("    runs / sec: " + tests_per_sec);
     }
 
     public long get_synthesis_time() {

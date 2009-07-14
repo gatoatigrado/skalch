@@ -51,21 +51,19 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
         protected boolean blind_fast_routine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
                 boolean force_pop = false;
-                // run the program
-                // trycatch doesn't seem slow.
                 trycatch: try {
                     stack.reset_before_run();
                     sketch.solution_cost = 0;
-                    nruns++;
-                    // DebugOut.print_mt("running test");
+                    nruns += 1;
                     for (ScFixedInputConf counterexample : counterexamples) {
-                        ncounterexamples++;
+                        ncounterexamples += 1;
                         counterexample.set_input_for_sketch(sketch);
                         // ssr.reachability_check.check(sketch);
                         if (!sketch.dysketch_main()) {
                             break trycatch;
                         }
                     }
+                    nsolutions += 1;
                     ssr.add_solution(stack, sketch.solution_cost);
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {

@@ -106,15 +106,14 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }).add();
     }
 
-    public void addStackSolution(ScStack stack, int solution_cost) {
-        final ScStack stack_to_add = stack.clone();
+    public void addStackSolution(ScStack stack__, int solution_cost) {
+        final ScStack stack_to_add = stack__.clone();
         stack_to_add.setCost(solution_cost);
-        final ScUiThread target = this;
         new RunnableModifier(new Runnable() {
             public void run() {
                 ScSolutionStack solution =
-                        new ScSolutionStack(target,
-                                target.gui.synthCompletions, stack_to_add);
+                        new ScSolutionStack(ScUiThread.this,
+                                gui.synthCompletions, stack_to_add);
                 solution.add();
                 if (auto_display_first_solution) {
                     auto_display_first_solution = false;

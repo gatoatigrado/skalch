@@ -51,15 +51,16 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             current_individual.set_for_synthesis_and_reset(sketch, ctrl_conf,
                     oracle_conf);
             sketch.solution_cost = 0;
-            nruns++;
+            nruns += 1;
             trycatch: try {
                 for (ScFixedInputConf counterexample : counterexamples) {
-                    ncounterexamples++;
+                    ncounterexamples += 1;
                     counterexample.set_input_for_sketch(sketch);
                     if (!sketch.dysketch_main()) {
                         break trycatch;
                     }
                 }
+                nsolutions += 1;
                 gasynth.add_solution(current_individual);
             } catch (ScSynthesisAssertFailure e) {
             } catch (ScDynamicUntilvException e) {

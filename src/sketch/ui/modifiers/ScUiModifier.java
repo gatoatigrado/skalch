@@ -1,6 +1,10 @@
 package sketch.ui.modifiers;
 
+import static sketch.util.DebugOut.assertFalse;
+import static sketch.util.DebugOut.print_mt;
+
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import sketch.dyn.ga.ScLocalGaSynthesis;
 import sketch.dyn.ga.ScLocalGaSynthesis.SynthesisThread;
@@ -31,11 +35,13 @@ public final class ScUiModifier {
     private AtomicInteger enqueue_remaining;
     protected ScUserInterface ui;
     public ScUiModifierInner modifier;
+    public static AtomicLong queued_modifiers = new AtomicLong(0);
 
     public ScUiModifier(ScUserInterface ui, ScUiModifierInner modifier) {
         timestamp = ui.nextModifierTimestamp();
         this.ui = ui;
         this.modifier = modifier;
+        queued_modifiers.incrementAndGet();
     }
 
     public final void enqueueTo(ScUiQueueable... targets)
@@ -51,6 +57,12 @@ public final class ScUiModifier {
     public final void setInfoComplete() {
         if (enqueue_remaining.decrementAndGet() == 0) {
             ui.modifierComplete(this);
+            long remaining = queued_modifiers.decrementAndGet();
+            if (remaining < 0) {
+                assertFalse("bad bug - modifiers remaining < 0");
+            } else if (remaining > 1000) {
+                print_mt("WARNING - a large number of unfinished modifiers exist.");
+            }
         }
     }
 

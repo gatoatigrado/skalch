@@ -239,10 +239,6 @@ class DfsSketch() extends DynamicSketch {
         while(current != origin) {
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
-                val temp = current.children(current.uninspected)
-                current.children(current.uninspected) = previous
-                previous = temp
-                current.uninspected += 1
             } else {
                 skdprint("Visiting: " + current.name)
                 current.visit()
@@ -253,20 +249,23 @@ class DfsSketch() extends DynamicSketch {
             while(next == null && current.uninspected < current.children.length) {
                 if(!current.children(current.uninspected).visited) {
                     next = current.children(current.uninspected)
-                    current.children(current.uninspected) = previous
                 } else {
                     current.uninspected += 1
                 }
             }
 
             if(next != null) {
+                current.children(current.uninspected) = previous
                 previous = current
                 current = next
             } else {
-                // backtrack
-                var temp = current
+                val to_restore = current
                 current  = previous
-                previous = temp
+                
+                previous = current.children(current.uninspected)
+                current.children(current.uninspected) = to_restore
+
+                current.uninspected += 1
             }
         }
     }

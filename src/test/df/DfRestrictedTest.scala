@@ -34,14 +34,14 @@ class DfRestrictedSketch() extends AbstractDfSketch() {
 
             synthAssertTerminal(registers(2).value == i)
 
-            if (!!() && (color == 0)) {
+            if ((color == 0) && (registers(0).value < registers(1).value) && (registers(1).value < registers(2).value)) {
                 val regidx0 = 1  // !!(num_registers)
                 val regidx1 = 2  // !!(num_registers)
                 // NOTE - this is too restrictive...
                 // swap(registers(color).value, registers(!!(num_registers)).value)
                 // while this works
                 skdprint_loc("swap 1 and 2")
-                skdprint("idx " + i + "; " + "color = " + color)
+                skdprint("idx " + i + "; " + "registers = " + ("" /: registers.view(0, num_registers))(_ + ", " + _.value) )
                 skdprint(abbrev_str())
                 swap_useful(registers(regidx0).value, registers(regidx1).value)
                 skAddCost(1)

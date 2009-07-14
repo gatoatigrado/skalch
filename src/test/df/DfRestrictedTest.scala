@@ -10,7 +10,7 @@ class DfRestrictedSketch() extends AbstractDfSketch() {
     var num_registers = -1
 
     override def df_init() {
-        num_registers = !!(6) + 1
+        num_registers = !!(2) + 3
         skAddCost(num_registers)
     }
 
@@ -22,26 +22,32 @@ class DfRestrictedSketch() extends AbstractDfSketch() {
         }
     }
 
-    def read_reg(idx : Int) : Int = {
-        val rv = registers(idx).value
-        assert(idx < num_registers)
-        assert(rv >= 0)
-        rv
-    }
-
     def df_main() {
         skdprint_loc("df_main()")
         reset_registers()
-        for (i <- (0 until num_buckets)) {
-            buckets(i) match {
-                case Blue() =>
-                    swap(read_reg(!!(num_registers)), i)
-                case Red() =>
-                    swap(read_reg(!!(num_registers)), i)
-                case White() =>
-                    swap(read_reg(!!(num_registers)), i)
+        var i = 0
+        while (i < num_buckets) {
+            var color = buckets(i).order
+            if (registers(color).value != i) {
+                swap(registers(color).value, i)
             }
+
+            if (!!()) {
+                // NOTE - this is too restrictive...
+                // swap(registers(color).value, registers(!!(num_registers)).value)
+                // while this works
+                swap(registers(!!(num_registers)).value, registers(!!(num_registers)).value)
+                skAddCost(1)
+            }
+
+            // I want the registers to be indices in which to insert the next element of a particular color
+            while (color < 3) {
+                registers(color).value += 1
+                color += 1
+            }
+
             skdprint(abbrev_str())
+            i += 1
         }
     }
 }

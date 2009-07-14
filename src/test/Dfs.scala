@@ -29,20 +29,12 @@ class DfsSketch() extends DynamicSketch {
     class Graph(n: Int, seed: Long = 1983) {
         val nodes = new ArrayBuffer[Node]
 
-        /*
         val d = new Node("d")
         val c = new Node("c", d)
         val b = new Node("b", d)
         val a = new Node("a", b, c)
 
         nodes ++= List(a,b,c,d)
-        */
-
-        val c = new Node("c")
-        val b = new Node("b")
-        val a = new Node("a", b, c)
-
-        nodes ++= List(a,b,c)
 
         val root = a
         
@@ -242,17 +234,15 @@ class DfsSketch() extends DynamicSketch {
         val origin = new Node("origin", root)
 
         var current  = root
-
-        var extraLocations = List[Location[Node]](new GeneralLocation[Node](() => current, (x) => current = x))
-
-        val stack = new KeyholeStack[Node](1)
-        stack.push(origin, mkLocations(origin.children))
-
-        printState("original state: ", stack, g);
+        var previous = origin
 
         while(current != origin) {
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
+                val temp = current.children(current.uninspected)
+                current.children(current.uninspected) = previous
+                previous = temp
+                current.uninspected += 1
             } else {
                 skdprint("Visiting: " + current.name)
                 current.visit()
@@ -260,30 +250,23 @@ class DfsSketch() extends DynamicSketch {
 
             var next: Node = null
 
-            /*
-            while(current.uninspected < current.children.length && next == null) {
+            while(next == null && current.uninspected < current.children.length) {
                 if(!current.children(current.uninspected).visited) {
                     next = current.children(current.uninspected)
-                    //current.uninspected -= 1
+                    current.children(current.uninspected) = previous
+                } else {
+                    current.uninspected += 1
                 }
-
-                current.uninspected += 1
-            }
-            */
-
-            for(child <- current.children if child != null && !child.visited && next == null) {
-                next = child
             }
 
             if(next != null) {
-                stack.push(current, mkLocations(current.children) ++ extraLocations)
-                printState("going to visit " + next.name + ", graph after pushing " + current.name + ":", stack, g);
+                previous = current
                 current = next
             } else {
                 // backtrack
-                var s = " from " + current.name
-                current = stack.pop(mkLocations(current.children) ++ extraLocations)
-                printState("going back to " + current.name + s + ", graph after pop: ", stack, g)
+                var temp = current
+                current  = previous
+                previous = temp
             }
         }
     }

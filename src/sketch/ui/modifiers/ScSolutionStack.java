@@ -1,10 +1,17 @@
 package sketch.ui.modifiers;
 
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.gui.ScUiThread;
 
+/**
+ * display a solution stack
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class ScSolutionStack extends ScModifierDispatcher {
     protected ScStack my_stack;
 

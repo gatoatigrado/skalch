@@ -3,11 +3,14 @@ package sketch.ui;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.debug.ScDebugEntry;
-import sketch.dyn.debug.ScDebugSketchRun;
+import sketch.dyn.debug.ScDebugRun;
+import sketch.dyn.debug.ScDebugStackRun;
+import sketch.dyn.ga.ScGaSynthesis;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
@@ -39,14 +42,16 @@ public class ScDebugConsoleUI implements ScUserInterface {
         return 0;
     }
 
-    public void addSolution(ScStack stack__, int solution_cost) {
+    public void addStackSolution(ScStack stack__, int solution_cost) {
         DebugOut.print_mt("solution with stack", stack__);
         if (BackendOptions.ui_opts.bool_("no_console_skdprint")) {
             return;
         }
         ScStack stack = stack__.clone();
-        ScDebugSketchRun sketch_run =
-                new ScDebugSketchRun(ui_sketch, stack, all_counterexamples);
+        printDebugRun(new ScDebugStackRun(ui_sketch, stack, all_counterexamples));
+    }
+
+    protected void printDebugRun(ScDebugRun sketch_run) {
         sketch_run.run();
         for (ScDebugEntry debug_entry : sketch_run.debug_out) {
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[skdprint]", " ",
@@ -61,5 +66,13 @@ public class ScDebugConsoleUI implements ScUserInterface {
                     "[user requested print]", "\n", true, text);
         }
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
+    }
+
+    public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis) {
+        DebugOut.todo("add ga synthesis for debug");
+    }
+
+    public void addGaSolution(ScGaIndividual individual) {
+        DebugOut.todo("solution ga synthesis individual", individual);
     }
 }

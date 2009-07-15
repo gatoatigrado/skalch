@@ -1,9 +1,11 @@
 package sketch.dyn.inputs;
 
+import static sketch.util.ScArrayUtil.extend_arr;
+
 import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
 import sketch.util.RichString;
@@ -147,27 +149,13 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         num_uids = prev.num_uids;
     }
 
-    @SuppressWarnings("unchecked")
     private void realloc(int min_length) {
         DebugOut.print_mt("realloc");
         int next_length = Math.max(min_length, values.length * 2);
-        Vector<Integer>[] next_values = new Vector[next_length];
-        Vector<Integer>[] next_set_cnt = new Vector[next_length];
-        Vector<Integer>[] next_untilv = new Vector[next_length];
-        int[] next_next = new int[next_length];
-        System.arraycopy(values, 0, next_values, 0, values.length);
-        System.arraycopy(set_cnt, 0, next_set_cnt, 0, set_cnt.length);
-        System.arraycopy(untilv, 0, next_untilv, 0, untilv.length);
-        System.arraycopy(next, 0, next_next, 0, next.length);
-        for (int a = values.length; a < next_length; a++) {
-            next_values[a] = new Vector<Integer>(10);
-            next_set_cnt[a] = new Vector<Integer>(10);
-            next_untilv[a] = new Vector<Integer>(10);
-        }
-        values = next_values;
-        set_cnt = next_set_cnt;
-        untilv = next_untilv;
-        next = next_next;
+        values = extend_arr(values, next_length, 10, 0);
+        set_cnt = extend_arr(set_cnt, next_length, 10, 0);
+        untilv = extend_arr(untilv, next_length, 10, 0);
+        next = extend_arr(next, next_length);
     }
 
     @Override

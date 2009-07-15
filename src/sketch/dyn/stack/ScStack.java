@@ -1,4 +1,4 @@
-package sketch.dyn.synth;
+package sketch.dyn.stack;
 
 import java.util.EmptyStackException;
 
@@ -11,6 +11,7 @@ import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.prefix.ScLocalPrefix;
 import sketch.dyn.prefix.ScPrefix;
 import sketch.dyn.prefix.ScPrefixSearch;
+import sketch.dyn.synth.ScSearchDoneException;
 import sketch.util.DebugOut;
 import sketch.util.FactoryStack;
 import sketch.util.RichString;

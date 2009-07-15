@@ -9,7 +9,6 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -17,16 +16,19 @@ import javax.swing.event.ListSelectionEvent;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.debug.ScDebugEntry;
-import sketch.dyn.debug.ScDebugSketchRun;
+import sketch.dyn.debug.ScDebugGaRun;
+import sketch.dyn.debug.ScDebugRun;
+import sketch.dyn.debug.ScDebugStackRun;
+import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceCache;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceLocation;
-import sketch.ui.sourcecode.ScStackSourceVisitor;
+import sketch.ui.sourcecode.ScSourceTraceVisitor;
 import sketch.util.DebugOut;
 
 /**
@@ -52,21 +54,7 @@ public class ScUiGui extends gui_0_1 {
     public ScUiGui(ScUiThread ui_thread) {
         super();
         this.ui_thread = ui_thread;
-        KeyStroke escKeyStroke =
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        Action escapeAction = new AbstractAction() {
-            private static final long serialVersionUID = 1173509525674124142L;
-
-            public void actionPerformed(ActionEvent e) {
-                stopSolver();
-                setVisible(false);
-                dispose();
-                ScUiGui.this.ui_thread.set_stop();
-            }
-        };
-        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                escKeyStroke, "ESCAPE");
-        getRootPane().getActionMap().put("ESCAPE", escapeAction);
+        setupKeys();
         context_len = (int) BackendOptions.ui_opts.long_("context_len");
         context_split_len =
                 (int) BackendOptions.ui_opts.long_("context_split_len");
@@ -82,6 +70,62 @@ public class ScUiGui extends gui_0_1 {
                         synthCompletionList,
                         (Class<ScModifierDispatcher[]>) (new ScModifierDispatcher[0])
                                 .getClass(), max_list_length);
+    }
+
+    @SuppressWarnings("serial")
+    public abstract class KeyAction extends AbstractAction {
+        public abstract void action();
+
+        public final void add(int key_event0, boolean key_release) {
+            KeyStroke my_keystroke =
+                    KeyStroke.getKeyStroke(key_event0, 0, key_release);
+            getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                    my_keystroke, this);
+            getRootPane().getActionMap().put(this, this);
+        }
+
+        public final void actionPerformed(ActionEvent e) {
+            action();
+        }
+    }
+
+    /** setup keyboard shortcuts */
+    protected void setupKeys() {
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                stopSolver();
+                setVisible(false);
+                dispose();
+                ui_thread.set_stop();
+            }
+        }).add(KeyEvent.VK_ESCAPE, false);
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                ScModifierDispatcher[] selected =
+                        synthCompletions.getSelected();
+                if (selected.length >= 1) {
+                    synthCompletions.select_next(selected[0]).dispatch();
+                }
+            }
+        }).add(KeyEvent.VK_J, true);
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                ScModifierDispatcher[] selected =
+                        synthCompletions.getSelected();
+                if (selected.length >= 1) {
+                    synthCompletions.select_prev(selected[0]).dispatch();
+                }
+            }
+        }).add(KeyEvent.VK_K, true);
     }
 
     // === ui functions ===
@@ -115,12 +159,31 @@ public class ScUiGui extends gui_0_1 {
 
     @Override
     protected void stopSolver() {
-        ui_thread.ssr.wait_handler.set_synthesis_complete();
+        ui_thread.synth_runtime.wait_handler.set_synthesis_complete();
     }
 
     /** this all happens on the UI thread, but it shouldn't be that slow */
     public void fillWithStack(ScStack stack) {
         // get source
+        stack.set_fixed_for_illustration(ui_thread.sketch);
+        StringBuilder result = getSourceWithSynthesisValues();
+        result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
+                + "there are bugs above or it's less readable)<br />\n");
+        result.append(stack.htmlDebugString());
+        result.append("\n</p>\n</body>\n</html>");
+        sourceCodeEditor.setText(result.toString());
+        add_debug_info(new ScDebugStackRun(ui_thread.sketch, stack,
+                ui_thread.all_counterexamples));
+        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+            scroll_topleft();
+        }
+    }
+
+    /**
+     * get a string builder with html representing the source and filled in
+     * values; most work done by add_source_info()
+     */
+    protected StringBuilder getSourceWithSynthesisValues() {
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
         for (ScSourceConstruct hole_info : ui_thread.sketch.ctrl_src_info) {
@@ -130,7 +193,6 @@ public class ScUiGui extends gui_0_1 {
             }
             info_by_filename.get(f).add(hole_info);
         }
-        stack.set_fixed_for_illustration(ui_thread.sketch);
         ScSourceCache.singleton().add_filenames(info_by_filename.keySet());
         StringBuilder result = new StringBuilder();
         result.append("<html>\n  <head>\n<style>\nbody {\n"
@@ -138,7 +200,7 @@ public class ScUiGui extends gui_0_1 {
                 + "<body style=\"margin-top: 0px;\">"
                 + "<p style=\"margin-top: 0.1em;\">"
                 + "color indicates how often values are changed: red "
-                + "is very often, yellow is occasionally, blue is never.");
+                + "is very often, yellow is occasionally, blue is never.</p>");
         for (Entry<String, Vector<ScSourceConstruct>> entry : info_by_filename
                 .entrySet())
         {
@@ -146,18 +208,11 @@ public class ScUiGui extends gui_0_1 {
             add_source_info(result, entry.getKey(), entry.getValue());
             result.append("</pre></p><hr />");
         }
-        result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
-                + "there are bugs above or it's less readable)<br />\n");
-        result.append(stack.htmlDebugString());
-        result.append("\n</p>\n</body>\n</html>");
-        sourceCodeEditor.setText(result.toString());
-        add_debug_info(stack);
-        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
-            scroll_topleft();
-        }
+        return result;
     }
 
-    private void add_source_info(StringBuilder result, String key,
+    /** sub-method for the above (getSourceWithSynthesisValues) */
+    protected void add_source_info(StringBuilder result, String key,
             Vector<ScSourceConstruct> vector)
     {
         ScSourceConstruct[] hole_info_sorted =
@@ -168,7 +223,7 @@ public class ScUiGui extends gui_0_1 {
         ScSourceLocation end =
                 hole_info_sorted[hole_info_sorted.length - 1].entire_location
                         .contextAfter(context_len);
-        ScStackSourceVisitor v = new ScStackSourceVisitor();
+        ScSourceTraceVisitor v = new ScSourceTraceVisitor();
         // starting context
         result.append(v.visitCode(start));
         // visit constructs and all code in between
@@ -205,16 +260,10 @@ public class ScUiGui extends gui_0_1 {
     }
 
     /**
-     * reruns the stack, collecting any debug print statements. NOTE - keep this
-     * in sync with ScLocalStackSynthesis
+     * reruns the stack, collecting any debug print statements.
      */
-    private void add_debug_info(ScStack stack) {
-        ui_thread.sketch.enable_debug();
-        stack.set_for_synthesis(ui_thread.sketch);
-        ScDebugSketchRun sketch_run =
-                new ScDebugSketchRun(ui_thread.sketch, stack,
-                        ui_thread.all_counterexamples);
-        sketch_run.run();
+    private void add_debug_info(ScDebugRun debug_run) {
+        debug_run.run();
         //
         StringBuilder debug_text = new StringBuilder();
         debug_text.append("<html>\n  <head>\n<style>\n"
@@ -224,16 +273,17 @@ public class ScUiGui extends gui_0_1 {
         LinkedList<String> html_contexts = new LinkedList<String>();
         html_contexts.add("body");
         html_contexts.add("ul");
-        for (ScDebugEntry debug_entry : sketch_run.debug_out) {
+        for (ScDebugEntry debug_entry : debug_run.debug_out) {
             debug_text.append(debug_entry.htmlString(html_contexts));
         }
         debug_text.append("\n</ul>\n");
-        if (sketch_run.assert_failed()) {
-            StackTraceElement assert_info = sketch_run.assert_info;
+        if (debug_run.assert_failed()) {
+            StackTraceElement assert_info = debug_run.assert_info;
             debug_text.append(String.format("<p>failure at %s (line %d)</p>",
                     assert_info.getMethodName(), assert_info.getLineNumber()));
         } else {
-            debug_text.append("<p>dysketch_main returned false</p>");
+            debug_text.append("<p>dysketch_main returned "
+                    + (debug_run.succeeded ? "true" : "false") + "</p>");
         }
         debug_text.append("  </body>\n</html>\n");
         debugOutEditor.setText(debug_text.toString());
@@ -241,5 +291,24 @@ public class ScUiGui extends gui_0_1 {
 
     public void disableStopButton() {
         stopButton.setEnabled(false);
+    }
+
+    public void fillWithGaIndividual(ScGaIndividual individual) {
+        ScGaIndividual clone = individual.clone();
+        clone.reset_fitness();
+        clone.set_for_synthesis_and_reset(ui_thread.sketch,
+                ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf);
+        StringBuilder result = getSourceWithSynthesisValues();
+        result.append("<p style=\"color: #aaaaaa;\"> ga synthesis "
+                + "individual<br />\n");
+        result.append(individual.htmlDebugString());
+        result.append("\n</p>\n</body>\n</html>");
+        sourceCodeEditor.setText(result.toString());
+        add_debug_info(new ScDebugGaRun(ui_thread.sketch,
+                ui_thread.all_counterexamples, individual,
+                ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf));
+        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+            scroll_topleft();
+        }
     }
 }

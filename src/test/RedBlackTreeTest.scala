@@ -237,7 +237,7 @@ class RedBlackTreeSketch(val num_ops : Int,
 object RedBlackTreeTest {
     val mt = new ThreadLocalMT()
 
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
         add("--num_ops", 3 : Integer, "operations to process")
         add("--num_tests", 1 : Integer, "number of tests")
@@ -245,7 +245,7 @@ object RedBlackTreeTest {
     }
 
     def main(args : Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new RedBlackTreeSketch(

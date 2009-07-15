@@ -26,7 +26,7 @@ class SugaredSketch() extends DynamicSketch {
 
 object SugaredTest {
     def main(args: Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new SugaredSketch())
     }

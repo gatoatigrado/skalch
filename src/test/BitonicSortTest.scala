@@ -56,15 +56,15 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
             skdprint(format_swap_indices(swap_second_idx))
         }
         // print("sorted array", in_arr.toString)
-        {
-            var a = 0
-            while (a < array_len - 1) {
-                synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
-                a += 1
-            }
+        var a = 0
+        var num_violations = 0
+        while (a < array_len - 1) {
+            num_violations += (if (in_arr(a) <= in_arr(a + 1)) 0 else 1)
+            a += 1
         }
+        skAddCost(num_violations)
 //         for (a <- 0 until (array_len - 1)) synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
-        true
+        (num_violations == 0)
     }
 
     val test_generator = new TestGenerator {
@@ -82,14 +82,14 @@ class BitonicSort(val nsteps : Int, val tg_array_length : Int,
 object BitonicSortTest {
     val mt = new ThreadLocalMT()
 
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         add("--array_length", "length of array")
         add("--num_steps", "number of steps allowed")
         add("--num_tests", 100 : java.lang.Integer, "number of randomly generated input sequences to test")
     }
 
     def main(args : Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new BitonicSort(opts.long_("num_steps").intValue,

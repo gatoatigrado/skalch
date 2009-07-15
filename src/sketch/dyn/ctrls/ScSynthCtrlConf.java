@@ -3,7 +3,7 @@ package sketch.dyn.ctrls;
 import java.util.Vector;
 
 import sketch.dyn.ScConstructInfo;
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;

@@ -1,10 +1,17 @@
 package sketch.ui.modifiers;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import static sketch.util.DebugOut.assertFalse;
+import static sketch.util.DebugOut.print_mt;
 
-import sketch.dyn.stats.ScStats;
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import sketch.dyn.ga.ScLocalGaSynthesis;
+import sketch.dyn.ga.ScLocalGaSynthesis.SynthesisThread;
+import sketch.dyn.ga.base.ScGaIndividual;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
+import sketch.dyn.stats.ScStatsMT;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
@@ -28,11 +35,13 @@ public final class ScUiModifier {
     private AtomicInteger enqueue_remaining;
     protected ScUserInterface ui;
     public ScUiModifierInner modifier;
+    public static AtomicLong queued_modifiers = new AtomicLong(0);
 
     public ScUiModifier(ScUserInterface ui, ScUiModifierInner modifier) {
         timestamp = ui.nextModifierTimestamp();
         this.ui = ui;
         this.modifier = modifier;
+        queued_modifiers.incrementAndGet();
     }
 
     public final void enqueueTo(ScUiQueueable... targets)
@@ -48,6 +57,12 @@ public final class ScUiModifier {
     public final void setInfoComplete() {
         if (enqueue_remaining.decrementAndGet() == 0) {
             ui.modifierComplete(this);
+            long remaining = queued_modifiers.decrementAndGet();
+            if (remaining < 0) {
+                assertFalse("bad bug - modifiers remaining < 0");
+            } else if (remaining > 1000) {
+                print_mt("WARNING - a large number of unfinished modifiers exist.");
+            }
         }
     }
 
@@ -58,8 +73,15 @@ public final class ScUiModifier {
         setInfoComplete();
     }
 
-    public final void setInfo(ScStats stats) {
+    public final void setInfo(ScStatsMT stats) {
         modifier.setInfo(stats);
+        setInfoComplete();
+    }
+
+    public void setInfo(ScLocalGaSynthesis gasynth, SynthesisThread thread,
+            ScGaIndividual individual)
+    {
+        modifier.setInfo(gasynth, thread, individual);
         setInfoComplete();
     }
 }

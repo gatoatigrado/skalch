@@ -1,8 +1,8 @@
 package sketch.ui.modifiers;
 
-import sketch.dyn.synth.ScLocalStackSynthesis;
-import sketch.dyn.synth.ScStack;
-import sketch.dyn.synth.ScLocalStackSynthesis.SynthesisThread;
+import sketch.dyn.stack.ScLocalStackSynthesis;
+import sketch.dyn.stack.ScStack;
+import sketch.dyn.stack.ScLocalStackSynthesis.SynthesisThread;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.gui.ScUiThread;

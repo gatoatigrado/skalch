@@ -35,14 +35,14 @@ class TrivialSketch(val num_tests : Int) extends DynamicSketch {
 }
 
 object TrivialTest {
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         add("--num_tests")
     }
 
     // good options
     // --array_length 3 --num_steps 5 --num_tests 10 --stat_enable
     def main(args : Array[String])  = {
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         BackendOptions.add_opts(cmdopts)
         val num_tests = TestOptions.parse(cmdopts).long_("num_tests").intValue
         skalch.synthesize(() => new TrivialSketch(num_tests))

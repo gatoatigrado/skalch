@@ -41,7 +41,7 @@ class RomanNumerals1(val decimal_number : Int) extends DynamicSketch {
 }
 
 object RomanNumeralsTest {
-    object TestOptions extends CliOptGroup {
+    object TestOptions extends cli.CliOptionGroup {
         add("--decimal_number", 1 : java.lang.Integer)
     }
 
@@ -49,7 +49,7 @@ object RomanNumeralsTest {
         DebugOut.todo("The RomanNumeralsTest currently doesn't decode roman",
             "numerals correctly; for example, it reports that \"iiv\" is 5.",
             "Please contact Nicholas Tung or Joel Galenson if you need it fixed.")
-        val cmdopts = new sketch.util.CliParser(args)
+        val cmdopts = new cli.CliParser(args)
         BackendOptions.add_opts(cmdopts)
         val decimal_number = TestOptions.parse(cmdopts).long_("decimal_number").intValue
         skalch.synthesize(() => new RomanNumerals1(decimal_number))

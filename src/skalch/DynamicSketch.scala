@@ -2,7 +2,6 @@ package skalch
 
 import sketch.dyn._
 import sketch.util.DebugOut
-import sketch.util.OptionResult
 import sketch.util.RichString
 
 /**
@@ -126,6 +125,10 @@ abstract class DynamicSketch extends ScDynamicSketch {
        // TODO - remove obsolete code.
        // def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
     }
+    class BooleanHole {
+        val hole = new Hole(2)
+        def apply() : Boolean = (hole.apply() == 1)
+    }
     class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
         override def apply() = {
             val v = super.apply()
@@ -220,12 +223,12 @@ abstract class DynamicSketch extends ScDynamicSketch {
 
     def get_hole_info() = __hole_list.get_and_freeze()
     def get_input_info() = __input_list.get_and_freeze()
-    def get_oracle_input_list() = __oracle_list.get_and_freeze()
+    def get_oracle_info() = __oracle_list.get_and_freeze()
 }
 
 object synthesize {
     def apply(f : (() => DynamicSketch)) {
-        val synth = new ScSynthesis(f)
+        val synth = new ScSynthesisMain(f)
         synth.synthesize()
     }
 }

@@ -3,6 +3,15 @@ package sketch.util;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A thread with the run() method separated into three sections: init(),
+ * run_inner(), and finish(). run_inner() will be called continuously until a
+ * stop request is enqueued on the thread.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public abstract class InteractiveThread extends Thread {
     public Semaphore stop_event = new Semaphore(0);
     public int wait_time_millis;

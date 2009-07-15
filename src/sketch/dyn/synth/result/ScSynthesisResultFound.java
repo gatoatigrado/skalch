@@ -1,6 +1,6 @@
 package sketch.dyn.synth.result;
 
-import sketch.dyn.synth.ScStack;
+import sketch.dyn.stack.ScStack;
 import sketch.util.DebugOut;
 
 /**

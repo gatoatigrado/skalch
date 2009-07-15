@@ -9,9 +9,11 @@ import nu.xom.Document;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
+import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.stats.ScStats;
-import sketch.dyn.synth.ScStackSynthesis;
+import sketch.dyn.stack.ScStackSynthesis;
+import sketch.dyn.stats.ScStatsMT;
+import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -26,11 +28,11 @@ import ec.util.ThreadLocalMT;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScSynthesis {
+public class ScSynthesisMain {
     protected int nthreads;
     protected ScDynamicSketch[] sketches;
     protected ScDynamicSketch ui_sketch;
-    protected ScStackSynthesis ssr;
+    protected ScSynthesis<?> synthesis_runtime;
 
     /**
      * Where everything begins.
@@ -39,10 +41,11 @@ public class ScSynthesis {
      * @param cmdopts
      *            Command options
      */
-    public ScSynthesis(scala.Function0<ScDynamicSketch> f) {
+    public ScSynthesisMain(scala.Function0<ScDynamicSketch> f) {
         // initialization
         BackendOptions.initialize_defaults();
-        ScStats.initialize();
+        BackendOptions.initialize_annotated();
+        new ScStatsMT();
         nthreads = (int) BackendOptions.synth_opts.long_("num_threads");
         ThreadLocalMT.disable_use_current_time_millis =
                 BackendOptions.synth_opts.bool_("no_clock_rand");
@@ -53,7 +56,11 @@ public class ScSynthesis {
         }
         ui_sketch = f.apply();
         load_ui_sketch_info();
-        ssr = new ScStackSynthesis(sketches);
+        if (BackendOptions.ga_opts.enable) {
+            synthesis_runtime = new ScGaSynthesis(sketches);
+        } else {
+            synthesis_runtime = new ScStackSynthesis(sketches);
+        }
     }
 
     private void load_ui_sketch_info() {
@@ -94,12 +101,13 @@ public class ScSynthesis {
     public void synthesize() {
         ScSolvingInputConf[] inputs = generate_inputs(ui_sketch);
         // start various utilities
-        ScUserInterface ui = ScUserInterfaceManager.start_ui(ssr, ui_sketch);
+        ScUserInterface ui =
+                ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
         ui.set_counterexamples(inputs);
-        ScStats.stats.start_synthesis();
+        ScStatsMT.stats_singleton.start_synthesis();
         // actual synthesize call
-        ssr.synthesize(inputs, ui);
+        synthesis_runtime.synthesize(inputs, ui);
         // stop utilities
-        ScStats.stats.stop_synthesis();
+        ScStatsMT.stats_singleton.stop_synthesis();
     }
 }

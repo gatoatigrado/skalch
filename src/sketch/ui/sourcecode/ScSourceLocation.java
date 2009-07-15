@@ -37,9 +37,13 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
         this.filename = filename;
         this.start = start;
         this.end = end;
-        DebugOut.assertSlow(start.lessThan(end)
-                || (!end.lessThan(start) && can_be_zero_length),
-                "constructed invalid source location", start, end);
+        boolean truth =
+                start.lessThan(end)
+                        || (!end.lessThan(start) && can_be_zero_length);
+        if (!truth) {
+            DebugOut.assertFalse("constructed invalid source location", start,
+                    end);
+        }
     }
 
     @Override
@@ -98,7 +102,7 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
             DebugOut
                     .assertFalse("requesting source between two different files");
         }
-        return new ScSourceLocation(filename, end, other.start);
+        return new ScSourceLocation(filename, end, other.start, true);
     }
 
     public ScSourceLocation contextBefore(int nlines) {

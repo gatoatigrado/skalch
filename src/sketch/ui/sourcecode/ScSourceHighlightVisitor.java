@@ -3,8 +3,16 @@ package sketch.ui.sourcecode;
 import java.util.regex.Pattern;
 
 import sketch.util.RichString;
+import sketch.util.ScHtmlUtil;
 
-public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {
+/**
+ * basic scala source code highlighting (bold keywords)
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
+public class ScSourceHighlightVisitor extends ScSourceLocationVisitor {
     @Override
     public String visitCode(ScSourceLocation location) {
         String[] lines = ScSourceCache.singleton().getLines(location);
@@ -15,7 +23,7 @@ public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {
     }
 
     private String highlight(String line) {
-        line = html_tag_escape(line);
+        line = ScHtmlUtil.html_tag_escape(line);
         if (Pattern.matches("^\\s*//.*", line)) {
             line = "<span style=\"color: #666666;\">" + line + "</span>";
         } else {
@@ -28,17 +36,5 @@ public class ScHighlightSourceVisitor extends ScSourceLocationVisitor {
                             "<i>$1</i>");
         }
         return line;
-    }
-
-    public static String html_tag_escape(String quoted) {
-        return quoted.replace("<", "&lt;").replace(">", "&gt;");
-    }
-
-    /** converts tags and maintains line formatting */
-    public static String html_nonpre_code(String text) {
-        text = text.replace(" ", "&nbsp;");
-        text = html_tag_escape(text);
-        text = text.replace("\n", "<br />");
-        return text;
     }
 }

@@ -1,4 +1,4 @@
-package sketch.dyn.synth;
+package sketch.dyn.stack;
 
 import sketch.util.DebugOut;
 import sketch.util.ObjectFactory;

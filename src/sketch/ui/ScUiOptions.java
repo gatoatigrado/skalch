@@ -7,11 +7,11 @@ package sketch.ui;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScUiOptions extends sketch.util.CliOptGroup {
+public class ScUiOptions extends sketch.util.cli.CliOptionGroup {
     Boolean dis;
 
     public ScUiOptions() {
-        prefixes("ui");
+        super("ui", "user interface options");
         add("--no_gui", "disable the GUI (not recommended)");
         add("--no_auto_soln_disp",
                 "don't automatically display the first solution");

@@ -4,8 +4,7 @@ import sketch.util.DebugOut;
 import sketch.util.FilteredQueue;
 
 /**
- * Manages searches of subtrees. TODO - coordinate with ScStackSynthesis'
- * ExhaustedWaitHandler when done.
+ * Manages searches of subtrees. Currently doesn't do much.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you

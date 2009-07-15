@@ -5,41 +5,41 @@ import java.util.Vector;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.synth.ScDynamicUntilvException;
-import sketch.dyn.synth.ScStack;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.util.DebugOut;
 
 /**
- * static functions b/c I can't put them in ScUserInterface (java annoyance)
+ * Debug run for stack or genetic algorithm synthesis <br />
+ * NOTE - keep this in sync with ScLocalStackSynthesis
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScDebugSketchRun {
+public abstract class ScDebugRun {
     protected ScDynamicSketch sketch;
-    protected ScStack stack;
     protected ScFixedInputConf[] all_counterexamples;
     public boolean succeeded;
     public StackTraceElement assert_info;
     public Vector<ScDebugEntry> debug_out;
 
-    public ScDebugSketchRun(ScDynamicSketch sketch, ScStack stack,
+    public ScDebugRun(ScDynamicSketch sketch,
             ScFixedInputConf[] all_counterexamples)
     {
         this.sketch = sketch;
-        this.stack = stack;
         this.all_counterexamples = all_counterexamples;
     }
 
-    public void run() {
+    public abstract void run_init();
+
+    /** feel free to change this method if you need more hooks */
+    public final void run() {
+        run_init();
         sketch.solution_cost = 0;
         sketch.enable_debug();
-        stack.set_for_synthesis(sketch);
         assert_info = null;
         succeeded = false;
         trycatch: try {
-            stack.reset_before_run();
             for (ScFixedInputConf counterexample : all_counterexamples) {
                 counterexample.set_input_for_sketch(sketch);
                 if (!sketch.dysketch_main()) {
@@ -59,7 +59,9 @@ public class ScDebugSketchRun {
         sketch.debug_out = null;
     }
 
-    private void set_assert_info(StackTraceElement assert_info, Exception e) {
+    protected final void set_assert_info(StackTraceElement assert_info,
+            Exception e)
+    {
         if (assert_info == null) {
             DebugOut.assertFalse("assert info null after failure", e);
         }
@@ -68,5 +70,8 @@ public class ScDebugSketchRun {
 
     public boolean assert_failed() {
         return assert_info != null;
+    }
+
+    public void trial_init() {
     }
 }

@@ -10,6 +10,13 @@ import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
 import sketch.util.RichString;
 
+/**
+ * reads source files and caches them as an array of lines.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 public class ScSourceCache {
     private static ScSourceCache cache;
     public HashMap<String, SourceFile> cached_files =

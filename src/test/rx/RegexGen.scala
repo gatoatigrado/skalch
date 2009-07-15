@@ -72,9 +72,9 @@ object RegexGen {
         }
     }
 
-    def get_random_input() : String = {
+    def get_random_input(length : Int) : String = {
         var random_input_string = ""
-        for (i <- 0 until 30) {
+        for (i <- 0 until length) {
             random_input_string += literals(mt.get().nextInt(literals.length))
         }
         random_input_string
@@ -92,9 +92,11 @@ object RegexGen {
         if (rx_m.isDefined) { rx_m.get } else { null }
     }
 
-    def generate_tests(pattern : String, ntests : Int) {
-        println()
-        println("pattern: " + pattern)
+    def generate_tests(pattern : String, input_length : Int,
+            ntests : Int) : Array[RegexInput] =
+    {
+        // println()
+        // println("pattern: " + pattern)
         Console.flush()
         val regex = new Regex(pattern)
         var re : gnu.regexp.RE = null
@@ -105,30 +107,27 @@ object RegexGen {
             case e => {
                 println("invalid regex for gnu: " + pattern)
                 println("error: " + e)
-                return
+                return null
             }
         }
-        for (test_idx <- 0 until ntests) {
-            var random_input_string = ""
-            for (i <- 0 until 30) {
-                random_input_string += literals(mt.get().nextInt(literals.length))
-            }
-            println("input: " + random_input_string)
-            println("re matching: " + test_re(re, random_input_string))
-            println("rx matching: " + test_rx(regex, random_input_string))
+
+        def next_input() = {
+            var random_input_string = get_random_input(input_length)
+            // println("input: " + random_input_string)
+            val rx_match_result = test_rx(regex, random_input_string)
+            val matchlen = if (rx_match_result == null) { -1 } else { rx_match_result.length }
+            // println("rx matching: " + rx_match_result)
+            new RegexInput(random_input_string, matchlen)
         }
+
+        (for (test_idx <- 0 until ntests) yield next_input()).toArray
     }
 
     def main(args : Array[String]) {
-        test_re(new gnu.regexp.RE("(((a|c|b)|(b|a|b)|(baba))*)"),
-            "bcccbccbbaaccacaaccaabbbcacaca")
-        /*
-        for (i <- 0 until 100) {
+        for (i <- 0 until 10) {
             val re = generate_rx(4, false)
-            generate_tests(re.getPattern(), 1)
+            println("generated re: " + re.getPattern())
+            generate_tests(re.getPattern(), 30, 1000)
         }
-        */
-        // println("random regex")
-        // println("pattern: " + re.getPattern())
     }
 }

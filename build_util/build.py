@@ -95,6 +95,12 @@ def main(in_args):
 
         if arg.startswith("/"):
             compile_args.append("--src_filter=%s" %(arg[1:]))
+            
+        # change the mode
+        elif arg_trimmed == "run_opt_list":
+            mode = "run options"
+        elif arg_trimmed == "run_cmd_opts":
+            mode = "java options"
 
         # argument lists
         elif mode == "run options":
@@ -102,10 +108,6 @@ def main(in_args):
         elif mode == "java options":
             compile_args.extend(["--java_option", arg])
 
-        elif arg_trimmed == "run_opt_list":
-            mode = "run options"
-        elif arg_trimmed == "run_cmd_opts":
-            mode = "java options"
         elif arg_trimmed == "print_lowered":
             compile_args.extend(["--option", "-Xprint:jvm"])
         elif arg_trimmed == "no_default_opts":

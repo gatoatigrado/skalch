@@ -29,7 +29,6 @@ class DfsSketch() extends DynamicSketch {
     class Graph(n: Int, seed: Long = 1983) {
         val nodes = new ArrayBuffer[Node]
 
-
         val e = new Node("e")
         val d = new Node("d", e)
         val c = new Node("c", d, e)

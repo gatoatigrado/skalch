@@ -156,27 +156,38 @@ class DfsSketch() extends DynamicSketch {
 
         var i = 0
         while(i < allowedExtraStorage) {
-            extraStorage += !!(domainA)
+            extraStorage += domainA(0) //!!(domainA)
             i += 1
         }
 
         val borrowed = new HashMap[A, Int]
         
-        val popp1 = !!(List(0, 1, 2))
-        val popp2 = !!(List(0, 1))
+        val popp1 = 0 //!!(List(0, 1, 2))
+        val popp2 = 0 //!!(List(0, 1))
 
-        val pushp1 = !!(List(0, 1, 2))
-        val pushp2 = !!(List(0, 1))
+        val pushp1 = 2 //!!(List(0, 1, 2))
+        val pushp2 = 1 //!!(List(0, 1))
         
         val extraLocations = mkLocations(extraStorage)
 
-        def push(x: A) {
+        def push(x: A, have: A) {
             val to = x.locations
             reference.push(x)
 
-            borrowed(x) = !!(to.length)
+            var i = 0
+            while(i < to.length) {
+                if(to(i).read == have) {
+                    borrowed(x) = i
+                    i += 10000 // my kingdom for a break statement
+                }
+                i += 1
+            }
 
             val borrowedLoc = to(borrowed(x))
+
+            if(have != null) {
+                synthAssertTerminal(borrowedLoc.read == have)
+            }
 
             locations.push(borrowedLoc)
             
@@ -266,7 +277,7 @@ class DfsSketch() extends DynamicSketch {
         val origin = new Node("origin", root)
 
         val stack = new KeyholeStack[Node](1, g.nodes)
-        stack.push(origin)
+        stack.push(origin, root)
         
         synthAssertTerminal(origin.children(0)==root)
         
@@ -291,7 +302,7 @@ class DfsSketch() extends DynamicSketch {
             }
 
             if(next != null) {
-                stack.push(current)
+                stack.push(current, next)
                 skdprint("graph after push:" + g.toString())
                 current = next
             } else {

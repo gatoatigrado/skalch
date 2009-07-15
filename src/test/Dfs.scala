@@ -147,18 +147,6 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    class AngelicStack[A]() {
-        val cheat = new ArrayBuffer[A]
-
-        def push(x: A) {
-            cheat += x
-        }
-
-        def pop() = {
-            cheat.remove(!!(cheat.length))
-        }
-    }
-
     class KeyholeStack[A <: LocationLender[A]](allowedExtraStorage: Int = 0, domainA:Seq[A]) {
         val reference = new Stack[A]            // reference stack
         val locations = new Stack[Location[A]]  // where the actual values are stored
@@ -256,6 +244,10 @@ class DfsSketch() extends DynamicSketch {
 
         locations
     }
+
+    /*
+        what's missing? picking the location according to the uninspected index
+    */
 
     def dfs(g: Graph) {
         val root   = g.root

@@ -6,6 +6,7 @@ import sketch.util._
 
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
 import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 
@@ -158,6 +159,8 @@ class DfsSketch() extends DynamicSketch {
             extraStorage += !!(domainA)
             i += 1
         }
+
+        val borrowed = new HashMap[A, Int]
         
         val popp1 = !!(List(0, 1, 2))
         val popp2 = !!(List(0, 1))
@@ -171,7 +174,10 @@ class DfsSketch() extends DynamicSketch {
             val to = x.locations
             reference.push(x)
 
-            val borrowedLoc = !!(to)
+            borrowed(x) = !!(to.length)
+
+            val borrowedLoc = to(borrowed(x))
+
             locations.push(borrowedLoc)
             
             val borrowedVal = borrowedLoc.read  // this value must be saved
@@ -201,8 +207,10 @@ class DfsSketch() extends DynamicSketch {
         def pop(restore: List[A]) = {
             synthAssertTerminal(reference.size > 0)
             val refPoppedVal = reference.pop
-            val refBorrowedLoc = locations.pop
-            
+            synthAssertTerminal(borrowed.contains(extraLocations(0).read))
+            val borrowedLoc = extraLocations(0).read.locations.apply(borrowed(extraLocations(0).read))
+           
+            /*
             val potentialBorrowedLocations = new ArrayBuffer[Location[A]]
             for(location <- extraLocations) {
                 potentialBorrowedLocations ++= location.read.locations
@@ -210,8 +218,9 @@ class DfsSketch() extends DynamicSketch {
             synthAssertTerminal(potentialBorrowedLocations.length > 0)
             val borrowedLoc = !!(potentialBorrowedLocations)
             synthAssertTerminal(borrowedLoc == refBorrowedLoc)
+            */
 
-            var allLocations = List(refBorrowedLoc) ++ extraLocations
+            var allLocations = List(borrowedLoc) ++ extraLocations
             val values = new ListBuffer[A]
             var found = false
             values ++= restore
@@ -223,12 +232,12 @@ class DfsSketch() extends DynamicSketch {
             }
             synthAssertTerminal(found)
 
-            skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + refBorrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
+            skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + borrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
 
-            refBorrowedLoc.write(values.remove(popp1))
+            borrowedLoc.write(values.remove(popp1))
             extraLocations(0).write(values.remove(popp2))
             
-            skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + refBorrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
+            skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + borrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
 
             refPoppedVal
         }

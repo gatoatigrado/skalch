@@ -167,7 +167,8 @@ class DfsSketch() extends DynamicSketch {
         
         val extraLocations = mkLocations(extraStorage)
 
-        def push(x: A, to: Seq[Location[A]]) {
+        def push(x: A) {
+            val to = x.locations
             reference.push(x)
 
             val borrowedLoc = !!(to)
@@ -247,6 +248,8 @@ class DfsSketch() extends DynamicSketch {
 
     /*
         what's missing? picking the location according to the uninspected index
+
+        well, what to do? WEEEELLL! Since we're pushing things that are "LocationHavers" we don't need to create the sequence outside of push, we can pass it in. Then we store the index of the location we used in a map, and then we get it out later
     */
 
     def dfs(g: Graph) {
@@ -254,7 +257,7 @@ class DfsSketch() extends DynamicSketch {
         val origin = new Node("origin", root)
 
         val stack = new KeyholeStack[Node](1, g.nodes)
-        stack.push(origin, mkLocations(origin.children))
+        stack.push(origin)
         
         synthAssertTerminal(origin.children(0)==root)
         
@@ -279,7 +282,7 @@ class DfsSketch() extends DynamicSketch {
             }
 
             if(next != null) {
-                stack.push(current, mkLocations(current.children))
+                stack.push(current)
                 skdprint("graph after push:" + g.toString())
                 current = next
             } else {

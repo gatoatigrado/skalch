@@ -221,16 +221,6 @@ class DfsSketch() extends DynamicSketch {
             synthAssertTerminal(borrowed.contains(extraLocations(0).read))
             val borrowedLoc = extraLocations(0).read.locations.apply(borrowed(extraLocations(0).read))
            
-            /*
-            val potentialBorrowedLocations = new ArrayBuffer[Location[A]]
-            for(location <- extraLocations) {
-                potentialBorrowedLocations ++= location.read.locations
-            }
-            synthAssertTerminal(potentialBorrowedLocations.length > 0)
-            val borrowedLoc = !!(potentialBorrowedLocations)
-            synthAssertTerminal(borrowedLoc == refBorrowedLoc)
-            */
-
             var allLocations = List(borrowedLoc) ++ extraLocations
             val values = new ListBuffer[A]
             var found = false
@@ -265,12 +255,6 @@ class DfsSketch() extends DynamicSketch {
 
         locations
     }
-
-    /*
-        what's missing? picking the location according to the uninspected index
-
-        well, what to do? WEEEELLL! Since we're pushing things that are "LocationHavers" we don't need to create the sequence outside of push, we can pass it in. Then we store the index of the location we used in a map, and then we get it out later
-    */
 
     def dfs(g: Graph) {
         val root   = g.root

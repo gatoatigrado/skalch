@@ -143,7 +143,8 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    class KeyholeStack[A >: Null](allowedExtraStorage: Int = 0) {
+    /*
+    class KeyholeStackA[A >: Null](allowedExtraStorage: Int = 0) {
         val reference = new Stack[A]
 
         val extraStorage = new ArrayBuffer[A]
@@ -212,6 +213,7 @@ class DfsSketch() extends DynamicSketch {
             need
         }
     }
+    */
 
     def mkLocations[A](b: Buffer[A]): Seq[Location[A]] = {
         val locations = new ArrayBuffer[Location[A]]
@@ -225,18 +227,48 @@ class DfsSketch() extends DynamicSketch {
         locations
     }
 
+    /*
     def printState(s: String, stack: KeyholeStack[Node], g: Graph) {
         skdprint(s + "\n" + stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
     }
+    */
+
+    trait LocationHaver[A] {
+        def locations(): Seq[Location[A]]
+    }
+
+    /*
+    class KeyholeStack[A >: LocationHaver[A]]() {
+        val cheat = new Stack[A]
+
+        def push(x: Location[A], to: Seq[Location[A]]) {
+            cheat.push(x.read)
+        }
+
+        def pop(from: Seq[Location[A]]) = {
+            cheat.pop()
+        }
+    }
+    */
 
     def dfs(g: Graph) {
         val root   = g.root
         val origin = new Node("origin", root)
 
+        //val stack = new KeyholeStack[Node](1)
+        //stack.push(origin, List[Location[Node]]())
+
         var current  = root
         var previous = origin
 
+        val locations = List(new GeneralLocation(() => current,  (x: Node) => current  = x),
+                             new GeneralLocation(() => previous, (x: Node) => previous = x))
+
+        var stepsTaken = 0
         while(current != origin) {
+            synthAssertTerminal(stepsTaken < 100)
+            stepsTaken += 1
+
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
             } else {
@@ -244,29 +276,53 @@ class DfsSketch() extends DynamicSketch {
                 current.visit()
             }
 
-            var next: Node = null
+            var next: Location[Node] = null
 
             while(next == null && current.uninspected < current.children.length) {
                 if(!current.children(current.uninspected).visited) {
-                    next = current.children(current.uninspected)
+                    next = new BufferLocation(current.children, current.uninspected)
                 } else {
                     current.uninspected += 1
                 }
             }
 
             if(next != null) {
-                current.children(current.uninspected) = previous
+                val temp = next.read
+                next.write(previous)
                 previous = current
-                current = next
-            } else {
-                val to_restore = current
-                current  = previous
+                current = temp
+
+                // push current onto the stack:
+                // /-> current -> previous -> next --\
+                // \---------------------------------/
                 
-                previous = current.children(current.uninspected)
-                current.children(current.uninspected) = to_restore
+            } else {
+                next = new BufferLocation(previous.children, previous.uninspected)
+
+                val temp = next.read
+
+                next.write(current)
+                current = previous
+                previous = temp
+
+                // pop previous from the stack:
+                // /-- previous <- next <- current <-\
+                // \---------------------------------/
 
                 current.uninspected += 1
             }
+        }
+    }
+
+    def permute[A](locations: Seq[Location[A]]) {
+        val values = new ArrayBuffer[A]
+
+        for(location <- locations) {
+            values += location.read
+        }
+
+        for(location <- locations) {
+            location.write(values.remove(!!(values.length)))
         }
     }
 

@@ -26,18 +26,62 @@ class DfsSketch() extends DynamicSketch {
         true
     }
 
+    /*
+    each child with multiple children gives the oracle to re-order those children, and the fix them sometime on the way up, giving more valid traces
+
+    a node with two children that point to the same node will also introduce new multiple traces
+    */
+
     class Graph(n: Int, seed: Long = 1983) {
         val nodes = new ArrayBuffer[Node]
 
-        val d = new Node("d")
-        val c = new Node("c", d)
-        val b = new Node("b", d)
-        val a = new Node("a", b, c)
 
-        nodes ++= List(a,b,c,d)
+        val e = new Node("e")
+        val d = new Node("d", e)
+        val c = new Node("c", d, e)
+        val b = new Node("b", c, e)
+        val a = new Node("a", b)
+        e.children += a
+        d.children += b
 
+/*
+        val e = new Node("e")
+        val d = new Node("d", e)
+        val c = new Node("c", d, e)
+        val b = new Node("b", c, e)
+        val a = new Node("a", b)
+*/    
         val root = a
+
+        nodes ++= List(a,b,c,d,e)
         
+        /* // code for randomly generating a graph
+        {
+            var i: Int = 0
+
+            import scala.util.Random
+          
+            i = 0
+            while(i < n) {
+                nodes += new Node("" + i)
+                i += 1
+            }
+
+            val rng = new Random
+            rng.setSeed(seed)
+
+            i = 0
+            while(i < n * 10) {
+                val parent = nodes(rng.nextInt(nodes.length))
+                val child  = nodes(rng.nextInt(nodes.length))
+                parent.children += child
+                i += 1
+            }
+
+            nodes(0)
+        }
+        */
+
         def checkpoint() {
             for(node <- nodes) {
                 node.checkpoint()
@@ -60,14 +104,18 @@ class DfsSketch() extends DynamicSketch {
                 for(child <- node.children) {
                     string += child.name + " "
                 }
-                string += "]\n"
+                string += "]   "
             }
             
             string
         }
     }
 
-    class Node(val name: String, newChildren: Node*) {
+    trait LocationLender[A] {
+        def locations():Seq[Location[A]]
+    }
+    
+    class Node(val name: String, newChildren: Node*) extends LocationLender[Node] {
         var children = new ArrayBuffer[Node]()
         var checkpointChildren: Buffer[Node] = null
 
@@ -75,9 +123,8 @@ class DfsSketch() extends DynamicSketch {
 
         for(child <- newChildren) children += child
 
-        var uninspected = 0
-
         def visit() {
+            synthAssertTerminal(visited == false)
             this.visited = true
         }
         
@@ -104,11 +151,16 @@ class DfsSketch() extends DynamicSketch {
         override def toString(): String = {
             name
         }
+        
+        def locations() = {
+            mkLocations(children)
+        }
     }
 
     abstract class Location[A] {
         def read(): A
         def write(x: A)
+        def == (that: Location[A]) = false
     }
 
     class GeneralLocation[A](val reader: () => A, val writer: (A) => Unit) extends Location[A] {
@@ -121,13 +173,18 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    class BufferLocation[A](buffer: Buffer[A], index: Int) extends Location[A] {
+    class BufferLocation[A](val buffer: Buffer[A], val index: Int) extends Location[A] {
         override def read() = {
             buffer(index)
         }
 
         override def write(x: A) {
             buffer(index) = x
+        }
+        
+        override def == (that: Location[A]) = {
+            that.isInstanceOf[BufferLocation[A]] && 
+            buffer == that.asInstanceOf[BufferLocation[A]].buffer && index == that.asInstanceOf[BufferLocation[A]].index
         }
     }
 
@@ -143,77 +200,122 @@ class DfsSketch() extends DynamicSketch {
         }
     }
 
-    /*
-    class KeyholeStackA[A >: Null](allowedExtraStorage: Int = 0) {
-        val reference = new Stack[A]
+    class KeyholeStack[A <: LocationLender[A]](allowedExtraStorage: Int = 0, domainA:Seq[A]) {
+        val reference = new Stack[A]            // reference stack
+        val locations = new Stack[Location[A]]  // where the actual values are stored
 
         val extraStorage = new ArrayBuffer[A]
 
-        var i = 0
-        while(i < allowedExtraStorage) {
-            extraStorage += null
-            i += 1
+        for (i <- 1 to allowedExtraStorage) {
+            extraStorage += !!(domainA)
         }
+        
+        val popp1 = !!(0 until 3)
+        val popp2 = !!(0 until 2)
+
+        val pushp1 = !!(0 until 3)
+        val pushp2 = !!(0 until 2)
+//        val pushp3 = !!(0 until 1)
         
         val extraLocations = mkLocations(extraStorage)
 
         def push(x: A, to: Seq[Location[A]]) {
             reference.push(x)
 
-            var storage = List() ++ extraLocations
-
-            if(to.length > 0) {
-                storage ++= List(!!(to))
-            }
-
-            !!(storage).write(x)
+            val borrowedLoc = !!(to)
+            locations.push(borrowedLoc)
+            
+            val borrowedVal = borrowedLoc.read  // this value must be saved
+            
+            var allLocations = List(borrowedLoc) ++ extraLocations
 
             val values = new ListBuffer[A]
 
-            for(location <- storage) {
+            values += borrowedVal
+            values += x
+                        
+            skdprint(extraStorage.mkString("push("+x.toString()+") : (", ", ", ")") + " borrowedVal:[" + borrowedVal.toString() + "]")
+
+            val permutation = new Stack[Int]
+            for(location <- extraLocations) {
                 values += location.read
             }
+            // for (i <- 1 to values.length) {
+            //    // generate the last index first
+            //    permutation.push(!!(i))
+            // }
+            //for(location <- allLocations) {
+            //      location.write(values.remove(!!(values.length)))
+                  // location.wite(values.remove(permutation.pop))
+            //}
+            
+            borrowedLoc.write(values.remove(pushp1))//!!(values.length))) 
+            extraLocations(0).write(values.remove(pushp2))//!!(values.length))) 
+            // extraLocations(1).write(values.remove(!!(values.length))) 
 
-            for(location <- storage) {
-                location.write(values.remove(!!(values.length)))
-            }
+            //- borrowedLoc.write(x)  // mistake!
+            //- extraLocations(0).write(borrowedVal)
+            
+            // an attempt to determinize (quite successful on a chain graph)
+            // store the value from borrowed location into the local location
+            //- synthAssertTerminal(borrowedVal == extraLocations(0).read)
+            // traces that remain have same effect because x and extraLoc have same value
+            // so this assert had no effect
+            //    synthAssertTerminal(x == borrowedLoc.read)
+            // we could fix it by setting the permutation just so; see above
 
-            for(location <- to) {
-                synthAssertTerminal(location.read != null)
-            }
+            synthAssertTerminal(x == extraLocations(0).read)  // enocurage? to keep a value for 1 or 2 operations
+            
+            skdprint(extraStorage.mkString("push("+x.toString()+") : (", ", ", ")") + " borrowedVal:[" + borrowedVal.toString() + "]")
         }
 
-        def pop(from: Seq[Location[A]]) = {
+        def pop(restore: List[A]) = {
             synthAssertTerminal(reference.size > 0)
-
-            val need = reference.pop
-
-            var found = false
-
+            val refPoppedVal = reference.pop
+            val refBorrowedLoc = locations.pop
+            
+            val potentialBorrowedLocations = new ArrayBuffer[Location[A]]
             for(location <- extraLocations) {
-                if(need == location.read) {
-                    found = true
-                }
+                potentialBorrowedLocations ++= location.read.locations
             }
+            synthAssertTerminal(potentialBorrowedLocations.length > 0)
+            val borrowedLoc = !!(potentialBorrowedLocations)
+            synthAssertTerminal(borrowedLoc == refBorrowedLoc)
 
+            // val borrowedVal = refBorrowedLoc.read
+
+            var allLocations = List(refBorrowedLoc) ++ extraLocations
+            val values = new ListBuffer[A]
+            var found = false
+            values ++= restore
+            for(location <- allLocations) {
+                val v = location.read
+                values += v
+                if(refPoppedVal == v)
+                    found = true
+            }
             synthAssertTerminal(found)
 
-            val storage = extraLocations ++ from
+            skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + refBorrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
 
-            val values = new ListBuffer[A]
-
-            for(location <- storage) {
-                values += location.read
-            }
-
-            for(location <- storage) {
-                location.write(values.remove(!!(values.length)))
-            }
-
-            need
+            // this shuffle of values among allLocations will also restore the value
+     
+            //for(location <- allLocations) {
+            //    location.write(values.remove(!!(values.length)))
+            //}
+            
+            refBorrowedLoc.write(values.remove(popp1))//!!(values.length))) 
+            extraLocations(0).write(values.remove(popp2))//!!(values.length))) 
+            // extraLocations(1).write(values.remove(!!(values.length)))    one extra need not be restored
+            
+            skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + refBorrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
+            // determinization: attempt to go from 2 traces to 1
+            // successful: this looks like a good invariant to infer!
+            // at the end of the execution, it does no tmatter how we restore, hence we had two traces
+            //- synthAssertTerminal(refPoppedVal == extraLocations(0).read)
+            refPoppedVal
         }
     }
-    */
 
     def mkLocations[A](b: Buffer[A]): Seq[Location[A]] = {
         val locations = new ArrayBuffer[Location[A]]
@@ -227,47 +329,21 @@ class DfsSketch() extends DynamicSketch {
         locations
     }
 
-    /*
-    def printState(s: String, stack: KeyholeStack[Node], g: Graph) {
-        skdprint(s + "\n" + stack.extraStorage.mkString("(", ", ", ")") + "\n" + g.toString())
-    }
-    */
-
-    trait LocationHaver[A] {
-        def locations(): Seq[Location[A]]
-    }
-
-    /*
-    class KeyholeStack[A >: LocationHaver[A]]() {
-        val cheat = new Stack[A]
-
-        def push(x: Location[A], to: Seq[Location[A]]) {
-            cheat.push(x.read)
-        }
-
-        def pop(from: Seq[Location[A]]) = {
-            cheat.pop()
-        }
-    }
-    */
-
     def dfs(g: Graph) {
         val root   = g.root
         val origin = new Node("origin", root)
 
-        //val stack = new KeyholeStack[Node](1)
-        //stack.push(origin, List[Location[Node]]())
-
+        val stack = new KeyholeStack[Node](1, g.nodes)
+        stack.push(origin, mkLocations(origin.children))
+        
+        synthAssertTerminal(origin.children(0)==root)
+        
         var current  = root
-        var previous = origin
 
-        val locations = List(new GeneralLocation(() => current,  (x: Node) => current  = x),
-                             new GeneralLocation(() => previous, (x: Node) => previous = x))
-
-        var stepsTaken = 0
+        var step = 0
         while(current != origin) {
-            synthAssertTerminal(stepsTaken < 100)
-            stepsTaken += 1
+            synthAssertTerminal(step < 10)
+            step += 1
 
             if(current.visited) {
                 skdprint("Backtracking to: " + current.name)
@@ -276,57 +352,26 @@ class DfsSketch() extends DynamicSketch {
                 current.visit()
             }
 
-            var next: Location[Node] = null
+            var next: Node = null
 
-            while(next == null && current.uninspected < current.children.length) {
-                if(!current.children(current.uninspected).visited) {
-                    next = new BufferLocation(current.children, current.uninspected)
-                } else {
-                    current.uninspected += 1
-                }
+            for(child <- current.children if child != null && !child.visited && next == null) {
+                next = child
             }
 
             if(next != null) {
-                val temp = next.read
-                next.write(previous)
-                previous = current
-                current = temp
-
-                // push current onto the stack:
-                // /-> current -> previous -> next --\
-                // \---------------------------------/
-                
+                // last two arguments give node whose children fields are available to the stack as borrowed locations
+                stack.push(current, mkLocations(current.children))
+                skdprint("graph after push:" + g.toString())
+                current = next
             } else {
-                next = new BufferLocation(previous.children, previous.uninspected)
-
-                val temp = next.read
-
-                next.write(current)
-                current = previous
-                previous = temp
-
-                // pop previous from the stack:
-                // /-- previous <- next <- current <-\
-                // \---------------------------------/
-
-                current.uninspected += 1
+                // backtrack
+                skdprint("graph before pop:" + g.toString())
+                current = stack.pop(List(current))
             }
         }
     }
 
-    def permute[A](locations: Seq[Location[A]]) {
-        val values = new ArrayBuffer[A]
-
-        for(location <- locations) {
-            values += location.read
-        }
-
-        for(location <- locations) {
-            location.write(values.remove(!!(values.length)))
-        }
-    }
-
-    val test_generator = NullTestGenerator;
+    val test_generator = NullTestGenerator
 }
 
 object Dfs {
@@ -336,3 +381,4 @@ object Dfs {
         skalch.synthesize(() => new DfsSketch())
     }
 }
+

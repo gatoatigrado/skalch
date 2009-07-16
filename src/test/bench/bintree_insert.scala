@@ -8,6 +8,27 @@ import DebugOut.print
 
 import java.lang.Integer
 
+/*
+This was kinda in a hurry, but as of rev 30d2c2117dc84fb323c84b16347eed8b57d0c549+,
+output looks good.
+
+    [skdprint] input: 4
+    [skdprint] input: 2
+    [skdprint] insert left child of 0
+    [skdprint] input: 6
+    [skdprint] insert right child of 0
+    [skdprint] input: 5
+    [skdprint] insert left child of 2
+    [skdprint] input: 8
+    [skdprint] insert right child of 2
+    [skdprint] input: 3
+    [skdprint] insert right child of 1
+    [skdprint] input: 7
+    [skdprint] insert left child of 4
+    [skdprint] input: 1
+    [skdprint] insert left child of 1
+*/
+
 class BintreeInsertSketch extends DynamicSketch {
     class BintreeNode(var value : Int) {
         var leftChild, rightChild : BintreeNode = null
@@ -26,17 +47,48 @@ class BintreeInsertSketch extends DynamicSketch {
         next
     }
 
+    def find(node__ : BintreeNode, tofind : Int) : Boolean = {
+        var node = node__
+        while (node != null) {
+            if (node.value == tofind) {
+                return true
+            } else if (tofind < node.value) {
+                node = node.leftChild
+            } else {
+                node = node.rightChild
+            }
+        }
+        false
+    }
+
+    def allPresent(node : BintreeNode) : Boolean = {
+        for (i <- 1 to input_length) {
+            if (!find(node, i)) {
+                return false
+            }
+        }
+        true
+    }
+
     def dysketch_main() : Boolean = {
         nnodes = 0
         var root : BintreeNode = null
         for (i <- 0 until input_length) {
             val value = next_int_input()
-            DebugOut.print_mt("next int input", value : Integer)
+            // skdprint("input: " + value)
             val node = new_node(value)
             if (root == null) {
                 root = node
             } else {
-                val to_insert = node_arr(!!(nnodes))
+                val insert_idx = !!(nnodes)
+                val to_insert = node_arr(insert_idx)
+                if (!!()) {
+                    // skdprint("insert left child of " + insert_idx)
+                    to_insert.leftChild = node
+                } else {
+                    // skdprint("insert right child of " + insert_idx)
+                    to_insert.rightChild = node
+                }
                 /*
                 NOTE / ntung - this is a really weird situation in which
                 Scala does something weird for skdprint(to_insert.toString),
@@ -46,8 +98,7 @@ class BintreeInsertSketch extends DynamicSketch {
                 */
             }
         }
-        //allPresent(root)
-        true
+        allPresent(root)
     }
 
     val test_generator = new TestGenerator() {

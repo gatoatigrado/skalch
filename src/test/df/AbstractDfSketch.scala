@@ -55,8 +55,8 @@ abstract class AbstractDfSketch() extends DynamicSketch {
 
     def swap(i : Int, j : Int) {
         assert((i < num_buckets) && (j < num_buckets))
-        skdprint("swap(buckets[" + i + "]=" + buckets(i) +
-            " with buckets[" + j + "]=" + buckets(j) + " )")
+        //skdprint("swap(buckets[" + i + "]=" + buckets(i) +
+        //    " with buckets[" + j + "]=" + buckets(j) + " )")
         assert((buckets(i) != null) && (buckets(j) != null))
         val tmp = buckets(i)
         buckets(i) = buckets(j)

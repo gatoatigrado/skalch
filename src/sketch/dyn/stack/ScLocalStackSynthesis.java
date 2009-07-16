@@ -23,6 +23,7 @@ import sketch.util.DebugOut;
  */
 public class ScLocalStackSynthesis extends ScLocalSynthesis {
     protected ScStackSynthesis ssr;
+    public int longest_stack_size;
     public ScStack longest_stack;
     public Vector<ScStack> random_stacks;
 
@@ -72,10 +73,9 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                 }
                 // advance the stack (whether it succeeded or not)
                 try {
-                    if (longest_stack == null
-                            || longest_stack.stack.size() < stack.stack.size())
-                    {
+                    if (longest_stack_size < stack.stack.size()) {
                         longest_stack = stack.clone();
+                        longest_stack_size = stack.stack.size();
                     }
                     if (mt_local.nextFloat() < replacement_probability) {
                         add_random_stack();
@@ -104,6 +104,8 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
 
         @Override
         public void run_inner() {
+            longest_stack_size = -1;
+            longest_stack = null;
             stack = ssr.search_manager.clone_default_search();
             stack.set_for_synthesis(sketch);
             for (long a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=

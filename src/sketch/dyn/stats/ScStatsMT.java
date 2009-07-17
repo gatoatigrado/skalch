@@ -64,4 +64,13 @@ public class ScStatsMT {
     public long get_synthesis_time() {
         return end_time - start_time;
     }
+
+    public static class StatEntry {
+        public AtomicLong ctr = new AtomicLong();
+        public String name;
+
+        public StatEntry(String name) {
+            this.name = name;
+        }
+    }
 }

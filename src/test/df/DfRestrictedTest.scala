@@ -49,7 +49,7 @@ class DfRestrictedSketch() extends AbstractDfSketch() {
                 //synthAssertTerminal(registers(regidx0).value != registers(regidx1).value)
                 //synthAssertTerminal(regidx0 != regidx1)
             }
-            synthAssertTerminal(isCorrect(i + 1))
+            //synthAssertTerminal(isCorrect(i + 1))
 
             // I want the registers to be indices in which to insert the next element of a particular color
             while (color < 3) {

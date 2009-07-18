@@ -1,5 +1,7 @@
 package sketch.dyn.ga;
 
+import static sketch.util.DebugOut.assertFalse;
+
 import java.util.Vector;
 
 import sketch.dyn.BackendOptions;
@@ -88,6 +90,15 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                             sketch.solution_cost, sketch.num_asserts_passed));
                     if (analysis != null) {
                         analysis.evaluation_done(current_individual);
+                    }
+                    if (animated) {
+                        try {
+                            gasynth.ui.displayAnimated(current_individual);
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            assertFalse("don't interrupt threads.");
+                        }
                     }
                 }
             }

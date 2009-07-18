@@ -1,5 +1,6 @@
 package sketch.ui;
 
+import static sketch.util.DebugOut.assertFalse;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.debug.ScDebugEntry;
@@ -66,6 +67,10 @@ public class ScDebugConsoleUI implements ScUserInterface {
                     "[user requested print]", "\n", true, text);
         }
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
+    }
+
+    public void displayAnimated(ScGaIndividual unused) {
+        assertFalse("please use the GUI or disable ui_display_animated");
     }
 
     public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis) {

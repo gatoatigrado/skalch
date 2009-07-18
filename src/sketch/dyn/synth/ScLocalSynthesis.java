@@ -1,10 +1,12 @@
 package sketch.dyn.synth;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.util.DebugOut.assertFalse;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
@@ -24,10 +26,15 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
     // ui
     public int uid;
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
+    public boolean animated;
 
     public ScLocalSynthesis(ScDynamicSketch sketch, int uid) {
         this.sketch = sketch;
         this.uid = uid;
+        animated = BackendOptions.ui_opts.display_animated;
+        if (animated && uid > 0) {
+            assertFalse("use one thread with the animated option.");
+        }
     }
 
     protected abstract AbstractSynthesisThread create_synth_thread();

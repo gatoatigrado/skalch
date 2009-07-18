@@ -47,6 +47,7 @@ class DfRegisterSketch() extends AbstractDfSketch() {
             if (!!()) {
                 val regidx0 = !!(num_registers)
                 val regidx1 = !!(num_registers)
+                skdprint("additional swap: " + regidx0 + ", " + regidx1)
                 swap(registers(regidx0).value, registers(regidx1).value)
                 skAddCost(1)
             }

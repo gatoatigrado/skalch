@@ -29,4 +29,6 @@ public interface ScUserInterface {
 
     /** as with stack synthesis, the individual has not been cloned yet */
     public void addGaSolution(ScGaIndividual individual);
+
+    public void displayAnimated(ScGaIndividual individual);
 }

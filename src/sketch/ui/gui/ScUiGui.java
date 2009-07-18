@@ -298,14 +298,14 @@ public class ScUiGui extends gui_0_1 {
         clone.set_for_synthesis_and_reset(ui_thread.sketch,
                 ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf);
         StringBuilder result = getSourceWithSynthesisValues();
+        add_debug_info(new ScDebugGaRun(ui_thread.sketch,
+                ui_thread.all_counterexamples, clone, ui_thread.ga_ctrl_conf,
+                ui_thread.ga_oracle_conf));
         result.append("<p style=\"color: #aaaaaa;\"> ga synthesis "
                 + "individual<br />\n");
-        result.append(individual.htmlDebugString());
+        result.append(clone.htmlDebugString());
         result.append("\n</p>\n</body>\n</html>");
         sourceCodeEditor.setText(result.toString());
-        add_debug_info(new ScDebugGaRun(ui_thread.sketch,
-                ui_thread.all_counterexamples, individual,
-                ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf));
         if (!BackendOptions.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }

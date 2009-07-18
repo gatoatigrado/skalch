@@ -19,7 +19,7 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
     public long debug_stop_after;
     public int max_num_random;
     protected LocalSynthType[] local_synthesis;
-    protected ScUserInterface ui;
+    public ScUserInterface ui;
     public ScExhaustedWaitHandler wait_handler;
     protected long nsolutions_found = 0;
     public AsyncMTEvent done_events = new AsyncMTEvent();

@@ -149,6 +149,18 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }).add();
     }
 
+    public void displayAnimated(ScGaIndividual individual__) {
+        final ScGaIndividual individual = individual__.clone();
+        new RunnableModifier(new Runnable() {
+            public void run() {
+                ScGaSolutionDispatcher solution_individual =
+                        new ScGaSolutionDispatcher(individual, ScUiThread.this,
+                                gui.synthCompletions);
+                solution_individual.dispatch();
+            }
+        }).add();
+    }
+
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
         new RunnableModifier(new Runnable() {

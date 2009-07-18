@@ -39,4 +39,6 @@ public class ScUiOptions extends CliAnnotatedOptionGroup {
     public boolean no_scroll_topleft;
     @CliParameter(help = "disable bash color")
     public boolean no_bash_color;
+    @CliParameter(help = "display each individual evaluated")
+    public boolean display_animated;
 }

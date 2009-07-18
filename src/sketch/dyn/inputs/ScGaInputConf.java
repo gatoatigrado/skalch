@@ -43,7 +43,9 @@ public class ScGaInputConf extends ScInputConf implements
         if (uid >= next.length) {
             realloc(2 * uid + 1);
         }
-        return base.synthGetValue(false, uid, next[uid], untilv);
+        int rv = base.synthGetValue(false, uid, next[uid], untilv);
+        next[uid] += 1;
+        return rv;
     }
 
     @Override
@@ -66,7 +68,9 @@ public class ScGaInputConf extends ScInputConf implements
 
     @Override
     public int nextValue(int uid) {
-        return base.synthGetValue(false, uid, next[uid], default_untilv[uid]);
+        int rv = base.synthGetValue(false, uid, next[uid], default_untilv[uid]);
+        next[uid] += 1;
+        return rv;
     }
 
     protected void realloc(int length) {

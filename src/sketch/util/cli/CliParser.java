@@ -66,7 +66,9 @@ public class CliParser extends org.apache.commons.cli.PosixParser {
         } catch (org.apache.commons.cli.ParseException e) {
             DebugOut.assertFalse(e.getMessage());
         }
-        for (CliAnnotatedOptionGroup elt : set_on_parse) {
+        CliAnnotatedOptionGroup[] set_on_parse_arr =
+                set_on_parse.toArray(new CliAnnotatedOptionGroup[0]);
+        for (CliAnnotatedOptionGroup elt : set_on_parse_arr) {
             elt.set_values();
         }
     }

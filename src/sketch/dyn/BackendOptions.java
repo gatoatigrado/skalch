@@ -1,6 +1,7 @@
 package sketch.dyn;
 
 import sketch.dyn.ga.ScGaOptions;
+import sketch.dyn.stats.ScStatsOptions;
 import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.ui.ScUiOptions;
 import sketch.util.DebugOut;
@@ -18,6 +19,7 @@ public class BackendOptions {
     public static CliOptionResult synth_opts;
     public static CliOptionResult ui_opts;
     public static ScGaOptions ga_opts;
+    public static ScStatsOptions stat_opts;
 
     /** add default lazy options to a parser */
     public static void add_opts(CliParser p) {
@@ -28,6 +30,8 @@ public class BackendOptions {
         ui_opts = (new ScUiOptions()).parse(p);
         ga_opts = new ScGaOptions();
         ga_opts.parse(p);
+        stat_opts = new ScStatsOptions();
+        stat_opts.parse(p);
     }
 
     /** initialize default options if the frontend didn't initialize them */
@@ -42,5 +46,6 @@ public class BackendOptions {
 
     public static void initialize_annotated() {
         ga_opts.set_values();
+        stat_opts.set_values();
     }
 }

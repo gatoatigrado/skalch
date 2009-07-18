@@ -1,5 +1,7 @@
 package sketch.util.cli;
 
+import static sketch.util.DebugOut.assertFalse;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -39,11 +41,14 @@ public final class CliOption {
                 help_);
     }
 
-    public Object parse(CommandLine cmd_line) {
+    public Object parse(CommandLine cmd_line, boolean no_defaults) {
         if (type_.equals(Boolean.class)) {
             return cmd_line.hasOption(full_name_);
         }
         if (!cmd_line.hasOption(full_name_)) {
+            if (no_defaults) {
+                assertFalse("CliOption - no_defaults set, but no option", this);
+            }
             if (default_ == null) {
                 DebugOut.print_colored(DebugOut.BASH_RED, "", " ", false,
                         "argument", name_, "is required.\n    argument info:",

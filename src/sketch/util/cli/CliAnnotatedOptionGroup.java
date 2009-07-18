@@ -1,7 +1,6 @@
 package sketch.util.cli;
 
 import static sketch.util.DebugOut.assertFalse;
-import static sketch.util.DebugOut.print;
 import static sketch.util.DebugOut.print_exception;
 
 import java.lang.reflect.Field;
@@ -13,7 +12,39 @@ public class CliAnnotatedOptionGroup extends CliOptionGroup {
 
     public CliAnnotatedOptionGroup(String prefix, String description) {
         super(prefix, description);
-        for (Field field : this.getClass().getFields()) {
+    }
+
+    public void set_values() {
+        // don't call this recursively
+        if (!lazy_results.parser.set_on_parse.remove(this)) {
+            return;
+        }
+        try {
+            for (Field field : fields) {
+                if (!lazy_results.is_set(field.getName())) {
+                    continue;
+                }
+                if (field.getType() == Boolean.TYPE) {
+                    field.setBoolean(this, lazy_results.bool_(field.getName()));
+                } else if (field.getType() == Integer.TYPE) {
+                    field.setInt(this, (int) lazy_results
+                            .long_(field.getName()));
+                } else if (field.getType() == Long.TYPE) {
+                    field.setLong(this, lazy_results.long_(field.getName()));
+                } else {
+                    field.set(this, lazy_results.other_type_(field.getName()));
+                }
+            }
+        } catch (Exception e) {
+            print_exception("set_values()", e);
+        }
+    }
+
+    public void add_fields() {
+        if (!fields.isEmpty()) {
+            assertFalse("CliAnnotatedOptionGroup -- double add fields.");
+        }
+        for (Field field : this.getClass().getDeclaredFields()) {
             CliParameter cli_annotation =
                     field.getAnnotation(CliParameter.class);
             if (cli_annotation != null) {
@@ -29,42 +60,9 @@ public class CliAnnotatedOptionGroup extends CliOptionGroup {
         }
     }
 
-    public void set_values() {
-        // don't call this recursively
-        if (!lazy_results.parser.set_on_parse.remove(this)) {
-            assertFalse("call parse() on object", this);
-        }
-        print("annotated option group set_values()");
-        try {
-            for (Field field : fields) {
-                if (!lazy_results.is_set(field.getName())) {
-                    print("not set", field.getName());
-                    continue;
-                }
-                if (field.getType() == Boolean.TYPE) {
-                    print("set boolean", field.getName());
-                    field.setBoolean(this, lazy_results.bool_(field.getName()));
-                } else if (field.getType() == Integer.TYPE) {
-                    print("set integer", field.getName());
-                    field.setInt(this, (int) lazy_results
-                            .long_(field.getName()));
-                } else if (field.getType() == Long.TYPE) {
-                    print("set long", field.getName());
-                    field.setLong(this, lazy_results.long_(field.getName()));
-                } else if (CliOptionType.class.isAssignableFrom(field
-                        .getClass()))
-                {
-                    print("set other", field.getName());
-                    field.set(this, lazy_results.other_type_(field.getName()));
-                }
-            }
-        } catch (Exception e) {
-            print_exception("set_values()", e);
-        }
-    }
-
     @Override
     public CliOptionResult parse(CliParser p) {
+        add_fields();
         lazy_results = super.parse(p);
         p.set_on_parse.add(this);
         return lazy_results;

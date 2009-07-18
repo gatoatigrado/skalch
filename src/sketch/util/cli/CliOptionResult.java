@@ -16,6 +16,7 @@ public class CliOptionResult {
     CliOptionGroup options;
     CliParser parser;
     protected HashMap<String, Object> cached_results;
+    public boolean no_defaults = false;
 
     public CliOptionResult(CliOptionGroup options, CliParser parser) {
         this.options = options;
@@ -40,7 +41,7 @@ public class CliOptionResult {
             if (opt == null) {
                 DebugOut.assertFalse("invalid name", name);
             }
-            result = opt.parse(parser.cmd_line);
+            result = opt.parse(parser.cmd_line, no_defaults);
             cached_results.put(name, result);
         }
         return result;

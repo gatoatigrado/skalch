@@ -2,9 +2,11 @@ package sketch.dyn.ga;
 
 import java.util.Vector;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
+import sketch.dyn.ga.analysis.GaAnalysis;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScGaInputConf;
@@ -45,6 +47,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         protected ScGaCtrlConf ctrl_conf;
         protected ScGaInputConf oracle_conf;
         protected Vector<ScPopulation> local_populations;
+        protected GaAnalysis analysis;
 
         /** evaluate $this.current_individual$ */
         protected void evaluate() {
@@ -80,6 +83,9 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                     evaluate();
                     population.add_done(current_individual
                             .set_done(sketch.solution_cost));
+                    if (analysis != null) {
+                        analysis.evaluation_done(current_individual);
+                    }
                 }
             }
         }
@@ -89,8 +95,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             // print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
             // "=== generation iterate ===");
             for (ScPopulation population : local_populations) {
-                population.generate_new_phase();
-                population.death_phase();
+                population.generate_new_phase(analysis);
+                population.death_phase(analysis);
             }
         }
 
@@ -104,6 +110,9 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             local_populations.add(new ScPopulation(gasynth.spine_length));
             ctrl_conf = new ScGaCtrlConf(info);
             oracle_conf = new ScGaInputConf(oracle_info);
+            if (BackendOptions.ga_opts.analysis) {
+                analysis = new GaAnalysis();
+            }
             for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=
                     nruns)
             {
@@ -111,8 +120,6 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                 // "=== generation start ===");
                 update_stats();
                 if (a >= gasynth.debug_stop_after) {
-                    DebugOut.print("wait exhausted...", a,
-                            gasynth.debug_stop_after);
                     gasynth.wait_handler.wait_exhausted();
                 }
                 //
@@ -122,6 +129,14 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                     process_ui_queue(ui_queue.remove());
                 }
                 iterate_populations();
+            }
+        }
+
+        @Override
+        protected void update_stats() {
+            super.update_stats();
+            if (analysis != null) {
+                analysis.update_stats();
             }
         }
 

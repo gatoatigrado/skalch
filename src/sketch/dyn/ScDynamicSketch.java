@@ -24,7 +24,7 @@ public abstract class ScDynamicSketch {
     public ScCtrlConf ctrl_conf;
     public ScInputConf input_conf;
     public ScInputConf oracle_conf;
-    public Vector<ScSourceConstruct> ctrl_src_info =
+    public Vector<ScSourceConstruct> construct_src_info =
             new Vector<ScSourceConstruct>();
     public boolean debug_print_enable = false;
     public Vector<ScDebugEntry> debug_out;
@@ -126,8 +126,7 @@ public abstract class ScDynamicSketch {
      * text.append("\n"); // extra newline for long values } a += 1; } a += 1;
      * text.append("\n"); } debug_out.add(text.toString()); }
      */
-    public void addHoleSourceInfo(ScSourceConstruct info) {
-        DebugOut.print(info);
-        ctrl_src_info.add(info);
+    public void addSourceInfo(ScSourceConstruct info) {
+        construct_src_info.add(info);
     }
 }

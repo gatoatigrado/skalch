@@ -1,5 +1,9 @@
 package sketch.util.cli;
 
+import static sketch.util.DebugOut.BASH_RED;
+import static sketch.util.DebugOut.assertFalse;
+import static sketch.util.DebugOut.print_colored;
+
 import java.util.HashMap;
 
 import sketch.util.DebugOut;
@@ -75,19 +79,26 @@ public abstract class CliOptionGroup {
             } else if (ent instanceof CliOptionType<?>) {
                 opt.type_ = ent.getClass();
                 opt.default_ = ent;
+            } else if (ent instanceof Boolean) {
+                if (((Boolean) ent).booleanValue() != false) {
+                    assertFalse("boolean values must be false initially.");
+                }
+            } else {
+                print_colored(BASH_RED, "[assert info]", " ", true, options);
+                assertFalse("unknown argument type", ent);
             }
         }
         if (opt.name_ == null) {
-            DebugOut.assertFalse("no name given", options);
+            assertFalse("no name given", options);
         }
         if (opt.default_ != null
                 && !opt.type_.isAssignableFrom(opt.default_.getClass()))
         {
-            DebugOut.assertFalse("default value", opt.default_,
-                    "doesn't match type", opt.type_, "; options", options);
+            assertFalse("default value", opt.default_, "doesn't match type",
+                    opt.type_, "; options", options);
         }
         if (opt_set.put(opt.name_, opt) != null) {
-            DebugOut.assertFalse("already contained option", opt);
+            assertFalse("already contained option", opt);
         }
     }
 }

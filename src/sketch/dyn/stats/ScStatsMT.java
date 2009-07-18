@@ -1,10 +1,14 @@
 package sketch.dyn.stats;
 
+import static sketch.util.DebugOut.BASH_RED;
 import static sketch.util.DebugOut.BASH_SALMON;
 import static sketch.util.DebugOut.assertFalse;
 import static sketch.util.DebugOut.print_colored;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicLong;
+
+import sketch.dyn.BackendOptions;
 
 /**
  * the only stats class. update the num_runs and num_counterexamples at a coarse
@@ -15,9 +19,9 @@ import java.util.concurrent.atomic.AtomicLong;
  *          make changes, please consider contributing back!
  */
 public class ScStatsMT {
-    protected AtomicLong nrun = new AtomicLong(0);
-    protected AtomicLong ncounterexamples = new AtomicLong(0);
-    protected AtomicLong nsolutions = new AtomicLong(0);
+    public LinkedList<StatEntry> all_stats = new LinkedList<StatEntry>();
+    public StatEntry nruns, ncounterexamples, nsolutions, ga_repeated,
+            ga_repeated_recent, ga_nmutate, ga_ncrossover;
     protected long start_time, end_time;
     public static ScStatsMT stats_singleton;
 
@@ -26,18 +30,19 @@ public class ScStatsMT {
             assertFalse("stats created twice.");
         }
         stats_singleton = this;
+        nruns = add_stat(new StatEntry("num_tests", "tests"));
+        ncounterexamples = add_stat(new StatEntry("num counterexamples"));
+        nsolutions = add_stat(new StatEntry("num solutions"));
+        ga_repeated = add_stat(new StatEntry("[ga] num same evaluated"));
+        ga_repeated_recent =
+                add_stat(new StatEntry("[ga] num same evaluated recent"));
+        ga_nmutate = add_stat(new StatEntry("[ga] created from mutate only"));
+        ga_ncrossover = add_stat(new StatEntry("[ga] created from crossover"));
     }
 
-    public void run_test(long ntests) {
-        nrun.addAndGet(ntests);
-    }
-
-    public void try_counterexample(long ncounterexamples_) {
-        ncounterexamples.addAndGet(ncounterexamples_);
-    }
-
-    public void num_solutions(int nsolutions) {
-        this.nsolutions.addAndGet(nsolutions);
+    private StatEntry add_stat(StatEntry entry) {
+        all_stats.add(entry);
+        return entry;
     }
 
     public void start_synthesis() {
@@ -45,32 +50,120 @@ public class ScStatsMT {
     }
 
     private void print_line(String line) {
-        print_colored(BASH_SALMON, "[stats] ", "", false, line);
+        print_colored(BASH_SALMON, "[stats]", "", false, line);
+    }
+
+    private void print_entry(String indent, StatEntry entry) {
+        if (BackendOptions.stat_opts.show_zero || entry.value > 0) {
+            print_line(indent + entry.toString());
+        }
+    }
+
+    private void print_entries(StatEntry... entries) {
+        String indent = "";
+        for (StatEntry entry : entries) {
+            print_entry(indent, entry);
+            indent = "    ";
+        }
+    }
+
+    private void print_rate(String indent, StatEntry entry, StatEntry base) {
+        if (BackendOptions.stat_opts.show_zero || entry.value > 0) {
+            if (base.value == 0) {
+                print_line(indent + entry.short_name + " / " + base.short_name
+                        + ": infinity");
+            } else {
+                print_line(indent + entry.rate_string(base));
+            }
+        }
     }
 
     public void stop_synthesis() {
         end_time = System.currentTimeMillis();
-        float synth_time = (get_synthesis_time()) / 1000.f;
-        float ntests = nrun.get();
-        float tests_per_sec = ntests / synth_time;
+        StatEntry time = new StatEntry("time taken", "sec");
+        time.value = (get_synthesis_time()) / 1000.f;
+        for (StatEntry entry : all_stats) {
+            entry.get_value();
+        }
         print_line("=== statistics ===");
-        print_line("num tests run: " + ntests);
-        print_line("    num counterexamples run: " + ncounterexamples.get());
-        print_line("    num solutions: " + nsolutions.get());
-        print_line("time taken: " + synth_time);
-        print_line("    runs / sec: " + tests_per_sec);
+        print_entries(nruns, ncounterexamples, nsolutions, ga_repeated,
+                ga_repeated_recent, ga_nmutate, ga_ncrossover);
+        print_entry("", time);
+        print_rate("    ", nruns, time);
+        print_rate("", ga_repeated, nruns);
+        stat_analysis();
+    }
+
+    /**
+     * print human-useful information, when stat "events" occur
+     */
+    private void stat_analysis() {
+        rate_warning(ga_repeated.rate(nruns) > 0.5f,
+                "GA - many repeat evaluations");
+    }
+
+    private void rate_warning(boolean trigger, String string) {
+        if (trigger) {
+            print_colored(BASH_RED, "[stat-warning]", "", false, string);
+        }
     }
 
     public long get_synthesis_time() {
         return end_time - start_time;
     }
 
-    public static class StatEntry {
-        public AtomicLong ctr = new AtomicLong();
+    public class StatEntry {
+        protected AtomicLong ctr = new AtomicLong();
+        public Float value;
         public String name;
+        public String short_name;
+
+        /**
+         * @param short_name
+         *            name used when printing rate string
+         */
+        public StatEntry(String name, String short_name) {
+            this.name = name;
+            this.short_name = short_name;
+        }
+
+        public float rate(StatEntry base) {
+            return value / base.value;
+        }
 
         public StatEntry(String name) {
-            this.name = name;
+            this(name, name);
+        }
+
+        public float get_value() {
+            value = new Float(ctr.get());
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return name + ": " + value;
+        }
+
+        public String rate_string(StatEntry base) {
+            float rate = value / base.value;
+            return short_name + " / " + base.short_name + ": " + rate;
+        }
+
+        public void add(long v) {
+            ctr.addAndGet(v);
+        }
+    }
+
+    public class ArtificalStatEntry extends StatEntry {
+        public ArtificalStatEntry(float value, String name, String short_name) {
+            super(name, short_name);
+            this.value = value;
+        }
+
+        @Override
+        public float get_value() {
+            return value;
         }
     }
 }

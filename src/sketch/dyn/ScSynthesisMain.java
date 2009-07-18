@@ -80,7 +80,7 @@ public class ScSynthesisMain {
                 ScSourceConstruct info =
                         ScSourceConstruct.from_node(srcinfo.get(a), names[1],
                                 ui_sketch);
-                ui_sketch.addHoleSourceInfo(info);
+                ui_sketch.addSourceInfo(info);
             }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);

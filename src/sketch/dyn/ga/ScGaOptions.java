@@ -1,6 +1,7 @@
 package sketch.dyn.ga;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.util.DebugOut.print;
 import sketch.util.cli.CliAnnotatedOptionGroup;
 import sketch.util.cli.CliOptionType;
 import sketch.util.cli.CliParameter;
@@ -19,6 +20,10 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
 
     @CliParameter(help = "use the genetic algorithm instead of stack synthesis")
     public boolean enable;
+    @CliParameter(help = "enable GA analysis (adds overhead)")
+    public boolean analysis;
+    @CliParameter(help = "number of recent solutions in array for analysis")
+    public int analysis_recent = 16;
     @CliParameter(help = "spine length for phenotype map")
     public int spine_len = 128;
     @CliParameter(help = "population size.")
@@ -37,11 +42,6 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
         public float value;
         float max;
 
-        public float perturb() {
-            float rand_flt = (1 - 2 * mt().nextFloat()) * (max - min);
-            return Math.max(min, Math.min(max, rand_flt + value));
-        }
-
         public ScGaParameter(float min, float default_value, float max) {
             this.min = min;
             value = default_value;
@@ -49,12 +49,27 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
         }
 
         @Override
+        public String toString() {
+            return "ScGaParameter[" + value + " \\in [" + min + ", " + max
+                    + "] ]";
+        }
+
+        @Override
         public ScGaParameter clone() {
             return new ScGaParameter(min, value, max);
         }
 
+        public float perturb() {
+            float rand_flt = (1 - 2 * mt().nextFloat()) * (max - min);
+            return Math.max(min, Math.min(max, rand_flt + value));
+        }
+
         public ScGaParameter fromString(String value) {
-            return new ScGaParameter(min, Float.parseFloat(value), max);
+            float next_value = Float.parseFloat(value);
+            if (next_value < min || next_value > max) {
+                print("WARNING - parameter", next_value, "out of range", this);
+            }
+            return new ScGaParameter(min, next_value, max);
         }
     }
 }

@@ -32,7 +32,9 @@ public class DebugOut {
     {
         if (nice_arrays) {
             for (int a = 0; a < text.length; a++) {
-                if (text[a].getClass().isArray()) {
+                if (text[a] == null) {
+                    text[a] = "null";
+                } else if (text[a].getClass().isArray()) {
                     Object[] arr = (Object[]) text[a];
                     text[a] = (new RichString("\n")).join(arr);
                 }

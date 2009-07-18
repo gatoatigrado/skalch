@@ -186,7 +186,7 @@ public class ScUiGui extends gui_0_1 {
     protected StringBuilder getSourceWithSynthesisValues() {
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
-        for (ScSourceConstruct hole_info : ui_thread.sketch.ctrl_src_info) {
+        for (ScSourceConstruct hole_info : ui_thread.sketch.construct_src_info) {
             String f = hole_info.entire_location.filename;
             if (!info_by_filename.containsKey(f)) {
                 info_by_filename.put(f, new Vector<ScSourceConstruct>());

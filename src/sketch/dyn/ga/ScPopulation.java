@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.ga.ScGaOptions.ScGaParameter;
+import sketch.dyn.ga.analysis.GaAnalysis;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.ga.base.ScGenotype;
 import sketch.dyn.ga.base.ScPhenotypeMap;
@@ -88,46 +89,58 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         done_queue.add(individual);
     }
 
-    private void clone_and_mutate(ScGaIndividual individual) {
+    private void clone_and_mutate(ScGaIndividual individual, GaAnalysis analysis)
+    {
         ScGaIndividual clone = individual.clone();
         num_mutate_failed += clone.genotype.mutate() ? 0 : 1;
+        if (analysis != null) {
+            analysis.add_clone(individual, clone);
+        }
         add(clone);
     }
 
-    private void clone_and_crossover(ScGaIndividual first, ScGaIndividual other)
+    private void clone_and_crossover(ScGaIndividual first,
+            ScGaIndividual other, GaAnalysis analysis)
     {
         ScGaIndividual clone = first.clone();
         clone.genotype.crossover(other.genotype,
                 prob_crossover_mutate_different.value);
+        if (analysis != null) {
+            analysis.add_crossover(first, other, clone);
+        }
         add(clone);
     }
 
-    public void generate_new_phase() {
+    public void generate_new_phase(GaAnalysis analysis) {
         MersenneTwisterFast mt_local = mt();
         for (int a = 0; a < max_population_sz; a++) {
             if (done_queue.size() <= 1) {
-                clone_and_mutate(done_queue.get(0));
+                clone_and_mutate(done_queue.get(0), analysis);
                 return;
             } else {
                 ScGaIndividual first = select_individual(mt_local, false);
                 if (mt_local.nextFloat() < prob_clone_mutate.value) {
-                    clone_and_mutate(first);
+                    clone_and_mutate(first, analysis);
                 } else {
                     ScGaIndividual other = select_individual(mt_local, false);
                     if (other == first) {
-                        clone_and_mutate(first);
+                        clone_and_mutate(first, analysis);
                     } else {
-                        clone_and_crossover(first, other);
+                        clone_and_crossover(first, other, analysis);
                     }
                 }
             }
         }
     }
 
-    public void death_phase() {
+    public void death_phase(GaAnalysis analysis) {
         int to_kill = done_queue.size() - max_population_sz;
         MersenneTwisterFast mt_local = mt();
         for (int a = 0; a < to_kill; a++) {
+            ScGaIndividual individual = select_individual(mt_local, true);
+            if (analysis != null) {
+                analysis.death(individual);
+            }
             if (!done_queue.remove(select_individual(mt_local, true))) {
                 DebugOut.assertFalse("couldn't remove element");
             }

@@ -70,9 +70,9 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
         protected int nruns = 0, ncounterexamples = 0, nsolutions = 0;
 
         protected void update_stats() {
-            ScStatsMT.stats_singleton.run_test(nruns);
-            ScStatsMT.stats_singleton.try_counterexample(ncounterexamples);
-            ScStatsMT.stats_singleton.num_solutions(nsolutions);
+            ScStatsMT.stats_singleton.nruns.add(nruns);
+            ScStatsMT.stats_singleton.ncounterexamples.add(ncounterexamples);
+            ScStatsMT.stats_singleton.nsolutions.add(nsolutions);
             nruns = 0;
             ncounterexamples = 0;
             nsolutions = 0;

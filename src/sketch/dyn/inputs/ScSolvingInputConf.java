@@ -8,7 +8,7 @@ import sketch.dyn.ScConstructInfo;
 import sketch.dyn.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * Common functions on an array of solving inputs. These can be converted to
@@ -68,8 +68,8 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     @Override
     public String toString() {
         return "ScSolvingInputConf[ values="
-                + (new RichString(", ")).join(values) + ",\nuntilv="
-                + (new RichString(", ")).join(untilv) + " ]";
+                + (new ScRichString(", ")).join(values) + ",\nuntilv="
+                + (new ScRichString(", ")).join(untilv) + " ]";
     }
 
     /** for clone method only */

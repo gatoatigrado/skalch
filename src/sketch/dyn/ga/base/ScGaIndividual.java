@@ -41,6 +41,10 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
                 + phenotype.formatValuesString(genotype) + ">>>]";
     }
 
+    public String valuesString() {
+        return phenotype.formatValuesString(genotype);
+    }
+
     /**
      * NOTE - doesn't change the phenotype, but that should only be adding
      * entries, so it shouldn't change the semantics of the genotype.
@@ -77,9 +81,14 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
             return false;
         } else if (num_constructs_accessed < selected.num_constructs_accessed) {
             return false;
+        } else if (num_asserts_passed < selected.num_asserts_passed) {
+            return false;
         } else if (num_constructs_accessed > selected.num_constructs_accessed) {
             // NOTE - don't compare costs if this one accessed more values,
             // since skAddCost() calls can be anywhere.
+            return true;
+        } else if (num_asserts_passed > selected.num_asserts_passed) {
+            // same
             return true;
         } else if (cost >= selected.cost) {
             return false;
@@ -100,8 +109,9 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         return this;
     }
 
-    public ScGaIndividual set_done(int cost) {
+    public ScGaIndividual set_done(int cost, int num_asserts_passed) {
         this.cost = cost;
+        this.num_asserts_passed = num_asserts_passed;
         done = true;
         return this;
     }

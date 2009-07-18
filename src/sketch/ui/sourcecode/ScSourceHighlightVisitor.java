@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import java.util.regex.Pattern;
 
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 import sketch.util.ScHtmlUtil;
 
 /**
@@ -19,7 +19,7 @@ public class ScSourceHighlightVisitor extends ScSourceLocationVisitor {
         for (int a = 0; a < lines.length; a++) {
             lines[a] = highlight(lines[a]);
         }
-        return (new RichString("\n")).join(lines);
+        return (new ScRichString("\n")).join(lines);
     }
 
     private String highlight(String line) {

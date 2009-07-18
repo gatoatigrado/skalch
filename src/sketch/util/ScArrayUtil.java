@@ -28,6 +28,12 @@ public class ScArrayUtil {
         return next;
     }
 
+    public static float[] extend_arr(float[] arr, int sz) {
+        float[] next = new float[sz];
+        System.arraycopy(arr, 0, next, 0, arr.length);
+        return next;
+    }
+
     /**
      * @param clone
      *            <ul>

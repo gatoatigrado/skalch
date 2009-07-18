@@ -14,7 +14,7 @@ import sketch.dyn.prefix.ScPrefixSearch;
 import sketch.dyn.synth.ScSearchDoneException;
 import sketch.util.DebugOut;
 import sketch.util.FactoryStack;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * an instance of a backtracking stack search. each instance essentially
@@ -84,12 +84,12 @@ public class ScStack extends ScPrefixSearch {
 
     @Override
     public String toString() {
-        return "ScStack[ " + (new RichString(" -> ")).join(getStringArrayRep())
+        return "ScStack[ " + (new ScRichString(" -> ")).join(getStringArrayRep())
                 + " ]";
     }
 
     public String htmlDebugString() {
-        RichString sep = new RichString(" -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
+        ScRichString sep = new ScRichString(" -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
         return "ScStack[ " + sep.join(getStringArrayRep()) + " ]";
     }
 

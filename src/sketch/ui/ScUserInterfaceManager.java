@@ -22,7 +22,7 @@ public class ScUserInterfaceManager {
     public static ScUserInterface start_ui(ScSynthesis<?> synth_runtime,
             ScDynamicSketch sketch)
     {
-        if (BackendOptions.ui_opts.bool_("no_gui")) {
+        if (BackendOptions.ui_opts.no_gui) {
             return new ScDebugConsoleUI(sketch);
         } else {
             ScUiThread thread = new ScUiThread(synth_runtime, sketch);

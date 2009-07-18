@@ -25,5 +25,6 @@
 <intAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS_NUM" value="5"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="tptp-dummy-profiling-set-bitonic_sort"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="test.df.DfRegisterTestDifficult"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--ui_no_gui --sy_num_solutions 1 --sy_num_threads 1 --ga_enable --sy_debug_stop_after 100000 --stat_show_zero --ui_no_bash_color"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="skalch"/>
 </launchConfiguration>

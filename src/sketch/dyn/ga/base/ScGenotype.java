@@ -1,9 +1,11 @@
 package sketch.dyn.ga.base;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.util.DebugOut.assertFalse;
 import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import sketch.util.ScCloneable;
 import ec.util.MersenneTwisterFast;
@@ -19,6 +21,8 @@ import ec.util.MersenneTwisterFast;
 public class ScGenotype implements ScCloneable<ScGenotype> {
     public int[] data = new int[0];
     public boolean[] active_data = new boolean[0];
+    public float[] mutate_prob = new float[0];
+    public LinkedList<Integer> mutate_list = new LinkedList<Integer>();
 
     @Override
     public String toString() {
@@ -38,6 +42,10 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         }
         int result = data[idx];
         active_data[idx] = true;
+        if (mutate_prob[idx] == 0.f) {
+            mutate_prob[idx] = 0.1f;
+            mutate_list.add(idx);
+        }
         if (result >= untilv) {
             result = data[idx] % untilv;
             data[idx] = result;
@@ -49,23 +57,29 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
     public boolean mutate() {
         // print_colored(BASH_GREY, "[ga]", " ", false, "mutate");
         MersenneTwisterFast local_mt = mt();
-        for (int a = 0; a < 16; a++) {
-            int idx = local_mt.nextInt(data.length);
-            data[idx] = Math.abs(local_mt.nextInt());
-            if (active_data[idx]) {
-                return true;
+        boolean mutated = false;
+        while (!mutated) {
+            if (mutate_list.size() == 0) {
+                assertFalse("no constructs with significant mutate probability");
+            }
+            for (Integer idx : mutate_list) {
+                if (local_mt.nextFloat() < mutate_prob[idx]) {
+                    data[idx] = Math.abs(local_mt.nextInt());
+                    mutated = true;
+                }
             }
         }
-        return false;
-        // DebugOut.print_mt("didn't mutate anything; "
-        // + "consider searching for longer.");
+        return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public ScGenotype clone() {
         ScGenotype result = new ScGenotype();
         result.data = data.clone();
         result.active_data = active_data.clone();
+        result.mutate_prob = mutate_prob.clone();
+        result.mutate_list = (LinkedList<Integer>) mutate_list.clone();
         return result;
     }
 
@@ -74,6 +88,7 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         int prev_length = data.length;
         data = extend_arr(data, length);
         active_data = extend_arr(active_data, length);
+        mutate_prob = extend_arr(mutate_prob, length);
         MersenneTwisterFast mt_local = mt();
         for (int a = prev_length; a < length; a++) {
             data[a] = Math.abs(mt_local.nextInt());

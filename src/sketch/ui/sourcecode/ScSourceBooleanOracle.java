@@ -3,7 +3,7 @@ package sketch.ui.sourcecode;
 import java.util.Vector;
 
 import sketch.dyn.ScDynamicSketch;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * true / false (parameterless call) to an oracle.
@@ -33,7 +33,7 @@ public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
                 result_arr.add(value_string.formatWithNewValueString(v ? "true"
                         : "false"));
             }
-            return (new RichString(", ")).join(result_arr
+            return (new ScRichString(", ")).join(result_arr
                     .toArray(new String[0]));
         } catch (ScNoValueStringException e) {
             return "not encountered";

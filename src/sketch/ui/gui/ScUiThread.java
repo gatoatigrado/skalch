@@ -57,8 +57,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
             ga_ctrl_conf = new ScGaCtrlConf(sketch.get_hole_info());
             ga_oracle_conf = new ScGaInputConf(sketch.get_oracle_info());
         }
-        auto_display_first_solution =
-                !BackendOptions.ui_opts.bool_("no_auto_soln_disp");
+        auto_display_first_solution = !BackendOptions.ui_opts.no_auto_soln_disp;
         gui_list.add(this);
     }
 

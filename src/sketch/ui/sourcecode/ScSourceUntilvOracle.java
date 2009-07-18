@@ -3,7 +3,7 @@ package sketch.ui.sourcecode;
 import java.util.Vector;
 
 import sketch.dyn.ScDynamicSketch;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * an oracle which (if it were a hole) would be rewritten to a single number.
@@ -34,7 +34,7 @@ public class ScSourceUntilvOracle implements ScSourceConstructInfo {
             for (ScConstructValueString value_string : values) {
                 result_arr.add(value_string.formatString());
             }
-            return (new RichString(", ")).join(result_arr
+            return (new ScRichString(", ")).join(result_arr
                     .toArray(new String[0]));
         } catch (ScNoValueStringException e) {
             return "not encountered";

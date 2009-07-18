@@ -28,7 +28,7 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         // command line options
         nsolutions_to_find = BackendOptions.synth_opts.long_("num_solutions");
         debug_stop_after = BackendOptions.synth_opts.long_("debug_stop_after");
-        max_num_random = (int) BackendOptions.ui_opts.long_("max_num_random");
+        max_num_random = BackendOptions.ui_opts.max_num_random_stacks;
     }
 
     public final void synthesize(ScSolvingInputConf[] counterexamples,

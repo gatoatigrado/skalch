@@ -54,6 +54,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             current_individual.set_for_synthesis_and_reset(sketch, ctrl_conf,
                     oracle_conf);
             sketch.solution_cost = 0;
+            sketch.num_asserts_passed = 0;
             nruns += 1;
             trycatch: try {
                 for (ScFixedInputConf counterexample : counterexamples) {
@@ -74,15 +75,17 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
 
         /** evaluate all pending individuals from all local populations */
         private void blind_fast_routine() {
-            // print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
-            // "=== generation eval ===");
             for (ScPopulation population : local_populations) {
+                // print_colored(BASH_DEFAULT, "\n[ga-synth]", " ", false,
+                // "population " + population.uid);
                 while (population.test_queue_nonempty()) {
                     current_individual =
                             population.get_individual_for_testing();
+                    // print("evaluating", "\n"
+                    // + current_individual.valuesString());
                     evaluate();
-                    population.add_done(current_individual
-                            .set_done(sketch.solution_cost));
+                    population.add_done(current_individual.set_done(
+                            sketch.solution_cost, sketch.num_asserts_passed));
                     if (analysis != null) {
                         analysis.evaluation_done(current_individual);
                     }
@@ -92,8 +95,6 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
 
         /** generate new individuals and kill off unfit or old ones */
         protected void iterate_populations() {
-            // print_colored(BASH_DEFAULT, "[ga-synth]", " ", false,
-            // "=== generation iterate ===");
             for (ScPopulation population : local_populations) {
                 population.generate_new_phase(analysis);
                 population.death_phase(analysis);
@@ -107,7 +108,12 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             ScClonedConstructInfo[] oracle_info =
                     ScClonedConstructInfo.clone_array(sketch.get_oracle_info());
             local_populations = new Vector<ScPopulation>();
-            local_populations.add(new ScPopulation(gasynth.spine_length));
+            for (int a = 0; a < BackendOptions.ga_opts.num_populations; a++) {
+                ScPopulation population =
+                        new ScPopulation(gasynth.spine_length);
+                population.perturb_parameters();
+                local_populations.add(population);
+            }
             ctrl_conf = new ScGaCtrlConf(info);
             oracle_conf = new ScGaInputConf(oracle_info);
             if (BackendOptions.ga_opts.analysis) {

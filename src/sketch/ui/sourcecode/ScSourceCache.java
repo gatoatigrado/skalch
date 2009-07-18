@@ -8,7 +8,7 @@ import sketch.dyn.BackendOptions;
 import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * reads source files and caches them as an array of lines.
@@ -42,7 +42,7 @@ public class ScSourceCache {
 
         public SourceFile(String filename) {
             try {
-                String linesep = BackendOptions.ui_opts.str_("linesep_regex");
+                String linesep = BackendOptions.ui_opts.linesep_regex;
                 lines = EntireFileReader.load_file(filename).split(linesep);
                 for (String line : lines) {
                     if (line.contains("\r")) {
@@ -92,6 +92,6 @@ public class ScSourceCache {
     }
 
     public String getSourceString(ScSourceLocation location) {
-        return (new RichString("\n")).join(getLines(location));
+        return (new ScRichString("\n")).join(getLines(location));
     }
 }

@@ -26,8 +26,10 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
     public int analysis_recent = 16;
     @CliParameter(help = "spine length for phenotype map")
     public int spine_len = 128;
-    @CliParameter(help = "population size.")
-    public int max_population_sz = 8;
+    @CliParameter(help = "number of individuals per population")
+    public int population_sz = 8;
+    @CliParameter(help = "number of local populations")
+    public int num_populations = 16;
     @CliParameter(help = "probability of using mutation only")
     public ScGaParameter prob_clone_mutate = new ScGaParameter(0f, 0.2f, 1f);
     @CliParameter(help = "probability of tournament selection searching for a better individual.")
@@ -59,9 +61,10 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
             return new ScGaParameter(min, value, max);
         }
 
-        public float perturb() {
-            float rand_flt = (1 - 2 * mt().nextFloat()) * (max - min);
-            return Math.max(min, Math.min(max, rand_flt + value));
+        public void perturb() {
+            float rand_flt =
+                    (float) ((0.1 * mt().nextGaussian()) * (max - min));
+            value = Math.max(min, Math.min(max, rand_flt + value));
         }
 
         public ScGaParameter fromString(String value) {

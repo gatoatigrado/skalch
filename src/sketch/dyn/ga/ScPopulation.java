@@ -34,21 +34,35 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     public ScGaParameter prob_crossover_mutate_different;
     public ScGaParameter prob_reselect;
     protected int num_mutate_failed;
-    public static int max_population_sz;
+    public int uid;
+    public static int population_sz;
 
     /** initialize a population with a single individual */
     public ScPopulation(int spine_length) {
         phenotype = new ScPhenotypeMap(spine_length);
-        add(new ScGaIndividual(new ScGenotype(), phenotype));
-        prob_clone_mutate = BackendOptions.ga_opts.prob_clone_mutate;
+        prob_clone_mutate = BackendOptions.ga_opts.prob_clone_mutate.clone();
         prob_crossover_mutate_different =
-                BackendOptions.ga_opts.prob_crossover_mutate_different;
-        prob_reselect = BackendOptions.ga_opts.prob_reselect;
-        max_population_sz = BackendOptions.ga_opts.max_population_sz;
+                BackendOptions.ga_opts.prob_crossover_mutate_different.clone();
+        prob_reselect = BackendOptions.ga_opts.prob_reselect.clone();
+        population_sz = BackendOptions.ga_opts.population_sz;
+        for (int a = 0; a < population_sz; a++) {
+            add(new ScGaIndividual(new ScGenotype(), phenotype));
+        }
+        uid = mt().nextInt(100000);
+    }
+
+    @Override
+    public String toString() {
+        return "ScPopulation [num_mutate_failed=" + num_mutate_failed
+                + ", prob_clone_mutate=" + prob_clone_mutate
+                + ", prob_crossover_mutate_different="
+                + prob_crossover_mutate_different + ", prob_reselect="
+                + prob_reselect + "]";
     }
 
     protected ScPopulation(ScPhenotypeMap phenotype) {
         this.phenotype = phenotype;
+        uid = mt().nextInt(100000);
     }
 
     @Override
@@ -113,7 +127,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
 
     public void generate_new_phase(GaAnalysis analysis) {
         MersenneTwisterFast mt_local = mt();
-        for (int a = 0; a < max_population_sz; a++) {
+        for (int a = 0; a < population_sz; a++) {
             if (done_queue.size() <= 1) {
                 clone_and_mutate(done_queue.get(0), analysis);
                 return;
@@ -134,7 +148,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     }
 
     public void death_phase(GaAnalysis analysis) {
-        int to_kill = done_queue.size() - max_population_sz;
+        int to_kill = done_queue.size() - population_sz;
         MersenneTwisterFast mt_local = mt();
         for (int a = 0; a < to_kill; a++) {
             ScGaIndividual individual = select_individual(mt_local, true);

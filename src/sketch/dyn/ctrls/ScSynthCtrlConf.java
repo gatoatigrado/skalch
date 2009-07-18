@@ -9,7 +9,7 @@ import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * Wrapper for an array of holes.
@@ -63,7 +63,7 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         for (int a = 0; a < values.length; a++) {
             values_str[a] = String.valueOf(values[a]);
         }
-        return "ScSynthCtrlConf[" + (new RichString(", ")).join(values_str)
+        return "ScSynthCtrlConf[" + (new ScRichString(", ")).join(values_str)
                 + "]";
     }
 

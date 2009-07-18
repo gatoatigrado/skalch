@@ -17,7 +17,7 @@ import sketch.util.cli.CliParser;
  */
 public class BackendOptions {
     public static CliOptionResult synth_opts;
-    public static CliOptionResult ui_opts;
+    public static ScUiOptions ui_opts;
     public static ScGaOptions ga_opts;
     public static ScStatsOptions stat_opts;
 
@@ -27,7 +27,8 @@ public class BackendOptions {
             DebugOut.assertFalse("adding command line options twice");
         }
         synth_opts = (new ScSynthesisOptions()).parse(p);
-        ui_opts = (new ScUiOptions()).parse(p);
+        ui_opts = new ScUiOptions();
+        ui_opts.parse(p);
         ga_opts = new ScGaOptions();
         ga_opts.parse(p);
         stat_opts = new ScStatsOptions();

@@ -55,12 +55,10 @@ public class ScUiGui extends gui_0_1 {
         super();
         this.ui_thread = ui_thread;
         setupKeys();
-        context_len = (int) BackendOptions.ui_opts.long_("context_len");
-        context_split_len =
-                (int) BackendOptions.ui_opts.long_("context_split_len");
+        context_len = BackendOptions.ui_opts.context_len;
+        context_split_len = BackendOptions.ui_opts.context_split_len;
         // java is very annoying
-        int max_list_length =
-                (int) BackendOptions.ui_opts.long_("max_list_length");
+        int max_list_length = BackendOptions.ui_opts.max_list_length;
         inputChoices =
                 new ScUiList<ScFixedInputConf>(selectInputList,
                         (Class<ScFixedInputConf[]>) (new ScFixedInputConf[0])
@@ -174,7 +172,7 @@ public class ScUiGui extends gui_0_1 {
         sourceCodeEditor.setText(result.toString());
         add_debug_info(new ScDebugStackRun(ui_thread.sketch, stack,
                 ui_thread.all_counterexamples));
-        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+        if (!BackendOptions.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }
     }
@@ -186,7 +184,8 @@ public class ScUiGui extends gui_0_1 {
     protected StringBuilder getSourceWithSynthesisValues() {
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
-        for (ScSourceConstruct hole_info : ui_thread.sketch.construct_src_info) {
+        for (ScSourceConstruct hole_info : ui_thread.sketch.construct_src_info)
+        {
             String f = hole_info.entire_location.filename;
             if (!info_by_filename.containsKey(f)) {
                 info_by_filename.put(f, new Vector<ScSourceConstruct>());
@@ -307,7 +306,7 @@ public class ScUiGui extends gui_0_1 {
         add_debug_info(new ScDebugGaRun(ui_thread.sketch,
                 ui_thread.all_counterexamples, individual,
                 ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf));
-        if (!BackendOptions.ui_opts.bool_("no_scroll_topleft")) {
+        if (!BackendOptions.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }
     }

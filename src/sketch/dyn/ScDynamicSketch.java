@@ -30,6 +30,7 @@ public abstract class ScDynamicSketch {
     public Vector<ScDebugEntry> debug_out;
     public ScSourceLocation dysketch_fcn_location;
     public int solution_cost = 0;
+    public int num_asserts_passed = 0;
     public StackTraceElement debug_assert_failure_location;
     protected ScSynthesisAssertFailure assert_inst__ =
             new ScSynthesisAssertFailure();
@@ -61,6 +62,7 @@ public abstract class ScDynamicSketch {
             }
             throw assert_inst__;
         }
+        num_asserts_passed += 1;
     }
 
     public void dynamicUntilvAssert(boolean truth) {

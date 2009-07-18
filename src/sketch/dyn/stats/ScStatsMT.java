@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import sketch.dyn.BackendOptions;
+import sketch.util.ScRichString;
 
 /**
  * the only stats class. update the num_runs and num_counterexamples at a coarse
@@ -53,17 +54,17 @@ public class ScStatsMT {
         print_colored(BASH_SALMON, "[stats]", "", false, line);
     }
 
-    private void print_entry(String indent, StatEntry entry) {
+    private void print_entry(int align, StatEntry entry) {
         if (BackendOptions.stat_opts.show_zero || entry.value > 0) {
-            print_line(indent + entry.toString());
+            print_line(entry.formatString(align));
         }
     }
 
     private void print_entries(StatEntry... entries) {
-        String indent = "";
+        int align = 0;
         for (StatEntry entry : entries) {
-            print_entry(indent, entry);
-            indent = "    ";
+            print_entry(align, entry);
+            align = 30;
         }
     }
 
@@ -88,7 +89,7 @@ public class ScStatsMT {
         print_line("=== statistics ===");
         print_entries(nruns, ncounterexamples, nsolutions, ga_repeated,
                 ga_repeated_recent, ga_nmutate, ga_ncrossover);
-        print_entry("", time);
+        print_entry(0, time);
         print_rate("    ", nruns, time);
         print_rate("", ga_repeated, nruns);
         stat_analysis();
@@ -127,6 +128,11 @@ public class ScStatsMT {
             this.short_name = short_name;
         }
 
+        public String formatString(int align) {
+            return (new ScRichString(name)).lpad(align) + ": "
+                    + String.format("%9.1f", value);
+        }
+
         public float rate(StatEntry base) {
             return value / base.value;
         }
@@ -138,11 +144,6 @@ public class ScStatsMT {
         public float get_value() {
             value = new Float(ctr.get());
             return value;
-        }
-
-        @Override
-        public String toString() {
-            return name + ": " + value;
         }
 
         public String rate_string(StatEntry base) {

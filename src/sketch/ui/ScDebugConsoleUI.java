@@ -44,7 +44,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
 
     public void addStackSolution(ScStack stack__, int solution_cost) {
         DebugOut.print_mt("solution with stack", stack__);
-        if (BackendOptions.ui_opts.bool_("no_console_skdprint")) {
+        if (BackendOptions.ui_opts.no_console_skdprint) {
             return;
         }
         ScStack stack = stack__.clone();
@@ -60,7 +60,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (BackendOptions.ui_opts.bool_("print_counterexamples")) {
+        if (BackendOptions.ui_opts.print_counterexamples) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);

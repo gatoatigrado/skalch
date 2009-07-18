@@ -7,10 +7,10 @@ package sketch.util;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class RichString {
+public class ScRichString {
     public String str;
 
-    public RichString(String base) {
+    public ScRichString(String base) {
         str = base;
     }
 
@@ -48,11 +48,21 @@ public class RichString {
         while (true) {
             int start_idx = str.length() - trim.length();
             if (start_idx >= str.length()
-                    || !str.substring(start_idx).equals(trim)) {
+                    || !str.substring(start_idx).equals(trim))
+            {
                 break;
             }
             str = str.substring(0, start_idx);
         }
         return str;
+    }
+
+    public String lpad(int nspaces) {
+        StringBuilder result = new StringBuilder();
+        for (int a = 0; a < nspaces - str.length(); a++) {
+            result.append(' ');
+        }
+        result.append(str);
+        return result.toString();
     }
 }

@@ -2,7 +2,6 @@ package skalch
 
 import sketch.dyn._
 import sketch.util.DebugOut
-import sketch.util.RichString
 
 /**
  * Dynamic sketching library
@@ -147,10 +146,6 @@ abstract class DynamicSketch extends ScDynamicSketch {
     class HoleArray(val num : Int, untilv : Int) {
         val array : Array[Hole] = (for (i <- 0 until num) yield new Hole(untilv)).toArray
         def apply(idx : Int) : Int = array(idx).apply()
-        /*def valueString() = {
-            val values : Array[Object] = (for (i <- 0 until num) yield array(i).valueString()).toArray
-            (new RichString(", ")).join(values)
-        }*/
     }
 
 

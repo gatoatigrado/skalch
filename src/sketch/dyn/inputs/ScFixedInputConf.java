@@ -8,7 +8,7 @@ import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
-import sketch.util.RichString;
+import sketch.util.ScRichString;
 
 /**
  * Static inputs that may have slightly faster access. This is also used for
@@ -56,7 +56,7 @@ public class ScFixedInputConf extends ScInputConf {
                 values_str[a] += (c == 0 ? "" : ", ") + values[a][c];
             }
         }
-        return "ScFixedInputConf[ " + (new RichString(", ")).join(values_str)
+        return "ScFixedInputConf[ " + (new ScRichString(", ")).join(values_str)
                 + " ]";
     }
 

@@ -2,6 +2,8 @@ package sketch.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import sketch.dyn.BackendOptions;
+
 /**
  * Debugging utilities, including an "assert" that doesn't require -ea.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
@@ -36,17 +38,17 @@ public class DebugOut {
                     text[a] = "null";
                 } else if (text[a].getClass().isArray()) {
                     Object[] arr = (Object[]) text[a];
-                    text[a] = (new RichString("\n")).join(arr);
+                    text[a] = (new ScRichString("\n")).join(arr);
                 }
             }
         }
-        if (is_interactive) {
+        if (BackendOptions.ui_opts.no_bash_color) {
+            System.err.println(String.format("    %s ", prefix)
+                    + (new ScRichString(sep)).join(text));
+        } else {
             System.err.println(String
                     .format("    \u001b[%sm%s ", color, prefix)
-                    + (new RichString(sep)).join(text) + "\u001b[0m");
-        } else {
-            System.err.println(String.format("    %s ", prefix)
-                    + (new RichString(sep)).join(text));
+                    + (new ScRichString(sep)).join(text) + "\u001b[0m");
         }
     }
 

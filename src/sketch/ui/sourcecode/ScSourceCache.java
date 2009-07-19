@@ -1,10 +1,11 @@
 package sketch.ui.sourcecode;
 
+import static sketch.dyn.BackendOptions.beopts;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
-import sketch.dyn.BackendOptions;
 import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
@@ -42,7 +43,7 @@ public class ScSourceCache {
 
         public SourceFile(String filename) {
             try {
-                String linesep = BackendOptions.ui_opts.linesep_regex;
+                String linesep = beopts().ui_opts.linesep_regex;
                 lines = EntireFileReader.load_file(filename).split(linesep);
                 for (String line : lines) {
                     if (line.contains("\r")) {

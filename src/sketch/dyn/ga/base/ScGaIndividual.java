@@ -21,7 +21,6 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public ScGenotype genotype;
     public ScPhenotypeMap phenotype;
     public int num_asserts_passed;
-    public int num_constructs_accessed;
     public int age;
     public int cost;
     public int solution_id_hash = -1;
@@ -36,7 +35,6 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public String toString() {
         return "ScGaIndividual [" + System.identityHashCode(this) + ", age="
                 + age + ", num_asserts_passed=" + num_asserts_passed
-                + ", num_constructs_accessed=" + num_constructs_accessed
                 + ", genotype=" + genotype + ", values=<<<\n"
                 + phenotype.formatValuesString(genotype) + ">>>]";
     }
@@ -53,7 +51,6 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public ScGaIndividual clone() {
         ScGaIndividual result = new ScGaIndividual(genotype.clone(), phenotype);
         result.num_asserts_passed = num_asserts_passed;
-        result.num_constructs_accessed = num_constructs_accessed;
         result.age = age;
         result.solution_id_hash = solution_id_hash;
         return result;
@@ -79,16 +76,11 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public boolean pareto_optimal(ScGaIndividual selected) {
         if (age > selected.age) {
             return false;
-        } else if (num_constructs_accessed < selected.num_constructs_accessed) {
-            return false;
         } else if (num_asserts_passed < selected.num_asserts_passed) {
             return false;
-        } else if (num_constructs_accessed > selected.num_constructs_accessed) {
+        } else if (num_asserts_passed > selected.num_asserts_passed) {
             // NOTE - don't compare costs if this one accessed more values,
             // since skAddCost() calls can be anywhere.
-            return true;
-        } else if (num_asserts_passed > selected.num_asserts_passed) {
-            // same
             return true;
         } else if (cost >= selected.cost) {
             return false;
@@ -102,7 +94,6 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
      */
     public ScGaIndividual reset_fitness() {
         num_asserts_passed = 0;
-        num_constructs_accessed = 0;
         age = 0;
         cost = 0;
         done = false;
@@ -117,7 +108,6 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     }
 
     public int synthGetValue(boolean type, int uid, int subuid, int untilv) {
-        num_constructs_accessed += 1;
         int idx = phenotype.get_index(type, uid, subuid);
         return genotype.getValue(idx, untilv);
     }

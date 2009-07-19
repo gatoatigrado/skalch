@@ -48,16 +48,20 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     static ConcurrentLinkedQueue<ScUiModifier> modifier_list =
             new ConcurrentLinkedQueue<ScUiModifier>();
     public boolean auto_display_first_solution = true;
+    public BackendOptions be_opts;
 
-    public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketch sketch) {
+    public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketch sketch,
+            BackendOptions be_opts)
+    {
         super(0.05f);
         this.synth_runtime = synth_runtime;
         this.sketch = sketch;
-        if (BackendOptions.ga_opts.enable) {
+        this.be_opts = be_opts;
+        if (be_opts.ga_opts.enable) {
             ga_ctrl_conf = new ScGaCtrlConf(sketch.get_hole_info());
             ga_oracle_conf = new ScGaInputConf(sketch.get_oracle_info());
         }
-        auto_display_first_solution = !BackendOptions.ui_opts.no_auto_soln_disp;
+        auto_display_first_solution = !be_opts.ui_opts.no_auto_soln_disp;
         gui_list.add(this);
     }
 

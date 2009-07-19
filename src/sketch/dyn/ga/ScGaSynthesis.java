@@ -1,10 +1,10 @@
 package sketch.dyn.ga;
 
+import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertSlow;
 
 import java.util.HashSet;
 
-import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.ga.base.ScGaSolutionId;
@@ -34,7 +34,7 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> implements
         for (int a = 0; a < sketches.length; a++) {
             local_synthesis[a] = new ScLocalGaSynthesis(sketches[a], this, a);
         }
-        spine_length = BackendOptions.ga_opts.spine_len;
+        spine_length = beopts().ga_opts.spine_len;
     }
 
     @Override

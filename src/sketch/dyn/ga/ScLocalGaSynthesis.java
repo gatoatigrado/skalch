@@ -1,10 +1,10 @@
 package sketch.dyn.ga;
 
+import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertFalse;
 
 import java.util.Vector;
 
-import sketch.dyn.BackendOptions;
 import sketch.dyn.ScClonedConstructInfo;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
@@ -94,7 +94,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                     if (animated) {
                         try {
                             gasynth.ui.displayAnimated(current_individual);
-                            Thread.sleep(1000);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             assertFalse("don't interrupt threads.");
@@ -119,7 +119,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             ScClonedConstructInfo[] oracle_info =
                     ScClonedConstructInfo.clone_array(sketch.get_oracle_info());
             local_populations = new Vector<ScPopulation>();
-            for (int a = 0; a < BackendOptions.ga_opts.num_populations; a++) {
+            for (int a = 0; a < beopts().ga_opts.num_populations; a++) {
                 ScPopulation population =
                         new ScPopulation(gasynth.spine_length);
                 population.perturb_parameters();
@@ -127,7 +127,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             }
             ctrl_conf = new ScGaCtrlConf(info);
             oracle_conf = new ScGaInputConf(oracle_info);
-            if (BackendOptions.ga_opts.analysis) {
+            if (beopts().ga_opts.analysis) {
                 analysis = new GaAnalysis();
             }
             for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=

@@ -1,5 +1,7 @@
 package sketch.dyn;
 
+import static sketch.dyn.BackendOptions.beopts;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -44,11 +46,11 @@ public class ScSynthesisMain {
     public ScSynthesisMain(scala.Function0<ScDynamicSketch> f) {
         // initialization
         BackendOptions.initialize_defaults();
-        BackendOptions.initialize_annotated();
+        beopts().initialize_annotated();
         new ScStatsMT();
-        nthreads = (int) BackendOptions.synth_opts.long_("num_threads");
+        nthreads = (int) beopts().synth_opts.long_("num_threads");
         ThreadLocalMT.disable_use_current_time_millis =
-                BackendOptions.synth_opts.bool_("no_clock_rand");
+                beopts().synth_opts.bool_("no_clock_rand");
         // initialize ssr
         sketches = new ScDynamicSketch[nthreads];
         for (int a = 0; a < nthreads; a++) {
@@ -56,7 +58,7 @@ public class ScSynthesisMain {
         }
         ui_sketch = f.apply();
         load_ui_sketch_info();
-        if (BackendOptions.ga_opts.enable) {
+        if (beopts().ga_opts.enable) {
             synthesis_runtime = new ScGaSynthesis(sketches);
         } else {
             synthesis_runtime = new ScStackSynthesis(sketches);

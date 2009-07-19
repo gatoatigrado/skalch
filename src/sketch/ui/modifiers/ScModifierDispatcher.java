@@ -1,5 +1,6 @@
 package sketch.ui.modifiers;
 
+import static sketch.util.DebugOut.assertFalse;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.gui.ScUiThread;
@@ -32,7 +33,12 @@ public abstract class ScModifierDispatcher implements
 
     public void dispatch() {
         try {
-            enqueue(new ScUiModifier(ui_thread, get_modifier()));
+            ScUiModifierInner modifier_inner = get_modifier();
+            if (modifier_inner == null) {
+                assertFalse("class", this.getClass().getName(),
+                        "returned null modifier");
+            }
+            enqueue(new ScUiModifier(ui_thread, modifier_inner));
         } catch (ScUiQueueableInactive e) {
             e.printStackTrace();
             list.remove(this);

@@ -1,6 +1,6 @@
 package sketch.dyn.synth;
 
-import sketch.dyn.BackendOptions;
+import static sketch.dyn.BackendOptions.beopts;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.ui.ScUserInterface;
 import sketch.util.AsyncMTEvent;
@@ -26,9 +26,9 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
 
     public ScSynthesis() {
         // command line options
-        nsolutions_to_find = BackendOptions.synth_opts.long_("num_solutions");
-        debug_stop_after = BackendOptions.synth_opts.long_("debug_stop_after");
-        max_num_random = BackendOptions.ui_opts.max_num_random_stacks;
+        nsolutions_to_find = beopts().synth_opts.long_("num_solutions");
+        debug_stop_after = beopts().synth_opts.long_("debug_stop_after");
+        max_num_random = beopts().ui_opts.max_num_random_stacks;
     }
 
     public final void synthesize(ScSolvingInputConf[] counterexamples,

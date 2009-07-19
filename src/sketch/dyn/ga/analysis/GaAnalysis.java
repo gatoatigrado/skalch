@@ -1,8 +1,9 @@
 package sketch.dyn.ga.analysis;
 
+import static sketch.dyn.BackendOptions.beopts;
+
 import java.util.HashSet;
 
-import sketch.dyn.BackendOptions;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.ga.base.ScGaSolutionId;
 import sketch.dyn.stats.ScStatsMT;
@@ -16,7 +17,7 @@ import sketch.dyn.stats.ScStatsMT;
  */
 public class GaAnalysis {
     ScGaSolutionId[] recent_evaluations =
-            new ScGaSolutionId[BackendOptions.ga_opts.analysis_recent];
+            new ScGaSolutionId[beopts().ga_opts.analysis_recent];
     public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
     protected int num_repeats = 0;
     protected int num_repeats_recent = 0;

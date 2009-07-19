@@ -2,8 +2,6 @@ package sketch.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import sketch.dyn.BackendOptions;
-
 /**
  * Debugging utilities, including an "assert" that doesn't require -ea.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
@@ -25,9 +23,7 @@ public class DebugOut {
     public final static String BASH_LIGHT_BLUE = "1;34";
     /** don't use BASH_BLACK for people using black-background terminals */
     public final static String BASH_DEFAULT = "0";
-    public final static boolean is_interactive =
-            (System.getenv("SHELL") != null)
-                    && (System.getenv("SHELL").contains("sh"));
+    public static boolean no_bash_color = false;
 
     public static void print_colored(String color, String prefix, String sep,
             boolean nice_arrays, Object... text)
@@ -42,7 +38,7 @@ public class DebugOut {
                 }
             }
         }
-        if (BackendOptions.ui_opts.no_bash_color) {
+        if (no_bash_color) {
             System.err.println(String.format("    %s ", prefix)
                     + (new ScRichString(sep)).join(text));
         } else {

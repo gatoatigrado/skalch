@@ -1,6 +1,6 @@
 package sketch.ui;
 
-import sketch.dyn.BackendOptions;
+import static sketch.dyn.BackendOptions.beopts;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.gui.ScUiThread;
@@ -22,10 +22,10 @@ public class ScUserInterfaceManager {
     public static ScUserInterface start_ui(ScSynthesis<?> synth_runtime,
             ScDynamicSketch sketch)
     {
-        if (BackendOptions.ui_opts.no_gui) {
+        if (beopts().ui_opts.no_gui) {
             return new ScDebugConsoleUI(sketch);
         } else {
-            ScUiThread thread = new ScUiThread(synth_runtime, sketch);
+            ScUiThread thread = new ScUiThread(synth_runtime, sketch, beopts());
             thread.start();
             return thread;
         }

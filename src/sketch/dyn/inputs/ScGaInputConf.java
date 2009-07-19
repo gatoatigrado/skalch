@@ -59,8 +59,8 @@ public class ScGaInputConf extends ScInputConf implements
         }
         for (int subuid = 0; subuid < next[uid]; subuid++) {
             ScConstructValue value =
-                    new ScConstructValue(base.displayGetValue(false, uid, 0,
-                            1 << 20));
+                    new ScConstructValue(base.displayGetValue(false, uid,
+                            subuid, 1 << 20));
             result.add(new ScConstructValueString("", value, ""));
         }
         return result;

@@ -1,7 +1,7 @@
 package sketch.ui;
 
+import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertFalse;
-import sketch.dyn.BackendOptions;
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.debug.ScDebugEntry;
 import sketch.dyn.debug.ScDebugRun;
@@ -45,7 +45,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
 
     public void addStackSolution(ScStack stack__, int solution_cost) {
         DebugOut.print_mt("solution with stack", stack__);
-        if (BackendOptions.ui_opts.no_console_skdprint) {
+        if (beopts().ui_opts.no_console_skdprint) {
             return;
         }
         ScStack stack = stack__.clone();
@@ -61,7 +61,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (BackendOptions.ui_opts.print_counterexamples) {
+        if (beopts().ui_opts.print_counterexamples) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);

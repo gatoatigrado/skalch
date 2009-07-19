@@ -1,12 +1,12 @@
 package sketch.dyn.ga;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.ScArrayUtil.deep_clone;
 
 import java.util.LinkedList;
 import java.util.Vector;
 
-import sketch.dyn.BackendOptions;
 import sketch.dyn.ga.ScGaOptions.ScGaParameter;
 import sketch.dyn.ga.analysis.GaAnalysis;
 import sketch.dyn.ga.base.ScGaIndividual;
@@ -40,11 +40,11 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     /** initialize a population with a single individual */
     public ScPopulation(int spine_length) {
         phenotype = new ScPhenotypeMap(spine_length);
-        prob_clone_mutate = BackendOptions.ga_opts.prob_clone_mutate.clone();
+        prob_clone_mutate = beopts().ga_opts.prob_clone_mutate.clone();
         prob_crossover_mutate_different =
-                BackendOptions.ga_opts.prob_crossover_mutate_different.clone();
-        prob_reselect = BackendOptions.ga_opts.prob_reselect.clone();
-        population_sz = BackendOptions.ga_opts.population_sz;
+                beopts().ga_opts.prob_crossover_mutate_different.clone();
+        prob_reselect = beopts().ga_opts.prob_reselect.clone();
+        population_sz = beopts().ga_opts.population_sz;
         for (int a = 0; a < population_sz; a++) {
             add(new ScGaIndividual(new ScGenotype(), phenotype));
         }

@@ -61,11 +61,11 @@ public class ScActiveGaDispatcher extends ScModifierDispatcher {
 
     @Override
     public ScUiModifierInner get_modifier() {
-        return null;
+        return new Modifier();
     }
 
     @Override
     public String toString() {
-        return null;
+        return "current ga synth";
     }
 }

@@ -14,7 +14,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
-import sketch.dyn.BackendOptions;
 import sketch.dyn.debug.ScDebugEntry;
 import sketch.dyn.debug.ScDebugGaRun;
 import sketch.dyn.debug.ScDebugRun;
@@ -55,10 +54,10 @@ public class ScUiGui extends gui_0_1 {
         super();
         this.ui_thread = ui_thread;
         setupKeys();
-        context_len = BackendOptions.ui_opts.context_len;
-        context_split_len = BackendOptions.ui_opts.context_split_len;
+        context_len = ui_thread.be_opts.ui_opts.context_len;
+        context_split_len = ui_thread.be_opts.ui_opts.context_split_len;
         // java is very annoying
-        int max_list_length = BackendOptions.ui_opts.max_list_length;
+        int max_list_length = ui_thread.be_opts.ui_opts.max_list_length;
         inputChoices =
                 new ScUiList<ScFixedInputConf>(selectInputList,
                         (Class<ScFixedInputConf[]>) (new ScFixedInputConf[0])
@@ -172,7 +171,7 @@ public class ScUiGui extends gui_0_1 {
         sourceCodeEditor.setText(result.toString());
         add_debug_info(new ScDebugStackRun(ui_thread.sketch, stack,
                 ui_thread.all_counterexamples));
-        if (!BackendOptions.ui_opts.no_scroll_topleft) {
+        if (!ui_thread.be_opts.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }
     }
@@ -294,19 +293,21 @@ public class ScUiGui extends gui_0_1 {
 
     public void fillWithGaIndividual(ScGaIndividual individual) {
         ScGaIndividual clone = individual.clone();
-        clone.reset_fitness();
-        clone.set_for_synthesis_and_reset(ui_thread.sketch,
-                ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf);
-        StringBuilder result = getSourceWithSynthesisValues();
+        /*
+         * clone.reset_fitness();
+         * clone.set_for_synthesis_and_reset(ui_thread.sketch,
+         * ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf);
+         */
         add_debug_info(new ScDebugGaRun(ui_thread.sketch,
                 ui_thread.all_counterexamples, clone, ui_thread.ga_ctrl_conf,
                 ui_thread.ga_oracle_conf));
+        StringBuilder result = getSourceWithSynthesisValues();
         result.append("<p style=\"color: #aaaaaa;\"> ga synthesis "
                 + "individual<br />\n");
         result.append(clone.htmlDebugString());
         result.append("\n</p>\n</body>\n</html>");
         sourceCodeEditor.setText(result.toString());
-        if (!BackendOptions.ui_opts.no_scroll_topleft) {
+        if (!ui_thread.be_opts.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }
     }

@@ -6,7 +6,7 @@ import skalch.DynamicSketch
 import sketch.dyn.BackendOptions
 import sketch.util._
 
-class BitonicSort(val nsteps : Int, val tg_array_length : Int,
+class BitonicSortSketch(val nsteps : Int, val tg_array_length : Int,
         val num_tests : Int) extends DynamicSketch
 {
     val in_lengths = new InputGenerator(untilv=(1 << 30))
@@ -92,7 +92,7 @@ object BitonicSortTest {
         val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
-        skalch.synthesize(() => new BitonicSort(opts.long_("num_steps").intValue,
+        skalch.synthesize(() => new BitonicSortSketch(opts.long_("num_steps").intValue,
                 opts.long_("array_length").intValue, opts.long_("num_tests").intValue))
     }
 }

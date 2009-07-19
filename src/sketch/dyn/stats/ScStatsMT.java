@@ -1,5 +1,6 @@
 package sketch.dyn.stats;
 
+import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.BASH_RED;
 import static sketch.util.DebugOut.BASH_SALMON;
 import static sketch.util.DebugOut.assertFalse;
@@ -8,7 +9,6 @@ import static sketch.util.DebugOut.print_colored;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicLong;
 
-import sketch.dyn.BackendOptions;
 import sketch.util.ScRichString;
 
 /**
@@ -55,7 +55,7 @@ public class ScStatsMT {
     }
 
     private void print_entry(int align, StatEntry entry) {
-        if (BackendOptions.stat_opts.show_zero || entry.value > 0) {
+        if (beopts().stat_opts.show_zero || entry.value > 0) {
             print_line(entry.formatString(align));
         }
     }
@@ -69,7 +69,7 @@ public class ScStatsMT {
     }
 
     private void print_rate(String indent, StatEntry entry, StatEntry base) {
-        if (BackendOptions.stat_opts.show_zero || entry.value > 0) {
+        if (beopts().stat_opts.show_zero || entry.value > 0) {
             if (base.value == 0) {
                 print_line(indent + entry.short_name + " / " + base.short_name
                         + ": infinity");

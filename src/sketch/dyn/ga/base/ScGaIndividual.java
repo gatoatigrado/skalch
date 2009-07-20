@@ -2,6 +2,7 @@ package sketch.dyn.ga.base;
 
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
+import sketch.dyn.ga.ScPopulation;
 import sketch.dyn.ga.base.ScGaSolutionId.ScGaSolutionIdEntry;
 import sketch.dyn.inputs.ScGaInputConf;
 import sketch.util.ScCloneable;
@@ -18,6 +19,7 @@ import sketch.util.ScHtmlUtil;
  *          make changes, please consider contributing back!
  */
 public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
+    public ScPopulation initial_population;
     public ScGenotype genotype;
     public ScPhenotypeMap phenotype;
     public int num_asserts_passed;
@@ -26,7 +28,10 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public int solution_id_hash = -1;
     public boolean done;
 
-    public ScGaIndividual(ScGenotype genotype, ScPhenotypeMap phenotype) {
+    public ScGaIndividual(ScPopulation initial_population, ScGenotype genotype,
+            ScPhenotypeMap phenotype)
+    {
+        this.initial_population = initial_population;
         this.genotype = genotype;
         this.phenotype = phenotype;
     }
@@ -49,7 +54,9 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
      */
     @Override
     public ScGaIndividual clone() {
-        ScGaIndividual result = new ScGaIndividual(genotype.clone(), phenotype);
+        ScGaIndividual result =
+                new ScGaIndividual(initial_population, genotype.clone(),
+                        phenotype);
         result.num_asserts_passed = num_asserts_passed;
         result.age = age;
         result.solution_id_hash = solution_id_hash;

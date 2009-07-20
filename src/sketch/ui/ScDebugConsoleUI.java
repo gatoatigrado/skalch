@@ -3,12 +3,14 @@ package sketch.ui;
 import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertFalse;
 import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.debug.ScDebugEntry;
 import sketch.dyn.debug.ScDebugRun;
 import sketch.dyn.debug.ScDebugStackRun;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.inputs.ScGaInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
 import sketch.dyn.stack.ScLocalStackSynthesis;
 import sketch.dyn.stack.ScStack;
@@ -25,9 +27,15 @@ import sketch.util.DebugOut;
 public class ScDebugConsoleUI implements ScUserInterface {
     ScFixedInputConf[] all_counterexamples;
     ScDynamicSketch ui_sketch;
+    protected ScGaCtrlConf ga_ctrl_conf;
+    protected ScGaInputConf ga_oracle_conf;
 
     public ScDebugConsoleUI(ScDynamicSketch ui_sketch) {
         this.ui_sketch = ui_sketch;
+        if (beopts().ga_opts.enable) {
+            ga_ctrl_conf = new ScGaCtrlConf(ui_sketch.get_hole_info());
+            ga_oracle_conf = new ScGaInputConf(ui_sketch.get_oracle_info());
+        }
     }
 
     public void addStackSynthesis(ScLocalStackSynthesis local_ssr) {
@@ -78,6 +86,10 @@ public class ScDebugConsoleUI implements ScUserInterface {
     }
 
     public void addGaSolution(ScGaIndividual individual) {
-        DebugOut.todo("solution ga synthesis individual", individual);
+        DebugOut.print_mt("solution ga synthesis individual", individual);
+        DebugOut.print_mt("solution population", individual.initial_population);
+        ScGaIndividual clone = individual.clone();
+        printDebugRun(new sketch.dyn.debug.ScDebugGaRun(ui_sketch,
+                all_counterexamples, clone, ga_ctrl_conf, ga_oracle_conf));
     }
 }

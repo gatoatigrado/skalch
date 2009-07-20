@@ -2,6 +2,7 @@ package sketch.dyn.ga;
 
 import static ec.util.ThreadLocalMT.mt;
 import static sketch.dyn.BackendOptions.beopts;
+import static sketch.util.DebugOut.print_mt;
 import static sketch.util.ScArrayUtil.deep_clone;
 
 import java.util.LinkedList;
@@ -46,18 +47,16 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         prob_reselect = beopts().ga_opts.prob_reselect.clone();
         population_sz = beopts().ga_opts.population_sz;
         for (int a = 0; a < population_sz; a++) {
-            add(new ScGaIndividual(new ScGenotype(), phenotype));
+            add(new ScGaIndividual(this, new ScGenotype(), phenotype));
         }
         uid = mt().nextInt(100000);
     }
 
     @Override
     public String toString() {
-        return "ScPopulation [num_mutate_failed=" + num_mutate_failed
-                + ", prob_clone_mutate=" + prob_clone_mutate
-                + ", prob_crossover_mutate_different="
-                + prob_crossover_mutate_different + ", prob_reselect="
-                + prob_reselect + "]";
+        return String.format("ScPopulation [config=%6.2f,%6.2f,%6.2f]",
+                prob_clone_mutate.value, prob_crossover_mutate_different.value,
+                prob_reselect.value);
     }
 
     protected ScPopulation(ScPhenotypeMap phenotype) {
@@ -80,6 +79,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         prob_clone_mutate.perturb();
         prob_crossover_mutate_different.perturb();
         prob_reselect.perturb();
+        print_mt("new parameters", this);
     }
 
     public void add(ScGaIndividual individual) {

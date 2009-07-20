@@ -34,10 +34,6 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
     public ScGaParameter prob_clone_mutate = new ScGaParameter(0f, 0.2f, 1f);
     @CliParameter(help = "probability of tournament selection searching for a better individual.")
     public ScGaParameter prob_reselect = new ScGaParameter(0.1f, 0.5f, 0.9f);
-    @CliParameter(help = "probability of mutating paramaters that differ between genomes "
-            + "instead of using one-point crossover.")
-    public ScGaParameter prob_crossover_mutate_different =
-            new ScGaParameter(0f, 0.8f, 1f);
 
     public final class ScGaParameter implements CliOptionType<ScGaParameter> {
         float min;

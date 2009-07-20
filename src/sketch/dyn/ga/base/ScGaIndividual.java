@@ -59,7 +59,9 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
                         phenotype);
         result.num_asserts_passed = num_asserts_passed;
         result.age = age;
+        result.cost = cost;
         result.solution_id_hash = solution_id_hash;
+        result.done = done;
         return result;
     }
 
@@ -104,6 +106,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         age = 0;
         cost = 0;
         done = false;
+        solution_id_hash = -1;
         return this;
     }
 

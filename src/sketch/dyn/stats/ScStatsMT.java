@@ -22,7 +22,10 @@ import sketch.util.ScRichString;
 public class ScStatsMT {
     public LinkedList<StatEntry> all_stats = new LinkedList<StatEntry>();
     public StatEntry nruns, ncounterexamples, nsolutions, ga_repeated,
-            ga_repeated_recent, ga_nmutate, ga_ncrossover;
+            ga_repeated_recent, ga_nmutate, ga_ncrossover,
+            ga_selectind_other_same, ga_selectind_other_optimal,
+            ga_selectind_selected_optimal;
+    private ArtificalStatEntry ga_total_selectind;
     protected long start_time, end_time;
     public static ScStatsMT stats_singleton;
 
@@ -39,6 +42,14 @@ public class ScStatsMT {
                 add_stat(new StatEntry("[ga] num same evaluated recent"));
         ga_nmutate = add_stat(new StatEntry("[ga] created from mutate only"));
         ga_ncrossover = add_stat(new StatEntry("[ga] created from crossover"));
+        ga_selectind_other_same =
+                add_stat(new StatEntry("[ga-tnm] other=same", "tnm_same"));
+        ga_selectind_other_optimal =
+                add_stat(new StatEntry("[ga-tnm] other optimal",
+                        "tnm_other_optimal"));
+        ga_selectind_selected_optimal =
+                add_stat(new StatEntry("[ga-tnm] selected optimal",
+                        "tnm_selected_optimal"));
     }
 
     private StatEntry add_stat(StatEntry entry) {
@@ -70,12 +81,7 @@ public class ScStatsMT {
 
     private void print_rate(String indent, StatEntry entry, StatEntry base) {
         if (beopts().stat_opts.show_zero || entry.value > 0) {
-            if (base.value == 0) {
-                print_line(indent + entry.short_name + " / " + base.short_name
-                        + ": infinity");
-            } else {
-                print_line(indent + entry.rate_string(base));
-            }
+            print_line(indent + entry.rate_string(base));
         }
     }
 
@@ -86,9 +92,18 @@ public class ScStatsMT {
         for (StatEntry entry : all_stats) {
             entry.get_value();
         }
+        ga_total_selectind =
+                new ArtificalStatEntry(ga_selectind_other_optimal.value
+                        + ga_selectind_other_same.value
+                        + ga_selectind_selected_optimal.value,
+                        "total number of tournament choices", "all selectind");
         print_line("=== statistics ===");
         print_entries(nruns, ncounterexamples, nsolutions, ga_repeated,
                 ga_repeated_recent, ga_nmutate, ga_ncrossover);
+        if (beopts().stat_opts.show_zero || ga_total_selectind.value > 0) {
+            print_entries(ga_total_selectind, ga_selectind_other_same,
+                    ga_selectind_other_optimal, ga_selectind_selected_optimal);
+        }
         print_entry(0, time);
         print_rate("    ", nruns, time);
         print_rate("", ga_repeated, nruns);
@@ -101,6 +116,15 @@ public class ScStatsMT {
     private void stat_analysis() {
         rate_warning(ga_repeated.rate(nruns) > 0.5f,
                 "GA - many repeat evaluations");
+        rate_warning(ga_selectind_other_optimal.rate(ga_total_selectind) < 0.1,
+                "GA - pareto optimality rarely replaces individual");
+        rate_warning(
+                ga_selectind_other_optimal.rate(ga_total_selectind) >= 0.5,
+                "GA - pareto optimality replaces individual too often "
+                        + "(random number generator error?)");
+        rate_warning(ga_selectind_other_same.rate(ga_total_selectind) > 0.1,
+                "GA - pareto optimality selects other == selected too often "
+                        + "(random number generator error?)");
     }
 
     private void rate_warning(boolean trigger, String string) {
@@ -134,6 +158,9 @@ public class ScStatsMT {
         }
 
         public float rate(StatEntry base) {
+            if (value == 0) {
+                return 0;
+            }
             return value / base.value;
         }
 
@@ -147,8 +174,7 @@ public class ScStatsMT {
         }
 
         public String rate_string(StatEntry base) {
-            float rate = value / base.value;
-            return short_name + " / " + base.short_name + ": " + rate;
+            return short_name + " / " + base.short_name + ": " + rate(base);
         }
 
         public void add(long v) {

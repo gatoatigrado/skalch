@@ -1,11 +1,11 @@
 package sketch.dyn.ga.base;
 
 import static ec.util.ThreadLocalMT.mt;
-import static sketch.util.DebugOut.assertFalse;
+import static sketch.util.DebugOut.assertSlow;
+import static sketch.util.DebugOut.print;
 import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import sketch.util.ScCloneable;
 import ec.util.MersenneTwisterFast;
@@ -21,8 +21,8 @@ import ec.util.MersenneTwisterFast;
 public class ScGenotype implements ScCloneable<ScGenotype> {
     public int[] data = new int[0];
     public boolean[] active_data = new boolean[0];
-    public float[] mutate_prob = new float[0];
-    public LinkedList<Integer> mutate_list = new LinkedList<Integer>();
+    public float[] _mutate_prob = new float[0];
+    public float total_mutate_prob = 0;
 
     @Override
     public String toString() {
@@ -36,15 +36,33 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         }
     }
 
+    public void change_mutate_prob(int idx, float value) {
+        float prev = _mutate_prob[idx];
+        _mutate_prob[idx] = value;
+        total_mutate_prob += value - prev;
+    }
+
+    /** ensure that mutate() doesn't loop unnecessarily if prob. are low */
+    public void readjust_mutate_prob() {
+        if (total_mutate_prob <= 0) {
+            print("total mutate probility is zero");
+            return;
+        }
+        if (total_mutate_prob < 0.5) {
+            for (int idx = 0; idx < _mutate_prob.length; idx++) {
+                change_mutate_prob(idx, _mutate_prob[idx] * 2);
+            }
+        }
+    }
+
     public int getValue(int idx, int untilv) {
         if (idx >= data.length) {
             realloc(2 * idx + 1);
         }
         int result = data[idx];
         active_data[idx] = true;
-        if (mutate_prob[idx] == 0.f) {
-            mutate_prob[idx] = 0.1f;
-            mutate_list.add(idx);
+        if (_mutate_prob[idx] == 0.f) {
+            change_mutate_prob(idx, 0.1f);
         }
         if (result >= untilv) {
             result = data[idx] % untilv;
@@ -54,32 +72,29 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
     }
 
     /** does not clone; changes this object's values */
-    public boolean mutate() {
+    public void mutate() {
         // print_colored(BASH_GREY, "[ga]", " ", false, "mutate");
         MersenneTwisterFast local_mt = mt();
+        readjust_mutate_prob();
         boolean mutated = false;
         while (!mutated) {
-            if (mutate_list.size() == 0) {
-                assertFalse("no constructs with significant mutate probability");
-            }
-            for (Integer idx : mutate_list) {
-                if (local_mt.nextFloat() < mutate_prob[idx]) {
+            for (int idx = 0; idx < _mutate_prob.length; idx++) {
+                if (local_mt.nextFloat() < _mutate_prob[idx]) {
                     data[idx] = Math.abs(local_mt.nextInt());
                     mutated = true;
+                    // return;
                 }
             }
         }
-        return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public ScGenotype clone() {
         ScGenotype result = new ScGenotype();
         result.data = data.clone();
         result.active_data = active_data.clone();
-        result.mutate_prob = mutate_prob.clone();
-        result.mutate_list = (LinkedList<Integer>) mutate_list.clone();
+        result._mutate_prob = _mutate_prob.clone();
+        result.total_mutate_prob = total_mutate_prob;
         return result;
     }
 
@@ -88,51 +103,61 @@ public class ScGenotype implements ScCloneable<ScGenotype> {
         int prev_length = data.length;
         data = extend_arr(data, length);
         active_data = extend_arr(active_data, length);
-        mutate_prob = extend_arr(mutate_prob, length);
+        _mutate_prob = extend_arr(_mutate_prob, length);
         MersenneTwisterFast mt_local = mt();
         for (int a = prev_length; a < length; a++) {
             data[a] = Math.abs(mt_local.nextInt());
         }
     }
 
-    private int mutate_different(int change_idx, ScGenotype other,
-            MersenneTwisterFast mt_local)
-    {
-        for (; change_idx < other.data.length; change_idx += 1) {
-            if (active_data[change_idx]
-                    && (data[change_idx] != other.data[change_idx]))
-            {
-                // print_colored(BASH_GREY, "[ga]", " ", false, "mutate index",
-                // change_idx);
-                data[change_idx] = Math.abs(mt_local.nextInt());
-                return change_idx + 1;
-            }
+    public void change_probability(int idx, float next) {
+        if (next > 0.01f && next < 0.5f) {
+            change_mutate_prob(idx, next);
         }
-        return -1;
     }
 
-    public void crossover(ScGenotype other, float prob_mutate_different) {
+    public boolean crossover(ScGenotype other) {
         if (other.data.length > data.length) {
             realloc(other.data.length);
         }
         MersenneTwisterFast mt_local = mt();
-        if (mt_local.nextFloat() < prob_mutate_different) {
-            // print_colored(BASH_GREY, "[ga]", " ", false, "crossover mutate");
-            int change_idx = 0;
-            while (change_idx != -1) {
-                // find next differing, and set to a random value
-                change_idx = mutate_different(change_idx, other, mt_local);
-                if (mt_local.nextFloat() >= prob_mutate_different) {
-                    return;
-                }
+        int randidx = mt_local.nextInt(other.data.length);
+        boolean modified = false;
+        // modify value at randidx
+        {
+            int min = data[randidx];
+            int max = other.data[randidx];
+            if (max > min) {
+                min = other.data[randidx];
+                max = data[randidx];
             }
-        } else {
-            // print_colored(BASH_GREY, "[ga]", " ", false,
-            // "one-point crossover");
-            int randidx = mt_local.nextInt(other.data.length);
-            System.arraycopy(other.data, randidx, data, randidx,
-                    other.data.length - randidx);
+            int difference = max - min;
+            if (difference > 0) {
+                int next =
+                        Math.max(0, min - difference)
+                                + mt_local.nextInt(3 * difference);
+                assertSlow(next >= 0);
+                data[randidx] = next;
+            }
         }
+        // decrease probability of mutation for values that are the same
+        for (int a = 0; a < randidx + 1; a++) {
+            if (data[a] == other.data[a]) {
+                change_probability(a, _mutate_prob[a] * 0.9f);
+            } else {
+                change_probability(a, _mutate_prob[a] * 1.11111111111f);
+            }
+        }
+        for (int a = randidx + 1; a < other.data.length; a++) {
+            int other_value = other.data[a];
+            if (data[a] == other_value) {
+                change_probability(a, other._mutate_prob[a] * 0.9f);
+            } else {
+                data[a] = other_value;
+                change_probability(a, other._mutate_prob[a] * 1.111111111f);
+            }
+        }
+        return modified;
     }
 
     public String formatIndex(int idx) {

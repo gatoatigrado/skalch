@@ -1,0 +1,19 @@
+<projectDescription>
+  <name>skalch-plugin</name>
+  <comment>experimental support for sketching with
+angelic nondeterminism</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>ch.epfl.lamp.sdt.core.scalabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.maven.ide.eclipse.maven2Nature</nature>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>ch.epfl.lamp.sdt.core.scalanature</nature>
+  </natures>
+</projectDescription>

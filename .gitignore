@@ -1,5 +1,7 @@
 bin/*
 dist/*
+skalch-plugin/bin/*
+skalch-plugin/bin.timestamp
 *.pyc
 *.hints.xml
 # compile and symlink it yourself...

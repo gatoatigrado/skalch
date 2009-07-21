@@ -13,6 +13,18 @@ mvn compile
     <name>skalch</name>
     <description>experimental support for sketching with
 angelic nondeterminism</description>
+    <developers>
+    	<developer>
+    		<id>gatoatigrado</id>
+    		<name>Nicholas Tung</name>
+    		<email>ntung@ntung.com</email>
+    		<url>https://ntung.com</url>
+    		<organization>UC Berkeley</organization>
+    		<timezone>PDT</timezone>
+    		<roles>
+    		</roles>
+    	</developer>
+    </developers>
     <licenses>
         <license>
             <name>BSD Software License</name>
@@ -20,6 +32,9 @@ angelic nondeterminism</description>
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <organization>
+    	<name>UC Berkeley ParLab</name>
+    </organization>
 
     <properties>
         <scala.version>2.8.0-SNAPSHOT</scala.version>
@@ -27,6 +42,7 @@ angelic nondeterminism</description>
     </properties>
     <modules>
     	<module>skalch-plugin</module>
+    	<module>skalch-base</module>
     </modules>
 
     <!-- go fetch scala from the snapshots repository -->
@@ -38,11 +54,6 @@ angelic nondeterminism</description>
         </repository>
     </repositories>
     <pluginRepositories>
-        <pluginRepository>
-            <id>scala-tools.org snapshots</id>
-            <name>Scala-Tools Maven2 Repository - snapshots</name>
-            <url>http://scala-tools.org/repo-snapshots</url>
-        </pluginRepository>
     </pluginRepositories>
 
     <dependencies>
@@ -66,10 +77,12 @@ angelic nondeterminism</description>
         	<artifactId>swing-layout</artifactId>
         	<version>1.0.3</version>
         </dependency>
+        <dependency>
+        	<groupId>xom</groupId>
+        	<artifactId>xom</artifactId>
+        	<version>1.1</version>
+        </dependency>
     </dependencies>
-    <organization>
-    	<name>UC Berkeley ParLab</name>
-    </organization>
 
     <build>
         <plugins>
@@ -88,6 +101,13 @@ angelic nondeterminism</description>
                 </executions>
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
+                    <compilerPlugins>
+                    	<compilerPlugin>
+                    		<groupId>edu.berkeley.cs.sketch</groupId>
+                    		<artifactId>skalch-plugin</artifactId>
+                    		<version>git-master</version>
+                    	</compilerPlugin>
+                    </compilerPlugins>
                 </configuration>
             </plugin>
 
@@ -104,6 +124,7 @@ angelic nondeterminism</description>
         </plugins>
 
         <!-- paths -->
+        <!-- 
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
         <outputDirectory>bin</outputDirectory>
@@ -111,8 +132,18 @@ angelic nondeterminism</description>
         <resources>
             <resource>
                 <directory>src</directory>
+                <excludes>
+                	<exclude>test</exclude>
+                </excludes>
+            </resource>
+            <resource>
+            	<directory>skalch/src</directory>
+            	<excludes>
+            		<exclude>test</exclude>
+            	</excludes>
             </resource>
         </resources>
+        -->
     </build>
 
     <!-- makes $(mvn scala:help) work -->

@@ -24,7 +24,9 @@
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS" value="false"/>
 <intAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS_NUM" value="5"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="tptp-dummy-profiling-set-bitonic_sort"/>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="test.RomanNumeralsTest"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--decimal_number 2"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="skalch"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
 </launchConfiguration>

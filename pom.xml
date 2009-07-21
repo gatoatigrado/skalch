@@ -1,0 +1,134 @@
+<!--
+To build, try
+mvn compile
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>edu.berkeley.cs.sketch</groupId>
+    <artifactId>skalch</artifactId>
+    <packaging>pom</packaging>
+    <version>git-master</version>
+    <name>skalch</name>
+    <description>experimental support for sketching with
+angelic nondeterminism</description>
+    <licenses>
+        <license>
+            <name>BSD Software License</name>
+            <url>http://creativecommons.org/licenses/BSD/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <scala.version>2.8.0-SNAPSHOT</scala.version>
+        <maven.scala.version>2.11</maven.scala.version>
+    </properties>
+    <modules>
+    	<module>skalch-plugin</module>
+    </modules>
+
+    <!-- go fetch scala from the snapshots repository -->
+    <repositories>
+        <repository>
+            <id>scala-tools.org snapshots</id>
+            <name>Scala-Tools Maven2 Repository - snapshots</name>
+            <url>http://scala-tools.org/repo-snapshots</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>scala-tools.org snapshots</id>
+            <name>Scala-Tools Maven2 Repository - snapshots</name>
+            <url>http://scala-tools.org/repo-snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-tools</groupId>
+            <artifactId>maven-scala-plugin</artifactId>
+            <version>${maven.scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.swinglabs</groupId>
+        	<artifactId>swing-layout</artifactId>
+        	<version>1.0.3</version>
+        </dependency>
+    </dependencies>
+    <organization>
+    	<name>UC Berkeley ParLab</name>
+    </organization>
+
+    <build>
+        <plugins>
+            <!-- scala build plugin -->
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven.scala.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
+            </plugin>
+
+            <!-- set java source version -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <!-- paths -->
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
+        <outputDirectory>bin</outputDirectory>
+        <testOutputDirectory>bin</testOutputDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+            </resource>
+        </resources>
+    </build>
+
+    <!-- makes $(mvn scala:help) work -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven.scala.version}</version>
+                <configuration>
+                    <jvmArgs>
+                        <jvmArg>-Xmx512m</jvmArg>
+                    </jvmArgs>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

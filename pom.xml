@@ -53,8 +53,6 @@ angelic nondeterminism</description>
             <url>http://scala-tools.org/repo-snapshots</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -85,32 +83,11 @@ angelic nondeterminism</description>
     </dependencies>
 
     <build>
+    	<pluginManagement>
+    		<plugins>
+    		</plugins>
+    	</pluginManagement>
         <plugins>
-            <!-- scala build plugin -->
-            <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>${maven.scala.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                    <compilerPlugins>
-                    	<compilerPlugin>
-                    		<groupId>edu.berkeley.cs.sketch</groupId>
-                    		<artifactId>skalch-plugin</artifactId>
-                    		<version>git-master</version>
-                    	</compilerPlugin>
-                    </compilerPlugins>
-                </configuration>
-            </plugin>
-
             <!-- set java source version -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -120,7 +97,6 @@ angelic nondeterminism</description>
                     <target>1.5</target>
                 </configuration>
             </plugin>
-
         </plugins>
 
         <!-- paths -->

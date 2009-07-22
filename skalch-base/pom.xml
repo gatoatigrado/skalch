@@ -14,6 +14,32 @@
   	<sourceDirectory>../src</sourceDirectory>
   	<testSourceDirectory>../src/test</testSourceDirectory>
   	<outputDirectory>../bin</outputDirectory>
+  	<plugins>
+  		<!-- scala build plugin -->
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven.scala.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                    <compilerPlugins>
+                    	<compilerPlugin>
+                    		<groupId>edu.berkeley.cs.sketch</groupId>
+                    		<artifactId>skalch-plugin</artifactId>
+                    		<version>git-master</version>
+                    	</compilerPlugin>
+                    </compilerPlugins>
+                </configuration>
+            </plugin>
+  	</plugins>
   </build>
   <dependencies>
   	<dependency>
@@ -28,7 +54,7 @@
   		<artifactId>skalch-plugin</artifactId>
   		<version>git-master</version>
   		<type>jar</type>
-  		<scope>compile</scope>
+  		<systemPath>../skalch-plugin/target/skalch-plugin-git-master-skalch-plugin.jar</systemPath>
   	</dependency>
   	<dependency>
   		<groupId>org.scala-lang</groupId>

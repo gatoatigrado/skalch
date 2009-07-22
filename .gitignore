@@ -1,7 +1,11 @@
 bin/*
 dist/*
 skalch-plugin/bin/*
+skalch-plugin/target/*
 skalch-plugin/bin.timestamp
+skalch-base/bin/*
+skalch-base/target/*
+skalch-base/bin.timestamp
 *.pyc
 *.hints.xml
 # compile and symlink it yourself...

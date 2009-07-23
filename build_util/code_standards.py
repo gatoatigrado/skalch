@@ -41,10 +41,10 @@ def check_file(f, show_info, override_ignores):
             warn("raw system exit")
         if "DebugOut.assertSlow" in line:
             info("debug assert slow call")
-            
+
     def warn(text):
         print("%30s %30s" %("WARNING - " + text, f))
-    
+
     if f.endswith(".java") and not "http://creativecommons.org/licenses/BSD/" in text:
         warn("no license")
 

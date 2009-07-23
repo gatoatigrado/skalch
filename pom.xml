@@ -1,30 +1,41 @@
 <!--
 To build, try
-mvn compile
+    >>> mvn install
+
+For some reason, you need to install the plugin (it's not smart enough to just use the jar)
+therefore, if you want to install (to ~/.m2) as little as possible, try
+    >>> (cd skalch-plugin; mvn install)
+    >>> mvn compile
+
+Archetypes (project templates) for sketches using Skalch will be made available soon.
+
+=== Internal notes ===
+To deploy with a version number use
+    >>> mvn deploy -Dversion=0.0.1
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch</artifactId>
     <packaging>pom</packaging>
     <version>git-master</version>
     <name>skalch</name>
-    <description>experimental support for sketching with
-angelic nondeterminism</description>
+    <description>experimental support for sketching with angelic nondeterminism</description>
+
     <developers>
-    	<developer>
-    		<id>gatoatigrado</id>
-    		<name>Nicholas Tung</name>
-    		<email>ntung@ntung.com</email>
-    		<url>https://ntung.com</url>
-    		<organization>UC Berkeley</organization>
-    		<timezone>PDT</timezone>
-    		<roles>
-    		</roles>
-    	</developer>
+        <developer>
+            <id>gatoatigrado</id>
+            <name>Nicholas Tung</name>
+            <email>ntung@ntung.com</email>
+            <url>https://ntung.com</url>
+            <organization>UC Berkeley</organization>
+            <timezone>PDT</timezone>
+        </developer>
     </developers>
+
     <licenses>
         <license>
             <name>BSD Software License</name>
@@ -32,17 +43,27 @@ angelic nondeterminism</description>
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <organization>
-    	<name>UC Berkeley ParLab</name>
+        <name>UC Berkeley ParLab</name>
     </organization>
+
+    <distributionManagement>
+        <repository>
+            <id>cobol</id>
+            <name>cobol maven repository</name>
+            <url>scp://cobol.cs.berkeley.edu/home/ntung/public_html/mvn</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <scala.version>2.8.0-SNAPSHOT</scala.version>
-        <maven.scala.version>2.11</maven.scala.version>
+        <maven.scala.version>2.12-SNAPSHOT</maven.scala.version>
     </properties>
+
     <modules>
-    	<module>skalch-plugin</module>
-    	<module>skalch-base</module>
+        <module>skalch-plugin</module>
+        <module>skalch-base</module>
     </modules>
 
     <!-- go fetch scala from the snapshots repository -->
@@ -54,6 +75,9 @@ angelic nondeterminism</description>
         </repository>
     </repositories>
 
+
+
+    <!-- NOTE all dependencies from submodules are copied here -->
     <dependencies>
         <dependency>
             <groupId>org.scala-tools</groupId>
@@ -71,56 +95,18 @@ angelic nondeterminism</description>
             <version>${scala.version}</version>
         </dependency>
         <dependency>
-        	<groupId>org.swinglabs</groupId>
-        	<artifactId>swing-layout</artifactId>
-        	<version>1.0.3</version>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swing-layout</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
-        	<groupId>xom</groupId>
-        	<artifactId>xom</artifactId>
-        	<version>1.1</version>
+            <groupId>xom</groupId>
+            <artifactId>xom</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
 
-    <build>
-    	<pluginManagement>
-    		<plugins>
-    		</plugins>
-    	</pluginManagement>
-        <plugins>
-            <!-- set java source version -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-        </plugins>
 
-        <!-- paths -->
-        <!-- 
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>src/test</testSourceDirectory>
-        <outputDirectory>bin</outputDirectory>
-        <testOutputDirectory>bin</testOutputDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <excludes>
-                	<exclude>test</exclude>
-                </excludes>
-            </resource>
-            <resource>
-            	<directory>skalch/src</directory>
-            	<excludes>
-            		<exclude>test</exclude>
-            	</excludes>
-            </resource>
-        </resources>
-        -->
-    </build>
 
     <!-- makes $(mvn scala:help) work -->
     <reporting>
@@ -130,9 +116,6 @@ angelic nondeterminism</description>
                 <artifactId>maven-scala-plugin</artifactId>
                 <version>${maven.scala.version}</version>
                 <configuration>
-                    <jvmArgs>
-                        <jvmArg>-Xmx512m</jvmArg>
-                    </jvmArgs>
                     <scalaVersion>${scala.version}</scalaVersion>
                 </configuration>
             </plugin>

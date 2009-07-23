@@ -1,1 +1,0 @@
-b fsc print --javacmd=/usr/lib64/jvm/java-1.6.0/bin/java run_app=test.BitonicSortTest run_cmd_opts -agentpath:/usr/local/netbeans-6.7rc3/profiler3/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/usr/local/netbeans-6.7rc3/profiler3/lib,5140 run_opt_list --array_length 5 --num_steps 6 --stat_enable --sy_debug_stop_after 300000 --sy_num_threads 2 --ui_no_gui

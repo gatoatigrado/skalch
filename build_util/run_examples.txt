@@ -1,9 +1,0 @@
-
-build scala code and run RomanNumerals1:
-build_util/build.py print run_app=test.RomanNumerals1
-
-run RomanNumerals1:
-build_util/build.py /dontcompile run_app=test.RomanNumerals1 --run_opt_list -h
-
-if fsc happens to be working for you:
-build_util/build.py fsc print run_app=test.RomanNumerals1

@@ -9,6 +9,8 @@
  */
 package sketch.ui.gui;
 
+import java.net.URL;
+
 import javax.swing.event.HyperlinkEvent;
 
 import sketch.util.DebugOut;
@@ -40,7 +42,6 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed"
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         sourceViewLabel = new javax.swing.JLabel();
         sourceCodePane = new javax.swing.JScrollPane();
         sourceCodeEditor = new javax.swing.JEditorPane();
@@ -89,7 +90,11 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         debugPrintoutsLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         debugPrintoutsLabel.setText("Debug printouts (select to highlight source)");
 
-        viewSelectionsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/sync.png"))); // NOI18N
+        URL rc_url = getClass().getResource("/oxygen/sync.png");
+        if (rc_url == null) {
+            DebugOut.assertFalse("couldn't find resource URL '/oxygen/sync.png'.");
+        }
+        viewSelectionsButton.setIcon(new javax.swing.ImageIcon(rc_url)); // NOI18N
         viewSelectionsButton.setText("View selections");
         viewSelectionsButton.setEnabled(false);
         viewSelectionsButton.addActionListener(new java.awt.event.ActionListener() {

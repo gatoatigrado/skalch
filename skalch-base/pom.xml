@@ -21,6 +21,11 @@
         <sourceDirectory>src/main</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
         <outputDirectory>bin</outputDirectory>
+        <resources>
+            <resource>
+                <directory>${project.build.sourceDirectory}</directory>
+            </resource>
+        </resources>
         <plugins>
             <!-- scala build plugin -->
             <plugin>

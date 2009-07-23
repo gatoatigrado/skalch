@@ -18,9 +18,9 @@
 
 
     <build>
-        <sourceDirectory>../src</sourceDirectory>
-        <testSourceDirectory>../src/test</testSourceDirectory>
-        <outputDirectory>../bin</outputDirectory>
+        <sourceDirectory>src/main</sourceDirectory>
+        <testSourceDirectory>src/test</testSourceDirectory>
+        <outputDirectory>bin</outputDirectory>
         <plugins>
             <!-- scala build plugin -->
             <plugin>

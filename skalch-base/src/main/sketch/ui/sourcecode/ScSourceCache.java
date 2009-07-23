@@ -1,7 +1,5 @@
 package sketch.ui.sourcecode;
 
-import static sketch.dyn.BackendOptions.beopts;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
@@ -22,6 +20,7 @@ public class ScSourceCache {
     private static ScSourceCache cache;
     public HashMap<String, SourceFile> cached_files =
             new HashMap<String, SourceFile>();
+    public static String linesep; // set from backend options
 
     public static ScSourceCache singleton() {
         if (cache == null) {
@@ -43,7 +42,6 @@ public class ScSourceCache {
 
         public SourceFile(String filename) {
             try {
-                String linesep = beopts().ui_opts.linesep_regex;
                 lines = EntireFileReader.load_file(filename).split(linesep);
                 for (String line : lines) {
                     if (line.contains("\r")) {

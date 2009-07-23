@@ -5,6 +5,7 @@ import sketch.dyn.ga.ScGaOptions;
 import sketch.dyn.stats.ScStatsOptions;
 import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.ui.ScUiOptions;
+import sketch.ui.sourcecode.ScSourceCache;
 import sketch.util.DebugOut;
 import sketch.util.cli.CliOptionResult;
 import sketch.util.cli.CliParser;
@@ -60,5 +61,6 @@ public class BackendOptions {
         ga_opts.set_values();
         stat_opts.set_values();
         DebugOut.no_bash_color = ui_opts.no_bash_color;
+        ScSourceCache.linesep = ui_opts.linesep_regex;
     }
 }

@@ -114,23 +114,37 @@ public class ScStatsMT {
      * print human-useful information, when stat "events" occur
      */
     private void stat_analysis() {
-        rate_warning(ga_repeated.rate(nruns) > 0.5f,
-                "GA - many repeat evaluations");
-        rate_warning(ga_selectind_other_optimal.rate(ga_total_selectind) < 0.1,
+        rate_warn_gt(ga_repeated, nruns, 0.5f, "GA - many repeat evaluations");
+        rate_warn_lt(ga_selectind_other_optimal, ga_total_selectind, 0.1f,
                 "GA - pareto optimality rarely replaces individual");
-        rate_warning(
-                ga_selectind_other_optimal.rate(ga_total_selectind) >= 0.5,
+        rate_warn_gt(ga_selectind_other_optimal, ga_total_selectind, 0.5f,
                 "GA - pareto optimality replaces individual too often "
                         + "(random number generator error?)");
-        rate_warning(ga_selectind_other_same.rate(ga_total_selectind) > 0.1,
+        rate_warn_lt(ga_selectind_other_same, ga_total_selectind, 0.1f,
                 "GA - pareto optimality selects other == selected too often "
                         + "(random number generator error?)");
     }
 
-    private void rate_warning(boolean trigger, String string) {
-        if (trigger) {
-            print_colored(BASH_RED, "[stat-warning]", "", false, string);
+    protected void rate_warn_gt(StatEntry numer, StatEntry base, float trigger,
+            String message)
+    {
+        if ((numer.get_value() != 0) && (numer.rate(base) > trigger)) {
+            rate_warn(numer, base, trigger);
         }
+    }
+
+    protected void rate_warn_lt(StatEntry numer, StatEntry base, float trigger,
+            String message)
+    {
+        if ((numer.get_value() != 0) && (numer.rate(base) < trigger)) {
+            rate_warn(numer, base, trigger);
+        }
+    }
+
+    private void rate_warn(StatEntry numer, StatEntry base, float trigger) {
+        print_colored(BASH_RED, "[stat-warning]", "", false, trigger);
+        print_colored(BASH_RED, "[stat-warning]   ", "", false, numer);
+        print_colored(BASH_RED, "[stat-warning]   ", "", false, base);
     }
 
     public long get_synthesis_time() {
@@ -150,6 +164,11 @@ public class ScStatsMT {
         public StatEntry(String name, String short_name) {
             this.name = name;
             this.short_name = short_name;
+        }
+
+        @Override
+        public String toString() {
+            return formatString(0);
         }
 
         public String formatString(int align) {

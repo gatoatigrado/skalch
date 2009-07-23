@@ -5,14 +5,14 @@
     <parent>
         <artifactId>skalch</artifactId>
         <groupId>edu.berkeley.cs.sketch</groupId>
-        <version>git-master</version>
+        <version>0.01-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch-plugin</artifactId>
-    <version>git-master</version>
+    <version>0.01-SNAPSHOT</version>
     <name>skalch plugin only (for building skalch-base)</name>
     <packaging>jar</packaging>
 

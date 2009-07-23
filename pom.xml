@@ -11,7 +11,8 @@ Archetypes (project templates) for sketches using Skalch will be made available 
 
 === Internal notes ===
 Execute a test
-    >>> (cd skalch-base; 
+    >>> (cd skalch-base; mvn exec:java -Dexec.classpathScope=test
+        -Dexec.mainClass=test.BitonicSortTest -Dexec.args="...")
 
 Bump the version number
     >>> mvn -N versions:update-child-modules
@@ -30,7 +31,7 @@ Update dependency versions
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch</artifactId>
     <packaging>pom</packaging>
-    <version>git-master</version>
+    <version>0.01-SNAPSHOT</version>
     <name>skalch</name>
     <description>experimental support for sketching with angelic nondeterminism</description>
 
@@ -74,6 +75,10 @@ Update dependency versions
         <module>skalch-plugin</module>
         <module>skalch-base</module>
     </modules>
+    
+    <scm>
+        <developerConnection>scm:git:git://github.com/gatoatigrado/skalch.git</developerConnection>
+    </scm>
 
     <!-- go fetch scala from the snapshots repository -->
     <repositories>

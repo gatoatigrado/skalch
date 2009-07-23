@@ -13,9 +13,3 @@ bin.timestamp
 lib/scala-library.jar
 lib/sketchrewriter.jar
 .scala_dependencies
-
-# Casey uses a makefile to save some keystrokes
-Makefile
-
-# the exported build file from eclipse contains some site specific stuff
-build.xml

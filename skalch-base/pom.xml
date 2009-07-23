@@ -5,13 +5,13 @@
     <parent>
         <artifactId>skalch</artifactId>
         <groupId>edu.berkeley.cs.sketch</groupId>
-        <version>0.01-SNAPSHOT</version>
+        <version>0.02-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch-base</artifactId>
-    <version>0.01-SNAPSHOT</version>
+    <version>0.02-SNAPSHOT</version>
     <name>skalch base</name>
     <description>entire skalch library (depends on plugin, but also contains plugin, so projects using skalch should only require this)</description>
 

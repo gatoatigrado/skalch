@@ -31,7 +31,7 @@ Update dependency versions
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch</artifactId>
     <packaging>pom</packaging>
-    <version>0.01-SNAPSHOT</version>
+    <version>0.02-SNAPSHOT</version>
     <name>skalch</name>
     <description>experimental support for sketching with angelic nondeterminism</description>
 

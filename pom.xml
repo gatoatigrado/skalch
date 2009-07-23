@@ -67,8 +67,8 @@ Update dependency versions
     </distributionManagement>
 
     <properties>
-        <scala.version>2.8.0-SNAPSHOT</scala.version>
-        <maven.scala.version>2.12-SNAPSHOT</maven.scala.version>
+        <scala.version>2.8.0-alpha-build183</scala.version>
+        <maven.scala.version>2.12-alpha</maven.scala.version>
     </properties>
 
     <modules>
@@ -82,10 +82,11 @@ Update dependency versions
 
     <!-- go fetch scala from the snapshots repository -->
     <repositories>
+
         <repository>
-            <id>scala-tools.org snapshots</id>
-            <name>Scala-Tools Maven2 Repository - snapshots</name>
-            <url>http://scala-tools.org/repo-snapshots</url>
+            <id>uc berkeley cobol</id>
+            <name>UC Berkeley Maven2 Repository</name>
+            <url>http://cobol.cs.berkeley.edu/mvn/</url>
         </repository>
     </repositories>
     <pluginRepositories>

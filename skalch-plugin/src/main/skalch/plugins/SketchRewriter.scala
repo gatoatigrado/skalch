@@ -16,7 +16,7 @@ class SketchRewriter(val global: Global) extends Plugin {
     val fname_extension = ".hints.xml"
     val description = "de-sugars sketchy constructs"
     val components = List[PluginComponent](ConstructRewriter,
-        FileCopyComponent)
+        FileCopyComponent, SketchGeneratorComponent)
     var scalaFileMap = Map[Object, XmlDoc]()
     val fake_pos = FakePos("Inserted literal for call to sketch construct")
 
@@ -185,6 +185,31 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case _ => assert(false, "INTERNAL ERROR - NewConstruct after jvm")
                     }
                     null
+                }
+            }
+        }
+    }
+
+    private object SketchGeneratorComponent extends SketchPluginComponent(global) {
+        val runsAfter = List("jvm")
+        val phaseName = "sketch_static_ast_gen"
+        def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
+
+        class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
+            import global._
+
+            def apply(comp_unit : CompilationUnit) {
+                println("all classes:" + SketchNodeInfo.all_classes.toString)
+                (new SketchAstGenerator()).transform(comp_unit.body)
+            }
+
+            class SketchAstGenerator() extends SketchTransformer {
+                def transformSketchClass(clsdef : ClassDef) = null
+                def transformSketchCall(tree : Apply, ct : CallType) = null
+
+                override def transform(tree : Tree) = {
+                    println("todo - transform tree...")
+                    tree
                 }
             }
         }

@@ -75,13 +75,6 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>edu.berkeley.cs.sketch</groupId>
-            <artifactId>sketch-util</artifactId>
-            <version>[0.01-SNAPSHOT,)</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
         <!-- bad regexp library that follows POSIX semantics but takes exponential time :( -->
         <dependency>
             <groupId>gnu-regexp</groupId>

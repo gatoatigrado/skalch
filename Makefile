@@ -14,6 +14,14 @@ set_version: # args: current=<version> next=<version>
 	sed -i "s/$(current)/$(next)/g" skalch-plugin/pom.xml
 	sed -i "s/$(current)/$(next)/g" skalch-base/pom.xml
 
+kate-pom: # open all pom files in Kate
+	kate -u pom.xml skalch-plugin/pom.xml skalch-base/pom.xml
+
+gatoatigrado-plugin-dev: # gatoatigrado's plugin development
+	cd ../sketch-util; mvn install
+	cd ../sketch; mvn install
+	@make bitonic_plugin
+
 bitonic_plugin: # build the plugin and compile the bitonic sort test
 	cd skalch-plugin; mvn compile install
 	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/BitonicSortTest.scala; mvn test-compile

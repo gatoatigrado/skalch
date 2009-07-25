@@ -15,7 +15,7 @@ set_version: # args: current=<version> next=<version>
 	sed -i "s/$(current)/$(next)/g" skalch-base/pom.xml
 
 bitonic_plugin: # build the plugin and compile the bitonic sort test
-	cd skalch-plugin; mvn install
+	cd skalch-plugin; mvn compile install
 	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/BitonicSortTest.scala; mvn test-compile
 
 bitonic_test: # run the bitonic sort test

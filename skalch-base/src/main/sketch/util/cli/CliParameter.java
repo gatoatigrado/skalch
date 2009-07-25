@@ -1,9 +1,0 @@
-package sketch.util.cli;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-@Retention(value = RetentionPolicy.RUNTIME)
-public @interface CliParameter {
-    String help();
-}

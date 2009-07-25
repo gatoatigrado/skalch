@@ -16,6 +16,14 @@
     <name>skalch plugin only (for building skalch-base)</name>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>edu.berkeley.cs.sketch</groupId>
+            <artifactId>SKETCH</artifactId>
+            <version>0.01-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <sourceDirectory>src/main</sourceDirectory>
         <outputDirectory>bin</outputDirectory>

@@ -13,5 +13,12 @@ set_version:
 	sed -i "s/$(current)/$(next)/g" skalch-plugin/pom.xml
 	sed -i "s/$(current)/$(next)/g" skalch-base/pom.xml
 
-bitonic:
+bitonic_plugin:
+	mvn install
+	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/BitonicSortTest.scala; mvn test-compile
+
+bitonic_test:
 	cd skalch-base; mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.BitonicSortTest -Dexec.args="--array_length 4 --num_steps 10"
+
+completed_test:
+	cd skalch-base; mvn compile test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.CompletedTest -Dexec.args=""

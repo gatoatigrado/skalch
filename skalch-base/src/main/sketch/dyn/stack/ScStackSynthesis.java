@@ -1,5 +1,7 @@
 package sketch.dyn.stack;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScSynthCtrlConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
@@ -24,6 +26,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected ScSolvingInputConf oracle_inputs;
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
+    protected AtomicBoolean got_first_run;
 
     public ScStackSynthesis(ScDynamicSketch[] sketches) {
         // initialize backends
@@ -38,6 +41,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
                         .get_oracle_info(), prefix);
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
+        got_first_run = new AtomicBoolean(false);
     }
 
     @Override
@@ -51,6 +55,9 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     }
 
     public void add_solution(ScStack stack, int solution_cost) {
+        if (stack.first_run && got_first_run.getAndSet(true)) {
+            return;
+        }
         ui.addStackSolution(stack, solution_cost);
         increment_num_solutions();
     }

@@ -1,26 +1,39 @@
 Name: skalch
 Project: Scala dynamic sketching
 Institution: UC Berkeley ParLab
-Authors: Nicholas Tung (soon Casey Rodarmor as well)
-
-This project will be made private soon, but public (BSD license) releases will be created when work is ready.
+Authors: Nicholas Tung, Casey Rodarmor
 
 === Building ===
 
-The java files can be built with Eclipse (.project files are version controlled). If your Eclipse doesn't automatically build, you can execute it through the Project / Build All item. If you need to clean files (particularly when pulling updates), try Project / Clean.
+Building is now much cleaner, thanks to Maven! You do need to install (not just compile) the plugin so Maven can find the jar file. Note that installations are per-user, so you don't have to be root.
 
-Currently, as fsc has given me plenty of headaches, scala files are built using a custom script. First, the plugin must be compiled. This can be done with
-
-    >>> build_util/package_plugin.sh
-
-to build all scala files, use
-
-    >>> build_util/build.py fsc
+    >>> mvn install
 
 === Running ===
 
-More options for running and compiling can be found by executing
+Aliases to run tests are contained in the Makefile; view them with
 
-    >>> build_util/build.py --help
+    >>> make help
 
-The script should issue warnings if files aren't found. To add a location, add it to any environment variable, e.g. CLASSPATH (separated by your operating system's path sep, on unix ':')
+=== Editing ===
+
+BEFORE YOU EDIT: Please use Eclipse to edit all Java files. The Eclipse formatter should control _all_ formatting in _all_ java files. To get it set up,
+
+    * Import project files with "Import / Existing projects into workspace".
+        * Select the "skalch-base" subdirectory.
+    * Right-click the project, go to properties
+    * In "Java Code Style", "Enable project specific settings" should be checked.
+    * In "Java Editor / Save Actions", "Enable project specific settings" should be checked.
+
+=== Contacts ===
+
+Please send any contributions to the SKETCH team.
+    
+    Primary contact for minor bugs / help:
+        Nicholas Tung <ntung@ntung.com>
+    
+    Other contacts:
+        Casey Rodarmor <casey@rodarmor.com>
+        Armando Solar-Lezama <asolar@csail.mit.edu>
+        Rastislav Bodik <bodik@cs.berkeley.edu>
+        Joel Galenson <joel@cs.berkeley.edu>

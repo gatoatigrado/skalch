@@ -43,11 +43,11 @@
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
                     <compilerPlugins>
-                        <dependency>
+                        <compilerPlugin>
                             <groupId>edu.berkeley.cs.sketch</groupId>
                             <artifactId>skalch-plugin</artifactId>
                             <version>${version}</version>
-                        </dependency>
+                        </compilerPlugin>
                     </compilerPlugins>
                 </configuration>
             </plugin>

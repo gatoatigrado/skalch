@@ -67,10 +67,10 @@ Update dependency versions
     </distributionManagement>
 
     <properties>
-        <sketch.version>[0.01-SNAPSHOT,)</sketch.version>
-        <sketch.util.version>[0.01-SNAPSHOT,)</sketch.util.version>
+        <sketch.proper.version>0.01-SNAPSHOT</sketch.proper.version>
+        <sketch.util.version>0.01</sketch.util.version>
         <scala.version>2.8.0-alpha-build183</scala.version>
-        <maven.scala.version>2.12-alpha</maven.scala.version>
+        <maven.scala.version>2.12-SNAPSHOT</maven.scala.version>
     </properties>
 
     <modules>
@@ -84,7 +84,6 @@ Update dependency versions
 
     <!-- go fetch scala from the snapshots repository -->
     <repositories>
-
         <repository>
             <id>uc berkeley cobol</id>
             <name>UC Berkeley Maven2 Repository</name>
@@ -106,7 +105,7 @@ Update dependency versions
         <dependency>
             <groupId>edu.berkeley.cs.sketch</groupId>
             <artifactId>SKETCH</artifactId>
-            <version>${sketch.version}</version>
+            <version>${sketch.proper.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.berkeley.cs.sketch</groupId>
@@ -135,14 +134,23 @@ Update dependency versions
         <dependency>
             <groupId>xom</groupId>
             <artifactId>xom</artifactId>
-            <version>[1.1,)</version>
+            <version>1.1</version>
         </dependency>
 
         <!-- command line parsing library -->
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>[1.2,)</version>
+            <version>1.2</version>
+        </dependency>
+
+        <!-- TODO - remove sketch-util dependency (for plugin) -->
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.3.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

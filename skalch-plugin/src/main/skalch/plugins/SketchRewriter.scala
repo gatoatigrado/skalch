@@ -199,7 +199,6 @@ class SketchRewriter(val global: Global) extends Plugin {
             import global._
 
             def apply(comp_unit : CompilationUnit) {
-                println("all classes:" + SketchNodeInfo.all_classes.toString)
                 (new SketchAstGenerator()).transform(comp_unit.body)
             }
 
@@ -209,7 +208,8 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                 override def transform(tree : Tree) = {
                     println("todo - transform tree...")
-                    tree
+                    SketchNodes.get_sketch_class(tree.getClass)
+                    super.transform(tree)
                 }
             }
         }

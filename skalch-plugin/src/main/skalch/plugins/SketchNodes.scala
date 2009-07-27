@@ -2,9 +2,10 @@ package skalch.plugins
 
 import streamit.frontend.scala.ScReflectionUtils
 
-object SketchNodeInfo {
+object SketchNodes {
     val all_classes = ScReflectionUtils.singleton.get_node_classes()
-}
 
-class SketchNode {
+    def get_sketch_class[T](clazz : Class[T]) = {
+        ScReflectionUtils.singleton.get_sketch_class(clazz)
+    }
 }

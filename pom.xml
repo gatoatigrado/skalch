@@ -83,11 +83,21 @@ Update dependency versions
     </scm>
 
     <!-- go fetch scala from the snapshots repository -->
+    <!-- NOTE - currently added Maven default repositories for buildr -->
     <repositories>
         <repository>
             <id>uc berkeley cobol</id>
             <name>UC Berkeley Maven2 Repository</name>
             <url>http://cobol.cs.berkeley.edu/mvn/</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -95,6 +105,18 @@ Update dependency versions
             <id>scala-tools.org</id>
             <name>Scala-Tools Maven2 Repository</name>
             <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Plugin Repository</name>
+            <url>http://repo1.maven.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 

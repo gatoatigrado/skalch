@@ -1,0 +1,22 @@
+<map>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.Template</string>
+    <java-class>streamit.frontend.scala.ScASTMapping$PassThroughToken</java-class>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.ValDef</string>
+    <java-class>streamit.frontend.nodes.StmtVarDecl</java-class>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.PackageDef</string>
+    <java-class>streamit.frontend.scala.ScASTMapping$CreateClassToken</java-class>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.ClassDef</string>
+    <java-class>streamit.frontend.nodes.ScalaClass</java-class>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees$EmptyTree$</string>
+    <java-class>streamit.frontend.scala.ScASTMapping$NoClassToken</java-class>
+  </entry>
+</map>

@@ -64,11 +64,11 @@
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprNullPtr</string>
+    <string>streamit.frontend.nodes.Program</string>
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.Program</string>
+    <string>streamit.frontend.nodes.ExprNullPtr</string>
     <boolean>false</boolean>
   </entry>
   <entry>
@@ -126,6 +126,10 @@
   <entry>
     <string>streamit.frontend.nodes.StreamCreator</string>
     <boolean>true</boolean>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ScalaClass</string>
+    <boolean>false</boolean>
   </entry>
   <entry>
     <string>streamit.frontend.nodes.FEReplacer</string>
@@ -212,11 +216,11 @@
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.SymbolTable</string>
+    <string>streamit.frontend.nodes.StreamType</string>
     <boolean>true</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StreamType</string>
+    <string>streamit.frontend.nodes.SymbolTable</string>
     <boolean>true</boolean>
   </entry>
   <entry>
@@ -236,11 +240,11 @@
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtAssign</string>
+    <string>streamit.frontend.nodes.ExprField</string>
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprField</string>
+    <string>streamit.frontend.nodes.StmtAssign</string>
     <boolean>false</boolean>
   </entry>
   <entry>
@@ -272,11 +276,11 @@
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtFor</string>
+    <string>streamit.frontend.nodes.ExprNew</string>
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprNew</string>
+    <string>streamit.frontend.nodes.StmtFor</string>
     <boolean>false</boolean>
   </entry>
   <entry>
@@ -288,23 +292,23 @@
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtInsertBlock</string>
-    <boolean>true</boolean>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.ExprConstFloat</string>
     <boolean>false</boolean>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtInsertBlock</string>
+    <boolean>true</boolean>
   </entry>
   <entry>
     <string>streamit.frontend.nodes.UnrecognizedVariableException</string>
     <boolean>true</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.TypeStruct</string>
+    <string>streamit.frontend.nodes.TypeStructRef</string>
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.TypeStructRef</string>
+    <string>streamit.frontend.nodes.TypeStruct</string>
     <boolean>false</boolean>
   </entry>
   <entry>
@@ -336,20 +340,20 @@
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtBody</string>
-    <boolean>false</boolean>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.GetExprType</string>
     <boolean>false</boolean>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtPhase</string>
+    <string>streamit.frontend.nodes.StmtBody</string>
     <boolean>false</boolean>
   </entry>
   <entry>
     <string>streamit.frontend.nodes.SJRoundRobin</string>
     <boolean>true</boolean>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtPhase</string>
+    <boolean>false</boolean>
   </entry>
   <entry>
     <string>streamit.frontend.nodes.StmtIfThen</string>

@@ -7,13 +7,6 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>scala.tools.nsc.ast.Trees.ValDef</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="java-class">streamit.frontend.nodes.StmtVarDecl</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>scala.tools.nsc.ast.Trees.PackageDef</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
@@ -21,10 +14,45 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>scala.tools.nsc.ast.Trees.ValDef</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.StmtVarDecl</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.ClassDef</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaClass</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaClass</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>scala.tools.nsc.ast.Trees$EmptyTree$</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$NoClassToken</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.Select</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.ExprField</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.ExprField</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.TypeTree</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaType</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaType</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.DefDef</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.Function</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.Function</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
 </map>

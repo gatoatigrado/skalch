@@ -16,6 +16,16 @@
     <name>skalch plugin only (for building skalch-base)</name>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>edu.berkeley.cs.sketch</groupId>
+            <artifactId>skalch-bootstrap</artifactId>
+            <version>bootstrap</version>
+            <scope>system</scope>
+            <systemPath>/home/gatoatigrado/sandbox/eclipse/skalch/skalch-plugin/skalch-base-bootstrap.jar</systemPath>
+        </dependency>
+    </dependencies>
+
     <build>
         <sourceDirectory>src/main</sourceDirectory>
         <outputDirectory>bin</outputDirectory>

@@ -1,14 +1,19 @@
 package skalch.plugins
 
-import scala.collection.mutable.ListBuffer
-import scala.tools.nsc
+import java.lang.Integer
 import java.io.{File, FileInputStream, FileOutputStream}
+
+import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
+
+import scala.tools.nsc
 import nsc._
-import nsc.plugins.Plugin
-import nsc.plugins.PluginComponent
-import nsc.util
-import scala.tools.nsc.io.{AbstractFile, PlainFile}
-import scala.tools.nsc.util.{FakePos, OffsetPosition, RangePosition}
+import nsc.plugins.{Plugin, PluginComponent}
+import nsc.io.{AbstractFile, PlainFile}
+import nsc.util.{FakePos, OffsetPosition, RangePosition}
+
+import skalch.DynamicSketch
+import sketch.dyn.BackendOptions
+import sketch.util.cli
 
 class SketchRewriter(val global: Global) extends Plugin {
 
@@ -190,6 +195,12 @@ class SketchRewriter(val global: Global) extends Plugin {
         }
     }
 
+
+
+    /**
+     * Generate the SKETCH AST and dump it via xstream.
+     * Currently using Skalch to determine which fields are used.
+     */
     private object SketchGeneratorComponent extends SketchPluginComponent(global) {
         val runsAfter = List("jvm")
         val phaseName = "sketch_static_ast_gen"
@@ -197,6 +208,58 @@ class SketchRewriter(val global: Global) extends Plugin {
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             import global._
+
+            var query_table : (Int => Boolean) = null
+
+            // this is persistent across backtracking invocations.
+            var names_map = new HashMap[(String, String), Int]()
+            // these are not
+            var forbidden_objects = new HashSet[Int]()
+            var visit_queue = new HashMap[Int, (String, String)]()
+            var failed : Boolean = false
+
+            def field_uid(cls_name : String, field_name : String) : Int = {
+                val key = (cls_name, field_name)
+                val result = names_map.get(key)
+                if (!result.isDefined) {
+                    val result = names_map.size
+                    names_map.put(key, result)
+                    result
+                } else {
+                    result.get
+                }
+            }
+
+            def solution_string() : String = {
+                var result = ""
+                for ( ((clsname, fldname), uid) <- names_map ) {
+                    result += clsname + "." + fldname + " = " + query_table(uid) + "\n"
+                }
+                result
+            }
+
+            class OrderSketch() extends DynamicSketch {
+                def dysketch_main() : Boolean = {
+                    failed = false
+                    forbidden_objects.clear
+                    visit_queue.clear
+                    query_table = (??(_, 2) == 1)
+                    currentRun.units foreach applyPhase
+                    skdprint(solution_string())
+                    skdprint("visit queue: " + visit_queue.toString)
+                    println("sketch done")
+                    !failed
+                }
+
+                val test_generator = NullTestGenerator
+            }
+
+            override def run() {
+                val args = Array("--sy_num_threads", "1", "--sy_num_solutions", "1", "--ui_no_gui")
+                val cmdopts = new cli.CliParser(args)
+                BackendOptions.add_opts(cmdopts)
+                skalch.synthesize(() => new OrderSketch())
+            }
 
             def apply(comp_unit : CompilationUnit) {
                 (new SketchAstGenerator()).transform(comp_unit.body)
@@ -206,11 +269,34 @@ class SketchRewriter(val global: Global) extends Plugin {
                 def transformSketchClass(clsdef : ClassDef) = null
                 def transformSketchCall(tree : Apply, ct : CallType) = null
 
-                override def transform(tree : Tree) = {
-                    println("todo - transform tree")
-                    SketchNodes.get_sketch_class(tree.getClass, tree)
-                    super.transform(tree)
+                override def transform(tree : Tree) : Tree = {
+                    val tree_ptr = System.identityHashCode(tree)
+                    visit_queue remove tree_ptr
+                    if (forbidden_objects contains tree_ptr) {
+                        println("failed...")
+                        failed = true
+                        tree
+                    } else if (failed) {
+                        tree
+                    } else {
+                        val clazz = tree.getClass()
+                        for (fld <- clazz.getDeclaredFields()) {
+                            fld.setAccessible(true)
+                            val uid = field_uid(clazz.getCanonicalName, fld.getName)
+                            val fld_obj = fld.get(tree)
+                            val field_ptr = System.identityHashCode(fld_obj)
+                            if (!query_table(uid)) {
+                                // println("adding forbidden field " + clazz.getCanonicalName + ", " + fld.getName)
+                                forbidden_objects add field_ptr
+                            } else {
+                                visit_queue.put(field_ptr, (clazz.getCanonicalName, fld.getName))
+                            }
+                        }
+                        SketchNodes.get_sketch_class(tree.getClass, tree)
+                        super.transform(tree)
+                    }
                 }
+
             }
         }
     }

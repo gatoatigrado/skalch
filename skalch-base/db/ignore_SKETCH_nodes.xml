@@ -1,41 +1,6 @@
 <map>
   <entry>
-    <string>streamit.frontend.nodes.StreamSpec</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.TypePrimitive</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprTypeCast</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.StmtBlock</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtSendMessage</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.Function</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -49,7 +14,7 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtWhile</string>
+    <string>streamit.frontend.nodes.ExprConstChar</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -63,14 +28,7 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprConstChar</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprFunCall</string>
+    <string>streamit.frontend.nodes.StmtWhile</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -84,21 +42,14 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>streamit.frontend.nodes.ExprFunCall</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>streamit.frontend.nodes.FieldDecl</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprArray</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtEmpty</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -126,13 +77,6 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ComplexProp</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.scalaproxy.ScalaType</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput></userInput>
@@ -140,21 +84,14 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaGotoLabel</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>streamit.frontend.nodes.StmtFork</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprStar</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.Expression</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -175,38 +112,10 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtAdd</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.SCAnon</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprConstant</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.FENode</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprConstStr</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -217,7 +126,7 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtLoop</string>
+    <string>streamit.frontend.nodes.ExprConstStr</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -231,63 +140,7 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ScalaClass</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.FEReplacer</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtJoin</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprPop</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtReturn</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprChoiceBinary</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.ExprComplex</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprParen</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprLiteral</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -315,17 +168,17 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtAtomicBlock</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.InvalidControlFlowException</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtAtomicBlock</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -350,37 +203,16 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.SJDuplicate</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprChoiceSelect</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtBreak</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprConstInt</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.StmtDoWhile</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaThis</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
@@ -389,27 +221,6 @@
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StreamType</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprPeek</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtVarDecl</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -434,24 +245,10 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprField</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.ExprConstBoolean</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.FEContext</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -469,21 +266,7 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprArrayRange</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.MakeBodiesBlocks</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.SplitterJoiner</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>
@@ -525,6 +308,307 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>streamit.frontend.nodes.TypeStructRef</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprTernary</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaConstantLiteral</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.FuncWork</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.Type</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtBody</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtPhase</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtIfThen</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.Parameter</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.FEVisitor</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.TypePrimitive</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StreamSpec</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprTypeCast</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtSendMessage</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.Function</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprArray</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtEmpty</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ComplexProp</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprStar</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.Expression</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtAdd</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.FENode</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprConstant</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtLoop</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.FEReplacer</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ScalaClass</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprPop</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtJoin</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprChoiceBinary</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtReturn</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprLiteral</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprParen</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.SJDuplicate</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprChoiceSelect</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtBreak</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprConstInt</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StreamType</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprPeek</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtVarDecl</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprField</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.FEContext</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprArrayRange</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.SplitterJoiner</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>streamit.frontend.nodes.StmtInsertBlock</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
@@ -547,20 +631,6 @@
   </entry>
   <entry>
     <string>streamit.frontend.nodes.TypeStruct</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.TypeStructRef</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.ExprTernary</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -595,27 +665,6 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.FuncWork</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.Type</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtBody</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.GetExprType</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
@@ -623,35 +672,7 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtPhase</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.SJRoundRobin</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">true</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtIfThen</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.Parameter</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.FEVisitor</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>

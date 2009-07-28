@@ -25,6 +25,10 @@ bitonic_plugin: # build the plugin and compile the bitonic sort test
 	cd skalch-plugin; mvn compile install
 	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/BitonicSortTest.scala; mvn test-compile -Dmaven.scala.displayCmd=true
 
+plugin_dev: # build the plugin and compile the a test given by $(testfile)
+	cd skalch-plugin; mvn compile install
+	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
+
 # tests
 
 bitonic_test: # run the bitonic sort test
@@ -38,11 +42,25 @@ completed_test: # run the completed test
 gatoatigrado-clean-other: clean # clean relative paths in gatoatigrado's project
 	rm -rf ../sketch/target ../sketch/mvn-bin ../sketch-util/target
 
-gatoatigrado-plugin-dev: # gatoatigrado's plugin development
+gatoatigrado-build-plugin-deps: # build dependencies for the plugin
 	# maven is messed up, or maybe this is Eclipse's build system
 	rm -rf ~/sandbox/eclipse/sketch/target/classes/sketch/util
 	cd ../sketch-util; mvn install
 	cd ../sketch; mvn install
+
+gatoatigrado-plugin-dev: gatoatigrado-build-plugin-deps # gatoatigrado's plugin development (bitonic sort sketch)
 	@make bitonic_plugin
+
+gatoatigrado-plugin-rbtree: gatoatigrado-build-plugin-deps # gatoatigrado's plugin development trying the red-black tree sketch
+	@make plugin_dev testfile=RedBlackTreeTest.scala
+
+gatoatigrado-plugin-dws: gatoatigrado-build-plugin-deps # dws sketch (lots of syntax)
+	@make plugin_dev testfile=Dfs.scala
+
+gatoatigrado-plugin-roman-numeral: gatoatigrado-build-plugin-deps # roman numerals (match stmt)
+	@make plugin_dev testfile=RomanNumerals.scala
+
+gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps # rev list test (catch stmt)
+	@make plugin_dev testfile=RevListTest.scala
 
 gatoatigrado: gatoatigrado-plugin-dev # whatever gatoatigrado's currently working on

@@ -21,17 +21,17 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>scala.tools.nsc.ast.Trees.LabelDef</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>streamit.frontend.nodes.scalaproxy.ScalaGotoLabel</userInput>
-      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaGotoLabel</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>scala.tools.nsc.ast.Trees.Assign</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>streamit.frontend.nodes.StmtAssign</userInput>
       <entryValue class="java-class">streamit.frontend.nodes.StmtAssign</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.LabelDef</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaGotoLabel</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaGotoLabel</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -42,13 +42,6 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>scala.tools.nsc.ast.Trees.Bind</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>new</userInput>
-      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>scala.tools.nsc.ast.Trees.TypeTree</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>streamit.frontend.nodes.scalaproxy.ScalaType</userInput>
@@ -56,10 +49,10 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>scala.tools.nsc.ast.Trees.Typed</string>
+    <string>scala.tools.nsc.ast.Trees.Bind</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput>streamit.frontend.nodes.scalaproxy.ScalaTypedExpression</userInput>
-      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaTypedExpression</entryValue>
+      <userInput>new</userInput>
+      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -67,6 +60,13 @@
     <sketch.util.db.ScEntryWrapper>
       <userInput>streamit.frontend.nodes.scalaproxy.ScalaTypeApply</userInput>
       <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaTypeApply</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.Typed</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaTypedExpression</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaTypedExpression</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -81,6 +81,13 @@
     <sketch.util.db.ScEntryWrapper>
       <userInput>streamit.frontend.nodes.scalaproxy.ScalaPackageDef</userInput>
       <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaPackageDef</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.Match</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>new</userInput>
+      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>

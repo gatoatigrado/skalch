@@ -208,7 +208,7 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                 override def transform(tree : Tree) = {
                     println("todo - transform tree")
-                    SketchNodes.get_sketch_class(tree.getClass)
+                    SketchNodes.get_sketch_class(tree.getClass, tree)
                     super.transform(tree)
                 }
             }

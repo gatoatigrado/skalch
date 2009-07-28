@@ -16,8 +16,8 @@ set_version: # args: current=<version> next=<version>
 	sed -i "s/$(current)/$(next)/g" skalch-plugin/pom.xml
 	sed -i "s/$(current)/$(next)/g" skalch-base/pom.xml
 
-kate-pom: # open all pom files in Kate
-	kate -u pom.xml skalch-plugin/pom.xml skalch-base/pom.xml
+kate: # open various config files in Kate
+	kate -u Makefile pom.xml */pom.xml */db/*.xml
 
 # other
 
@@ -39,6 +39,8 @@ gatoatigrado-clean-other: clean # clean relative paths in gatoatigrado's project
 	rm -rf ../sketch/target ../sketch/mvn-bin ../sketch-util/target
 
 gatoatigrado-plugin-dev: # gatoatigrado's plugin development
+	# maven is messed up, or maybe this is Eclipse's build system
+	rm -rf ~/sandbox/eclipse/sketch/target/classes/sketch/util
 	cd ../sketch-util; mvn install
 	cd ../sketch; mvn install
 	@make bitonic_plugin

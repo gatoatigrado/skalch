@@ -269,6 +269,14 @@ class SketchRewriter(val global: Global) extends Plugin {
                 def transformSketchClass(clsdef : ClassDef) = null
                 def transformSketchCall(tree : Apply, ct : CallType) = null
 
+                def handle_fld_ptr(uid : Int, key : (String, String), fld_ptr : Int) {
+                    if (!query_table(uid)) {
+                        forbidden_objects add fld_ptr
+                    } else {
+                        visit_queue.put(fld_ptr, key)
+                    }
+                }
+
                 override def transform(tree : Tree) : Tree = {
                     val tree_ptr = System.identityHashCode(tree)
                     visit_queue remove tree_ptr
@@ -282,14 +290,15 @@ class SketchRewriter(val global: Global) extends Plugin {
                         val clazz = tree.getClass()
                         for (fld <- clazz.getDeclaredFields()) {
                             fld.setAccessible(true)
+                            val key = (clazz.getCanonicalName, fld.getName)
                             val uid = field_uid(clazz.getCanonicalName, fld.getName)
                             val fld_obj = fld.get(tree)
-                            val field_ptr = System.identityHashCode(fld_obj)
-                            if (!query_table(uid)) {
-                                // println("adding forbidden field " + clazz.getCanonicalName + ", " + fld.getName)
-                                forbidden_objects add field_ptr
-                            } else {
-                                visit_queue.put(field_ptr, (clazz.getCanonicalName, fld.getName))
+                            fld_obj match {
+                                case it : Iterable[Object] => for (subobj <- it) {
+                                        handle_fld_ptr(uid, key, System.identityHashCode(subobj))
+                                    }
+                                case _ =>
+                                    handle_fld_ptr(uid, key, System.identityHashCode(fld_obj))
                             }
                         }
                         SketchNodes.get_sketch_class(tree.getClass, tree)

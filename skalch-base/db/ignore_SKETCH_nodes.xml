@@ -7,21 +7,14 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaBindStmt</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>streamit.frontend.nodes.ExprRegen</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.StmtWhile</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>streamit.frontend.nodes.TypeArray</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -35,7 +28,14 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprFunCall</string>
+    <string>streamit.frontend.nodes.TypeArray</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtWhile</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -43,6 +43,13 @@
   </entry>
   <entry>
     <string>streamit.frontend.nodes.StmtReorderBlock</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.ExprFunCall</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -63,13 +70,6 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.Program</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.ExprNullPtr</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
@@ -77,14 +77,21 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.scalaproxy.ScalaTypedExpression</string>
+    <string>streamit.frontend.nodes.Program</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaType</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput></userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.scalaproxy.ScalaType</string>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaTypedExpression</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput></userInput>
       <entryValue class="boolean">false</entryValue>
@@ -175,17 +182,17 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtAtomicBlock</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
-      <entryValue class="boolean">false</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
     <string>streamit.frontend.nodes.InvalidControlFlowException</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.StmtAtomicBlock</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>&lt;not recorded&gt;</userInput>
+      <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -210,16 +217,16 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.scalaproxy.ScalaThis</string>
+    <string>streamit.frontend.nodes.StmtDoWhile</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput></userInput>
+      <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtDoWhile</string>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaThis</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
+      <userInput></userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
@@ -259,16 +266,16 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.SJWeightedRR</string>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaClass</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput>&lt;not recorded&gt;</userInput>
+      <userInput></userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.scalaproxy.ScalaClass</string>
+    <string>streamit.frontend.nodes.SJWeightedRR</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput></userInput>
+      <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
@@ -294,14 +301,14 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.ExprNew</string>
+    <string>streamit.frontend.nodes.StmtFor</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
-    <string>streamit.frontend.nodes.StmtFor</string>
+    <string>streamit.frontend.nodes.ExprNew</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">false</entryValue>
@@ -344,6 +351,13 @@
   </entry>
   <entry>
     <string>streamit.frontend.nodes.scalaproxy.ScalaConstantLiteral</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaTryStmt</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput></userInput>
       <entryValue class="boolean">false</entryValue>
@@ -637,6 +651,13 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaMatchStmt</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
+      <entryValue class="boolean">false</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>streamit.frontend.nodes.ExprArrayRange</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
@@ -704,6 +725,13 @@
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="boolean">true</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>streamit.frontend.nodes.scalaproxy.ScalaCaseStmt</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput></userInput>
+      <entryValue class="boolean">false</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>

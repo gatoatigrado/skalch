@@ -11,9 +11,14 @@ import nsc.plugins.{Plugin, PluginComponent}
 import nsc.io.{AbstractFile, PlainFile}
 import nsc.util.{FakePos, OffsetPosition, RangePosition}
 
+import sketch.util.DebugOut
+import streamit.frontend.nodes
+
+/*
 import skalch.DynamicSketch
 import sketch.dyn.BackendOptions
 import sketch.util.cli
+*/
 
 class SketchRewriter(val global: Global) extends Plugin {
 
@@ -199,7 +204,6 @@ class SketchRewriter(val global: Global) extends Plugin {
 
     /**
      * Generate the SKETCH AST and dump it via xstream.
-     * Currently using Skalch to determine which fields are used.
      */
     private object SketchGeneratorComponent extends SketchPluginComponent(global) {
         val runsAfter = List("jvm")
@@ -209,103 +213,150 @@ class SketchRewriter(val global: Global) extends Plugin {
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             import global._
 
-            var query_table : (Int => Boolean) = null
-
-            // this is persistent across backtracking invocations.
-            var names_map = new HashMap[(String, String), Int]()
-            // these are not
-            var forbidden_objects = new HashSet[Int]()
-            var visit_queue = new HashMap[Int, (String, String)]()
-            var failed : Boolean = false
-
-            def field_uid(cls_name : String, field_name : String) : Int = {
-                val key = (cls_name, field_name)
-                val result = names_map.get(key)
-                if (!result.isDefined) {
-                    val result = names_map.size
-                    names_map.put(key, result)
-                    result
-                } else {
-                    result.get
-                }
-            }
-
-            def solution_string() : String = {
-                var result = ""
-                for ( ((clsname, fldname), uid) <- names_map ) {
-                    result += clsname + "." + fldname + " = " + query_table(uid) + "\n"
-                }
-                result
-            }
-
-            class OrderSketch() extends DynamicSketch {
-                def dysketch_main() : Boolean = {
-                    failed = false
-                    forbidden_objects.clear
-                    visit_queue.clear
-                    query_table = (??(_, 2) == 1)
-                    currentRun.units foreach applyPhase
-                    skdprint(solution_string())
-                    skdprint("visit queue: " + visit_queue.toString)
-                    println("sketch done")
-                    !failed
-                }
-
-                val test_generator = NullTestGenerator
-            }
-
-            override def run() {
-                val args = Array("--sy_num_threads", "1", "--sy_num_solutions", "1", "--ui_no_gui")
-                val cmdopts = new cli.CliParser(args)
-                BackendOptions.add_opts(cmdopts)
-                skalch.synthesize(() => new OrderSketch())
-            }
-
             def apply(comp_unit : CompilationUnit) {
-                (new SketchAstGenerator()).transform(comp_unit.body)
+                val ast_gen = new SketchAstGenerator()
+                ast_gen.transform(comp_unit.body)
+                (new CheckVisited(ast_gen.visited)).transform(comp_unit.body)
             }
 
-            class SketchAstGenerator() extends SketchTransformer {
-                def transformSketchClass(clsdef : ClassDef) = null
-                def transformSketchCall(tree : Apply, ct : CallType) = null
+            class SketchAstGenerator() extends Transformer {
+                var visited = new HashSet[Tree]()
+                var root : Object = null
 
-                def handle_fld_ptr(uid : Int, key : (String, String), fld_ptr : Int) {
-                    if (!query_table(uid)) {
-                        forbidden_objects add fld_ptr
-                    } else {
-                        visit_queue.put(fld_ptr, key)
+                import SketchNodes.{SketchNodeWrapper, SketchNodeList,
+                    get_expr, get_stmt, get_expr_arr, get_stmt_arr}
+                def getSketchAST(tree : Tree) : SketchNodeWrapper = {
+                    // TODO - fill in source values...
+                    val ctx : nodes.FENode = null
+
+                    if (visited contains tree) {
+                        DebugOut.print("warning: already visited tree", tree)
                     }
+                    visited.add(tree)
+
+                    def getname(elt : Object) : String = elt match {
+                        case name : Name => DebugOut.not_implemented("getname()", name); null
+                        case tree : Tree => getSketchAST(tree) match {
+                                case _ =>
+                                    DebugOut.not_implemented("getname()", elt)
+                                    null
+                            }
+                    }
+
+                    def gettype(elt : Tree) : nodes.Type = {
+                        DebugOut.not_implemented("gettype()", elt, elt.symbol)
+                        null
+                    }
+
+                    def subelt(tree : Tree) = getSketchAST(tree)
+                    def subarr(arr : List[Tree]) =
+                        new SketchNodeList( (for (elt <- arr) yield getSketchAST(elt)).toArray )
+
+                    new SketchNodeWrapper(tree match {
+                        case Apply(fun, args) =>
+                            new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
+
+                        case ArrayValue(elemtpt, elems) =>
+                            val unused = getSketchAST(elemtpt)
+                            DebugOut.print("unused: elemtpt", unused)
+                            new nodes.ExprArrayInit(ctx, subarr(elems))
+
+                        case Assign(lhs, rhs) =>
+                            new nodes.StmtAssign(ctx, subelt(lhs), subelt(rhs))
+
+                        case Bind(name, body) =>
+                            new nodes.scalaproxy.ScalaBindStmt(
+                                ctx, gettype(body), getname(name), subelt(body))
+
+                        case Block(stmts, expr) =>
+                            new nodes.scalaproxy.ScalaBlock(ctx, subarr(stmts), subelt(expr))
+
+                        case CaseDef(pat, guard, body) =>
+                            new nodes.scalaproxy.ScalaCaseStmt(
+                                ctx, subelt(pat), subelt(guard), subelt(body))
+
+                        case ClassDef() =>
+                            new nodes.scalaproxy.ScalaClass()
+
+                        case DefDef() =>
+                            new nodes.Function()
+
+                        case Ident() =>
+                            new nodes.ExprVar()
+
+                        case If() =>
+                            new nodes.StmtIfThen()
+
+                        case LabelDef() =>
+                            new nodes.scalaproxy.ScalaGotoLabel()
+
+                        case Literal() =>
+                            new nodes.scalaproxy.ScalaConstantLiteral()
+
+                        case Match() =>
+                            new nodes.scalaproxy.ScalaMatchStmt()
+
+                        case New() =>
+                            new nodes.ExprNew()
+
+                        case PackageDef() =>
+                            new nodes.scalaproxy.ScalaPackageDef()
+
+                        case Return() =>
+                            new nodes.StmtReturn()
+
+                        case Select() =>
+                            new nodes.ExprField()
+
+                        case Super() =>
+                            new nodes.scalaproxy.ScalaSuperRef()
+
+                        case Template() =>
+                            new nodes.scalaproxy.ScalaClassInside()
+
+                        case This() =>
+                            new nodes.scalaproxy.ScalaThis()
+
+                        case Throw() =>
+                            new nodes.scalaproxy.ScalaThrow()
+
+                        case Try() =>
+                            new nodes.scalaproxy.ScalaTryStmt()
+
+                        case TypeApply() =>
+                            new nodes.scalaproxy.ScalaTypeApply()
+
+                        case TypeTree() =>
+                            new nodes.scalaproxy.ScalaType()
+
+                        case Typed() =>
+                            new nodes.scalaproxy.ScalaTypedExpression()
+
+                        case ValDef() =>
+                            new nodes.StmtVarDecl()
+
+                        case EmptyTree => tree
+                        */
+
+                        case _ =>
+                            DebugOut.print("not matched " + tree)
+                            null
+                    })
                 }
 
                 override def transform(tree : Tree) : Tree = {
-                    val tree_ptr = System.identityHashCode(tree)
-                    visit_queue remove tree_ptr
-                    if (forbidden_objects contains tree_ptr) {
-                        println("failed...")
-                        failed = true
-                        tree
-                    } else if (failed) {
-                        tree
-                    } else {
-                        val clazz = tree.getClass()
-                        for (fld <- clazz.getDeclaredFields()) {
-                            fld.setAccessible(true)
-                            val key = (clazz.getCanonicalName, fld.getName)
-                            val uid = field_uid(clazz.getCanonicalName, fld.getName)
-                            val fld_obj = fld.get(tree)
-                            fld_obj match {
-                                case it : Iterable[Object] => for (subobj <- it) {
-                                        handle_fld_ptr(uid, key, System.identityHashCode(subobj))
-                                    }
-                                case _ =>
-                                    handle_fld_ptr(uid, key, System.identityHashCode(fld_obj))
-                            }
-                        }
-                        SketchNodes.get_sketch_class(tree.getClass, tree)
-                        super.transform(tree)
-                    }
+                    root = getSketchAST(tree)
+                    tree
                 }
+            }
 
+            class CheckVisited(transformed : HashSet[Tree]) extends Transformer {
+                override def transform(tree : Tree) : Tree = {
+                    if (!transformed.contains(tree)) {
+                        //println("WARNING - didn't transform node\n    " + tree.toString())
+                    }
+                    super.transform(tree)
+                }
             }
         }
     }

@@ -16,6 +16,7 @@
     <name>skalch plugin only (for building skalch-base)</name>
     <packaging>jar</packaging>
 
+    <!-- skalch bootstrapping into the plugin
     <dependencies>
         <dependency>
             <groupId>edu.berkeley.cs.sketch</groupId>
@@ -25,6 +26,7 @@
             <systemPath>/home/gatoatigrado/sandbox/eclipse/skalch/skalch-plugin/skalch-base-bootstrap.jar</systemPath>
         </dependency>
     </dependencies>
+    -->
 
     <build>
         <sourceDirectory>src/main</sourceDirectory>

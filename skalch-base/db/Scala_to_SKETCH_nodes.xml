@@ -9,8 +9,8 @@
   <entry>
     <string>scala.tools.nsc.ast.Trees.CaseDef</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput>new</userInput>
-      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaCaseStmt</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaCaseStmt</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -42,17 +42,17 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>scala.tools.nsc.ast.Trees.Bind</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaBindStmt</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaBindStmt</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>scala.tools.nsc.ast.Trees.TypeTree</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>streamit.frontend.nodes.scalaproxy.ScalaType</userInput>
       <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaType</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>scala.tools.nsc.ast.Trees.Bind</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>new</userInput>
-      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -86,15 +86,8 @@
   <entry>
     <string>scala.tools.nsc.ast.Trees.Match</string>
     <sketch.util.db.ScEntryWrapper>
-      <userInput>new</userInput>
-      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>scala.tools.nsc.ast.Trees.If</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>streamit.frontend.nodes.StmtIfThen</userInput>
-      <entryValue class="java-class">streamit.frontend.nodes.StmtIfThen</entryValue>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaMatchStmt</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaMatchStmt</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -102,6 +95,13 @@
     <sketch.util.db.ScEntryWrapper>
       <userInput>streamit.frontend.nodes.scalaproxy.ScalaConstantLiteral</userInput>
       <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaConstantLiteral</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
+    <string>scala.tools.nsc.ast.Trees.If</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.StmtIfThen</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.StmtIfThen</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
@@ -133,17 +133,17 @@
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>
+    <string>scala.tools.nsc.ast.Trees.Try</string>
+    <sketch.util.db.ScEntryWrapper>
+      <userInput>streamit.frontend.nodes.scalaproxy.ScalaTryStmt</userInput>
+      <entryValue class="java-class">streamit.frontend.nodes.scalaproxy.ScalaTryStmt</entryValue>
+    </sketch.util.db.ScEntryWrapper>
+  </entry>
+  <entry>
     <string>scala.tools.nsc.ast.Trees.ValDef</string>
     <sketch.util.db.ScEntryWrapper>
       <userInput>&lt;not recorded&gt;</userInput>
       <entryValue class="java-class">streamit.frontend.nodes.StmtVarDecl</entryValue>
-    </sketch.util.db.ScEntryWrapper>
-  </entry>
-  <entry>
-    <string>scala.tools.nsc.ast.Trees.Try</string>
-    <sketch.util.db.ScEntryWrapper>
-      <userInput>new</userInput>
-      <entryValue class="java-class">streamit.frontend.scala.ScASTMapping$CreateClassToken</entryValue>
     </sketch.util.db.ScEntryWrapper>
   </entry>
   <entry>

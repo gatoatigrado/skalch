@@ -63,4 +63,4 @@ gatoatigrado-plugin-roman-numeral: gatoatigrado-build-plugin-deps # roman numera
 gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps # rev list test (catch stmt)
 	@make plugin_dev testfile=RevListTest.scala
 
-gatoatigrado: gatoatigrado-plugin-dev # whatever gatoatigrado's currently working on
+g: gatoatigrado-plugin-dev # whatever gatoatigrado's currently working on

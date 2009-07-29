@@ -227,6 +227,7 @@ class SketchRewriter(val global: Global) extends Plugin {
         class ContextInfo(val old : ContextInfo) {
             var curr_clazz : nodes.scalaproxy.ScalaClass =
                 if (old != null) old.curr_clazz else null
+            var ident : String = if (old == null) "" else ("    " + old.ident)
         }
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
@@ -240,11 +241,12 @@ class SketchRewriter(val global: Global) extends Plugin {
 
             class SketchAstGenerator() extends Transformer {
                 val visited = new HashSet[Tree]()
-                val symbol_type_map = new HashMap[Symbol, nodes.Type]()
+                val symbol_type_map = new HashMap[String, nodes.Type]()
                 var root : Object = null
+                val name_string_factory = new SketchNodes.NameStringFactory(false)
 
-                import SketchNodes.{SketchNodeWrapper, SketchNodeList,
-                    get_expr, get_stmt, get_param, get_expr_arr, get_stmt_arr, get_param_arr}
+                import SketchNodes.{SketchNodeWrapper, SketchNodeList, LogicalName,
+                    get_expr, get_stmt, get_param, get_expr_arr, get_stmt_arr, get_param_arr, get_object_arr}
 
                 /**
                  * The main recursive call to create SKETCH nodes.
@@ -262,27 +264,44 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                     // === accessor functions ===
 
-                    def getname(elt : Object) : String = elt match {
-                        case name : Name => DebugOut.not_implemented("getname()", name); null
-                        case tree : Tree => subtree(tree) match {
+                    def getname(elt : Object, sym : Symbol = tree.symbol) : String = {
+                        name_string_factory.get_name(elt match {
+                            case name : Name =>
+                                def alternatives(idx : Int, verbosity : Int) = verbosity match {
+                                    case 0 => name.toString
+                                    case 1 => sym.owner.simpleName + "." + sym.simpleName
+                                    case 2 => sym.fullNameString
+                                    case 3 => name.toString + "_" + idx.toString
+                                }
+                                LogicalName(name.toString, sym.fullNameString,
+                                    if (name.isTypeName) "type" else "term",
+                                    _ + "_t", alternatives)
+                            case t : Tree => subtree(t) match {
                                 case _ =>
-                                    DebugOut.not_implemented("getname()", elt)
+                                    DebugOut.not_implemented("getname(tree)", elt, elt.getClass)
                                     null
                             }
+                        })
                     }
 
                     def gettype(elt : Tree) : nodes.Type = {
-                        DebugOut.not_implemented("gettype()", elt, elt.symbol)
-                        null
+                        elt.symbol.fullNameString match {
+                            case "scala.Int" => nodes.TypePrimitive.int32type
+                            case _ =>
+                                DebugOut.not_implemented("gettype()", elt, elt.symbol.fullNameString)
+                                null
+                        }
                     }
 
-                    def subtree(tree : Tree) = getSketchAST(tree, info)
+                    def subtree(tree : Tree) = getSketchAST(tree, new ContextInfo(info))
                     def subarr(arr : List[Tree]) =
                         new SketchNodeList( (for (elt <- arr) yield subtree(elt)).toArray )
 
 
 
                     // === primary translation code ===
+                    DebugOut.print(info.ident +
+                        "SKETCH AST translation for Scala tree", tree.getClass)
                     new SketchNodeWrapper(tree match {
                         case Apply(fun, args) =>
                             new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
@@ -310,7 +329,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                             val next_info = new ContextInfo(info)
                             next_info.curr_clazz = new nodes.scalaproxy.ScalaClass(
                                 ctx, getname(name), subarr(tparams))
-                            symbol_type_map.put(tree.symbol, next_info.curr_clazz)
+                            symbol_type_map.put(tree.symbol.fullNameString, next_info.curr_clazz)
                             getSketchAST(impl, next_info)
                             next_info.curr_clazz
 
@@ -319,6 +338,9 @@ class SketchRewriter(val global: Global) extends Plugin {
                             val params = vparamss match {
                                 case Nil => List[ValDef]()
                                 case vparams :: Nil => vparams
+                                case _ =>
+                                    DebugOut.assertFalse("unknown defdef params", vparamss)
+                                    null
                             }
                             new nodes.Function(ctx, nodes.Function.FUNC_PHASE,
                                 getname(name), gettype(tpe), subarr(params), subtree(body))
@@ -365,10 +387,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                             null
 
                         // qual may reference an outer class.
-                        case This(qual) =>
-                            DebugOut.not_implemented("this", qual)
-                            // arg - referenced class
-                            new nodes.scalaproxy.ScalaThis(ctx, null)
+                        case This(qual) => new nodes.scalaproxy.ScalaThis(ctx,
+                            symbol_type_map.get(tree.symbol.fullNameString).get)
 
                         case Throw(expr) =>
                             new nodes.scalaproxy.ScalaThrow(ctx, subtree(expr))
@@ -390,7 +410,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case ValDef(mods, name, typ, rhs) => new nodes.StmtVarDecl(
                             ctx, gettype(typ), getname(name), subtree(rhs))
 
-                        case EmptyTree => tree
+                        case EmptyTree =>
+                            new nodes.scalaproxy.ScalaEmptyExpression(ctx)
 
                         case _ =>
                             DebugOut.print("not matched " + tree)

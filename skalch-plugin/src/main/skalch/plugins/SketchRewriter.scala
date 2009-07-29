@@ -255,7 +255,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                     // TODO - fill in source values...
                     val ctx : nodes.FENode = null
 
-                    if (visited contains tree) {
+                    if (visited != EmptyTree && visited.contains(tree)) {
                         DebugOut.print("warning: already visited tree", tree)
                     }
                     visited.add(tree)
@@ -300,8 +300,10 @@ class SketchRewriter(val global: Global) extends Plugin {
 
 
                     // === primary translation code ===
+                    val tree_str = tree.toString.replace("\n", " ")
                     DebugOut.print(info.ident +
                         "SKETCH AST translation for Scala tree", tree.getClass)
+                    DebugOut.print(info.ident + tree_str.substring(0, Math.min(tree_str.length, 60)))
                     new SketchNodeWrapper(tree match {
                         case Apply(fun, args) =>
                             new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
@@ -342,8 +344,13 @@ class SketchRewriter(val global: Global) extends Plugin {
                                     DebugOut.assertFalse("unknown defdef params", vparamss)
                                     null
                             }
+                            // add the return node
+                            val body_stmt = (subtree(body).node match {
+                                case stmt : nodes.Statement => stmt
+                                case expr : nodes.Expression => new nodes.StmtReturn(ctx, expr)
+                            })
                             new nodes.Function(ctx, nodes.Function.FUNC_PHASE,
-                                getname(name), gettype(tpe), subarr(params), subtree(body))
+                                getname(name), gettype(tpe), subarr(params), body_stmt)
 
                         case Ident(name) =>
                             new nodes.ExprVar(ctx, getname(name))
@@ -383,7 +390,13 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                         case Template(parents, self, body) =>
                             DebugOut.print("not visiting parents", parents)
-                            subarr(body)
+                            for (sketch_node <- subarr(body).list) sketch_node match {
+                                case f : nodes.Function => ()
+                                case _ =>
+                                    DebugOut.not_implemented("element", "'" + sketch_node + "'",
+                                        "in class body")
+                                    ()
+                            }
                             null
 
                         // qual may reference an outer class.

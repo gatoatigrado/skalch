@@ -56,6 +56,10 @@ class SketchRewriter(val global: Global) extends Plugin {
         }
     }
 
+    /**
+     * FIRST TASK - BEFORE THE TYPE SYSTEM.
+     * Rewrite ??(arglist) to ??(uid, arglist)
+     */
     private object ConstructRewriter extends SketchPluginComponent(global) {
         import global._
         val runsAfter = List[String]("parser");
@@ -109,6 +113,10 @@ class SketchRewriter(val global: Global) extends Plugin {
         }
     }
 
+    /**
+     * SECOND TASK - AFTER JVM.
+     * Write out XML hints files -- info about constructs and source files.
+     */
     private object FileCopyComponent extends SketchPluginComponent(global) {
         val runsAfter = List("jvm")
         val phaseName = "sketch_copy_src_desc"
@@ -203,12 +211,23 @@ class SketchRewriter(val global: Global) extends Plugin {
 
 
     /**
+     * THIRD TASK - ALSO AFTER JVM.
      * Generate the SKETCH AST and dump it via xstream.
      */
     private object SketchGeneratorComponent extends SketchPluginComponent(global) {
         val runsAfter = List("jvm")
         val phaseName = "sketch_static_ast_gen"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
+
+        /**
+         * support early creation styles, where the sketch node is created
+         * before its children are traversed. used for classes, which are
+         * directly lowered into global functions.
+         */
+        class ContextInfo(val old : ContextInfo) {
+            var curr_clazz : nodes.scalaproxy.ScalaClass =
+                if (old != null) old.curr_clazz else null
+        }
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             import global._
@@ -220,12 +239,17 @@ class SketchRewriter(val global: Global) extends Plugin {
             }
 
             class SketchAstGenerator() extends Transformer {
-                var visited = new HashSet[Tree]()
+                val visited = new HashSet[Tree]()
+                val symbol_type_map = new HashMap[Symbol, nodes.Type]()
                 var root : Object = null
 
                 import SketchNodes.{SketchNodeWrapper, SketchNodeList,
-                    get_expr, get_stmt, get_expr_arr, get_stmt_arr}
-                def getSketchAST(tree : Tree) : SketchNodeWrapper = {
+                    get_expr, get_stmt, get_param, get_expr_arr, get_stmt_arr, get_param_arr}
+
+                /**
+                 * The main recursive call to create SKETCH nodes.
+                 */
+                def getSketchAST(tree : Tree, info : ContextInfo) : SketchNodeWrapper = {
                     // TODO - fill in source values...
                     val ctx : nodes.FENode = null
 
@@ -234,9 +258,13 @@ class SketchRewriter(val global: Global) extends Plugin {
                     }
                     visited.add(tree)
 
+
+
+                    // === accessor functions ===
+
                     def getname(elt : Object) : String = elt match {
                         case name : Name => DebugOut.not_implemented("getname()", name); null
-                        case tree : Tree => getSketchAST(tree) match {
+                        case tree : Tree => subtree(tree) match {
                                 case _ =>
                                     DebugOut.not_implemented("getname()", elt)
                                     null
@@ -248,95 +276,121 @@ class SketchRewriter(val global: Global) extends Plugin {
                         null
                     }
 
-                    def subelt(tree : Tree) = getSketchAST(tree)
+                    def subtree(tree : Tree) = getSketchAST(tree, info)
                     def subarr(arr : List[Tree]) =
-                        new SketchNodeList( (for (elt <- arr) yield getSketchAST(elt)).toArray )
+                        new SketchNodeList( (for (elt <- arr) yield subtree(elt)).toArray )
 
+
+
+                    // === primary translation code ===
                     new SketchNodeWrapper(tree match {
                         case Apply(fun, args) =>
                             new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
 
                         case ArrayValue(elemtpt, elems) =>
-                            val unused = getSketchAST(elemtpt)
-                            DebugOut.print("unused: elemtpt", unused)
+                            val unused = subtree(elemtpt)
+                            DebugOut.not_implemented("unused: elemtpt", unused)
                             new nodes.ExprArrayInit(ctx, subarr(elems))
 
                         case Assign(lhs, rhs) =>
-                            new nodes.StmtAssign(ctx, subelt(lhs), subelt(rhs))
+                            new nodes.StmtAssign(ctx, subtree(lhs), subtree(rhs))
 
                         case Bind(name, body) =>
                             new nodes.scalaproxy.ScalaBindStmt(
-                                ctx, gettype(body), getname(name), subelt(body))
+                                ctx, gettype(body), getname(name), subtree(body))
 
                         case Block(stmts, expr) =>
-                            new nodes.scalaproxy.ScalaBlock(ctx, subarr(stmts), subelt(expr))
+                            new nodes.scalaproxy.ScalaBlock(ctx, subarr(stmts), subtree(expr))
 
                         case CaseDef(pat, guard, body) =>
                             new nodes.scalaproxy.ScalaCaseStmt(
-                                ctx, subelt(pat), subelt(guard), subelt(body))
+                                ctx, subtree(pat), subtree(guard), subtree(body))
 
-                        case ClassDef() =>
-                            new nodes.scalaproxy.ScalaClass()
+                        case ClassDef(mods, name, tparams, impl) =>
+                            val next_info = new ContextInfo(info)
+                            next_info.curr_clazz = new nodes.scalaproxy.ScalaClass(
+                                ctx, getname(name), subarr(tparams))
+                            symbol_type_map.put(tree.symbol, next_info.curr_clazz)
+                            getSketchAST(impl, next_info)
+                            next_info.curr_clazz
 
-                        case DefDef() =>
-                            new nodes.Function()
+                        case DefDef(mods, name, tparams, vparamss, tpe, body) =>
+                            // info.curr_clazz
+                            val params = vparamss match {
+                                case Nil => List[ValDef]()
+                                case vparams :: Nil => vparams
+                            }
+                            new nodes.Function(ctx, nodes.Function.FUNC_PHASE,
+                                getname(name), gettype(tpe), subarr(params), subtree(body))
 
-                        case Ident() =>
-                            new nodes.ExprVar()
+                        case Ident(name) =>
+                            new nodes.ExprVar(ctx, getname(name))
 
-                        case If() =>
-                            new nodes.StmtIfThen()
+                        case If(cond, thenstmt, elsestmt) => new nodes.StmtIfThen(
+                                ctx, subtree(cond), subtree(thenstmt), subtree(elsestmt))
 
-                        case LabelDef() =>
-                            new nodes.scalaproxy.ScalaGotoLabel()
+                        case LabelDef(name, params, rhs) =>
+                            new nodes.scalaproxy.ScalaGotoLabel(
+                                ctx, getname(name), subarr(params), subtree(rhs))
 
-                        case Literal() =>
-                            new nodes.scalaproxy.ScalaConstantLiteral()
+                        case Literal(value) =>
+                            DebugOut.not_implemented("scala constant literal", value)
+                            null
+                            // new nodes.scalaproxy.ScalaConstantLiteral()
 
-                        case Match() =>
-                            new nodes.scalaproxy.ScalaMatchStmt()
+                        case Match(selector, cases) =>
+                            new nodes.scalaproxy.ScalaMatchStmt(
+                                ctx, subtree(selector), subarr(cases))
 
-                        case New() =>
-                            new nodes.ExprNew()
+                        case New(tpt : Tree) =>
+                            new nodes.ExprNew(ctx, gettype(tpt))
 
-                        case PackageDef() =>
+                        case PackageDef(pid, stats) =>
+                            println("NOTE - new package...")
+                            subarr(stats)
                             new nodes.scalaproxy.ScalaPackageDef()
 
-                        case Return() =>
-                            new nodes.StmtReturn()
+                        case Return(expr) =>
+                            new nodes.StmtReturn(ctx, subtree(expr))
 
-                        case Select() =>
-                            new nodes.ExprField()
+                        case Select(qualifier, name) =>
+                            new nodes.ExprField(ctx, subtree(qualifier), getname(name))
 
-                        case Super() =>
-                            new nodes.scalaproxy.ScalaSuperRef()
+                        case Super(qual, mix) =>
+                            new nodes.scalaproxy.ScalaSuperRef(ctx, gettype(tree))
 
-                        case Template() =>
-                            new nodes.scalaproxy.ScalaClassInside()
+                        case Template(parents, self, body) =>
+                            DebugOut.print("not visiting parents", parents)
+                            subarr(body)
+                            null
 
-                        case This() =>
-                            new nodes.scalaproxy.ScalaThis()
+                        // qual may reference an outer class.
+                        case This(qual) =>
+                            DebugOut.not_implemented("this", qual)
+                            // arg - referenced class
+                            new nodes.scalaproxy.ScalaThis(ctx, null)
 
-                        case Throw() =>
-                            new nodes.scalaproxy.ScalaThrow()
+                        case Throw(expr) =>
+                            new nodes.scalaproxy.ScalaThrow(ctx, subtree(expr))
 
-                        case Try() =>
-                            new nodes.scalaproxy.ScalaTryStmt()
+                        case Try(block, catches, finalizer) =>
+                            new nodes.scalaproxy.ScalaTryCatchFinally(
+                                ctx, subtree(block), subarr(catches), subtree(finalizer))
 
-                        case TypeApply() =>
-                            new nodes.scalaproxy.ScalaTypeApply()
+                        case TypeApply(fcn, args) =>
+                            DebugOut.not_implemented("type apply", subtree(fcn), subarr(args))
+                            new nodes.scalaproxy.ScalaTypeApply(ctx, null, null)
 
-                        case TypeTree() =>
-                            new nodes.scalaproxy.ScalaType()
+                        case TypeTree() => gettype(tree)
 
-                        case Typed() =>
-                            new nodes.scalaproxy.ScalaTypedExpression()
+                        case Typed(expr, typ) =>
+                            new nodes.scalaproxy.ScalaTypedExpression(
+                                ctx, subtree(expr), gettype(typ))
 
-                        case ValDef() =>
-                            new nodes.StmtVarDecl()
+                        case ValDef(mods, name, typ, rhs) => new nodes.StmtVarDecl(
+                            ctx, gettype(typ), getname(name), subtree(rhs))
 
                         case EmptyTree => tree
-                        */
 
                         case _ =>
                             DebugOut.print("not matched " + tree)
@@ -345,11 +399,14 @@ class SketchRewriter(val global: Global) extends Plugin {
                 }
 
                 override def transform(tree : Tree) : Tree = {
-                    root = getSketchAST(tree)
+                    root = getSketchAST(tree, new ContextInfo(null))
                     tree
                 }
             }
 
+            /**
+             * Make sure we're handling all of the nodes in the Scala AST.
+             */
             class CheckVisited(transformed : HashSet[Tree]) extends Transformer {
                 override def transform(tree : Tree) : Tree = {
                     if (!transformed.contains(tree)) {

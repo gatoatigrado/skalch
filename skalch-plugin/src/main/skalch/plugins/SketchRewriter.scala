@@ -13,6 +13,7 @@ import nsc.util.{FakePos, OffsetPosition, RangePosition}
 
 import sketch.util.DebugOut
 import streamit.frontend.nodes
+import streamit.frontend.nodes.scala._
 
 /*
 import skalch.DynamicSketch
@@ -225,7 +226,7 @@ class SketchRewriter(val global: Global) extends Plugin {
          * directly lowered into global functions.
          */
         class ContextInfo(val old : ContextInfo) {
-            var curr_clazz : nodes.scalaproxy.ScalaClass =
+            var curr_clazz : core.ScalaClass =
                 if (old != null) old.curr_clazz else null
             var ident : String = if (old == null) "" else ("    " + old.ident)
         }
@@ -317,19 +318,19 @@ class SketchRewriter(val global: Global) extends Plugin {
                             new nodes.StmtAssign(ctx, subtree(lhs), subtree(rhs))
 
                         case Bind(name, body) =>
-                            new nodes.scalaproxy.ScalaBindStmt(
+                            new stmts.ScalaBindStmt(
                                 ctx, gettype(body), getname(name), subtree(body))
 
-                        case Block(stmts, expr) =>
-                            new nodes.scalaproxy.ScalaBlock(ctx, subarr(stmts), subtree(expr))
+                        case Block(stmt_arr, expr) =>
+                            new stmts.ScalaBlock(ctx, subarr(stmt_arr), subtree(expr))
 
                         case CaseDef(pat, guard, body) =>
-                            new nodes.scalaproxy.ScalaCaseStmt(
+                            new stmts.ScalaCaseStmt(
                                 ctx, subtree(pat), subtree(guard), subtree(body))
 
                         case ClassDef(mods, name, tparams, impl) =>
                             val next_info = new ContextInfo(info)
-                            next_info.curr_clazz = new nodes.scalaproxy.ScalaClass(
+                            next_info.curr_clazz = new core.ScalaClass(
                                 ctx, getname(name), subarr(tparams))
                             symbol_type_map.put(tree.symbol.fullNameString, next_info.curr_clazz)
                             getSketchAST(impl, next_info)
@@ -349,7 +350,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                                 case stmt : nodes.Statement => stmt
                                 case expr : nodes.Expression => new nodes.StmtReturn(ctx, expr)
                             })
-                            new nodes.Function(ctx, nodes.Function.FUNC_PHASE,
+                            new core.ScalaClassFunction(ctx, nodes.Function.FUNC_PHASE,
                                 getname(name), gettype(tpe), subarr(params), body_stmt)
 
                         case Ident(name) =>
@@ -359,16 +360,16 @@ class SketchRewriter(val global: Global) extends Plugin {
                                 ctx, subtree(cond), subtree(thenstmt), subtree(elsestmt))
 
                         case LabelDef(name, params, rhs) =>
-                            new nodes.scalaproxy.ScalaGotoLabel(
+                            new core.ScalaGotoLabel(
                                 ctx, getname(name), subarr(params), subtree(rhs))
 
                         case Literal(value) =>
                             DebugOut.not_implemented("scala constant literal", value)
                             null
-                            // new nodes.scalaproxy.ScalaConstantLiteral()
+                            // new vars.ScalaConstantLiteral()
 
                         case Match(selector, cases) =>
-                            new nodes.scalaproxy.ScalaMatchStmt(
+                            new stmts.ScalaMatchStmt(
                                 ctx, subtree(selector), subarr(cases))
 
                         case New(tpt : Tree) =>
@@ -376,8 +377,8 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                         case PackageDef(pid, stats) =>
                             println("NOTE - new package...")
-                            subarr(stats)
-                            new nodes.scalaproxy.ScalaPackageDef()
+                            DebugOut.print("stats", subarr(stats))
+                            new proxy.ScalaPackageDef()
 
                         case Return(expr) =>
                             new nodes.StmtReturn(ctx, subtree(expr))
@@ -386,12 +387,12 @@ class SketchRewriter(val global: Global) extends Plugin {
                             new nodes.ExprField(ctx, subtree(qualifier), getname(name))
 
                         case Super(qual, mix) =>
-                            new nodes.scalaproxy.ScalaSuperRef(ctx, gettype(tree))
+                            new vars.ScalaSuperRef(ctx, gettype(tree))
 
                         case Template(parents, self, body) =>
                             DebugOut.print("not visiting parents", parents)
                             for (sketch_node <- subarr(body).list) sketch_node match {
-                                case f : nodes.Function => ()
+                                case f : core.ScalaClassFunction => ()
                                 case _ =>
                                     DebugOut.not_implemented("element", "'" + sketch_node + "'",
                                         "in class body")
@@ -400,31 +401,31 @@ class SketchRewriter(val global: Global) extends Plugin {
                             null
 
                         // qual may reference an outer class.
-                        case This(qual) => new nodes.scalaproxy.ScalaThis(ctx,
+                        case This(qual) => new vars.ScalaThis(ctx,
                             symbol_type_map.get(tree.symbol.fullNameString).get)
 
                         case Throw(expr) =>
-                            new nodes.scalaproxy.ScalaThrow(ctx, subtree(expr))
+                            new stmts.ScalaThrow(ctx, subtree(expr))
 
                         case Try(block, catches, finalizer) =>
-                            new nodes.scalaproxy.ScalaTryCatchFinally(
+                            new stmts.ScalaTryCatchFinally(
                                 ctx, subtree(block), subarr(catches), subtree(finalizer))
 
                         case TypeApply(fcn, args) =>
                             DebugOut.not_implemented("type apply", subtree(fcn), subarr(args))
-                            new nodes.scalaproxy.ScalaTypeApply(ctx, null, null)
+                            new exprs.ScalaTypeApply(ctx, null, null)
 
                         case TypeTree() => gettype(tree)
 
                         case Typed(expr, typ) =>
-                            new nodes.scalaproxy.ScalaTypedExpression(
+                            new proxy.ScalaTypedExpression(
                                 ctx, subtree(expr), gettype(typ))
 
                         case ValDef(mods, name, typ, rhs) => new nodes.StmtVarDecl(
                             ctx, gettype(typ), getname(name), subtree(rhs))
 
                         case EmptyTree =>
-                            new nodes.scalaproxy.ScalaEmptyExpression(ctx)
+                            new proxy.ScalaEmptyExpression(ctx)
 
                         case _ =>
                             DebugOut.print("not matched " + tree)

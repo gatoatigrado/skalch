@@ -157,12 +157,6 @@ abstract class ScalaSketchNodeMap {
 
             // qual may reference an outer class.
             case This(qual) =>
-                val clazz = info.curr_clazz
-                DebugOut.print(tree)
-                DebugOut.print(tree.symbol)
-                DebugOut.print(clazz)
-                DebugOut.print(qual)
-                DebugOut.not_implemented("this symbol")
                 class_connect.connect_from(tree.symbol, new vars.ScalaThis(ctx))
 
             case Throw(expr) =>

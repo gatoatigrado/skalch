@@ -277,9 +277,11 @@ class SketchRewriter(val global: Global) extends Plugin {
                     // TODO - fill in source values...
                     val start = tree.pos.focusStart
                     val end = tree.pos.focusEnd
+                    def optionvalue(x : Option[Int]) = if (x.isDefined) x.get else 0
                     val the_ctx : core.ScalaFENode = new core.ScalaFENode(
-                        comp_unit.source.file.path, start.line.get, start.column.get,
-                        end.line.get, end.column.get)
+                        comp_unit.source.file.path,
+                        optionvalue(start.line), optionvalue(start.column),
+                        optionvalue(end.line), optionvalue(end.column))
 
 
 

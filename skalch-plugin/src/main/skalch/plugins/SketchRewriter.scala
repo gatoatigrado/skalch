@@ -236,6 +236,11 @@ class SketchRewriter(val global: Global) extends Plugin {
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             import global._
 
+            override def run {
+                scalaPrimitives.init
+                super.run
+            }
+
             def apply(comp_unit : CompilationUnit) {
                 val ast_gen = new SketchAstGenerator()
                 ast_gen.transform(comp_unit.body)
@@ -252,6 +257,14 @@ class SketchRewriter(val global: Global) extends Plugin {
                 import SketchNodes.{SketchNodeWrapper, SketchNodeList,
                     get_expr, get_stmt, get_param, get_expr_arr,
                     get_stmt_arr, get_param_arr, get_object_arr}
+
+                val goto_connect = new SketchNodeConnector[
+                    Symbol, core.ScalaGotoCall, core.ScalaGotoLabel]
+                {
+                    def connect(from : core.ScalaGotoCall, to : core.ScalaGotoLabel) {
+                        from.setLabel(to)
+                    }
+                }
 
                 /**
                  * The main recursive call to create SKETCH nodes.
@@ -326,7 +339,7 @@ class SketchRewriter(val global: Global) extends Plugin {
 
 
                     // === primary translation code ===
-                    // most likely you want to fix a bug in the gettype functions 
+                    // most likely you want to fix a bug in the gettype / getname functions
                     val tree_str = tree.toString.replace("\n", " ")
                     DebugOut.print(info.ident +
                         "SKETCH AST translation for Scala tree", tree.getClass)
@@ -335,7 +348,13 @@ class SketchRewriter(val global: Global) extends Plugin {
                         // some code from GenICode.scala
                         // that file is a lot more complete though.
                         case Apply(fun, args) =>
-                            new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
+                            val sym = fun.symbol
+                            if (sym.isLabel) {
+                                goto_connect.connect_from(sym, new core.ScalaGotoCall(ctx))
+                            } else if (scalaPrimitives.isPrimitive(sym)) {
+                            } else {
+                                new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
+                            }
 
                         case ArrayValue(elemtpt, elems) =>
                             val unused = subtree(elemtpt)
@@ -388,8 +407,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                                 ctx, subtree(cond), subtree(thenstmt), subtree(elsestmt))
 
                         case LabelDef(name, params, rhs) =>
-                            new core.ScalaGotoLabel(
-                                ctx, getname(name), subarr(params), subtree(rhs))
+                            goto_connect.connect_to(tree.symbol, new core.ScalaGotoLabel(
+                                ctx, getname(name), subarr(params), subtree(rhs)))
 
                         case Literal(value) =>
                             DebugOut.not_implemented("scala constant literal", value)
@@ -463,6 +482,7 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                 override def transform(tree : Tree) : Tree = {
                     root = getSketchAST(tree, new ContextInfo(null))
+                    goto_connect.checkDone()
                     tree
                 }
             }

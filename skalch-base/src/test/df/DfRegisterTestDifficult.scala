@@ -52,7 +52,7 @@ class DfRegisterSketch() extends AbstractDfSketch() {
                 skAddCost(1)
             }
             //synthAssertTerminal(isCorrect(i + 1))
-    
+
             while (color < 3) {
                 registers(color).value += 1
                 color += 1

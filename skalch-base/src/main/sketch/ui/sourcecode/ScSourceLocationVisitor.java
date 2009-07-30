@@ -1,5 +1,8 @@
 package sketch.ui.sourcecode;
 
+import sketch.util.sourcecode.ScSourceCache;
+import sketch.util.sourcecode.ScSourceLocation;
+
 /**
  * visitor which will e.g. print a string corresponding to a source location
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]

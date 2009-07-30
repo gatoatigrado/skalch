@@ -24,11 +24,11 @@ import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
-import sketch.ui.sourcecode.ScSourceCache;
 import sketch.ui.sourcecode.ScSourceConstruct;
-import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.ui.sourcecode.ScSourceTraceVisitor;
 import sketch.util.DebugOut;
+import sketch.util.sourcecode.ScSourceCache;
+import sketch.util.sourcecode.ScSourceLocation;
 
 /**
  * kinda because I can't resist using Eclipse's formatter (it also separates

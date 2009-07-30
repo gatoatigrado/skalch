@@ -6,6 +6,13 @@ import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
 
+/**
+ * Allocate names to SKETCH nodes.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
+ */
 object SketchNames {
     case class LogicalName(val name : String,
         val symbolName : String,

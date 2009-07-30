@@ -2,10 +2,11 @@ package sketch.ui.sourcecode;
 
 import nu.xom.Element;
 import sketch.dyn.ScDynamicSketch;
-import sketch.ui.sourcecode.ScSourceLocation.LineColumn;
 import sketch.util.DebugOut;
 import sketch.util.XmlEltWrapper;
 import sketch.util.XmlNoXpathMatchException;
+import sketch.util.sourcecode.ScSourceLocation;
+import sketch.util.sourcecode.ScSourceLocation.LineColumn;
 
 /**
  * A source construct info bound to a location in source.

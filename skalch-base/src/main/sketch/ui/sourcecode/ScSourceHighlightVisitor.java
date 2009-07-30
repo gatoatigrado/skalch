@@ -4,6 +4,8 @@ import java.util.regex.Pattern;
 
 import sketch.util.ScRichString;
 import sketch.util.ScHtmlUtil;
+import sketch.util.sourcecode.ScSourceCache;
+import sketch.util.sourcecode.ScSourceLocation;
 
 /**
  * basic scala source code highlighting (bold keywords)

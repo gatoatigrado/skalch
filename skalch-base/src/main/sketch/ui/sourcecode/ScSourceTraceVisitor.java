@@ -4,6 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import sketch.util.DebugOut;
+import sketch.util.sourcecode.ScSourceCache;
+import sketch.util.sourcecode.ScSourceLocation;
 
 /**
  * formats values chosen by the synthesizer.

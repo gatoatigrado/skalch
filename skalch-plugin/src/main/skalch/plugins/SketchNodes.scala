@@ -10,8 +10,13 @@ import scala.tools.nsc
 import nsc._
 
 /**
+ * Uses Scala views to convert expressions to statements and vice versa.
  * NOTE - this could be cleaned up using an object and
  * multiple definitions of functions for different types.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
  */
 object SketchNodes {
     class SketchNodeWrapper(val node : Object) {

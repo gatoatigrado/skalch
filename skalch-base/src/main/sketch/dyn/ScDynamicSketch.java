@@ -10,8 +10,8 @@ import sketch.dyn.inputs.ScInputConf;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.sourcecode.ScSourceConstruct;
-import sketch.ui.sourcecode.ScSourceLocation;
 import sketch.util.DebugOut;
+import sketch.util.sourcecode.ScSourceLocation;
 
 /**
  * Scala classes inherit this, so the Java code can make nice API calls.

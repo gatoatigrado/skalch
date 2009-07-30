@@ -5,10 +5,10 @@ import sketch.dyn.ga.ScGaOptions;
 import sketch.dyn.stats.ScStatsOptions;
 import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.ui.ScUiOptions;
-import sketch.ui.sourcecode.ScSourceCache;
 import sketch.util.DebugOut;
 import sketch.util.cli.CliOptionResult;
 import sketch.util.cli.CliParser;
+import sketch.util.sourcecode.ScSourceCache;
 
 /**
  * all options used by the backend

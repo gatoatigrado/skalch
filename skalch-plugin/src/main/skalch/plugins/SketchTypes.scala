@@ -10,8 +10,12 @@ import scala.tools.nsc
 import nsc._
 
 /**
- * NOTE - this could be cleaned up using an object and
- * multiple definitions of functions for different types.
+ * Resolves a Scala type or type tree to a node
+ * extending streamit.frontend.nodes.Type.
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you
+ *          make changes, please consider contributing back!
  */
 abstract class SketchTypes {
     val global : Global
@@ -41,5 +45,4 @@ abstract class SketchTypes {
                 null
         }
     }
-    def gettype(tree : Tree) : nodes.Type = gettype(tree.tpe)
 }

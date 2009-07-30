@@ -6,6 +6,9 @@ import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
 
+import scala.tools.nsc
+import nsc._
+
 /**
  * NOTE - this could be cleaned up using an object and
  * multiple definitions of functions for different types.

@@ -22,7 +22,6 @@ import sketch.util.cli
 */
 
 class SketchRewriter(val global: Global) extends Plugin {
-
     val name = "sketchrewriter"
     val fname_extension = ".hints.xml"
     val description = "de-sugars sketchy constructs"
@@ -218,6 +217,7 @@ class SketchRewriter(val global: Global) extends Plugin {
      * Generate the SKETCH AST and dump it via xstream.
      */
     private object SketchGeneratorComponent extends SketchPluginComponent(global) {
+        import global._
         val runsAfter = List("jvm")
         val phaseName = "sketch_static_ast_gen"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
@@ -234,7 +234,6 @@ class SketchRewriter(val global: Global) extends Plugin {
         }
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
-            import global._
 
             override def run {
                 scalaPrimitives.init
@@ -273,6 +272,14 @@ class SketchRewriter(val global: Global) extends Plugin {
                     // TODO - fill in source values...
                     val ctx : nodes.FENode = null
 
+                    val _glbl : SketchGeneratorComponent.this.global.type = global
+                    val _ctx = ctx
+
+                    object sketch_types extends {
+                        val global : SketchGeneratorComponent.this.global.type = _glbl
+                        val ctx = _ctx
+                    } with SketchTypes
+
                     if (visited != EmptyTree && visited.contains(tree)) {
                         DebugOut.print("warning: already visited tree", tree)
                     }
@@ -281,6 +288,7 @@ class SketchRewriter(val global: Global) extends Plugin {
 
 
                     // === accessor functions ===
+                    import sketch_types.gettype
 
                     def getname(elt : Object, sym : Symbol = tree.symbol) : String = {
                         name_string_factory.get_name(elt match {
@@ -301,32 +309,6 @@ class SketchRewriter(val global: Global) extends Plugin {
                             }
                         })
                     }
-
-                    def gettype_inner(tpe : Type) : nodes.Type = {
-                        tpe.typeSymbol.fullNameString match {
-                            case "scala.Int" => nodes.TypePrimitive.int32type
-                            case "scala.Array" =>
-                                tpe.typeArgs match {
-                                    case Nil =>
-                                        DebugOut.assertFalse("array with no type args")
-                                        null
-                                    case t :: Nil => new nodes.TypeArray(
-                                        gettype_inner(t),
-                                        new proxy.ScalaUnknownArrayLength(ctx))
-                                    case lst =>
-                                        DebugOut.assertFalse("array with many args " + lst)
-                                        null
-                                }
-                            case "skalch.DynamicSketch$InputGenerator" =>
-                                new skproxy.ScalaInputGenType()
-                            case "skalch.DynamicSketch$HoleArray" =>
-                                new skproxy.ScalaHoleArrayType()
-                            case _ => DebugOut.not_implemented("gettype()",
-                                    tpe, tpe.typeSymbol.fullNameString)
-                                null
-                        }
-                    }
-                    def gettype(tree : Tree) : nodes.Type = gettype_inner(tree.tpe)
 
                     def subtree(tree : Tree) = {
                         val rv = getSketchAST(tree, new ContextInfo(info))
@@ -352,6 +334,16 @@ class SketchRewriter(val global: Global) extends Plugin {
                             if (sym.isLabel) {
                                 goto_connect.connect_from(sym, new core.ScalaGotoCall(ctx))
                             } else if (scalaPrimitives.isPrimitive(sym)) {
+                                // much taken from GenICode.scala
+                                val Select(receiver, _) = fun
+                                val code = scalaPrimitives.getPrimitive(sym, receiver.tpe)
+                                val sketchCode = (code match {
+                                    case scalaPrimitives.ADD | scalaPrimitives.SUB |
+                                        scalaPrimitives.MUL => 0
+                                    case _ => 1
+                                })
+                                DebugOut.assertFalse("not implemented...")
+                                null
                             } else {
                                 new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
                             }

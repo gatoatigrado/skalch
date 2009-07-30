@@ -27,7 +27,9 @@ class SketchRewriter(val global: Global) extends Plugin {
     val fname_extension = ".hints.xml"
     val description = "de-sugars sketchy constructs"
     val components = List[PluginComponent](ConstructRewriter,
-        FileCopyComponent, SketchGeneratorComponent)
+        FileCopyComponent
+        , SketchGeneratorComponent
+        )
     var scalaFileMap = Map[Object, XmlDoc]()
     val fake_pos = FakePos("Inserted literal for call to sketch construct")
 
@@ -244,10 +246,12 @@ class SketchRewriter(val global: Global) extends Plugin {
                 val visited = new HashSet[Tree]()
                 val symbol_type_map = new HashMap[String, nodes.Type]()
                 var root : Object = null
-                val name_string_factory = new SketchNodes.NameStringFactory(false)
+                val name_string_factory = new SketchNames.NameStringFactory(false)
 
-                import SketchNodes.{SketchNodeWrapper, SketchNodeList, LogicalName,
-                    get_expr, get_stmt, get_param, get_expr_arr, get_stmt_arr, get_param_arr, get_object_arr}
+                import SketchNames.LogicalName
+                import SketchNodes.{SketchNodeWrapper, SketchNodeList,
+                    get_expr, get_stmt, get_param, get_expr_arr,
+                    get_stmt_arr, get_param_arr, get_object_arr}
 
                 /**
                  * The main recursive call to create SKETCH nodes.
@@ -278,34 +282,58 @@ class SketchRewriter(val global: Global) extends Plugin {
                                     if (name.isTypeName) "type" else "term",
                                     _ + "_t", alternatives)
                             case t : Tree => subtree(t) match {
-                                case _ =>
-                                    DebugOut.not_implemented("getname(tree)", elt, elt.getClass)
+                                case subtree =>
+                                    DebugOut.not_implemented("getname(tree)", tree, elt, subtree)
                                     null
                             }
                         })
                     }
 
-                    def gettype(elt : Tree) : nodes.Type = {
-                        elt.symbol.fullNameString match {
+                    def gettype_inner(tpe : Type) : nodes.Type = {
+                        tpe.typeSymbol.fullNameString match {
                             case "scala.Int" => nodes.TypePrimitive.int32type
-                            case _ =>
-                                DebugOut.not_implemented("gettype()", elt, elt.symbol.fullNameString)
+                            case "scala.Array" =>
+                                tpe.typeArgs match {
+                                    case Nil =>
+                                        DebugOut.assertFalse("array with no type args")
+                                        null
+                                    case t :: Nil => new nodes.TypeArray(
+                                        gettype_inner(t),
+                                        new proxy.ScalaUnknownArrayLength(ctx))
+                                    case lst =>
+                                        DebugOut.assertFalse("array with many args " + lst)
+                                        null
+                                }
+                            case "skalch.DynamicSketch$InputGenerator" =>
+                                new skproxy.ScalaInputGenType()
+                            case "skalch.DynamicSketch$HoleArray" =>
+                                new skproxy.ScalaHoleArrayType()
+                            case _ => DebugOut.not_implemented("gettype()",
+                                    tpe, tpe.typeSymbol.fullNameString)
                                 null
                         }
                     }
+                    def gettype(tree : Tree) : nodes.Type = gettype_inner(tree.tpe)
 
-                    def subtree(tree : Tree) = getSketchAST(tree, new ContextInfo(info))
+                    def subtree(tree : Tree) = {
+                        val rv = getSketchAST(tree, new ContextInfo(info))
+                        DebugOut.print(info.ident + ".")
+                        rv
+                    }
                     def subarr(arr : List[Tree]) =
                         new SketchNodeList( (for (elt <- arr) yield subtree(elt)).toArray )
 
 
 
                     // === primary translation code ===
+                    // most likely you want to fix a bug in the gettype functions 
                     val tree_str = tree.toString.replace("\n", " ")
                     DebugOut.print(info.ident +
                         "SKETCH AST translation for Scala tree", tree.getClass)
                     DebugOut.print(info.ident + tree_str.substring(0, Math.min(tree_str.length, 60)))
                     new SketchNodeWrapper(tree match {
+                        // some code from GenICode.scala
+                        // that file is a lot more complete though.
                         case Apply(fun, args) =>
                             new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
 

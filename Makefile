@@ -42,11 +42,13 @@ completed_test: # run the completed test
 gatoatigrado-clean-other: clean # clean relative paths in gatoatigrado's project
 	rm -rf ../SKETCH/target ../SKETCH/mvn-bin ../sketch-util/target
 
-gatoatigrado-build-plugin-deps: # build dependencies for the plugin
+gatoatigrado-build-plugin-deps: # build dependencies for the plugin, use skipdeps=1 to skip
+ifndef skipdeps
 	# maven is messed up, or maybe this is Eclipse's build system
 	rm -rf ~/sandbox/eclipse/sketch/target/classes/SKETCH/util
 	cd ../sketch-util; mvn install
 	cd ../SKETCH; mvn install
+endif
 
 gatoatigrado-plugin-dev: gatoatigrado-build-plugin-deps # gatoatigrado's plugin development (bitonic sort sketch)
 	@make bitonic_plugin

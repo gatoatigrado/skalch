@@ -9,7 +9,7 @@ import scala.tools.nsc
 import nsc._
 import nsc.plugins.{Plugin, PluginComponent}
 import nsc.io.{AbstractFile, PlainFile}
-import nsc.util.{FakePos, OffsetPosition, RangePosition}
+import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
 
 import sketch.util.DebugOut
 import streamit.frontend.nodes
@@ -59,8 +59,8 @@ class SketchRewriter(val global: Global) extends Plugin {
             case rangepos : RangePosition => ("rangepos", List(),
                 List(("start", rangepos.focusStart), ("end", rangepos.focusEnd)))
             case offsetpos : OffsetPosition => ("position", List(
-                ("line", offsetpos.line.get.toString),
-                ("column", offsetpos.column.get.toString)), List())
+                ("line", offsetpos.line.toString),
+                ("column", offsetpos.column.toString)), List())
             case _ => ("unknown", List(("stringrep", x.toString)), List())
         }
     }
@@ -91,14 +91,12 @@ class SketchRewriter(val global: Global) extends Plugin {
 
             // Rewrite calls to ?? to include a call site specific uid
             object CallTransformer extends SketchTransformer {
-                def zeroLenPosition(pos : Object) : RangePosition = pos match {
-                    case rp : RangePosition => new RangePosition(
-                        rp.source0, rp.end - 1, rp.end - 1, rp.end - 1)
-                    case OffsetPosition(src, off) => {
-                        println("note - range positions are not being used.")
-                        new RangePosition( src, off - 1, off - 1, off - 1)
+                def zeroLenPosition(pos : Position) : RangePosition = {
+                    val v = pos match {
+                        case rp : RangePosition => pos.end - 1
+                        case _ => pos.point - 1
                     }
-                    case _ => assert(false, "please enable range positions"); null
+                    new RangePosition(pos.source, v, v, v)
                 }
 
                 def transformSketchClass(clsdef : ClassDef) = null
@@ -263,13 +261,17 @@ class SketchRewriter(val global: Global) extends Plugin {
                         : SketchNodes.SketchNodeWrapper =
                 {
                     // TODO - fill in source values...
-                    val start = tree.pos.focusStart
-                    val end = tree.pos.focusEnd
-                    def optionvalue(x : Option[Int]) = if (x.isDefined) x.get else 0
+                    val start = tree.pos.focusStart match {
+                        case NoPosition => (0, 0)
+                        case t : Position => (t.line, t.column)
+                    }
+                    val end = tree.pos.focusEnd match {
+                        case NoPosition => (0, 0)
+                        case t : Position => (t.line, t.column)
+                    }
                     val the_ctx : core.ScalaFENode = new core.ScalaFENode(
                         comp_unit.source.file.path,
-                        optionvalue(start.line), optionvalue(start.column),
-                        optionvalue(end.line), optionvalue(end.column))
+                        start._1, start._2, end._1, end._2)
 
 
 

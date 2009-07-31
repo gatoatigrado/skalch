@@ -243,14 +243,8 @@ class SketchRewriter(val global: Global) extends Plugin {
 
             class SketchAstGenerator(comp_unit : CompilationUnit) extends Transformer {
                 val visited = new HashSet[Tree]()
-                val symbol_type_map = new HashMap[String, nodes.Type]()
                 var root : Object = null
                 val name_string_factory = new SketchNames.NameStringFactory(false)
-
-                import SketchNames.LogicalName
-                import SketchNodes.{SketchNodeWrapper, SketchNodeList,
-                    get_expr, get_stmt, get_param, get_expr_arr,
-                    get_stmt_arr, get_param_arr, get_object_arr}
 
                 val connectors = ListBuffer[AutoNodeConnector[Symbol]]()
                 def AutoNodeConnector(x : String) = {
@@ -265,7 +259,9 @@ class SketchRewriter(val global: Global) extends Plugin {
                 /**
                  * The main recursive call to create SKETCH nodes.
                  */
-                def getSketchAST(tree : Tree, info : ContextInfo) : SketchNodeWrapper = {
+                def getSketchAST(tree : Tree, info : ContextInfo)
+                        : SketchNodes.SketchNodeWrapper =
+                {
                     // TODO - fill in source values...
                     val start = tree.pos.focusStart
                     val end = tree.pos.focusEnd
@@ -301,7 +297,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                                         case 2 => sym.fullNameString
                                         case 3 => name.toString + "_" + idx.toString
                                     }
-                                    LogicalName(name.toString, sym.fullNameString,
+                                    SketchNames.LogicalName(name.toString, sym.fullNameString,
                                         if (name.isTypeName) "type" else "term",
                                         _ + "_t", alternatives)
                                 case t : Tree => subtree(t) match {
@@ -321,8 +317,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                             DebugOut.print(info.ident + ".")
                             rv
                         }
-                        def subarr(arr : List[Tree]) =
-                            new SketchNodeList( (for (elt <- arr) yield subtree(elt)).toArray )
+                        def subarr(arr : List[Tree]) = new SketchNodes.SketchNodeList(
+                            (for (elt <- arr) yield subtree(elt)).toArray )
                     }
 
 
@@ -337,7 +333,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         "SKETCH AST translation for Scala tree", tree.getClass)
                     DebugOut.print(info.ident + tree_str.substring(0, Math.min(tree_str.length, 60)))
 
-                    new SketchNodeWrapper(sketch_node_map.execute(tree, info))
+                    new SketchNodes.SketchNodeWrapper(sketch_node_map.execute(tree, info))
                 }
 
                 override def transform(tree : Tree) : Tree = {

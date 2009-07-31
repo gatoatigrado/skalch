@@ -2,7 +2,8 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
-import sketch.util.DebugOut
+import ScalaDebug._
+
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
 

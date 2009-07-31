@@ -2,6 +2,8 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
+import ScalaDebug._
+
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -74,37 +76,43 @@ abstract class ScalaSketchNodeMap {
 
             case LSL => new nodes.ExprBinary(ctx, BINOP_LSHIFT, left, right)
             case ASR => new nodes.ExprBinary(ctx, BINOP_RSHIFT, left, right)
+
+            case _ => assertFalse("bad arithmetic op")
         }
     }
 
     def execute(tree : Tree, info : ContextInfo) : Object = {
         tree match {
-            // some code from GenICode.scala
-            // that file is a lot more complete though.
-            case Apply(fun, args) =>
-                val sym = fun.symbol
-                if (sym.isLabel) {
-                    goto_connect.connect_from(sym, new core.ScalaGotoCall(ctx))
-                } else if (scalaPrimitives.isPrimitive(sym)) {
-                    // much taken from GenICode.scala
-                    val Select(receiver, _) = fun
-                    val code = scalaPrimitives.getPrimitive(sym, receiver.tpe)
+            // much code from GenICode.scala; that file is a lot more complete though.
+            case Apply(fcn, args) =>
+                val fcnsym = fcn.symbol
+                if (fcnsym.isLabel) {
+                    return goto_connect.connect_from(fcnsym, new core.ScalaGotoCall(ctx))
+                }
+
+                // otherwise, it's of the form (object or class).(function name)
+                val Select(target_tree, fcn_name) = fcn
+                val target = subtree(target_tree)
+                if (scalaPrimitives.isPrimitive(fcnsym)) {
+                    val code = scalaPrimitives.getPrimitive(fcnsym, target_tree.tpe)
                     args match {
-                        case Nil => unaryExpr(code, subtree(receiver))
-                        case right :: Nil => binaryExpr(code, subtree(receiver), subtree(right))
+                        case Nil => unaryExpr(code, target)
+                        case right :: Nil => binaryExpr(code, target, subtree(right))
+                        case _ => assertFalse("bad argument list for arithmetic op")
                     }
-                } else if (sym.isStaticMember) {
-                    DebugOut.not_implemented("static function call")
-                    new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
-                } else if (sym.isClassConstructor) {
-                    DebugOut.not_implemented("class constructor call"); null
+                } else if (fcnsym.isStaticMember) {
+                    not_implemented("static function call")
+                    new nodes.ExprFunCall(ctx, getname(fcn), subarr(args))
+                } else if (fcnsym.isClassConstructor) {
+                    not_implemented("class constructor call")
                 } else {
-                    new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
+                    class_fcn_connect.connect_from(fcnsym,
+                        new core.ScalaClassFunctionCall(ctx, target, subarr(args)))
                 }
 
             case ArrayValue(elemtpt, elems) =>
                 val unused = subtree(elemtpt)
-                DebugOut.not_implemented("unused: elemtpt", unused)
+                not_implemented("unused: elemtpt", unused)
                 new nodes.ExprArrayInit(ctx, subarr(elems))
 
             case Assign(lhs, rhs) =>
@@ -136,18 +144,18 @@ abstract class ScalaSketchNodeMap {
                     case Nil => List[ValDef]()
                     case vparams :: Nil => vparams
                     case _ =>
-                        DebugOut.assertFalse("unknown defdef params", vparamss)
-                        null
+                        assertFalse("unknown defdef params", vparamss)
                 }
                 // add the return node
                 val body_stmt = (subtree(body).node match {
                     case stmt : nodes.Statement => stmt
                     case expr : nodes.Expression => new nodes.StmtReturn(ctx, expr)
                 })
-                new core.ScalaClassFunction(ctx, nodes.Function.FUNC_PHASE,
-                    tree.symbol.isStaticMember,
-                    info.curr_clazz,
-                    getname(name), gettype(tpe), subarr(params), body_stmt)
+                class_fcn_connect.connect_to(tree.symbol,
+                    new core.ScalaClassFunction(ctx, nodes.Function.FUNC_PHASE,
+                        tree.symbol.isStaticMember,
+                        info.curr_clazz,
+                        getname(name), gettype(tpe), subarr(params), body_stmt))
 
             case Ident(name) =>
                 new nodes.ExprVar(ctx, getname(name))
@@ -160,8 +168,7 @@ abstract class ScalaSketchNodeMap {
                     ctx, getname(name), subarr(params), subtree(rhs)))
 
             case Literal(value) =>
-                DebugOut.not_implemented("scala constant literal", value)
-                null
+                not_implemented("scala constant literal", value)
                 // new vars.ScalaConstantLiteral()
 
             case Match(selector, cases) =>
@@ -186,13 +193,12 @@ abstract class ScalaSketchNodeMap {
                 new vars.ScalaSuperRef(ctx, gettype(tree))
 
             case Template(parents, self, body) =>
-                DebugOut.print("not visiting parents", parents)
+                print("not visiting parents", parents)
                 for (sketch_node <- subarr(body).list) sketch_node match {
                     case f : core.ScalaClassFunction => ()
                     case _ =>
-                        DebugOut.not_implemented("element", "'" + sketch_node + "'",
+                        not_implemented("element", "'" + sketch_node + "'",
                             "in class body")
-                        ()
                 }
                 null
 

@@ -16,14 +16,19 @@ class AutoNodeConnector[Identifier](val acid : String) extends
 {
     def connect(from : AnyRef, to : AnyRef) {
         for (fld <- from.getClass.getFields
-            if (fld.isAnnotationPresent(classOf[nodes.annot.AutoConnect]) &&
-                (fld.getAnnotation(classOf[nodes.annot.AutoConnect]).value() == acid) ))
+            if (fld.isAnnotationPresent(classOf[nodes.annot.AutoConnect])) )
         {
-            fld.set(from, to)
+            val annot = fld.getAnnotation(classOf[nodes.annot.AutoConnect])
+            if (annot.value() == acid) {
+                fld.set(from, to)
+                if (!annot.onConnect.isEmpty) {
+                    from.getClass.getMethod(annot.onConnect).invoke(from)
+                }
+            }
             return
         }
         DebugOut.print("from:", from)
         DebugOut.print("to:", to)
-        DebugOut.assertFalse("AutoNodeConnector - couldn't find field assignable to")
+        DebugOut.assertFalse("AutoNodeConnector - couldn't find [public] field assignable to.")
     }
 }

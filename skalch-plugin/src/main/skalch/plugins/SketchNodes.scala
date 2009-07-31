@@ -35,6 +35,9 @@ object SketchNodes {
             case expr : nodes.Expression => expr
             case stmt : exprs.ScalaExprStmt =>
                 new exprs.ScalaExprStmtWrapper(stmt)
+            case assign : nodes.StmtAssign => new exprs.ScalaNonExpressionUnit(assign)
+            case call : core.ScalaGotoCall => new exprs.ScalaNonExpressionUnit(call)
+            case lbl : core.ScalaGotoLabel => new exprs.ScalaNonExpressionUnit(lbl)
             case _ => not_implemented("get_expr", node)
         }
     }
@@ -42,6 +45,7 @@ object SketchNodes {
     implicit def get_stmt(node : SketchNodeWrapper) : nodes.Statement = {
         node.node match {
             case stmt : nodes.Statement => stmt
+            case unitexpr : exprs.ScalaUnitExpression => new nodes.StmtEmpty(unitexpr)
             case _ => not_implemented("get_stmt", node)
         }
     }

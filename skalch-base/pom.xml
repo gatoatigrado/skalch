@@ -42,9 +42,11 @@
                 </executions>
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
+                    <!--
                     <args>
                         <arg>-Ybrowse:jvm</arg>
                     </args>
+                    -->
                     <compilerPlugins>
                         <compilerPlugin>
                             <groupId>edu.berkeley.cs.sketch</groupId>

@@ -88,10 +88,11 @@ abstract class ScalaSketchNodeMap {
             not_implemented("array new")
         } else if (isArrayLength(code)) {
             not_implemented("array length")
-        } else if (isArrayGet(code)) (args match {
-            case _ => not_implemented("array get", args)
-        }) else if (isArraySet(code)) (args.list.toList match {
-            case idx :: expr :: Nil => new nodes.StmtAssign(ctx,
+        } else if (isArrayGet(code)) (args.list match {
+            case Array(idx) => new nodes.ExprArrayRange(target, idx)
+            case _ => not_implemented("array get with unexpected args", args)
+        }) else if (isArraySet(code)) (args.list match {
+            case Array(idx, expr) => new nodes.StmtAssign(ctx,
                 new nodes.ExprArrayRange(target, idx), expr)
             case _ => not_implemented("array set with unexpected args", args)
         }) else {
@@ -194,6 +195,7 @@ abstract class ScalaSketchNodeMap {
                     case v : Float => new nodes.ExprConstFloat(ctx, v)
                     case v : Int => new nodes.ExprConstInt(ctx, v)
                     case v : String => new nodes.ExprConstStr(ctx, v)
+                    case () => new exprs.ScalaUnitExpression(ctx)
                     case _ => not_implemented("scala constant literal", value.toString)
                 }
                 // new vars.ScalaConstantLiteral()
@@ -206,7 +208,6 @@ abstract class ScalaSketchNodeMap {
                 new nodes.ExprNew(ctx, gettype(tpt))
 
             case PackageDef(pid, stats) =>
-                println("NOTE - new package...")
                 DebugOut.print("stats", subarr(stats))
                 new proxy.ScalaPackageDef()
 
@@ -220,7 +221,7 @@ abstract class ScalaSketchNodeMap {
                 new vars.ScalaSuperRef(ctx, gettype(tree))
 
             case Template(parents, self, body) =>
-                print("not visiting parents", parents)
+                DebugOut.print("not visiting parents", parents)
                 for (sketch_node <- subarr(body).list) sketch_node match {
                     case f : core.ScalaClassFunction => ()
                     case _ =>
@@ -257,8 +258,7 @@ abstract class ScalaSketchNodeMap {
                 new proxy.ScalaEmptyExpression(ctx)
 
             case _ =>
-                DebugOut.print("not matched " + tree)
-                null
+                not_implemented("didn't match Scala node", tree)
         }
     }
 }

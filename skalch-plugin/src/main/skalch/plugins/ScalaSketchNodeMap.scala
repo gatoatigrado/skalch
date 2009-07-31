@@ -40,6 +40,44 @@ abstract class ScalaSketchNodeMap {
     def getname(elt : Object, sym : Symbol) : String
     def getname(elt : Object) : String
 
+    def unaryExpr(code : Int, target : nodes.Expression) : Object = {
+        import scalaPrimitives._
+        import nodes.ExprUnary._
+
+        code match {
+            case ZNOT => new nodes.ExprUnary(ctx, UNOP_NOT, target)
+            case NOT => new nodes.ExprUnary(ctx, UNOP_BNOT, target)
+            case NEG => new nodes.ExprUnary(ctx, UNOP_NEG, target)
+        }
+    }
+
+    def binaryExpr(code : Int, left : nodes.Expression, right : nodes.Expression) : Object = {
+        import scalaPrimitives._
+        import nodes.ExprBinary._
+
+        code match {
+            case ADD => new nodes.ExprBinary(ctx, BINOP_ADD, left, right)
+            case SUB => new nodes.ExprBinary(ctx, BINOP_SUB, left, right)
+            case MUL => new nodes.ExprBinary(ctx, BINOP_MUL, left, right)
+            case DIV => new nodes.ExprBinary(ctx, BINOP_DIV, left, right)
+            case MOD => new nodes.ExprBinary(ctx, BINOP_MOD, left, right)
+
+            case EQ => new nodes.ExprBinary(ctx, BINOP_EQ, left, right)
+            case NE => new nodes.ExprBinary(ctx, BINOP_NEQ, left, right)
+            case LT => new nodes.ExprBinary(ctx, BINOP_LT, left, right)
+            case LE => new nodes.ExprBinary(ctx, BINOP_LE, left, right)
+            case GT => new nodes.ExprBinary(ctx, BINOP_GT, left, right)
+            case GE => new nodes.ExprBinary(ctx, BINOP_GE, left, right)
+
+            case AND => new nodes.ExprBinary(ctx, BINOP_BAND, left, right)
+            case OR => new nodes.ExprBinary(ctx, BINOP_BOR, left, right)
+            case XOR => new nodes.ExprBinary(ctx, BINOP_BXOR, left, right)
+
+            case LSL => new nodes.ExprBinary(ctx, BINOP_LSHIFT, left, right)
+            case ASR => new nodes.ExprBinary(ctx, BINOP_RSHIFT, left, right)
+        }
+    }
+
     def execute(tree : Tree, info : ContextInfo) : Object = {
         tree match {
             // some code from GenICode.scala
@@ -52,13 +90,10 @@ abstract class ScalaSketchNodeMap {
                     // much taken from GenICode.scala
                     val Select(receiver, _) = fun
                     val code = scalaPrimitives.getPrimitive(sym, receiver.tpe)
-                    val sketchCode = (code match {
-                        case scalaPrimitives.ADD | scalaPrimitives.SUB |
-                            scalaPrimitives.MUL => 0
-                        case _ => 1
-                    })
-                    DebugOut.assertFalse("not implemented...")
-                    null
+                    args match {
+                        case Nil => unaryExpr(code, subtree(receiver))
+                        case right :: Nil => binaryExpr(code, subtree(receiver), subtree(right))
+                    }
                 } else {
                     new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
                 }

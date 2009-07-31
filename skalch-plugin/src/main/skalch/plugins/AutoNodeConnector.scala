@@ -2,6 +2,7 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -29,6 +30,6 @@ class AutoNodeConnector[Identifier](val acid : String) extends
         }
         DebugOut.print("from:", from)
         DebugOut.print("to:", to)
-        DebugOut.assertFalse("AutoNodeConnector - couldn't find [public] field assignable to.")
+        assertFalse("AutoNodeConnector - couldn't find [public] field assignable to.")
     }
 }

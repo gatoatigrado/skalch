@@ -2,6 +2,7 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -27,22 +28,17 @@ abstract class SketchTypes {
             case "scala.Int" => nodes.TypePrimitive.int32type
             case "scala.Array" =>
                 tpe.typeArgs match {
-                    case Nil =>
-                        DebugOut.assertFalse("array with no type args")
-                        null
+                    case Nil => assertFalse("array with no type args")
                     case t :: Nil => new nodes.TypeArray(gettype(t),
                         new proxy.ScalaUnknownArrayLength(ctx))
-                    case lst =>
-                        DebugOut.assertFalse("array with many args " + lst)
-                        null
+                    case lst => assertFalse("array with many args " + lst)
                 }
             case "skalch.DynamicSketch$InputGenerator" =>
                 new skproxy.ScalaInputGenType()
             case "skalch.DynamicSketch$HoleArray" =>
                 new skproxy.ScalaHoleArrayType()
-            case _ => DebugOut.not_implemented("gettype()",
+            case _ => not_implemented("gettype()",
                     tpe, tpe.typeSymbol.fullNameString)
-                null
         }
     }
 }

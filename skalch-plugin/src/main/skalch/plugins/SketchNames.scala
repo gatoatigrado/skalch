@@ -2,6 +2,7 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -69,7 +70,7 @@ object SketchNames {
 
         def get_name(query : LogicalName) : String = {
             if (query == null) {
-                DebugOut.assertFalse()
+                assertFalse()
             }
 
             def add() : LogicalName = {

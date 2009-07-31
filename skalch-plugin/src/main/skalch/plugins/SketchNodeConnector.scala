@@ -2,6 +2,7 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -38,7 +39,7 @@ abstract class SketchNodeConnector[Identifier, From, To] {
         map.get(id) match {
             case None => ()
             case Some(IdentifiedWaiting(lst)) => lst map (connect(_, to))
-            case _ => DebugOut.assertFalse(
+            case _ => assertFalse(
                 "two sinks for identifier", id.toString, ";", to.toString)
         }
         map.put(id, IdentifiedDefined(to))
@@ -48,7 +49,7 @@ abstract class SketchNodeConnector[Identifier, From, To] {
     def checkDone() {
         for (list <- map.values) list match {
             case IdentifiedWaiting(lst) =>
-                DebugOut.assertFalse("sink for list", lst, "not found")
+                assertFalse("sink for list", lst, "not found")
             case _ : IdentifiedDefined => ()
         }
     }

@@ -2,7 +2,7 @@ package skalch.plugins
 
 import sketch.util.DebugOut
 
-object ScalaDebug {
+object ScalaDebugOut {
     def assert(truth : Boolean, text : => String) : Null = {
         if (!truth) {
             DebugOut.assertFalse(text)
@@ -10,11 +10,11 @@ object ScalaDebug {
         null
     }
     def assertFalse(values : Object*) : Null = {
-        DebugOut.assertFalse(values)
+        DebugOut.assertFalse(("" /: values)(_ + "\n" + _))
         null
     }
     def not_implemented(values : Object*) : Null = {
-        DebugOut.not_implemented(values)
+        DebugOut.not_implemented(("" /: values)(_ + "\n" + _))
         null
     }
 }

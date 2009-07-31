@@ -2,8 +2,7 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
-import ScalaDebug._
-
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -81,6 +80,25 @@ abstract class ScalaSketchNodeMap {
         }
     }
 
+    def arrayExpr(code : Int, target : nodes.Expression, args : SketchNodeList) : Object = {
+        import scalaPrimitives._
+        import nodes.ExprBinary._
+
+        if (isArrayNew(code)) {
+            not_implemented("array new")
+        } else if (isArrayLength(code)) {
+            not_implemented("array length")
+        } else if (isArrayGet(code)) (args match {
+            case _ => not_implemented("array get", args)
+        }) else if (isArraySet(code)) (args.list.toList match {
+            case idx :: expr :: Nil => new nodes.StmtAssign(ctx,
+                new nodes.ExprArrayRange(target, idx), expr)
+            case _ => not_implemented("array set with unexpected args", args)
+        }) else {
+            assertFalse("no matching array opcode for code", code : Integer)
+        }
+    }
+
     def execute(tree : Tree, info : ContextInfo) : Object = {
         tree match {
             // much code from GenICode.scala; that file is a lot more complete though.
@@ -95,11 +113,14 @@ abstract class ScalaSketchNodeMap {
                 val target = subtree(target_tree)
                 if (scalaPrimitives.isPrimitive(fcnsym)) {
                     val code = scalaPrimitives.getPrimitive(fcnsym, target_tree.tpe)
-                    args match {
+                    if (scalaPrimitives.isArrayOp(code)) {
+                        arrayExpr(code, target, subarr(args))
+                    } else (args match {
                         case Nil => unaryExpr(code, target)
                         case right :: Nil => binaryExpr(code, target, subtree(right))
-                        case _ => assertFalse("bad argument list for arithmetic op")
-                    }
+                        case _ => assertFalse("bad argument list for arithmetic op", target,
+                            code : java.lang.Integer, args)
+                    })
                 } else if (fcnsym.isStaticMember) {
                     not_implemented("static function call")
                     new nodes.ExprFunCall(ctx, getname(fcn), subarr(args))
@@ -167,8 +188,14 @@ abstract class ScalaSketchNodeMap {
                 goto_connect.connect_to(tree.symbol, new core.ScalaGotoLabel(
                     ctx, getname(name), subarr(params), subtree(rhs)))
 
-            case Literal(value) =>
-                not_implemented("scala constant literal", value)
+            case Literal(Constant(value)) => value match {
+                    case v : Boolean => new nodes.ExprConstBoolean(ctx, v)
+                    case v : Char => new nodes.ExprConstChar(ctx, v)
+                    case v : Float => new nodes.ExprConstFloat(ctx, v)
+                    case v : Int => new nodes.ExprConstInt(ctx, v)
+                    case v : String => new nodes.ExprConstStr(ctx, v)
+                    case _ => not_implemented("scala constant literal", value.toString)
+                }
                 // new vars.ScalaConstantLiteral()
 
             case Match(selector, cases) =>

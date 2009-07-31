@@ -2,6 +2,7 @@ package skalch.plugins
 
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._
@@ -34,24 +35,19 @@ object SketchNodes {
             case expr : nodes.Expression => expr
             case stmt : exprs.ScalaExprStmt =>
                 new exprs.ScalaExprStmtWrapper(stmt)
-            case _ =>
-                DebugOut.not_implemented("get_expr", node)
-                null
+            case _ => not_implemented("get_expr", node)
         }
     }
 
     implicit def get_stmt(node : SketchNodeWrapper) : nodes.Statement = {
         node.node match {
             case stmt : nodes.Statement => stmt
-            case _ =>
-                DebugOut.not_implemented("get_stmt", node)
-                null
+            case _ => not_implemented("get_stmt", node)
         }
     }
 
     implicit def get_param(node : SketchNodeWrapper) : nodes.Parameter = {
-        DebugOut.not_implemented("convert node to parameter\n", node.node)
-        null
+        not_implemented("convert node to parameter\n", node.node)
     }
 
     def java_list[T](arr : Array[T]) : java.util.List[T] = {

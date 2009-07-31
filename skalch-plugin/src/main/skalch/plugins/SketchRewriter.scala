@@ -11,6 +11,7 @@ import nsc.plugins.{Plugin, PluginComponent}
 import nsc.io.{AbstractFile, PlainFile}
 import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
 
+import ScalaDebugOut._
 import sketch.util.DebugOut
 import streamit.frontend.nodes
 import streamit.frontend.nodes.scala._

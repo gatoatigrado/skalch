@@ -252,23 +252,15 @@ class SketchRewriter(val global: Global) extends Plugin {
                     get_expr, get_stmt, get_param, get_expr_arr,
                     get_stmt_arr, get_param_arr, get_object_arr}
 
-                val _goto_connect = new SketchNodeConnector[
-                    Symbol, core.ScalaGotoCall, core.ScalaGotoLabel]
-                {
-                    def connect(from : core.ScalaGotoCall, to : core.ScalaGotoLabel) {
-                        from.setLabel(to)
-                    }
+                val connectors = ListBuffer[AutoNodeConnector[Symbol]]()
+                def AutoNodeConnector(x : String) = {
+                    val result = new AutoNodeConnector[Symbol](x)
+                    connectors += result
+                    result
                 }
-                val _class_connect = new SketchNodeConnector[
-                    Symbol, AnyRef, core.ScalaClass]
-                {
-                    def connect(from : AnyRef, to : core.ScalaClass) {
-                        from match {
-                            case ths : vars.ScalaThis => ths.referenced_class = to
-                            case _ => DebugOut.not_implemented("connect", from, "to class.")
-                        }
-                    }
-                }
+                val _goto_connect = AutoNodeConnector("scala_goto_label")
+                val _class_connect = AutoNodeConnector("scala_class")
+                val _class_fcn_connect = AutoNodeConnector("scala_class_fcn")
 
                 /**
                  * The main recursive call to create SKETCH nodes.
@@ -298,6 +290,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         val ctx = the_ctx
                         val goto_connect = _goto_connect
                         val class_connect = _class_connect
+                        val class_fcn_connect = _class_fcn_connect
                     } with ScalaSketchNodeMap {
                         def getname(elt : Object, sym : Symbol) : String = {
                             name_string_factory.get_name(elt match {
@@ -349,8 +342,9 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                 override def transform(tree : Tree) : Tree = {
                     root = getSketchAST(tree, new ContextInfo(null))
-                    _goto_connect.checkDone()
-                    _class_connect.checkDone()
+                    for (connector <- connectors) {
+                        connector.checkDone()
+                    }
                     tree
                 }
             }

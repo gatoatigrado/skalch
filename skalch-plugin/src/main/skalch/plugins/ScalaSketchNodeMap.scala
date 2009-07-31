@@ -24,10 +24,9 @@ abstract class ScalaSketchNodeMap {
     val ctx : nodes.FENode
     import global._
 
-    val goto_connect : SketchNodeConnector[
-        Symbol, core.ScalaGotoCall, core.ScalaGotoLabel]
-    val class_connect : SketchNodeConnector[
-        Symbol, AnyRef, core.ScalaClass]
+    val goto_connect : AutoNodeConnector[Symbol]
+    val class_connect : AutoNodeConnector[Symbol]
+    val class_fcn_connect : AutoNodeConnector[Symbol]
 
     import SketchNodes.{SketchNodeWrapper, SketchNodeList,
         get_expr, get_stmt, get_param, get_expr_arr,
@@ -94,6 +93,11 @@ abstract class ScalaSketchNodeMap {
                         case Nil => unaryExpr(code, subtree(receiver))
                         case right :: Nil => binaryExpr(code, subtree(receiver), subtree(right))
                     }
+                } else if (sym.isStaticMember) {
+                    DebugOut.not_implemented("static function call")
+                    new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
+                } else if (sym.isClassConstructor) {
+                    DebugOut.not_implemented("class constructor call"); null
                 } else {
                     new nodes.ExprFunCall(ctx, getname(fun), subarr(args))
                 }
@@ -141,6 +145,8 @@ abstract class ScalaSketchNodeMap {
                     case expr : nodes.Expression => new nodes.StmtReturn(ctx, expr)
                 })
                 new core.ScalaClassFunction(ctx, nodes.Function.FUNC_PHASE,
+                    tree.symbol.isStaticMember,
+                    info.curr_clazz,
                     getname(name), gettype(tpe), subarr(params), body_stmt)
 
             case Ident(name) =>

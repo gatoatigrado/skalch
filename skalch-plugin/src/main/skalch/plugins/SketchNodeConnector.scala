@@ -25,7 +25,7 @@ abstract class SketchNodeConnector[Identifier, From, To] {
     /** abstract, override this */
     def connect(from : From, to : To)
 
-    def connect_from(id : Identifier, from : From) : From = {
+    def connect_from[LocalFrom <: From](id : Identifier, from : LocalFrom) : LocalFrom = {
         map.get(id) match {
             case None => map.put(id,
                 IdentifiedWaiting(ListBuffer(from)))
@@ -35,7 +35,7 @@ abstract class SketchNodeConnector[Identifier, From, To] {
         from
     }
 
-    def connect_to(id : Identifier, to : To) : To = {
+    def connect_to[LocalTo <: To](id : Identifier, to : LocalTo) : LocalTo = {
         map.get(id) match {
             case None => ()
             case Some(IdentifiedWaiting(lst)) => lst map (connect(_, to))

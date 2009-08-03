@@ -16,7 +16,7 @@ import streamit.frontend.nodes.scala._
  *          make changes, please consider contributing back!
  */
 class ContextInfo(val old : ContextInfo) {
-    var curr_clazz : core.ScalaClass =
+    var curr_clazz : typs.ScalaClass =
         if (old != null) old.curr_clazz else null
     var ident : String = if (old == null) "" else ("    " + old.ident)
 }

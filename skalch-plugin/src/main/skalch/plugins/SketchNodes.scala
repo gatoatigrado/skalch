@@ -33,11 +33,11 @@ object SketchNodes {
     implicit def get_expr(node : SketchNodeWrapper) : nodes.Expression = {
         node.node match {
             case expr : nodes.Expression => expr
-            case stmt : exprs.ScalaExprStmt =>
+            case stmt : stmts.ScalaExprStmt =>
                 new exprs.ScalaExprStmtWrapper(stmt)
             case assign : nodes.StmtAssign => new exprs.ScalaNonExpressionUnit(assign)
-            case call : core.ScalaGotoCall => new exprs.ScalaNonExpressionUnit(call)
-            case lbl : core.ScalaGotoLabel => new exprs.ScalaNonExpressionUnit(lbl)
+            case call : misc.ScalaGotoCall => new exprs.ScalaNonExpressionUnit(call)
+            case lbl : misc.ScalaGotoLabel => new exprs.ScalaNonExpressionUnit(lbl)
             case _ => not_implemented("get_expr", node)
         }
     }
@@ -46,6 +46,9 @@ object SketchNodes {
         node.node match {
             case stmt : nodes.Statement => stmt
             case unitexpr : exprs.ScalaUnitExpression => new nodes.StmtEmpty(unitexpr)
+            case expr : nodes.Expression =>
+                DebugOut.print("converting expression", expr, "to statement")
+                new nodes.StmtExpr(expr)
             case _ => not_implemented("get_stmt", node)
         }
     }

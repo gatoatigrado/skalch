@@ -270,7 +270,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case NoPosition => (0, 0)
                         case t : Position => (t.line, t.column)
                     }
-                    val the_ctx : core.ScalaFENode = new core.ScalaFENode(
+                    val the_ctx : misc.ScalaFENode = new misc.ScalaFENode(
                         comp_unit.source.file.path,
                         start._1, start._2, end._1, end._2)
 
@@ -354,7 +354,7 @@ class SketchRewriter(val global: Global) extends Plugin {
             class CheckVisited(transformed : HashSet[Tree]) extends Transformer {
                 override def transform(tree : Tree) : Tree = {
                     if (!transformed.contains(tree)) {
-                        //println("WARNING - didn't transform node\n    " + tree.toString())
+                        println("WARNING - didn't transform node\n    " + tree.toString())
                     }
                     super.transform(tree)
                 }

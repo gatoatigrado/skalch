@@ -258,9 +258,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 /**
                  * The main recursive call to create SKETCH nodes.
                  */
-                def getSketchAST(tree : Tree, info : ContextInfo)
-                        : SketchNodes.SketchNodeWrapper =
-                {
+                def getSketchAST(tree : Tree, info : ContextInfo) : nodes.base.FEAnyNode = {
                     // TODO - fill in source values...
                     val start = tree.pos.focusStart match {
                         case NoPosition => (0, 0)
@@ -286,7 +284,9 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                     object sketch_node_map extends {
                         val global : SketchGeneratorComponent.this.global.type = _glbl
+                        val types = sketch_types
                         val ctx = the_ctx
+
                         val goto_connect = _goto_connect
                         val class_connect = _class_connect
                         val class_fcn_connect = _class_fcn_connect
@@ -314,14 +314,13 @@ class SketchRewriter(val global: Global) extends Plugin {
                         def gettype(tpe : Type) : nodes.Type = sketch_types.gettype(tpe)
                         def gettype(tree : Tree) : nodes.Type = gettype(tree.tpe)
 
-                        def subtree(tree : Tree, next_info : ContextInfo = null) = {
+                        def subtree(tree : Tree, next_info : ContextInfo = null) : nodes.base.FEAnyNode = {
                             val rv = getSketchAST(tree,
                                 if (next_info == null) (new ContextInfo(info)) else next_info)
                             DebugOut.print(info.ident + ".")
                             rv
                         }
-                        def subarr(arr : List[Tree]) = new SketchNodes.SketchNodeList(
-                            (for (elt <- arr) yield subtree(elt)).toArray )
+                        def subarr(arr : List[Tree]) = (for (elt <- arr) yield subtree(elt)).toArray
                     }
 
 
@@ -336,7 +335,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         "SKETCH AST translation for Scala tree", tree.getClass)
                     DebugOut.print(info.ident + tree_str.substring(0, Math.min(tree_str.length, 60)))
 
-                    new SketchNodes.SketchNodeWrapper(sketch_node_map.execute(tree, info))
+                    sketch_node_map.execute(tree, info)
                 }
 
                 override def transform(tree : Tree) : Tree = {

@@ -22,25 +22,24 @@ import nsc._
  */
 abstract class ScalaSketchNodeMap {
     val global : Global
+    val types : SketchTypes
     val ctx : nodes.FENode
+
     import global._
+    import types._
 
     val goto_connect : AutoNodeConnector[Symbol]
     val class_connect : AutoNodeConnector[Symbol]
     val class_fcn_connect : AutoNodeConnector[Symbol]
 
-    import SketchNodes.{SketchNodeWrapper, SketchNodeList,
-        get_expr, get_stmt, get_param, get_expr_arr,
-        get_stmt_arr, get_param_arr, get_object_arr}
-
-    def subtree(tree : Tree, next_info : ContextInfo = null) : SketchNodeWrapper
-    def subarr(arr : List[Tree]) : SketchNodeList
+    def subtree(tree : Tree, next_info : ContextInfo = null) : nodes.base.FEAnyNode
+    def subarr(arr : List[Tree]) : Array[nodes.base.FEAnyNode]
     def gettype(tpe : Type) : nodes.Type
     def gettype(tree : Tree) : nodes.Type
     def getname(elt : Object, sym : Symbol) : String
     def getname(elt : Object) : String
 
-    def unaryExpr(code : Int, target : nodes.Expression) : Object = {
+    def unaryExpr(code : Int, target : nodes.Expression) : nodes.ExprUnary = {
         val sc = scalaPrimitives
         import nodes.{ExprUnary => sk}
 
@@ -51,7 +50,7 @@ abstract class ScalaSketchNodeMap {
         }
     }
 
-    def binaryExpr(code : Int, left : nodes.Expression, right : nodes.Expression) : Object = {
+    def binaryExpr(code : Int, left : nodes.Expression, right : nodes.Expression) : nodes.ExprBinary = {
         val sc = scalaPrimitives
         import nodes.{ExprBinary => sk}
 
@@ -80,17 +79,17 @@ abstract class ScalaSketchNodeMap {
         }
     }
 
-    def arrayExpr(code : Int, target : nodes.Expression, args : SketchNodeList) : Object = {
+    def arrayExpr(code : Int, target : nodes.Expression, args : Array[nodes.base.FEAnyNode]) : nodes.base.FEAnyNode = {
         val sc = scalaPrimitives
 
         if (sc.isArrayNew(code)) {
             not_implemented("array new")
         } else if (sc.isArrayLength(code)) {
             not_implemented("array length")
-        } else if (sc.isArrayGet(code)) (args.list match {
+        } else if (sc.isArrayGet(code)) (args match {
             case Array(idx) => new nodes.ExprArrayRange(target, idx)
             case _ => not_implemented("array get with unexpected args", args)
-        }) else if (sc.isArraySet(code)) (args.list match {
+        }) else if (sc.isArraySet(code)) (args match {
             case Array(idx, expr) => new nodes.StmtAssign(ctx,
                 new nodes.ExprArrayRange(target, idx), expr)
             case _ => not_implemented("array set with unexpected args", args)
@@ -102,7 +101,7 @@ abstract class ScalaSketchNodeMap {
     /**
      * NOTE - main translation method.
      */
-    def execute(tree : Tree, info : ContextInfo) : Object = {
+    def execute(tree : Tree, info : ContextInfo) : nodes.base.FEAnyNode = {
         tree match {
             // much code directly copied from GenICode.scala (BSD license);
             // that file is a lot more complete though.
@@ -188,7 +187,7 @@ abstract class ScalaSketchNodeMap {
                         assertFalse("unknown defdef params", vparamss)
                 }
                 // add the return node
-                val body_stmt = (subtree(body).node match {
+                val body_stmt = (subtree(body) match {
                     case stmt : nodes.Statement => stmt
                     case expr : nodes.Expression => new nodes.StmtReturn(ctx, expr)
                 })
@@ -240,7 +239,7 @@ abstract class ScalaSketchNodeMap {
 
             case Template(parents, self, body) =>
                 DebugOut.print("not visiting parents", parents)
-                for (sketch_node <- subarr(body).list) sketch_node match {
+                for (sketch_node <- subarr(body)) sketch_node match {
                     case f : misc.ScalaClassFunction => ()
                     case _ =>
                         not_implemented("element", "'" + sketch_node + "'",

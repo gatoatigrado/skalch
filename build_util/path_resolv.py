@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.6
 # -*- coding: utf-8 -*-
-# NOTE - this file is mostly for examining compilation results, not for building the project
+# NOTE - this file is mostly for examining compilation results,
+# not for building the project
 
 from __future__ import print_function
 from collections import namedtuple

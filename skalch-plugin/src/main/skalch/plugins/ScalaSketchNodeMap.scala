@@ -50,7 +50,9 @@ abstract class ScalaSketchNodeMap {
         }
     }
 
-    def binaryExpr(code : Int, left : nodes.Expression, right : nodes.Expression) : nodes.ExprBinary = {
+    def binaryExpr(code : Int, left : nodes.Expression, right : nodes.Expression)
+        : nodes.ExprBinary =
+    {
         val sc = scalaPrimitives
         import nodes.{ExprBinary => sk}
 
@@ -79,7 +81,9 @@ abstract class ScalaSketchNodeMap {
         }
     }
 
-    def arrayExpr(code : Int, target : nodes.Expression, args : Array[nodes.base.FEAnyNode]) : nodes.base.FEAnyNode = {
+    def arrayExpr(code : Int, target : nodes.Expression,
+            args : Array[nodes.base.FEAnyNode]) : nodes.base.FEAnyNode =
+    {
         val sc = scalaPrimitives
 
         if (sc.isArrayNew(code)) {

@@ -1,4 +1,6 @@
+// @code standards ignore file
 package test.skalch_old.dws
+
 import skalch.DynamicSketch
 import scala.collection.mutable._
 
@@ -6,6 +8,7 @@ import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
 import sketch.util._
 
+/** @author Casey Rodarmor */
 class NextPermutationSketch() extends DynamicSketch {
     val skassert = synthAssertTerminal _
 

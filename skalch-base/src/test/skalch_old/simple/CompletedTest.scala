@@ -11,7 +11,6 @@ class CompletedSketch() extends DynamicSketch {
     }
 
     val test_generator = new TestGenerator {
-        // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set(x : Int, v : Boolean) {
             put_default_input(x)
         }

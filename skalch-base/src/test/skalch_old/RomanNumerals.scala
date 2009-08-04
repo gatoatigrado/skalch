@@ -49,13 +49,19 @@ object RomanNumerals {
       val next = if (i + 1 < numerals.size) Some(numerals(i + 1)) else None
       val incr = cur match {
         case I() =>
-          if (next.isDefined && next.get.isV) { i += 1; 4 } else if (next.isDefined && next.get.isX) { i += 1; 9 } else 1
+          if (next.isDefined && next.get.isV) { i += 1; 4 }
+          else if (next.isDefined && next.get.isX) { i += 1; 9 }
+          else 1
         case V() => 5
         case X() =>
-          if (next.isDefined && next.get.isL) { i += 1; 40 } else if (next.isDefined && next.get.isC) { i += 1; 90 } else 10
+          if (next.isDefined && next.get.isL) { i += 1; 40 }
+          else if (next.isDefined && next.get.isC) { i += 1; 90 }
+          else 10
         case L() => 50
         case C() =>
-          if (next.isDefined && next.get.isD) { i += 1; 400 } else if (next.isDefined && next.get.isM) { i += 1; 900 } else 100
+          if (next.isDefined && next.get.isD) { i += 1; 400 }
+          else if (next.isDefined && next.get.isM) { i += 1; 900 }
+          else 100
         case D() => 500
         case M() => 1000
       }
@@ -91,7 +97,9 @@ object RomanNumerals {
     var prev: RomanNumeral = null
     numeral foreach { cur => {
       if (i > 0) {
-        assert(prev.value >= cur.value || (Math.log10(cur.value) - Math.log10(prev.value) <= 1 && (prevprev == null || prevprev.value < prev.value)))
+        assert(prev.value >= cur.value ||
+            (Math.log10(cur.value) - Math.log10(prev.value) <= 1 &&
+                (prevprev == null || prevprev.value < prev.value)))
         if (prev != cur)
           count = 0
       }

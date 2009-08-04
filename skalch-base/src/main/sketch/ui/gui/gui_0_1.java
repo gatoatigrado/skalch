@@ -1,6 +1,7 @@
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
+ * @code standards ignore file
  */
 /*
  * gui_0_1.java

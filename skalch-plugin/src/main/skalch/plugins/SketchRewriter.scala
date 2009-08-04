@@ -110,11 +110,12 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case ConstructType.Hole => "holeapply"
                         case ConstructType.Oracle => "oracleapply"
                     }
-                    assert(hintsSink != null, "internal err - CallTransformer - hintsSink null");
+                    assert(hintsSink != null, "internal err - CallTransformer - hintsSink null")
                     // make a fake 0-length position for the argument position
                     val arg_pos = (if (tree.args.length == 0) { zeroLenPosition(tree.pos) }
                         else { tree.args(0).pos })
-                    hintsSink = hintsSink ::: List(new ConstructFcn(type_, uid, tree.pos, arg_pos))
+                    hintsSink = hintsSink ::: List(new ConstructFcn(
+                        type_, uid, tree.pos, arg_pos))
                     treeCopy.Apply(tree, tree.fun, uidLit :: transformTrees(tree.args))
                 }
             }
@@ -139,11 +140,16 @@ class SketchRewriter(val global: Global) extends Plugin {
             def prefixLen(x0 : String, x1 : String) =
                 (x0 zip x1).prefixLength((x : (Char, Char)) => x._1 == x._2)
 
-            def stripPrefix(arr : List[String], other : List[String]) : List[String] = arr match {
-                case head :: next :: tail =>
-                    val longestPrefix = (for (v <- (arr ::: other)) yield prefixLen(v, head)).min
-                    (for (v <- arr) yield v.substring(longestPrefix)).toList
-                case _ => arr
+            def stripPrefix(arr : List[String], other : List[String])
+                : List[String] =
+            {
+                arr match {
+                    case head :: next :: tail =>
+                        val longestPrefix = (for (v <- (arr ::: other))
+                            yield prefixLen(v, head)).min
+                        (for (v <- arr) yield v.substring(longestPrefix)).toList
+                    case _ => arr
+                }
             }
 
             def join_str(sep : String, arr : List[String]) = arr match {
@@ -157,7 +163,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                 val processed_no_holes_noprefix = stripPrefix(processed_no_holes,
                     processed)
                 println("sketchrewriter processed: " + join_str(", ", processed_noprefix))
-                println("sketchrewriter processed, no holes: " + join_str(", ", processed_no_holes_noprefix))
+                println("sketchrewriter processed, no holes: " +
+                    join_str(", ", processed_no_holes_noprefix))
             }
 
             def apply(comp_unit : CompilationUnit) {
@@ -319,13 +326,16 @@ class SketchRewriter(val global: Global) extends Plugin {
                         def gettype(tpe : Type) : nodes.Type = sketch_types.gettype(tpe)
                         def gettype(tree : Tree) : nodes.Type = gettype(tree.tpe)
 
-                        def subtree(tree : Tree, next_info : ContextInfo = null) : nodes.base.FEAnyNode = {
+                        def subtree(tree : Tree, next_info : ContextInfo = null)
+                            : nodes.base.FEAnyNode =
+                        {
                             val rv = getSketchAST(tree,
                                 if (next_info == null) (new ContextInfo(info)) else next_info)
                             DebugOut.print(info.ident + ".")
                             rv
                         }
-                        def subarr(arr : List[Tree]) = (for (elt <- arr) yield subtree(elt)).toArray
+                        def subarr(arr : List[Tree]) =
+                            (for (elt <- arr) yield subtree(elt)).toArray
                     }
 
 
@@ -338,7 +348,8 @@ class SketchRewriter(val global: Global) extends Plugin {
                     val tree_str = tree.toString.replace("\n", " ")
                     DebugOut.print(info.ident +
                         "SKETCH AST translation for Scala tree", tree.getClass)
-                    DebugOut.print(info.ident + tree_str.substring(0, Math.min(tree_str.length, 60)))
+                    DebugOut.print(info.ident + tree_str.substring(
+                        0, Math.min(tree_str.length, 60)))
 
                     sketch_node_map.execute(tree, info)
                 }

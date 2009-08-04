@@ -12,7 +12,8 @@ function trim_whitespace() {
 }
 
 function set_package_decls() {
-    [ "$1" ] || { echo "usage: set_package_decls target, where target != \".\""; return 1; }
+    [ "$1" ] || { echo "usage: set_package_decls target, where target != \".\"";
+        return 1; }
     for i in $(find "$1" -iname "*.scala"); do
         nicename="$(echo "$(dirname "$i")" | sed 's/\//./g')";
         echo "setting package for $i to $nicename"

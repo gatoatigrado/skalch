@@ -20,20 +20,11 @@ class TrivialDynamicUntilv(val max_n : Int, val num_tests : Int)
     }
 
     val test_generator = new TestGenerator {
-        // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set() {
             val v = TrivialDynamicUntilvTest.mt.get().nextInt(max_n)
             put_input(in_length, v)
         }
         def tests() { for (i <- 0 until num_tests) test_case() }
-    }
-
-    // generate this code with the plugin
-    {
-        // val filename = "/home/gatoatigrado/sandbox/eclipse/skalch/src/test/TrivialDynamicUntilv.scala"
-        // val line_num = (line : Int) => new ScSourceLocation(filename, line)
-        // addHoleSourceInfo(new ScCtrlSourceInfo(swap_first_idx, line_num(41)))
-        // addHoleSourceInfo(new ScCtrlSourceInfo(swap_second_idx, line_num(42)))
     }
 }
 

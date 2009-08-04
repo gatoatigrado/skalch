@@ -1,4 +1,6 @@
+// @code standards ignore file
 package test.skalch_old.dws
+
 import skalch.DynamicSketch
 import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
@@ -10,6 +12,7 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 
+/** @author Casey Rodarmor */
 class DfsSketch() extends DynamicSketch {
     def dysketch_main() = {
         val g = new Graph(3)

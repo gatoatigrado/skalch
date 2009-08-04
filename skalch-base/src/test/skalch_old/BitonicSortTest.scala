@@ -34,9 +34,11 @@ class BitonicSortSketch(val nsteps : Int, val tg_array_length : Int,
             var a = 0
             while (a < nsteps) {
 //         for (a <- 0 until nsteps) {
-                // NOTE / ntung - if the hole array is null, then it will just throw an exception,
-                // which is caught. This is probably not desirable. The compiler should track
-                // which indices are synthesized with holes, and then only allow those to throw exceptions
+                // NOTE / ntung - if the hole array is null, then it will just
+                // throw an exception, which is caught. This is probably not
+                // desirable. The compiler should track which indices are
+                // synthesized with holes, and then only allow those to
+                // throw exceptions
                 val first_swap : Int = swap_first_idx(a)
                 val second_swap : Int = swap_second_idx(a)
                 // print("step " + a + ", swap (" + first_swap + ", " + second_swap + ")")
@@ -49,7 +51,8 @@ class BitonicSortSketch(val nsteps : Int, val tg_array_length : Int,
             }
             def format_swap_indices(hole_arr : HoleArray) = {
                 val arr = (for (i <- 0 until nsteps) yield hole_arr(i)).toArray
-                ("" /: arr)((x : String, y : Int) => if (x.isEmpty) y.toString else x + ", " + y)
+                ("" /: arr)((x : String, y : Int) =>
+                    if (x.isEmpty) y.toString else x + ", " + y)
             }
             skdprint_loc("arrays")
             skdprint(format_swap_indices(swap_first_idx))
@@ -63,18 +66,22 @@ class BitonicSortSketch(val nsteps : Int, val tg_array_length : Int,
             a += 1
         }
         skAddCost(num_violations)
-//         for (a <- 0 until (array_len - 1)) synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
+//         for (a <- 0 until (array_len - 1))
+//              synthAssertTerminal(in_arr(a) <= in_arr(a + 1))
         (num_violations == 0)
     }
 
     val test_generator = new TestGenerator {
-        // this is supposed to be expressive only, recover it with Java reflection if necessary
+        // this is supposed to be expressive only,
+        // recover it with Java reflection if necessary
         def set(x : Int) {
             put_input(in_lengths, x)
-            for (i <- 0 until x) put_input(in_values, BitonicSortTest.mt.get().nextInt() >> 20)
+            for (i <- 0 until x) put_input(in_values,
+                BitonicSortTest.mt.get().nextInt() >> 20)
         }
         def tests() {
-            for (i <- 0 until num_tests) test_case(tg_array_length : java.lang.Integer)
+            for (i <- 0 until num_tests)
+                test_case(tg_array_length : java.lang.Integer)
         }
     }
 }
@@ -85,14 +92,17 @@ object BitonicSortTest {
     object TestOptions extends cli.CliOptionGroup {
         add("--array_length", "length of array")
         add("--num_steps", "number of steps allowed")
-        add("--num_tests", 100 : java.lang.Integer, "number of randomly generated input sequences to test")
+        add("--num_tests", 100 : java.lang.Integer,
+            "number of randomly generated input sequences to test")
     }
 
     def main(args : Array[String])  = {
         val cmdopts = new cli.CliParser(args)
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
-        skalch.synthesize(() => new BitonicSortSketch(opts.long_("num_steps").intValue,
-                opts.long_("array_length").intValue, opts.long_("num_tests").intValue))
+        skalch.synthesize(() => new BitonicSortSketch(
+            opts.long_("num_steps").intValue,
+            opts.long_("array_length").intValue,
+            opts.long_("num_tests").intValue))
     }
 }

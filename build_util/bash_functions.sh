@@ -5,7 +5,9 @@
 function trim_whitespace() {
     [ "$1" ] || { echo "usage: set_package_decls target"; return 1; }
     for i in $(find "$1" -type f); do
-        sed -i -r "s/\s+\$//g" "$i"
+        [ "$(file "$i" | grep text)" ] && {
+            sed -i -r "s/\s+\$//g" "$i"
+        }
     done
 }
 

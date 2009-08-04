@@ -78,7 +78,7 @@ class NextPermutationSketch() extends DynamicSketch {
     def next(p: Array[Int]) = {
         var swap_index = !!(p.length - 1)
 
-        skdprint(join(p) + " split at " + swap_index) 
+        skdprint(join(p) + " split at " + swap_index)
 
         /* // don't tell anybody, but this is the answer:
         var swap_index = 0

@@ -90,7 +90,7 @@ class Necklace[A](elements: A*) extends Seq[A] {
         def cutForwards(): (Pearl[A], Pearl[A]) = {
             val a = this
             val b = next
-            
+
             this.next = null
             next.prev = null
 
@@ -100,7 +100,7 @@ class Necklace[A](elements: A*) extends Seq[A] {
         def cutBackwards(): (Pearl[A], Pearl[A]) = {
             val a = prev
             val b = this
-            
+
             this.prev = null
             prev.next = null
 
@@ -116,7 +116,7 @@ class Necklace[A](elements: A*) extends Seq[A] {
         }
 
         def splice(other: Pearl[A]) {
-            
+
         }
 
         def apply(idx: Int): A = {

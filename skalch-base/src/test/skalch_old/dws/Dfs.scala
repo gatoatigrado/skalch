@@ -40,7 +40,7 @@ class DfsSketch() extends DynamicSketch {
         val root = a
 
         nodes ++= List(a,b,c,d,e)
-        
+
         def checkpoint() {
             for(node <- nodes) {
                 node.checkpoint()
@@ -65,7 +65,7 @@ class DfsSketch() extends DynamicSketch {
                 }
                 string += "]   "
             }
-            
+
             string
         }
     }
@@ -73,7 +73,7 @@ class DfsSketch() extends DynamicSketch {
     trait LocationLender[A] {
         def locations():Seq[Location[A]]
     }
-    
+
     class Node(val name: String, newChildren: Node*) extends LocationLender[Node] {
         var children = new ArrayBuffer[Node]()
         var checkpointChildren: Buffer[Node] = null
@@ -86,7 +86,7 @@ class DfsSketch() extends DynamicSketch {
             synthAssertTerminal(visited == false)
             this.visited = true
         }
-        
+
         def checkpoint() {
             checkpointChildren = children.clone
         }
@@ -110,7 +110,7 @@ class DfsSketch() extends DynamicSketch {
         override def toString(): String = {
             name
         }
-        
+
         def locations() = {
             mkLocations(children)
         }
@@ -140,9 +140,9 @@ class DfsSketch() extends DynamicSketch {
         override def write(x: A) {
             buffer(index) = x
         }
-        
+
         override def == (that: Location[A]) = {
-            that.isInstanceOf[BufferLocation[A]] && 
+            that.isInstanceOf[BufferLocation[A]] &&
             buffer == that.asInstanceOf[BufferLocation[A]].buffer && index == that.asInstanceOf[BufferLocation[A]].index
         }
     }
@@ -160,13 +160,13 @@ class DfsSketch() extends DynamicSketch {
         }
 
         val borrowed = new HashMap[A, Int]
-        
+
         val popp1 = 0 //!!(List(0, 1, 2))
         val popp2 = 0 //!!(List(0, 1))
 
         val pushp1 = 2 //!!(List(0, 1, 2))
         val pushp2 = 1 //!!(List(0, 1))
-        
+
         val extraLocations = mkLocations(extraStorage)
 
         def push(x: A, have: A) {
@@ -189,28 +189,28 @@ class DfsSketch() extends DynamicSketch {
             }
 
             locations.push(borrowedLoc)
-            
+
             val borrowedVal = borrowedLoc.read  // this value must be saved
-            
+
             var allLocations = List(borrowedLoc) ++ extraLocations
 
             val values = new ListBuffer[A]
 
             values += borrowedVal
             values += x
-                        
+
             skdprint(extraStorage.mkString("push("+x.toString()+") : (", ", ", ")") + " borrowedVal:[" + borrowedVal.toString() + "]")
 
             val permutation = new Stack[Int]
             for(location <- extraLocations) {
                 values += location.read
             }
-            
+
             borrowedLoc.write(values.remove(pushp1))
             extraLocations(0).write(values.remove(pushp2))
-            
+
             synthAssertTerminal(x == extraLocations(0).read)
-            
+
             skdprint(extraStorage.mkString("push("+x.toString()+") : (", ", ", ")") + " borrowedVal:[" + borrowedVal.toString() + "]")
         }
 
@@ -219,7 +219,7 @@ class DfsSketch() extends DynamicSketch {
             val refPoppedVal = reference.pop
             synthAssertTerminal(borrowed.contains(extraLocations(0).read))
             val borrowedLoc = extraLocations(0).read.locations.apply(borrowed(extraLocations(0).read))
-           
+
             var allLocations = List(borrowedLoc) ++ extraLocations
             val values = new ListBuffer[A]
             var found = false
@@ -236,7 +236,7 @@ class DfsSketch() extends DynamicSketch {
 
             borrowedLoc.write(values.remove(popp1))
             extraLocations(0).write(values.remove(popp2))
-            
+
             skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + borrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
 
             refPoppedVal
@@ -261,9 +261,9 @@ class DfsSketch() extends DynamicSketch {
 
         val stack = new KeyholeStack[Node](1, g.nodes)
         stack.push(origin, root)
-        
+
         synthAssertTerminal(origin.children(0)==root)
-        
+
         var current  = root
 
         var step = 0

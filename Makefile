@@ -66,3 +66,10 @@ gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps # rev list test (ca
 	@make plugin_dev testfile=RevListTest.scala
 
 g: gatoatigrado-plugin-dev # whatever gatoatigrado's currently working on
+
+gatoatigrado-remove-whitespace: # trim trailing whitespace on all files
+	bash -c "source build_util/bash_functions.sh; cd skalch-plugin; trim_whitespace src"
+	bash -c "source build_util/bash_functions.sh; cd skalch-base; trim_whitespace src"
+
+gatoatigrado-set-test-package-decls: # hack to use sed and rename all java package declarations in the tests directory
+	bash -c "source build_util/bash_functions.sh; cd skalch-base/src; set_package_decls test"

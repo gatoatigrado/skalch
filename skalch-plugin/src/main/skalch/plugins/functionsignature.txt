@@ -1,0 +1,54 @@
+    /**
+     * ZEROTH TASK - Add function signatures using @CompilerUid
+     */
+    private object FunctionSignatureComponent extends SketchPluginComponent(global) {
+        import global._
+        val runsAfter = List[String]("typer")
+        override val runsBefore = List[String]("refchecks")
+        val phaseName = "skfcnsig"
+        def newPhase(prev: Phase) = new FunctionSignaturePhase(prev)
+
+        class FunctionSignaturePhase(prev: Phase) extends StdPhase(prev) {
+            override def name = phaseName + "_phase"
+
+            def apply(comp_unit: CompilationUnit) {
+                comp_unit.body = CallTransformer.transform(comp_unit.body)
+            }
+
+            object CallTransformer extends Transformer {
+                def uidlit(arg : Tree) : Boolean = arg match {
+                    case ValDef(mods, name, tpt, rhs) =>
+                        for (ainfo <- arg.symbol.annotations) ainfo match {
+                            case AnnotationInfo(atp, args, assocs) =>
+                                atp.typeSymbol.fullNameString match {
+                                    case "skalch.CompilerUid" => return true
+                                }
+                        }
+                        false
+                    case _ => false
+                }
+
+                override def transform(tree : Tree) : Tree = tree match {
+                    case tmpl @ Template(parents, self, body) =>
+                        val new_nodes = ListBuffer[Tree]()
+                        for (node <- body) {
+                            node match {
+                                case DefDef(mods, name, tparams, vparams :: Nil, tpe, body) =>
+                                    val sym = node.symbol
+                                    if (vparams.size > 0 && uidlit(vparams(0))) {
+                                        println("add uid literal for function: " + node.symbol.fullNameString)
+                                        // NOTE - really an overloaded type
+                                        val next_sym = sym.owner.newMethod(
+                                            FakePos("type signature for new method"),
+                                            newTermName(name.toString))
+                                        new_nodes += sym.owner.newModule(
+                                    }
+                                case _ => ()
+                            }
+                        }
+                        super.transform(tmpl)
+                    case _ => super.transform(tree)
+                }
+            }
+        }
+    }

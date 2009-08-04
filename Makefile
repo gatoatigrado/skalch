@@ -23,7 +23,7 @@ kate: # open various config files in Kate
 
 bitonic_plugin: # build the plugin and compile the bitonic sort test
 	cd skalch-plugin; mvn compile install
-	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/BitonicSortTest.scala; mvn test-compile -Dmaven.scala.displayCmd=true
+	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/skalch_old/BitonicSortTest.scala; mvn test-compile -Dmaven.scala.displayCmd=true
 
 plugin_dev: # build the plugin and compile the a test given by $(testfile)
 	cd skalch-plugin; mvn compile install

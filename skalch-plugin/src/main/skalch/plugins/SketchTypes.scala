@@ -30,6 +30,7 @@ abstract class SketchTypes {
     /** resolve a few built-in Scala types */
     def gettype(tpe : Type) : nodes.Type = {
         tpe.typeSymbol.fullNameString match {
+            case "scala.Boolean" => nodes.TypePrimitive.booltype
             case "scala.Char" => nodes.TypePrimitive.int8type
             case "scala.Short" => nodes.TypePrimitive.int16type
             case "scala.Int" => nodes.TypePrimitive.int32type
@@ -67,6 +68,7 @@ abstract class SketchTypes {
             case assign : nodes.StmtAssign => new exprs.ScalaNonExpressionUnit(assign)
             case call : misc.ScalaGotoCall => new exprs.ScalaNonExpressionUnit(call)
             case lbl : misc.ScalaGotoLabel => new exprs.ScalaNonExpressionUnit(lbl)
+            case ifthen : nodes.StmtIfThen => new exprs.ScalaExprIf(ifthen)
             case _ => not_implemented("get_expr", node)
         }
     }

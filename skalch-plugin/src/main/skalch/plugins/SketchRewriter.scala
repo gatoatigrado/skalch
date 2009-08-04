@@ -230,8 +230,13 @@ class SketchRewriter(val global: Global) extends Plugin {
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             override def run {
-                scalaPrimitives.init
-                super.run
+                try {
+                    scalaPrimitives.init
+                    super.run
+                } catch {
+                    case e : java.lang.Exception => DebugOut.print_exception(
+                        "skipping generating SKETCH AST's due to exception", e)
+                }
             }
 
             def apply(comp_unit : CompilationUnit) {

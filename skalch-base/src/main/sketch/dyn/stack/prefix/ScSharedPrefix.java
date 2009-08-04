@@ -1,4 +1,4 @@
-package sketch.dyn.prefix;
+package sketch.dyn.stack.prefix;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;

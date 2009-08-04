@@ -2,13 +2,11 @@ package sketch.dyn.ctrls;
 
 import java.util.Vector;
 
-import sketch.dyn.ScConstructInfo;
 import sketch.dyn.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
-import sketch.util.DebugOut;
 import sketch.util.ScRichString;
 
 /**
@@ -26,25 +24,12 @@ public class ScSynthCtrlConf extends ScCtrlConf {
     public int[] set_cnt;
     public ScConstructValueString[] value_string;
 
-    public ScSynthCtrlConf(ScConstructInfo[] hole_info, ScStack stack,
-            int log_type)
-    {
+    public ScSynthCtrlConf(ScStack stack, int log_type) {
         this.stack = stack;
         this.log_type = log_type;
-        values = new int[hole_info.length];
-        untilv = new int[hole_info.length];
-        set_cnt = new int[hole_info.length];
-        for (int a = 0; a < hole_info.length; a++) {
-            int uid = hole_info[a].uid();
-            if (uid >= hole_info.length) {
-                DebugOut.assertFalse("uid greater than hole info length", uid,
-                        hole_info.length);
-            } else if (values[uid] != 0) {
-                DebugOut.assertFalse("double initializing uid", uid);
-            }
-            values[uid] = -1;
-            untilv[uid] = hole_info[a].untilv();
-        }
+        values = new int[0];
+        untilv = new int[0];
+        set_cnt = new int[0];
     }
 
     @Override

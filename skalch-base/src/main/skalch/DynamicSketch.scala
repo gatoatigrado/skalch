@@ -13,7 +13,7 @@ import sketch.util.DebugOut
  * is instantiated. This introduces a bit of structure without excessive
  * overhead.
  */
-abstract class DynamicSketch extends ScDynamicSketch {
+abstract class DynamicSketch extends ScOldDynamicSketch {
     private class FreezableVector[T <: ScConstructInfo] extends java.util.Vector[T] {
         var frozen = false
         def +=(value : T) {
@@ -97,7 +97,8 @@ abstract class DynamicSketch extends ScDynamicSketch {
     @DescriptionAnnotation("[[integer untilv oracle]] basic oracle with debugging")
     def `!!d`(uid: Int, untilv: Int): Int = {
         import java.lang.Integer
-        assert(untilv > 0, "sketch provided bad untilv, not greater than zero. untilv=" + untilv)
+        assert(untilv > 0, "sketch provided bad untilv, not greater than zero. untilv="
+            + untilv)
         val rv = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
         skCompilerAssert(rv >= 0 && rv < untilv, "compiler returned bad result",
             "result", rv : Integer, "untilv", untilv : Integer)
@@ -108,7 +109,8 @@ abstract class DynamicSketch extends ScDynamicSketch {
     def `!!d`[T](uid : Int, arr: Array[T]) : T = {
         import java.lang.Integer
         val untilv = arr.length
-        assert(untilv > 0, "sketch provided bad untilv, not greater than zero. untilv=" + untilv)
+        assert(untilv > 0, "sketch provided bad untilv, not greater than zero. untilv="
+            + untilv)
         val rv = DynamicSketch.this.oracle_conf.dynamicNextValue(uid, untilv)
         skCompilerAssert(rv >= 0 && rv < untilv, "compiler returned bad result",
             "result", rv : Integer, "untilv", untilv : Integer)
@@ -120,7 +122,8 @@ abstract class DynamicSketch extends ScDynamicSketch {
        val uid : Int = __hole_list.length
        __hole_list += this
        def apply() = DynamicSketch.this.ctrl_conf.getValue(uid) // hopefully wickedly fast
-       override def toString() = "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
+       override def toString() =
+            "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
        // TODO - remove obsolete code.
        // def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
     }

@@ -1,7 +1,9 @@
 package sketch.dyn.debug;
 
-import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.ctrls.ScCtrlConf;
+import sketch.dyn.inputs.ScInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.stack.ScStack;
 
 /**
@@ -11,19 +13,28 @@ import sketch.dyn.stack.ScStack;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScDebugStackRun extends ScDebugRun {
+public class ScDebugStackRun extends ScDefaultDebugRun {
     protected ScStack stack;
 
-    public ScDebugStackRun(ScDynamicSketch sketch, ScStack stack,
-            ScFixedInputConf[] all_counterexamples)
+    public ScDebugStackRun(
+            ScDynamicSketchCall<ScAngelicSketchBase> sketch_call, ScStack stack)
     {
-        super(sketch, all_counterexamples);
+        super(sketch_call);
         this.stack = stack;
     }
 
     @Override
     public void run_init() {
-        stack.set_for_synthesis(sketch);
         stack.reset_before_run();
+    }
+
+    @Override
+    public ScCtrlConf get_ctrl_conf() {
+        return stack.ctrl_conf;
+    }
+
+    @Override
+    public ScInputConf get_oracle_conf() {
+        return stack.oracle_conf;
     }
 }

@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
-import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScGaInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.stack.ScLocalStackSynthesis;
 import sketch.dyn.stack.ScStack;
 import sketch.dyn.synth.ScSynthesis;
@@ -37,7 +37,7 @@ import sketch.util.InteractiveThread;
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public ScSynthesis<?> synth_runtime;
-    public ScDynamicSketch sketch;
+    public ScDynamicSketchCall<?> sketch_call;
     public ScGaCtrlConf ga_ctrl_conf;
     public ScGaInputConf ga_oracle_conf;
     public ScUiGui gui;
@@ -50,16 +50,16 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public boolean auto_display_first_solution = true;
     public BackendOptions be_opts;
 
-    public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketch sketch,
-            BackendOptions be_opts)
+    public ScUiThread(ScSynthesis<?> synth_runtime,
+            ScDynamicSketchCall<?> sketch_call, BackendOptions be_opts)
     {
         super(0.05f);
         this.synth_runtime = synth_runtime;
-        this.sketch = sketch;
+        this.sketch_call = sketch_call;
         this.be_opts = be_opts;
         if (be_opts.ga_opts.enable) {
-            ga_ctrl_conf = new ScGaCtrlConf(sketch.get_hole_info());
-            ga_oracle_conf = new ScGaInputConf(sketch.get_oracle_info());
+            ga_ctrl_conf = new ScGaCtrlConf();
+            ga_oracle_conf = new ScGaInputConf();
         }
         auto_display_first_solution = !be_opts.ui_opts.no_auto_soln_disp;
         gui_list.add(this);
@@ -109,9 +109,8 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }).add();
     }
 
-    public void addStackSolution(ScStack stack__, int solution_cost) {
+    public void addStackSolution(ScStack stack__) {
         final ScStack stack_to_add = stack__.clone();
-        stack_to_add.setCost(solution_cost);
         new RunnableModifier(new Runnable() {
             public void run() {
                 ScSolutionStack solution =

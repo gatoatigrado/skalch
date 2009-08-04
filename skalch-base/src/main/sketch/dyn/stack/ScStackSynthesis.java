@@ -2,11 +2,11 @@ package sketch.dyn.stack;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScSynthCtrlConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
-import sketch.dyn.prefix.ScDefaultPrefix;
-import sketch.dyn.prefix.ScPrefixSearchManager;
+import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.stack.prefix.ScDefaultPrefix;
+import sketch.dyn.stack.prefix.ScPrefixSearchManager;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
 
@@ -28,7 +28,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     public ScPrefixSearchManager<ScStack> search_manager;
     protected AtomicBoolean got_first_run;
 
-    public ScStackSynthesis(ScDynamicSketch[] sketches) {
+    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches) {
         // initialize backends
         local_synthesis = new ScLocalStackSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
@@ -36,9 +36,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
                     new ScLocalStackSynthesis(sketches[a], this, a);
         }
         ScDefaultPrefix prefix = new ScDefaultPrefix();
-        ScStack stack =
-                new ScStack(sketches[0].get_hole_info(), sketches[0]
-                        .get_oracle_info(), prefix);
+        ScStack stack = new ScStack(prefix);
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
         got_first_run = new AtomicBoolean(false);
@@ -54,11 +52,11 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         }
     }
 
-    public void add_solution(ScStack stack, int solution_cost) {
+    public void add_solution(ScStack stack) {
         if (stack.first_run && got_first_run.getAndSet(true)) {
             return;
         }
-        ui.addStackSolution(stack, solution_cost);
+        ui.addStackSolution(stack);
         increment_num_solutions();
     }
 }

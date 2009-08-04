@@ -20,6 +20,8 @@ import sketch.dyn.debug.ScDebugRun;
 import sketch.dyn.debug.ScDebugStackRun;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.stack.ScStack;
 import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
@@ -160,17 +162,19 @@ public class ScUiGui extends gui_0_1 {
     }
 
     /** this all happens on the UI thread, but it shouldn't be that slow */
+    @SuppressWarnings("unchecked")
     public void fillWithStack(ScStack stack) {
         // get source
-        stack.set_fixed_for_illustration(ui_thread.sketch);
+        stack.initialize_fixed_for_illustration(ui_thread.sketch_call);
         StringBuilder result = getSourceWithSynthesisValues();
         result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
                 + "there are bugs above or it's less readable)<br />\n");
         result.append(stack.htmlDebugString());
         result.append("\n</p>\n</body>\n</html>");
         sourceCodeEditor.setText(result.toString());
-        add_debug_info(new ScDebugStackRun(ui_thread.sketch, stack,
-                ui_thread.all_counterexamples));
+        add_debug_info(new ScDebugStackRun(
+                (ScDynamicSketchCall<ScAngelicSketchBase>) ui_thread.sketch_call,
+                stack));
         if (!ui_thread.be_opts.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }
@@ -183,8 +187,9 @@ public class ScUiGui extends gui_0_1 {
     protected StringBuilder getSourceWithSynthesisValues() {
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
-        for (ScSourceConstruct hole_info : ui_thread.sketch.construct_src_info)
-        {
+        ScAngelicSketchBase sketch =
+                (ScAngelicSketchBase) ui_thread.sketch_call.get_sketch();
+        for (ScSourceConstruct hole_info : sketch.construct_src_info) {
             String f = hole_info.entire_location.filename;
             if (!info_by_filename.containsKey(f)) {
                 info_by_filename.put(f, new Vector<ScSourceConstruct>());
@@ -291,6 +296,7 @@ public class ScUiGui extends gui_0_1 {
         stopButton.setEnabled(false);
     }
 
+    @SuppressWarnings("unchecked")
     public void fillWithGaIndividual(ScGaIndividual individual) {
         ScGaIndividual clone = individual.clone();
         /*
@@ -298,9 +304,9 @@ public class ScUiGui extends gui_0_1 {
          * clone.set_for_synthesis_and_reset(ui_thread.sketch,
          * ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf);
          */
-        add_debug_info(new ScDebugGaRun(ui_thread.sketch,
-                ui_thread.all_counterexamples, clone, ui_thread.ga_ctrl_conf,
-                ui_thread.ga_oracle_conf));
+        add_debug_info(new ScDebugGaRun(
+                (ScDynamicSketchCall<ScAngelicSketchBase>) ui_thread.sketch_call,
+                clone, ui_thread.ga_ctrl_conf, ui_thread.ga_oracle_conf));
         StringBuilder result = getSourceWithSynthesisValues();
         result.append("<p style=\"color: #aaaaaa;\"> ga synthesis "
                 + "individual<br />\n");

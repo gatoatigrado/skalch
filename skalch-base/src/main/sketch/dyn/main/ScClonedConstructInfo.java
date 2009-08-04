@@ -1,4 +1,4 @@
-package sketch.dyn;
+package sketch.dyn.main;
 
 /**
  * actual clone of construct info

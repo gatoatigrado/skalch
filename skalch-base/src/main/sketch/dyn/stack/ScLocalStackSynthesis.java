@@ -2,8 +2,7 @@ package sketch.dyn.stack;
 
 import java.util.Vector;
 
-import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.inputs.ScFixedInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScLocalSynthesis;
 import sketch.dyn.synth.ScSearchDoneException;
@@ -27,8 +26,8 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
     public ScStack longest_stack;
     public Vector<ScStack> random_stacks;
 
-    public ScLocalStackSynthesis(ScDynamicSketch sketch, ScStackSynthesis ssr,
-            int uid)
+    public ScLocalStackSynthesis(ScDynamicSketchCall<?> sketch,
+            ScStackSynthesis ssr, int uid)
     {
         super(sketch, uid);
         this.ssr = ssr;
@@ -54,18 +53,19 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                 boolean force_pop = false;
                 trycatch: try {
                     stack.reset_before_run();
-                    sketch.solution_cost = 0;
+                    sketch.initialize_before_all_tests(stack.ctrl_conf,
+                            stack.oracle_conf);
                     nruns += 1;
-                    for (ScFixedInputConf counterexample : counterexamples) {
+                    for (int c = 0; c < sketch.get_num_counterexamples(); c++) {
+                        sketch.set_counterexample(c);
                         ncounterexamples += 1;
-                        counterexample.set_input_for_sketch(sketch);
-                        // ssr.reachability_check.check(sketch);
-                        if (!sketch.dysketch_main()) {
+                        if (!sketch.run_test()) {
                             break trycatch;
                         }
                     }
                     nsolutions += 1;
-                    ssr.add_solution(stack, sketch.solution_cost);
+                    stack.setCost(sketch.get_solution_cost());
+                    ssr.add_solution(stack);
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {
                 } catch (ScDynamicUntilvException e) {
@@ -107,7 +107,6 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
             longest_stack_size = -1;
             longest_stack = null;
             stack = ssr.search_manager.clone_default_search();
-            stack.set_for_synthesis(sketch);
             for (long a = 0; !ssr.wait_handler.synthesis_complete.get(); a +=
                     NUM_BLIND_FAST)
             {
@@ -129,7 +128,6 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                     //
                     DebugOut.not_implemented("get next active stack");
                     stack = ssr.search_manager.get_active_prefix();
-                    stack.set_for_synthesis(sketch);
                 }
             }
         }

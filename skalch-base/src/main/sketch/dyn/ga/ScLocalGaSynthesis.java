@@ -5,13 +5,11 @@ import static sketch.util.DebugOut.assertFalse;
 
 import java.util.Vector;
 
-import sketch.dyn.ScClonedConstructInfo;
-import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.ga.analysis.GaAnalysis;
 import sketch.dyn.ga.base.ScGaIndividual;
-import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScGaInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScLocalSynthesis;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
@@ -30,8 +28,8 @@ import sketch.util.DebugOut;
 public class ScLocalGaSynthesis extends ScLocalSynthesis {
     protected ScGaSynthesis gasynth;
 
-    public ScLocalGaSynthesis(ScDynamicSketch sketch, ScGaSynthesis gasynth,
-            int uid)
+    public ScLocalGaSynthesis(ScDynamicSketchCall<?> sketch,
+            ScGaSynthesis gasynth, int uid)
     {
         super(sketch, uid);
         this.gasynth = gasynth;
@@ -53,16 +51,14 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
 
         /** evaluate $this.current_individual$ */
         protected void evaluate() {
-            current_individual.set_for_synthesis_and_reset(sketch, ctrl_conf,
-                    oracle_conf);
-            sketch.solution_cost = 0;
-            sketch.num_asserts_passed = 0;
+            current_individual.reset(ctrl_conf, oracle_conf);
+            sketch.initialize_before_all_tests(ctrl_conf, oracle_conf);
             nruns += 1;
             trycatch: try {
-                for (ScFixedInputConf counterexample : counterexamples) {
+                for (int a = 0; a < sketch.get_num_counterexamples(); a++) {
+                    sketch.set_counterexample(a);
                     ncounterexamples += 1;
-                    counterexample.set_input_for_sketch(sketch);
-                    if (!sketch.dysketch_main()) {
+                    if (!sketch.run_test()) {
                         break trycatch;
                     }
                 }
@@ -86,8 +82,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                     // print("evaluating", "\n"
                     // + current_individual.valuesString());
                     evaluate();
-                    population.add_done(current_individual.set_done(
-                            sketch.solution_cost, sketch.num_asserts_passed));
+                    population.add_done(current_individual.set_done(sketch
+                            .get_solution_cost()));
                     if (analysis != null) {
                         analysis.evaluation_done(current_individual);
                     }
@@ -114,10 +110,6 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
 
         @Override
         protected void run_inner() {
-            ScClonedConstructInfo[] info =
-                    ScClonedConstructInfo.clone_array(sketch.get_hole_info());
-            ScClonedConstructInfo[] oracle_info =
-                    ScClonedConstructInfo.clone_array(sketch.get_oracle_info());
             local_populations = new Vector<ScPopulation>();
             for (int a = 0; a < beopts().ga_opts.num_populations; a++) {
                 ScPopulation population =
@@ -125,8 +117,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                 population.perturb_parameters();
                 local_populations.add(population);
             }
-            ctrl_conf = new ScGaCtrlConf(info);
-            oracle_conf = new ScGaInputConf(oracle_info);
+            ctrl_conf = new ScGaCtrlConf();
+            oracle_conf = new ScGaInputConf();
             if (beopts().ga_opts.analysis) {
                 analysis = new GaAnalysis();
             }

@@ -4,7 +4,6 @@ import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Vector;
 
-import sketch.dyn.ScConstructInfo;
 import sketch.dyn.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
@@ -26,33 +25,17 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     protected Vector<Integer>[] set_cnt;
     protected int[] default_untilv;
     protected int[] next;
-    protected int num_uids;
+    protected int num_uids = 0;
 
     @SuppressWarnings("unchecked")
-    public ScSolvingInputConf(ScConstructInfo[] input_info, ScStack stack,
-            int log_type)
-    {
+    public ScSolvingInputConf(ScStack stack, int log_type) {
         this.stack = stack;
         this.log_type = log_type;
-        num_uids = input_info.length;
-        values = new Vector[input_info.length]; // can't create generic array
-        set_cnt = new Vector[input_info.length];
-        untilv = new Vector[input_info.length]; // can't create generic array
-        default_untilv = new int[input_info.length];
-        next = new int[input_info.length];
-        for (int a = 0; a < input_info.length; a++) {
-            int uid = input_info[a].uid();
-            if (uid >= input_info.length) {
-                DebugOut.assertFalse("uid greater than hole info length", uid,
-                        input_info.length);
-            } else if (values[uid] != null) {
-                DebugOut.assertFalse("double initializing uid", uid);
-            }
-            values[uid] = new Vector<Integer>(10);
-            set_cnt[uid] = new Vector<Integer>(10);
-            untilv[uid] = new Vector<Integer>(10);
-            default_untilv[uid] = input_info[a].untilv();
-        }
+        values = new Vector[0]; // can't create generic array
+        set_cnt = new Vector[0];
+        untilv = new Vector[0]; // can't create generic array
+        default_untilv = new int[0];
+        next = new int[0];
     }
 
     @Override
@@ -76,6 +59,7 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     protected ScSolvingInputConf() {
     }
 
+    /** for ScTestGenerator */
     public void add_input(int uid, int v) {
         values[uid].add(v);
     }

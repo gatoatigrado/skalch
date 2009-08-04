@@ -1,15 +1,16 @@
-package sketch.dyn.prefix;
+package sketch.dyn.main.old;
+
+import scala.Function0;
 
 /**
- * A specific search, with a position in the search space. Must correctly
- * implement Cloneable.
+ * NOTE - not functional yet. Will be used for meta-GA.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public abstract class ScPrefixSearch implements Cloneable {
-    public ScPrefix current_prefix;
-
-    public abstract ScPrefixSearch clone();
+public class ScSynthesisBootstrapped extends ScSynthesisMain {
+    public ScSynthesisBootstrapped(Function0<ScOldDynamicSketch> f) {
+        super(f);
+    }
 }

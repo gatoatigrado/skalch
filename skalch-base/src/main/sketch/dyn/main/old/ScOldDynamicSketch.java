@@ -1,7 +1,8 @@
-package sketch.dyn;
+package sketch.dyn.main.old;
 
 import sketch.dyn.inputs.ScInputConf;
-import sketch.dyn.main.ScAngelicSketchBase;
+import sketch.dyn.main.ScConstructInfo;
+import sketch.dyn.main.angelic.ScAngelicSketchBase;
 
 /**
  * Scala classes inherit this, so the Java code can make nice API calls.
@@ -10,7 +11,7 @@ import sketch.dyn.main.ScAngelicSketchBase;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public abstract class ScDynamicSketch extends ScAngelicSketchBase {
+public abstract class ScOldDynamicSketch extends ScAngelicSketchBase {
     public ScInputConf input_conf;
 
     @Override
@@ -20,11 +21,7 @@ public abstract class ScDynamicSketch extends ScAngelicSketchBase {
                 + oracle_conf;
     }
 
-    public abstract ScConstructInfo[] get_hole_info();
-
     public abstract ScConstructInfo[] get_input_info();
-
-    public abstract ScConstructInfo[] get_oracle_info();
 
     public abstract boolean dysketch_main();
 

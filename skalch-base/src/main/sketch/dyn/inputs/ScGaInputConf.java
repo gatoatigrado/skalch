@@ -4,7 +4,6 @@ import static sketch.util.ScArrayUtil.extend_arr;
 
 import java.util.Vector;
 
-import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
@@ -22,15 +21,10 @@ public class ScGaInputConf extends ScInputConf implements
         ScCloneable<ScGaInputConf>
 {
     public ScGaIndividual base;
-    public int[] next;
-    public int[] default_untilv;
+    public int[] next = new int[0];
+    public int[] default_untilv = new int[0];
 
-    public ScGaInputConf(ScConstructInfo[] oracle_info) {
-        next = new int[oracle_info.length];
-        default_untilv = new int[oracle_info.length];
-        for (int a = 0; a < oracle_info.length; a++) {
-            default_untilv[oracle_info[a].uid()] = oracle_info[a].untilv();
-        }
+    public ScGaInputConf() {
     }
 
     protected ScGaInputConf(int[] next, int[] default_untilv) {

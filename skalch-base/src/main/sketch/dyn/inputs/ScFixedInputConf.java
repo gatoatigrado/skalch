@@ -2,7 +2,7 @@ package sketch.dyn.inputs;
 
 import java.util.Vector;
 
-import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.main.old.ScOldDynamicSketch;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
@@ -96,7 +96,7 @@ public class ScFixedInputConf extends ScInputConf {
         }
     }
 
-    public void set_input_for_sketch(ScDynamicSketch sketch) {
+    public void set_input_for_sketch(ScOldDynamicSketch sketch) {
         sketch.input_conf = this;
         reset_index();
     }

@@ -5,10 +5,10 @@ import static sketch.util.DebugOut.assertSlow;
 
 import java.util.HashSet;
 
-import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.ga.base.ScGaSolutionId;
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
@@ -25,16 +25,15 @@ import sketch.ui.modifiers.ScUiModifier;
 public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> implements
         ScUiQueueable
 {
-    public int spine_length;
+    public int spine_length = beopts().ga_opts.spine_len;
     public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
     public ScPopulationManager population_mgr;
 
-    public ScGaSynthesis(ScDynamicSketch[] sketches) {
+    public ScGaSynthesis(ScDynamicSketchCall<?>[] sketches) {
         local_synthesis = new ScLocalGaSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
             local_synthesis[a] = new ScLocalGaSynthesis(sketches[a], this, a);
         }
-        spine_length = beopts().ga_opts.spine_len;
     }
 
     @Override

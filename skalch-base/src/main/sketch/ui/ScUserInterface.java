@@ -21,7 +21,7 @@ public interface ScUserInterface {
 
     public void addStackSynthesis(ScLocalStackSynthesis local_ssr);
 
-    public void addStackSolution(ScStack stack, int solution_cost);
+    public void addStackSolution(ScStack stack);
 
     public void set_counterexamples(ScSolvingInputConf[] inputs);
 

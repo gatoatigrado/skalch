@@ -18,6 +18,9 @@ import scala.tools.nsc.util.{FakePos, OffsetPosition, RangePosition}
 abstract class SketchPluginComponent(val global : Global) extends PluginComponent {
     import global._
 
+    val dynamicSketchClasses =
+        List("skalch.DynamicSketch", "skalch.AngelicSketch", "skalch.AllInputSketch")
+
     abstract class SketchTransformer extends Transformer {
         object ConstructType extends Enumeration {
             val Hole = Value("hole")
@@ -87,12 +90,8 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
                 case ClassInfoType(parents, decls, type_sym) =>
                     parents.exists(is_dynamic_sketch(_, true))
 
-                case TypeRef(pre, sym, args) => { for (cls <- tp.baseClasses) {
-                        if (cls.fullNameString == "skalch.DynamicSketch") {
-                            return true
-                        }
-                    }
-                    false }
+                case TypeRef(pre, sym, args) => tp.baseClasses.exists(
+                    cls => { println(cls); dynamicSketchClasses contains cls.fullNameString })
 
                 case _ => false
             }

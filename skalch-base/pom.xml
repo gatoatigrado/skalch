@@ -18,9 +18,6 @@
 
 
     <build>
-        <sourceDirectory>src/main</sourceDirectory>
-        <testSourceDirectory>src/test</testSourceDirectory>
-        <outputDirectory>bin</outputDirectory>
         <resources>
             <resource>
                 <directory>${project.build.sourceDirectory}</directory>

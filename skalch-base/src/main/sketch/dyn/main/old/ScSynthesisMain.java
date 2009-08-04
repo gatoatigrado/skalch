@@ -1,4 +1,4 @@
-package sketch.dyn;
+package sketch.dyn.main.old;
 
 import static sketch.dyn.BackendOptions.beopts;
 
@@ -13,6 +13,8 @@ import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 import sketch.dyn.ga.ScGaSynthesis;
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stack.ScStackSynthesis;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
@@ -21,7 +23,6 @@ import sketch.ui.ScUserInterfaceManager;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
-import ec.util.ThreadLocalMT;
 
 /**
  * Where everything begins.
@@ -30,10 +31,9 @@ import ec.util.ThreadLocalMT;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScSynthesisMain {
-    protected int nthreads;
-    protected ScDynamicSketch[] sketches;
-    protected ScDynamicSketch ui_sketch;
+public class ScSynthesisMain extends ScSynthesisMainBase {
+    protected ScDynamicSketchCall<ScOldDynamicSketch>[] sketches;
+    protected ScDynamicSketchCall<ScOldDynamicSketch> ui_sketch;
     protected ScSynthesis<?> synthesis_runtime;
 
     /**
@@ -43,20 +43,13 @@ public class ScSynthesisMain {
      * @param cmdopts
      *            Command options
      */
-    public ScSynthesisMain(scala.Function0<ScDynamicSketch> f) {
-        // initialization
-        BackendOptions.initialize_defaults();
-        beopts().initialize_annotated();
-        new ScStatsMT();
-        nthreads = (int) beopts().synth_opts.long_("num_threads");
-        ThreadLocalMT.disable_use_current_time_millis =
-                beopts().synth_opts.bool_("no_clock_rand");
-        // initialize ssr
-        sketches = new ScDynamicSketch[nthreads];
+    @SuppressWarnings("unchecked")
+    public ScSynthesisMain(scala.Function0<ScOldDynamicSketch> f) {
+        sketches = new ScDynamicSketchCall[nthreads];
         for (int a = 0; a < nthreads; a++) {
-            sketches[a] = f.apply();
+            sketches[a] = new ScOldDynamicSketchCall(f.apply());
         }
-        ui_sketch = f.apply();
+        ui_sketch = new ScOldDynamicSketchCall(f.apply());
         load_ui_sketch_info();
         if (beopts().ga_opts.enable) {
             synthesis_runtime = new ScGaSynthesis(sketches);
@@ -81,8 +74,8 @@ public class ScSynthesisMain {
             for (int a = 0; a < srcinfo.size(); a++) {
                 ScSourceConstruct info =
                         ScSourceConstruct.from_node(srcinfo.get(a), names[1],
-                                ui_sketch);
-                ui_sketch.addSourceInfo(info);
+                                ui_sketch.get_sketch());
+                ui_sketch.get_sketch().addSourceInfo(info);
             }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);
@@ -93,15 +86,15 @@ public class ScSynthesisMain {
         }
     }
 
-    protected ScSolvingInputConf[] generate_inputs(ScDynamicSketch sketch) {
+    protected ScSolvingInputConf[] generate_inputs(ScOldDynamicSketch sketch) {
         ScTestGenerator tg = sketch.test_generator();
-        tg.init(ui_sketch.get_input_info());
+        tg.init(ui_sketch.get_sketch().get_input_info());
         tg.tests();
         return tg.get_inputs();
     }
 
     public void synthesize() {
-        ScSolvingInputConf[] inputs = generate_inputs(ui_sketch);
+        ScSolvingInputConf[] inputs = generate_inputs(ui_sketch.get_sketch());
         // start various utilities
         ScUserInterface ui =
                 ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);

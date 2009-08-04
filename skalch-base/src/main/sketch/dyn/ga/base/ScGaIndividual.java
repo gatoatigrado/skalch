@@ -1,6 +1,5 @@
 package sketch.dyn.ga.base;
 
-import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.ga.ScPopulation;
 import sketch.dyn.ga.base.ScGaSolutionId.ScGaSolutionIdEntry;
@@ -66,15 +65,11 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     }
 
     /** resets accessed bits in the genotype and resets the oracle configuration */
-    public void set_for_synthesis_and_reset(ScDynamicSketch sketch,
-            ScGaCtrlConf ctrl_conf, ScGaInputConf oracle_conf)
-    {
+    public void reset(ScGaCtrlConf ctrl_conf, ScGaInputConf oracle_conf) {
         ctrl_conf.base = this;
         oracle_conf.base = this;
         oracle_conf.reset_accessed();
         genotype.reset_accessed();
-        sketch.ctrl_conf = ctrl_conf;
-        sketch.oracle_conf = oracle_conf;
     }
 
     /**
@@ -110,9 +105,8 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
         return this;
     }
 
-    public ScGaIndividual set_done(int cost, int num_asserts_passed) {
+    public ScGaIndividual set_done(int cost) {
         this.cost = cost;
-        this.num_asserts_passed = num_asserts_passed;
         done = true;
         return this;
     }

@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import java.util.Vector;
 
-import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.main.old.ScOldDynamicSketch;
 import sketch.util.ScRichString;
 
 /**
@@ -14,9 +14,9 @@ import sketch.util.ScRichString;
  */
 public class ScSourceUntilvOracle implements ScSourceConstructInfo {
     int uid;
-    ScDynamicSketch sketch;
+    ScOldDynamicSketch sketch;
 
-    public ScSourceUntilvOracle(int uid, ScDynamicSketch sketch) {
+    public ScSourceUntilvOracle(int uid, ScOldDynamicSketch sketch) {
         this.uid = uid;
         this.sketch = sketch;
     }

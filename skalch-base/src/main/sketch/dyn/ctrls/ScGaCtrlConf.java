@@ -1,6 +1,5 @@
 package sketch.dyn.ctrls;
 
-import sketch.dyn.ScConstructInfo;
 import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
@@ -15,14 +14,7 @@ import sketch.ui.sourcecode.ScNoValueStringException;
  */
 public class ScGaCtrlConf extends ScCtrlConf {
     public ScGaIndividual base;
-    public int[] default_untilv;
-
-    public ScGaCtrlConf(ScConstructInfo[] info) {
-        default_untilv = new int[info.length];
-        for (int a = 0; a < info.length; a++) {
-            default_untilv[info[a].uid()] = info[a].untilv();
-        }
-    }
+    public int[] default_untilv = new int[0];
 
     @Override
     public int getDynamicValue(int uid, int untilv) {

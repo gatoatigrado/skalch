@@ -1,7 +1,7 @@
 package sketch.ui;
 
 import static sketch.dyn.BackendOptions.beopts;
-import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.gui.ScUiThread;
 
@@ -20,7 +20,7 @@ public class ScUserInterfaceManager {
      *            ScUserInterface from appropriate solvers.
      */
     public static ScUserInterface start_ui(ScSynthesis<?> synth_runtime,
-            ScDynamicSketch sketch)
+            ScDynamicSketchCall<?> sketch)
     {
         if (beopts().ui_opts.no_gui) {
             return new ScDebugConsoleUI(sketch);

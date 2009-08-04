@@ -1,14 +1,17 @@
+# @code standards ignore file
 
 help:
 	@echo "NOTE - this makefile is mostly unix aliases. Use 'mvn install' to build."
-	@grep -iE "^(#.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" Makefile | sed -r "s/^# /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
+	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" Makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
 	mvn clean
-	rm -f *timestamp */*timestamp
-	rm -r ~/.m2/repository/edu/berkeley/cs/sketch
+	rm -rf bin target */{bin,target} ~/.m2/repository/edu/berkeley/cs/sketch *timestamp */*timestamp
 
-# pom management utilities
+### utilities
+
+cs: # code standards check, ignoring skalch_old, etc/util, no license, and Java files (eclipse formatter reigns supreme)
+	build_util/code_standards.py | sed -r "/skalch_old/d; /ec\/util/d; /no license/d; /long line.+\.java/d"
 
 set_version: # args: current=<version> next=<version>
 	( [ "$(current)" ] && [ "$(next)" ] ) || { echo "please set current and next."; exit 1; }
@@ -19,25 +22,32 @@ set_version: # args: current=<version> next=<version>
 kate: # open various config files in Kate
 	kate -u Makefile pom.xml */pom.xml */db/*.xml
 
-# other
+remove-whitespace: # trim trailing whitespace on all files
+	bash -c "source build_util/bash_functions.sh; cd skalch-plugin; trim_whitespace src"
+	bash -c "source build_util/bash_functions.sh; cd skalch-base; trim_whitespace src"
 
-bitonic_plugin: # build the plugin and compile the bitonic sort test
-	cd skalch-plugin; mvn compile install
-	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/skalch_old/BitonicSortTest.scala; mvn test-compile -Dmaven.scala.displayCmd=true
+set-test-package-decls: # hack to use sed and rename all java package declarations in the tests directory
+	bash -c "source build_util/bash_functions.sh; cd skalch-base/src; set_package_decls test"
+
+### Compile various tests using the plugin (to test the plugin)
+
+plugin_sugared:
+	@make plugin_dev testfile=skalch_old/simple/SugaredTest.scala
+
+plugin_angelic_sketch:
+	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
+	cd skalch-base; mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.angelic.simple.SugaredTest
 
 plugin_dev: # build the plugin and compile the a test given by $(testfile)
 	cd skalch-plugin; mvn compile install
 	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 
-# tests
+### Sketch tests; use EXEC_ARGS=args to pass arguments
 
-bitonic_test: # run the bitonic sort test
-	cd skalch-base; mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.BitonicSortTest -Dexec.args="--array_length 4 --num_steps 10"
+angelic_sketch: # new angelic sketch base
+	cd skalch-base; mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.angelic.simple.SugaredTest -Dexec.args="$(EXEC_ARGS)"
 
-completed_test: # run the completed test
-	cd skalch-base; mvn compile test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.CompletedTest -Dexec.args=""
-
-# developer-specific commands
+### developer-specific commands
 
 gatoatigrado-clean-other: clean # clean relative paths in gatoatigrado's project
 	rm -rf ../SKETCH/target ../SKETCH/mvn-bin ../sketch-util/target
@@ -50,26 +60,20 @@ ifndef skipdeps
 	cd ../SKETCH; mvn install
 endif
 
-gatoatigrado-plugin-dev: gatoatigrado-build-plugin-deps # gatoatigrado's plugin development (bitonic sort sketch)
-	@make bitonic_plugin
-
-gatoatigrado-plugin-rbtree: gatoatigrado-build-plugin-deps # gatoatigrado's plugin development trying the red-black tree sketch
+# gatoatigrado's plugin development trying the red-black tree sketch
+gatoatigrado-plugin-rbtree: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=RedBlackTreeTest.scala
 
-gatoatigrado-plugin-dws: gatoatigrado-build-plugin-deps # dws sketch (lots of syntax)
+# dws sketch (lots of syntax)
+gatoatigrado-plugin-dws: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=Dfs.scala
 
-gatoatigrado-plugin-roman-numeral: gatoatigrado-build-plugin-deps # roman numerals (match stmt)
+# roman numerals (match stmt)
+gatoatigrado-plugin-roman-numeral: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=RomanNumerals.scala
 
-gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps # rev list test (catch stmt)
+# rev list test (catch stmt)
+gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=RevListTest.scala
 
-g: gatoatigrado-plugin-dev # whatever gatoatigrado's currently working on
-
-gatoatigrado-remove-whitespace: # trim trailing whitespace on all files
-	bash -c "source build_util/bash_functions.sh; cd skalch-plugin; trim_whitespace src"
-	bash -c "source build_util/bash_functions.sh; cd skalch-base; trim_whitespace src"
-
-gatoatigrado-set-test-package-decls: # hack to use sed and rename all java package declarations in the tests directory
-	bash -c "source build_util/bash_functions.sh; cd skalch-base/src; set_package_decls test"
+g: gatoatigrado-build-plugin-deps plugin_angelic_sketch # whatever gatoatigrado's currently working on

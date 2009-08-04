@@ -5,13 +5,11 @@ import sketch.util.DebugOut
 import sketch.util._
 
 /** rewrite for Skalch + SKETCH integration */
-/*
-not functional yet
 class SugaredSketch() extends AngelicSketch {
     val tests = Array( () )
-    def main() = {
+    def main() {
         synthAssertTerminal(??(List("a", "b", "c")) == "c")
-        ??(100) == 63
+        synthAssertTerminal(??(100) == 63)
     }
 }
 
@@ -22,4 +20,3 @@ object SugaredTest {
         skalch.AngelicSketchSynthesize(() => new SugaredSketch())
     }
 }
-*/

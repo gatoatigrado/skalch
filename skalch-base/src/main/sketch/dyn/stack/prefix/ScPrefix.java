@@ -1,4 +1,4 @@
-package sketch.dyn.prefix;
+package sketch.dyn.stack.prefix;
 
 /**
  * represents the beginning of a stack. currently for synthesis only, but those

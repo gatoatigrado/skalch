@@ -33,7 +33,8 @@ def check_file(f, show_info, override_ignores):
             continue
         
         # spaces don't show up as much for variable indent
-        if float(len(line)) * 0.7 + float(len(line.strip())) * 0.3 > 90:
+        relevant_line = line.lstrip('/').strip()
+        if float(len(line)) * 0.7 + float(len(relevant_line)) * 0.3 > 90:
             warn("long line")
 
         # the following only apply to uncommented code

@@ -30,7 +30,6 @@ class RomanNumerals1(val decimal_number : Int) extends DynamicSketch {
     }
 
     val test_generator = new TestGenerator {
-        // this is supposed to be expressive only, recover it with Java reflection if necessary
         def set(x : Int) {
             put_default_input(x)
         }

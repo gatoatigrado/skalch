@@ -8,9 +8,8 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sketch.dyn.BackendOptions;
-import sketch.dyn.ScDynamicSketch;
-import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
@@ -20,8 +19,7 @@ import sketch.util.DebugOut;
 import ec.util.MersenneTwisterFast;
 
 public abstract class ScLocalSynthesis implements ScUiQueueable {
-    protected ScDynamicSketch sketch;
-    protected ScFixedInputConf[] counterexamples;
+    protected ScDynamicSketchCall<?> sketch;
     public AbstractSynthesisThread thread;
     public AsyncMTEvent done_events = new AsyncMTEvent();
     // ui
@@ -30,7 +28,7 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
     public boolean animated;
     public BackendOptions be_opts;
 
-    public ScLocalSynthesis(ScDynamicSketch sketch, int uid) {
+    public ScLocalSynthesis(ScDynamicSketchCall<?> sketch, int uid) {
         this.sketch = sketch;
         this.uid = uid;
         be_opts = beopts();
@@ -43,7 +41,6 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
     protected abstract AbstractSynthesisThread create_synth_thread();
 
     public final void run(ScSolvingInputConf[] inputs) {
-        counterexamples = ScFixedInputConf.from_inputs(inputs);
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
         done_events.reset();
         if (thread != null && thread.isAlive()) {

@@ -1,10 +1,11 @@
-package sketch.dyn;
+package sketch.dyn.main.old;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.main.ScConstructInfo;
 import sketch.util.DebugOut;
 
 /**
@@ -47,7 +48,7 @@ public abstract class ScTestGenerator {
             DebugOut.assertFalse("    [test generator] "
                     + "please provide a method set([emit_test_case_args])");
         }
-        current_config = new ScSolvingInputConf(input_info, null, 0);
+        current_config = new ScSolvingInputConf(null, 0);
         try {
             set_method.invoke(this, args);
         } catch (IllegalArgumentException e) {

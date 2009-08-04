@@ -1,6 +1,6 @@
 package sketch.ui.sourcecode;
 
-import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.main.old.ScOldDynamicSketch;
 
 /**
  * An class which is responsible for formatting untilv holes (holes with an
@@ -12,9 +12,9 @@ import sketch.dyn.ScDynamicSketch;
  */
 public class ScSourceUntilvHole implements ScSourceConstructInfo {
     int uid;
-    ScDynamicSketch sketch;
+    ScOldDynamicSketch sketch;
 
-    public ScSourceUntilvHole(int uid, ScDynamicSketch sketch) {
+    public ScSourceUntilvHole(int uid, ScOldDynamicSketch sketch) {
         this.uid = uid;
         this.sketch = sketch;
     }

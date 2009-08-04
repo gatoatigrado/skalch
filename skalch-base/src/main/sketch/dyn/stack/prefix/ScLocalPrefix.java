@@ -1,4 +1,4 @@
-package sketch.dyn.prefix;
+package sketch.dyn.stack.prefix;
 
 import sketch.util.DebugOut;
 

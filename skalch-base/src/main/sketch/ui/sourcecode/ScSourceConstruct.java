@@ -1,7 +1,7 @@
 package sketch.ui.sourcecode;
 
 import nu.xom.Element;
-import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.main.old.ScOldDynamicSketch;
 import sketch.util.DebugOut;
 import sketch.util.XmlEltWrapper;
 import sketch.util.XmlNoXpathMatchException;
@@ -56,7 +56,7 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
     }
 
     public static ScSourceConstruct from_node(Element child_, String filename,
-            ScDynamicSketch sketch)
+            ScOldDynamicSketch sketch)
     {
         XmlEltWrapper elt = new XmlEltWrapper(child_);
         int uid = elt.int_attr("uid");

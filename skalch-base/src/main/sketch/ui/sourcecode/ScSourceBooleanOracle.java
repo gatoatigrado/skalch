@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import java.util.Vector;
 
-import sketch.dyn.ScDynamicSketch;
+import sketch.dyn.main.old.ScOldDynamicSketch;
 import sketch.util.ScRichString;
 
 /**
@@ -13,7 +13,7 @@ import sketch.util.ScRichString;
  *          make changes, please consider contributing back!
  */
 public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
-    public ScSourceBooleanOracle(int uid, ScDynamicSketch sketch) {
+    public ScSourceBooleanOracle(int uid, ScOldDynamicSketch sketch) {
         super(uid, sketch);
     }
 

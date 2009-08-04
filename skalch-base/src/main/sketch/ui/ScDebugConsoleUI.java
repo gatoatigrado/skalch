@@ -2,7 +2,6 @@ package sketch.ui;
 
 import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertFalse;
-import sketch.dyn.ScDynamicSketch;
 import sketch.dyn.ctrls.ScGaCtrlConf;
 import sketch.dyn.debug.ScDebugEntry;
 import sketch.dyn.debug.ScDebugRun;
@@ -12,6 +11,8 @@ import sketch.dyn.ga.base.ScGaIndividual;
 import sketch.dyn.inputs.ScFixedInputConf;
 import sketch.dyn.inputs.ScGaInputConf;
 import sketch.dyn.inputs.ScSolvingInputConf;
+import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.stack.ScLocalStackSynthesis;
 import sketch.dyn.stack.ScStack;
 import sketch.ui.modifiers.ScUiModifier;
@@ -26,15 +27,15 @@ import sketch.util.DebugOut;
  */
 public class ScDebugConsoleUI implements ScUserInterface {
     ScFixedInputConf[] all_counterexamples;
-    ScDynamicSketch ui_sketch;
+    ScDynamicSketchCall<?> ui_sketch;
     protected ScGaCtrlConf ga_ctrl_conf;
     protected ScGaInputConf ga_oracle_conf;
 
-    public ScDebugConsoleUI(ScDynamicSketch ui_sketch) {
-        this.ui_sketch = ui_sketch;
+    public ScDebugConsoleUI(ScDynamicSketchCall<?> sketch) {
+        ui_sketch = sketch;
         if (beopts().ga_opts.enable) {
-            ga_ctrl_conf = new ScGaCtrlConf(ui_sketch.get_hole_info());
-            ga_oracle_conf = new ScGaInputConf(ui_sketch.get_oracle_info());
+            ga_ctrl_conf = new ScGaCtrlConf();
+            ga_oracle_conf = new ScGaInputConf();
         }
     }
 
@@ -51,13 +52,16 @@ public class ScDebugConsoleUI implements ScUserInterface {
         return 0;
     }
 
-    public void addStackSolution(ScStack stack__, int solution_cost) {
+    @SuppressWarnings("unchecked")
+    public void addStackSolution(ScStack stack__) {
         DebugOut.print_mt("solution with stack", stack__);
         if (beopts().ui_opts.no_console_skdprint) {
             return;
         }
         ScStack stack = stack__.clone();
-        printDebugRun(new ScDebugStackRun(ui_sketch, stack, all_counterexamples));
+        // FIXME -- hack
+        printDebugRun(new ScDebugStackRun(
+                (ScDynamicSketchCall<ScAngelicSketchBase>) ui_sketch, stack));
     }
 
     protected void printDebugRun(ScDebugRun sketch_run) {
@@ -85,11 +89,13 @@ public class ScDebugConsoleUI implements ScUserInterface {
         DebugOut.todo("add ga synthesis for debug");
     }
 
+    @SuppressWarnings("unchecked")
     public void addGaSolution(ScGaIndividual individual) {
         DebugOut.print_mt("solution ga synthesis individual", individual);
         DebugOut.print_mt("solution population", individual.initial_population);
         ScGaIndividual clone = individual.clone();
-        printDebugRun(new sketch.dyn.debug.ScDebugGaRun(ui_sketch,
-                all_counterexamples, clone, ga_ctrl_conf, ga_oracle_conf));
+        printDebugRun(new sketch.dyn.debug.ScDebugGaRun(
+                (ScDynamicSketchCall<ScAngelicSketchBase>) ui_sketch, clone,
+                ga_ctrl_conf, ga_oracle_conf));
     }
 }

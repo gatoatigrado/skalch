@@ -1,16 +1,14 @@
-package sketch.dyn;
-
-import scala.Function0;
+package sketch.dyn.main;
 
 /**
- * NOTE - not functional yet. Will be used for meta-GA.
+ * Information about holes, inputs, and oracles.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScSynthesisBootstrapped extends ScSynthesisMain {
-    public ScSynthesisBootstrapped(Function0<ScDynamicSketch> f) {
-        super(f);
-    }
+public abstract class ScConstructInfo {
+    public abstract int uid();
+
+    public abstract int untilv();
 }

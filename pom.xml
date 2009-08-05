@@ -31,7 +31,7 @@ Update dependency versions
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch</artifactId>
     <packaging>pom</packaging>
-    <version>0.02-SNAPSHOT</version>
+    <version>0.02</version>
     <name>skalch</name>
     <description>experimental support for sketching with angelic nondeterminism</description>
 
@@ -187,7 +187,7 @@ Update dependency versions
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
+                <artifactId>maven-scala-plugin-ntung</artifactId>
                 <version>${maven.scala.version}</version>
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>

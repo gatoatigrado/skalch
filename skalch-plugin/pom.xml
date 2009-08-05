@@ -5,14 +5,14 @@
     <parent>
         <artifactId>skalch</artifactId>
         <groupId>edu.berkeley.cs.sketch</groupId>
-        <version>0.02-SNAPSHOT</version>
+        <version>0.02</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.berkeley.cs.sketch</groupId>
     <artifactId>skalch-plugin</artifactId>
-    <version>0.02-SNAPSHOT</version>
+    <version>0.02</version>
     <name>skalch plugin only (for building skalch-base)</name>
     <packaging>jar</packaging>
 
@@ -42,7 +42,7 @@
             <!--  scala build plugin -->
             <plugin>
                 <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
+                <artifactId>maven-scala-plugin-ntung</artifactId>
                 <executions>
                     <execution>
                         <goals>
@@ -83,7 +83,7 @@
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
+                <artifactId>maven-scala-plugin-ntung</artifactId>
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
                 </configuration>

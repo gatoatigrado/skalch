@@ -24,6 +24,9 @@ abstract class SketchTypes {
     val ctx : nodes.FENode
     import global._
 
+    val class_connect : AutoNodeConnector[Symbol]
+    val external_refs : ListBuffer[String]
+
     val known_lib_types : Array[String] = Array(
         "scala.Function0")
 
@@ -41,20 +44,24 @@ abstract class SketchTypes {
                 tpe.typeArgs match {
                     case Nil => assertFalse("array with no type args")
                     case t :: Nil => new nodes.TypeArray(gettype(t),
-                        new vars.ScalaUnknownArrayLength(ctx))
+                        new exprs.vars.ScalaUnknownArrayLength(ctx))
                     case lst => assertFalse("array with many args " + lst)
                 }
+            case "scala.runtime.BoxedUnit" =>
+                new typs.ScalaUnitType()
+            case "scala.Unit" | "java.lang.String" => nodes.TypePrimitive.strtype
             case "skalch.DynamicSketch$InputGenerator" =>
                 new skconstr.ScalaInputGenType()
             case "skalch.DynamicSketch$HoleArray" =>
                 new skconstr.ScalaHoleArrayType()
-            case typename =>
-                if ((known_lib_types contains typename) ||
-                    ScInputDialogs.yesno("continue with unknown class " + typename, this))
-                {
+            case "skalch.AngelicSketch" =>
+                new typs.ScalaAngelicSketchType()
+            case typename => if (known_lib_types contains typename) {
+                    external_refs += typename
                     new typs.ScalaExternalLibraryType(typename)
                 } else {
-                    not_implemented("unknown type", tpe, typename)
+                    class_connect.connect_from(tpe.typeSymbol,
+                        new typs.ScalaUnknownType())
                 }
         }
     }

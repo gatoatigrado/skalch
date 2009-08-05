@@ -266,6 +266,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 val _goto_connect = AutoNodeConnector("scala_goto_label")
                 val _class_connect = AutoNodeConnector("scala_class")
                 val _class_fcn_connect = AutoNodeConnector("scala_class_fcn")
+                val _external_refs = ListBuffer[String]()
 
                 /**
                  * The main recursive call to create SKETCH nodes.
@@ -274,10 +275,12 @@ class SketchRewriter(val global: Global) extends Plugin {
                     // TODO - fill in source values...
                     val start = tree.pos.focusStart match {
                         case NoPosition => (0, 0)
+                        case FakePos(msg) => (0, 0)
                         case t : Position => (t.line, t.column)
                     }
                     val end = tree.pos.focusEnd match {
                         case NoPosition => (0, 0)
+                        case FakePos(msg) => (0, 0)
                         case t : Position => (t.line, t.column)
                     }
                     val the_ctx : misc.ScalaFENode = new misc.ScalaFENode(
@@ -292,6 +295,9 @@ class SketchRewriter(val global: Global) extends Plugin {
                     object sketch_types extends {
                         val global : SketchGeneratorComponent.this.global.type = _glbl
                         val ctx = the_ctx
+
+                        val class_connect = _class_connect
+                        val external_refs = _external_refs
                     } with SketchTypes
 
                     object sketch_node_map extends {
@@ -358,6 +364,9 @@ class SketchRewriter(val global: Global) extends Plugin {
                     root = getSketchAST(tree, new ContextInfo(null))
                     for (connector <- connectors) {
                         connector.checkDone()
+                    }
+                    if (!_external_refs.isEmpty) {
+                        DebugOut.assertFalse("external refs not empty")
                     }
                     tree
                 }

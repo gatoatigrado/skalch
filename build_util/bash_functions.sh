@@ -17,7 +17,9 @@ function set_package_decls() (
     for directory in *; do
         echo "setting in directory $directory"
         [ -d "$directory" ] || continue
-        for i in $(find "$directory" -iname "*.scala") $(find "$directory" -iname "*.java"); do
+        for i in $(find "$directory" -iname "*.scala")
+                $(find "$directory" -iname "*.java"); do
+
             endsep=$(python -c "import sys
 if \"java\" in sys.argv[1]:
     print(\";\")" "$i")

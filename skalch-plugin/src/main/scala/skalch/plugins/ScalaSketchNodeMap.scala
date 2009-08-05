@@ -125,6 +125,13 @@ abstract class ScalaSketchNodeMap {
                     case _ => not_implemented("unknown new usage")
                 }
 
+            case Apply(fcn @ Select(Super(_, mix), _), args) =>
+                val fcnsym = fcn.symbol
+                val ths_var = class_connect.connect_from(tree.symbol,
+                    new exprs.vars.ScalaThis(ctx))
+                class_fcn_connect.connect_from(fcnsym,
+                        new exprs.ScalaClassFunctionCall(ctx, ths_var, subarr(args)) )
+
             case Apply(fcn, args) =>
                 val fcnsym = fcn.symbol
                 if (fcnsym.isLabel) {
@@ -155,8 +162,6 @@ abstract class ScalaSketchNodeMap {
                 }
 
             case ArrayValue(elemtpt, elems) =>
-                val unused = subtree(elemtpt)
-                not_implemented("unused: elemtpt", unused)
                 new nodes.ExprArrayInit(ctx, subarr(elems))
 
             case Assign(lhs, rhs) =>
@@ -239,12 +244,20 @@ abstract class ScalaSketchNodeMap {
                 new nodes.ExprField(ctx, subtree(qualifier), getname(name))
 
             case Super(qual, mix) =>
-                new vars.ScalaSuperRef(ctx, gettype(tree))
+                new exprs.vars.ScalaSuperRef(ctx, gettype(tree))
 
             case Template(parents, self, body) =>
                 DebugOut.print("not visiting parents", parents)
                 for (sketch_node <- subarr(body)) sketch_node match {
                     case f : misc.ScalaClassFunction => ()
+                    case variable : nodes.StmtVarDecl =>
+                        assert(variable.getNumVars == 1,
+                            "multi-variable declarations not allowed")
+                        assert(variable.getInit(0).isInstanceOf[exprs.ScalaEmptyExpression],
+                            "all variables in the class body should initially " +
+                            "be assigned to the empty expression. class given: " +
+                            variable.getInit(0).getClass)
+                        info.curr_clazz.variables.add(variable)
                     case _ =>
                         not_implemented("element", "'" + sketch_node + "'",
                             "in class body")
@@ -253,7 +266,7 @@ abstract class ScalaSketchNodeMap {
 
             // qual may reference an outer class.
             case This(qual) =>
-                class_connect.connect_from(tree.symbol, new vars.ScalaThis(ctx))
+                class_connect.connect_from(tree.symbol, new exprs.vars.ScalaThis(ctx))
 
             case Throw(expr) =>
                 new stmts.ScalaThrow(ctx, subtree(expr))

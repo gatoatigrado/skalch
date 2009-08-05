@@ -20,7 +20,7 @@ set_version: # args: current=<version> next=<version>
 	sed -i "s/$(current)/$(next)/g" skalch-base/pom.xml
 
 kate: # open various config files in Kate
-	kate -u Makefile pom.xml */pom.xml */db/*.xml
+	kate -u Makefile pom.xml */pom.xml
 
 remove-whitespace: # trim trailing whitespace on all files
 	bash -c "source build_util/bash_functions.sh; cd skalch-plugin; trim_whitespace src"

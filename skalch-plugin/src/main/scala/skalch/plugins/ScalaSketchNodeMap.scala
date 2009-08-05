@@ -152,10 +152,10 @@ abstract class ScalaSketchNodeMap {
                             code : java.lang.Integer, args)
                     })
                 } else if (fcnsym.isStaticMember) {
-                    not_implemented("static function call")
+                    not_implemented("static function call", fcnsym.toString, args.toString)
                     new nodes.ExprFunCall(ctx, getname(fcn), subarr(args))
                 } else if (fcnsym.isClassConstructor) {
-                    not_implemented("class constructor call")
+                    not_implemented("class constructor call", fcnsym.toString, args.toString)
                 } else {
                     class_fcn_connect.connect_from(fcnsym,
                         new exprs.ScalaClassFunctionCall(ctx, target, subarr(args)))

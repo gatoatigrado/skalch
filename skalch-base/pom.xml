@@ -20,6 +20,9 @@
     <build>
         <resources>
             <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
                 <directory>${project.build.sourceDirectory}</directory>
             </resource>
         </resources>

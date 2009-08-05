@@ -27,7 +27,9 @@ remove-whitespace: # trim trailing whitespace on all files
 	bash -c "source build_util/bash_functions.sh; cd skalch-base; trim_whitespace src"
 
 set-test-package-decls: # hack to use sed and rename all java package declarations in the tests directory
-	bash -c "source build_util/bash_functions.sh; cd skalch-base/src; set_package_decls test"
+	bash -c "source build_util/bash_functions.sh; \
+                set_package_decls skalch-base/src/test/scala; \
+                set_package_decls skalch-base/src/main/java"
 
 ### Compile various tests using the plugin (to test the plugin)
 
@@ -36,16 +38,15 @@ plugin_sugared:
 
 plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
-	cd skalch-base; mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.angelic.simple.SugaredTest
 
 plugin_dev: # build the plugin and compile the a test given by $(testfile)
-	cd skalch-plugin; mvn compile install
-	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
+	cd skalch-plugin; mvn install
+	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 
 ### Sketch tests; use EXEC_ARGS=args to pass arguments
 
-angelic_sketch: # new angelic sketch base
-	cd skalch-base; mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass=test.angelic.simple.SugaredTest -Dexec.args="$(EXEC_ARGS)"
+angelic_sketch: plugin_angelic_sketch # new angelic sketch base
+	cd skalch-base; mvn -e exec:java -Dexec.classpathScope=test -Dexec.mainClass=angelic.simple.SugaredTest -Dexec.args="$(EXEC_ARGS)"
 
 ### developer-specific commands
 
@@ -54,10 +55,8 @@ gatoatigrado-clean-other: clean # clean relative paths in gatoatigrado's project
 
 gatoatigrado-build-plugin-deps: # build dependencies for the plugin, use skipdeps=1 to skip
 ifndef skipdeps
-	# maven is messed up, or maybe this is Eclipse's build system
-	rm -rf ~/sandbox/eclipse/sketch/target/classes/SKETCH/util
-	cd ../sketch-util; mvn install
-	cd ../SKETCH; mvn install
+	cd ../sketch-util; buildr install
+	cd ../SKETCH; rm -r target/classes/SKETCH/util; buildr install
 endif
 
 # gatoatigrado's plugin development trying the red-black tree sketch

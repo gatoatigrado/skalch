@@ -29,13 +29,12 @@
     -->
 
     <build>
-        <sourceDirectory>src/main</sourceDirectory>
-        <outputDirectory>bin</outputDirectory>
-
-        <!-- include source and scalac-plugin.xml -->
         <resources>
             <resource>
-                <directory>src/main/</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.sourceDirectory}</directory>
             </resource>
         </resources>
 

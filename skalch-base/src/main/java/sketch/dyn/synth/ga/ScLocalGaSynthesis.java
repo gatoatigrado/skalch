@@ -56,9 +56,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             nruns += 1;
             trycatch: try {
                 for (int a = 0; a < sketch.get_num_counterexamples(); a++) {
-                    sketch.set_counterexample(a);
                     ncounterexamples += 1;
-                    if (!sketch.run_test()) {
+                    if (!sketch.run_test(a)) {
                         break trycatch;
                     }
                 }

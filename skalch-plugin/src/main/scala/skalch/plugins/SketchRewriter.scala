@@ -35,7 +35,7 @@ class SketchRewriter(val global: Global) extends Plugin {
     val description = "de-sugars sketchy constructs"
     val components = List[PluginComponent](ConstructRewriter,
         FileCopyComponent
-        //, SketchGeneratorComponent
+        , SketchGeneratorComponent
         )
     var scalaFileMap = Map[Object, XmlDoc]()
     val fake_pos = FakePos("Inserted literal for call to sketch construct")

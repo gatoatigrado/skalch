@@ -8,7 +8,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import sketch.dyn.BackendOptions;
-import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.ui.ScUiQueueable;
@@ -40,7 +39,7 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
 
     protected abstract AbstractSynthesisThread create_synth_thread();
 
-    public final void run(ScSolvingInputConf[] inputs) {
+    public final void run() {
         ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
         done_events.reset();
         if (thread != null && thread.isAlive()) {

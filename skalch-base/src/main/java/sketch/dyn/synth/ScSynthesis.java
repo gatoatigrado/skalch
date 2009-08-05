@@ -1,7 +1,6 @@
 package sketch.dyn.synth;
 
 import static sketch.dyn.BackendOptions.beopts;
-import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.ui.ScUserInterface;
 import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
@@ -31,21 +30,18 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         max_num_random = beopts().ui_opts.max_num_random_stacks;
     }
 
-    public final void synthesize(ScSolvingInputConf[] counterexamples,
-            ScUserInterface ui)
-    {
+    public final void synthesize(ScUserInterface ui) {
         this.ui = ui;
         wait_handler = new ScExhaustedWaitHandler(local_synthesis.length);
         done_events.reset();
-        synthesize_inner(counterexamples, ui);
+        synthesize_inner(ui);
         for (ScLocalSynthesis local_synth : local_synthesis) {
             local_synth.thread_wait();
         }
         done_events.set_done();
     }
 
-    protected abstract void synthesize_inner(
-            ScSolvingInputConf[] counterexamples, ScUserInterface ui);
+    protected abstract void synthesize_inner(ScUserInterface ui);
 
     protected final void increment_num_solutions() {
         nsolutions_found += 1;
@@ -54,4 +50,7 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
             wait_handler.set_synthesis_complete();
         }
     }
+
+    /** will be unpacked by fluffy scala match statement */
+    public abstract Object get_solution_tuple();
 }

@@ -14,12 +14,10 @@ import sketch.dyn.constructs.inputs.ScInputConf;
 public interface ScDynamicSketchCall<T> {
     public int get_num_counterexamples();
 
-    public void set_counterexample(int idx);
-
     public void initialize_before_all_tests(ScCtrlConf ctrl_conf,
             ScInputConf oracle_conf);
 
-    public boolean run_test();
+    public boolean run_test(int idx);
 
     public int get_solution_cost();
 

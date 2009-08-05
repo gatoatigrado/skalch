@@ -1,14 +1,13 @@
 package sketch.dyn.main.angelic;
 
 import static sketch.dyn.BackendOptions.beopts;
-import static sketch.util.DebugOut.not_implemented;
-
-import java.lang.reflect.Method;
-
 import sketch.dyn.main.ScSynthesisMainBase;
+import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.ga.ScGaSynthesis;
 import sketch.dyn.synth.stack.ScStackSynthesis;
+import sketch.ui.ScUserInterface;
+import sketch.ui.ScUserInterfaceManager;
 
 /**
  * where it all begins... for angelic sketches (see AngelicSketch.scala)
@@ -18,7 +17,7 @@ import sketch.dyn.synth.stack.ScStackSynthesis;
  *          make changes, please consider contributing back!
  */
 public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
-    public final ScAngelicSketchBase ui_sketch;
+    public final ScAngelicSketchCall ui_sketch;
     protected ScAngelicSketchCall[] sketches;
     protected ScSynthesis<?> synthesis_runtime;
 
@@ -27,8 +26,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         for (int a = 0; a < nthreads; a++) {
             sketches[a] = new ScAngelicSketchCall(f.apply());
         }
-        ui_sketch = f.apply();
-        not_implemented("scangelicsynthesismain");
+        ui_sketch = new ScAngelicSketchCall(f.apply());
         if (beopts().ga_opts.enable) {
             synthesis_runtime = new ScGaSynthesis(sketches);
         } else {
@@ -36,8 +34,15 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         }
     }
 
-    public void synthesize() throws Exception {
-        Method test_cases = ui_sketch.getClass().getMethod("tests");
-        not_implemented("get tests from method", test_cases);
+    public Object synthesize() throws Exception {
+        // start various utilities
+        ScUserInterface ui =
+                ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
+        ScStatsMT.stats_singleton.start_synthesis();
+        // actual synthesize call
+        synthesis_runtime.synthesize(ui);
+        // stop utilities
+        ScStatsMT.stats_singleton.stop_synthesis();
+        return synthesis_runtime.get_solution_tuple();
     }
 }

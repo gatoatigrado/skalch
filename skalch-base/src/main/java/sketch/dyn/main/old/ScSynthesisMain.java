@@ -11,8 +11,8 @@ import nu.xom.Document;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
+import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
-import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
@@ -32,8 +32,8 @@ import sketch.util.EntireFileReader;
  *          make changes, please consider contributing back!
  */
 public class ScSynthesisMain extends ScSynthesisMainBase {
-    protected ScDynamicSketchCall<ScOldDynamicSketch>[] sketches;
-    protected ScDynamicSketchCall<ScOldDynamicSketch> ui_sketch;
+    protected ScOldDynamicSketchCall[] sketches;
+    protected ScOldDynamicSketchCall ui_sketch;
     protected ScSynthesis<?> synthesis_runtime;
 
     /**
@@ -43,9 +43,8 @@ public class ScSynthesisMain extends ScSynthesisMainBase {
      * @param cmdopts
      *            Command options
      */
-    @SuppressWarnings("unchecked")
     public ScSynthesisMain(scala.Function0<ScOldDynamicSketch> f) {
-        sketches = new ScDynamicSketchCall[nthreads];
+        sketches = new ScOldDynamicSketchCall[nthreads];
         for (int a = 0; a < nthreads; a++) {
             sketches[a] = new ScOldDynamicSketchCall(f.apply());
         }
@@ -93,16 +92,21 @@ public class ScSynthesisMain extends ScSynthesisMainBase {
         return tg.get_inputs();
     }
 
-    public void synthesize() {
+    public Object synthesize() {
         ScSolvingInputConf[] inputs = generate_inputs(ui_sketch.get_sketch());
         // start various utilities
         ScUserInterface ui =
                 ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
         ui.set_counterexamples(inputs);
+        ui_sketch.counterexamples = ScFixedInputConf.from_inputs(inputs);
+        for (ScOldDynamicSketchCall sketch : sketches) {
+            sketch.counterexamples = ScFixedInputConf.from_inputs(inputs);
+        }
         ScStatsMT.stats_singleton.start_synthesis();
         // actual synthesize call
-        synthesis_runtime.synthesize(inputs, ui);
+        synthesis_runtime.synthesize(ui);
         // stop utilities
         ScStatsMT.stats_singleton.stop_synthesis();
+        return synthesis_runtime.get_solution_tuple();
     }
 }

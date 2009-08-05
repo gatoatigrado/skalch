@@ -5,7 +5,8 @@ import static sketch.util.DebugOut.assertSlow;
 
 import java.util.HashSet;
 
-import sketch.dyn.constructs.inputs.ScSolvingInputConf;
+import sketch.dyn.constructs.ctrls.ScGaCtrlConf;
+import sketch.dyn.constructs.inputs.ScGaInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
@@ -28,6 +29,7 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> implements
     public int spine_length = beopts().ga_opts.spine_len;
     public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
     public ScPopulationManager population_mgr;
+    protected ScGaIndividual first_solution;
 
     public ScGaSynthesis(ScDynamicSketchCall<?>[] sketches) {
         local_synthesis = new ScLocalGaSynthesis[sketches.length];
@@ -37,19 +39,21 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> implements
     }
 
     @Override
-    public void synthesize_inner(ScSolvingInputConf[] counterexamples,
-            ScUserInterface ui)
-    {
+    public void synthesize_inner(ScUserInterface ui) {
         population_mgr = new ScPopulationManager();
+        first_solution = null;
         ui.addGaSynthesis(this);
         for (ScLocalGaSynthesis local_synth : local_synthesis) {
-            local_synth.run(counterexamples);
+            local_synth.run();
         }
     }
 
     public synchronized void add_solution(ScGaIndividual current_individual) {
         if (solutions.add(current_individual.generate_solution_id())) {
             ui.addGaSolution(current_individual);
+            if (first_solution == null) {
+                first_solution = current_individual.clone();
+            }
             increment_num_solutions();
             assertSlow(solutions.contains(current_individual
                     .generate_solution_id()), "solution not added?");
@@ -64,6 +68,19 @@ public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> implements
                 ga_local_synth.queueModifier(m);
                 return;
             }
+        }
+    }
+
+    @Override
+    public Object get_solution_tuple() {
+        if (first_solution == null) {
+            return null;
+        } else {
+            ScGaCtrlConf ctrl_conf = new ScGaCtrlConf();
+            ScGaInputConf oracle_conf = new ScGaInputConf();
+            first_solution.reset(ctrl_conf, oracle_conf);
+            return new scala.Tuple2<ScGaCtrlConf, ScGaInputConf>(ctrl_conf,
+                    oracle_conf);
         }
     }
 }

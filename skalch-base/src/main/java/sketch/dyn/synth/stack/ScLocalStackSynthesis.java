@@ -57,9 +57,8 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                             stack.oracle_conf);
                     nruns += 1;
                     for (int c = 0; c < sketch.get_num_counterexamples(); c++) {
-                        sketch.set_counterexample(c);
                         ncounterexamples += 1;
-                        if (!sketch.run_test()) {
+                        if (!sketch.run_test(c)) {
                             break trycatch;
                         }
                     }

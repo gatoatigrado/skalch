@@ -38,8 +38,7 @@ public abstract class ScDebugRun {
         succeeded = false;
         trycatch: try {
             for (int a = 0; a < sketch_call.get_num_counterexamples(); a++) {
-                sketch_call.set_counterexample(a);
-                if (!sketch_call.run_test()) {
+                if (!sketch_call.run_test(a)) {
                     break trycatch;
                 }
             }

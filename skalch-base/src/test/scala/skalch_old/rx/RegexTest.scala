@@ -1,3 +1,6 @@
+/*
+Deprecated.
+
 package skalch_old.rx
 
 import skalch.DynamicSketch
@@ -102,4 +105,4 @@ object RegexTest {
             ))
     }
 }
-
+*/

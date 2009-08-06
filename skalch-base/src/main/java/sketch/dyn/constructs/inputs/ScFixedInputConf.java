@@ -142,4 +142,21 @@ public class ScFixedInputConf extends ScInputConf {
         }
         return value_string[uid];
     }
+
+    @Override
+    public int[] getValueArray() {
+        int nvalues = 0;
+        for (int a = 0; a < values.length; a++) {
+            nvalues += values[a].length;
+        }
+        int[] result = new int[nvalues];
+        int idx = 0;
+        for (int a = 0; a < values.length; a++) {
+            for (int c = 0; c < values[a].length; c++) {
+                result[idx] = values[a][c];
+                idx += 1;
+            }
+        }
+        return result;
+    }
 }

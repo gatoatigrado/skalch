@@ -67,6 +67,9 @@ public class ScDebugConsoleUI implements ScUserInterface {
 
     protected void printDebugRun(ScDebugRun sketch_run) {
         sketch_run.run();
+        if (sketch_run.debug_out == null) {
+            DebugOut.assertFalse("debug out is null");
+        }
         for (ScDebugEntry debug_entry : sketch_run.debug_out) {
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[skdprint]", " ",
                     false, debug_entry.consoleString());

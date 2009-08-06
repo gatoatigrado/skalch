@@ -8,6 +8,7 @@ import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
+import sketch.util.DebugOut;
 import sketch.util.ScCloneable;
 
 /**
@@ -81,5 +82,11 @@ public class ScGaInputConf extends ScInputConf implements
         for (int a = 0; a < next.length; a++) {
             next[a] = 0;
         }
+    }
+
+    @Override
+    public int[] getValueArray() {
+        DebugOut.not_implemented("ScGaInputConf.getValueArray");
+        return null;
     }
 }

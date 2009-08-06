@@ -1,5 +1,6 @@
 package sketch.dyn.constructs.ctrls;
 
+import static sketch.util.DebugOut.not_implemented;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
@@ -34,5 +35,11 @@ public class ScGaCtrlConf extends ScCtrlConf {
                 new ScConstructValue(base
                         .displayGetValue(true, uid, 0, 1 << 20));
         return new ScConstructValueString("", value, "");
+    }
+
+    @Override
+    public int[] getValueArray() {
+        not_implemented("ScGaCtrlConf.getValueArray");
+        return null;
     }
 }

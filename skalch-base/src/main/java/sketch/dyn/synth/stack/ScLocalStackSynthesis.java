@@ -41,6 +41,7 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
 
     public class ScStackSynthesisThread extends AbstractSynthesisThread {
         ScStack stack;
+        int num_counterexamples = 0;
         boolean exhausted = false;
         public float replacement_probability = 1.f;
 
@@ -62,9 +63,10 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                             break trycatch;
                         }
                     }
-                    nsolutions += 1;
                     stack.setCost(sketch.get_solution_cost());
-                    ssr.add_solution(stack);
+                    if (ssr.add_solution(stack)) {
+                        nsolutions += 1;
+                    }
                     ssr.wait_handler.throw_if_synthesis_complete();
                 } catch (ScSynthesisAssertFailure e) {
                 } catch (ScDynamicUntilvException e) {

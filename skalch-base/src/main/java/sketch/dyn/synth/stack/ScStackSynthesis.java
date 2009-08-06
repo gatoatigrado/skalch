@@ -53,13 +53,16 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         }
     }
 
-    public void add_solution(ScStack stack) {
+    public boolean add_solution(ScStack stack) {
         if (stack.first_run && got_first_run.getAndSet(true)) {
-            return;
+            return false;
         }
-        first_solution.compareAndSet(null, stack);
+        if (first_solution.get() == null) {
+            first_solution.compareAndSet(null, stack.clone());
+        }
         ui.addStackSolution(stack);
         increment_num_solutions();
+        return true;
     }
 
     @Override
@@ -68,6 +71,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
             return null;
         } else {
             ScStack stack = first_solution.get();
+            stack.reset_before_run(); // let the solution just dequeue entries
             return new scala.Tuple2<ScSynthCtrlConf, ScSolvingInputConf>(
                     stack.ctrl_conf, stack.oracle_conf);
         }

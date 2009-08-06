@@ -178,4 +178,18 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
         DebugOut.assertFalse("set fixed input values to get a value string.");
         return null;
     }
+
+    @Override
+    public int[] getValueArray() {
+        Vector<Integer> linearized = new Vector<Integer>();
+        for (Vector<Integer> construct_values : values) {
+            linearized.addAll(construct_values);
+        }
+        Integer[] boxed = linearized.toArray(new Integer[0]);
+        int[] result = new int[boxed.length];
+        for (int a = 0; a < boxed.length; a++) {
+            result[a] = boxed[a];
+        }
+        return result;
+    }
 }

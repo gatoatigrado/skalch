@@ -2,8 +2,9 @@ package skalch_old.simple
 
 import skalch.DynamicSketch
 import sketch.dyn.BackendOptions
-import sketch.util.DebugOut
-import sketch.util._
+import sketch.dyn.constructs.{ctrls, inputs}
+import sketch.util.cli
+import sketch.util.DebugOut._ // assertFalse, etc.
 
 class SugaredSketch() extends DynamicSketch {
 
@@ -28,6 +29,12 @@ object SugaredTest {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
         BackendOptions.add_opts(cmdopts)
-        skalch.synthesize(() => new SugaredSketch())
+        skalch.synthesize(() => new SugaredSketch()) match {
+            case null => assertFalse("This sketch is solvable! Values: 2, 63")
+            case (ctrl_values : ctrls.ScCtrlConf, oracle_values : inputs.ScInputConf) =>
+                println("values array: " + ctrl_values.getValueArray().toString())
+                assert(ctrl_values.getValueArray() deepEquals Array(2, 63))
+            case other => assertFalse("unknown solution for sketch", other)
+        }
     }
 }

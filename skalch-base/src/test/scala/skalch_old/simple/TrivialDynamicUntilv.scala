@@ -10,7 +10,6 @@ class TrivialDynamicUntilv(val max_n : Int, val num_tests : Int)
     extends DynamicSketch
 {
     val in_length = new InputGenerator(untilv=(1 << 30))
-    val oracle = new OracleInput(untilv=max_n)
 
     def dysketch_main() = {
         val n = in_length()

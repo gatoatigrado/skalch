@@ -7,14 +7,11 @@ import sketch.dyn.BackendOptions
 import sketch.util._
 
 class RomanNumerals1(val decimal_number : Int) extends DynamicSketch {
-    val loopbnd = new BooleanOracle()
-    val numeral_select = new ValueSelectOracle[RomanNumeral](num=7)
-
     def numeralOfNumber(n : Int) : List[RomanNumeral] = {
         val buf = new ListBuffer[RomanNumeral]
         var i = 0
-        while (i < n && !loopbnd()) {
-            buf += numeral_select(I(), V(), X(), L(), C(), D(), M())
+        while (i < n && !(!!())) {
+            buf += !!(List(I(), V(), X(), L(), C(), D(), M()))
             i += 1
         }
 //         print("list", buf.toString)

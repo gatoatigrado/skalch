@@ -28,9 +28,7 @@ abstract class DynamicSketch extends ScOldDynamicSketch {
             super.toArray(new Array[ScConstructInfo](0))
         }
     }
-    private[this] val __hole_list = new FreezableVector[Hole]()
     private[this] val __input_list = new FreezableVector[InputGenerator]()
-    private[this] val __oracle_list = new FreezableVector[OracleInput]()
     // more fields in ScDynamicSketch.java
 
     /** generate test data */
@@ -118,42 +116,6 @@ abstract class DynamicSketch extends ScOldDynamicSketch {
         arr(rv)
     }
 
-    // === Holes ===
-    class Hole(val untilv : Int) extends ScConstructInfo {
-       val uid : Int = __hole_list.length
-       __hole_list += this
-       def apply() = DynamicSketch.this.ctrl_conf.getValue(uid) // hopefully wickedly fast
-       override def toString() =
-            "Hole[uid = " + uid + ", untilv = " + untilv + ", cv = value]"
-       // TODO - remove obsolete code.
-       // def valueString() = DynamicSketch.this.ctrl_conf.getValueString(uid)
-    }
-    class BooleanHole {
-        val hole = new Hole(2)
-        def apply() : Boolean = (hole.apply() == 1)
-    }
-    class NegHole(val mag_untilv : Int) extends Hole(2 * mag_untilv - 1) {
-        override def apply() = {
-            val v = super.apply()
-            val posvalue = (v >> 1) - (v & 1)
-            if ((v & 1) == 1) (-posvalue) else posvalue
-        }
-    }
-    class MinMaxHole(val min_incl : Int, val max_incl : Int
-        ) extends Hole(max_incl - min_incl + 1)
-    {
-        override def apply() = super.apply() + min_incl
-    }
-    class ValueSelectHole[T](num : Int) extends Hole(num) {
-        def apply(arr : T*) : T = { assert(arr.length == num); arr(super.apply()) }
-    }
-    class HoleArray(val num : Int, untilv : Int) {
-        val array : Array[Hole] = (for (i <- 0 until num) yield new Hole(untilv)).toArray
-        def apply(idx : Int) : Int = array(idx).apply()
-    }
-
-
-
     // === Inputs ===
     class InputGenerator(val untilv : Int) extends ScConstructInfo {
         val uid : Int = __input_list.length
@@ -175,22 +137,6 @@ abstract class DynamicSketch extends ScOldDynamicSketch {
         def tests() { test_case() }
     }
     def NullTestGenerator() = new NullTestGeneratorCls()
-
-
-
-    // === Oracles inputs ===
-    class OracleInput(val untilv : Int) extends ScConstructInfo {
-        val uid : Int = __oracle_list.length
-        __oracle_list += this
-        def apply() : Int = DynamicSketch.this.oracle_conf.nextValue(uid)
-    }
-    class BooleanOracle {
-        val oracle = new OracleInput(2)
-        def apply() : Boolean = (oracle.apply() == 1)
-    }
-    class ValueSelectOracle[T](num : Int) extends OracleInput(num) {
-        def apply(arr : T*) : T = { assert(arr.length == num); arr(super.apply()) }
-    }
 
 
 
@@ -220,13 +166,11 @@ abstract class DynamicSketch extends ScOldDynamicSketch {
 
 
 
-    def get_hole_info() = __hole_list.get_and_freeze()
     def get_input_info() = __input_list.get_and_freeze()
-    def get_oracle_info() = __oracle_list.get_and_freeze()
 }
 
 object synthesize {
-    def apply(f : (() => DynamicSketch)) {
+    def apply(f : (() => DynamicSketch)) : AnyRef = {
         val synth = new ScSynthesisMain(f)
         synth.synthesize()
     }

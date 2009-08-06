@@ -131,4 +131,9 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         this.untilv[uid] = untilv;
         return getValue(uid);
     }
+
+    @Override
+    public int[] getValueArray() {
+        return values;
+    }
 }

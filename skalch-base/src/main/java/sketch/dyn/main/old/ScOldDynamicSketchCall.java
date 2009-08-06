@@ -16,7 +16,7 @@ public class ScOldDynamicSketchCall implements
     }
 
     public int get_num_counterexamples() {
-        return 0;
+        return counterexamples.length;
     }
 
     public void initialize_before_all_tests(ScCtrlConf ctrl_conf,

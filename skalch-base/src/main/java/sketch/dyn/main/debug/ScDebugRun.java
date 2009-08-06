@@ -31,6 +31,7 @@ public abstract class ScDebugRun {
 
     /** feel free to change this method if you need more hooks */
     public final void run() {
+        enable_debug();
         run_init();
         sketch_call.initialize_before_all_tests(get_ctrl_conf(),
                 get_oracle_conf());
@@ -74,7 +75,7 @@ public abstract class ScDebugRun {
 
     public abstract ScInputConf get_oracle_conf();
 
-    public abstract void enable_debug();
+    protected abstract void enable_debug();
 
     public abstract StackTraceElement get_assert_failure_location();
 

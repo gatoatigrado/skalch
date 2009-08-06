@@ -1,5 +1,7 @@
 package sketch.dyn.main.debug;
 
+import static sketch.util.DebugOut.assertFalse;
+
 import java.util.Vector;
 
 import sketch.dyn.main.ScDynamicSketchCall;
@@ -35,6 +37,9 @@ public abstract class ScDefaultDebugRun extends ScDebugRun {
 
     @Override
     public Vector<ScDebugEntry> get_debug_out() {
+        if (sketch.debug_out == null) {
+            assertFalse("ScDefaultDebugRun - debug out null");
+        }
         return sketch.debug_out;
     }
 }

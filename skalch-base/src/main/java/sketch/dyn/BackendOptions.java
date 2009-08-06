@@ -6,9 +6,9 @@ import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.dyn.synth.ga.ScGaOptions;
 import sketch.ui.ScUiOptions;
 import sketch.util.DebugOut;
-import sketch.util.cli.CliOptionResult;
 import sketch.util.cli.CliParser;
 import sketch.util.sourcecode.ScSourceCache;
+import ec.util.ThreadLocalMT;
 
 /**
  * all options used by the backend
@@ -18,7 +18,7 @@ import sketch.util.sourcecode.ScSourceCache;
  *          make changes, please consider contributing back!
  */
 public class BackendOptions {
-    public CliOptionResult synth_opts;
+    public ScSynthesisOptions synth_opts;
     public ScUiOptions ui_opts;
     public ScGaOptions ga_opts;
     public ScStatsOptions stat_opts;
@@ -34,7 +34,8 @@ public class BackendOptions {
     }
 
     public BackendOptions(CliParser p) {
-        synth_opts = (new ScSynthesisOptions()).parse(p);
+        synth_opts = new ScSynthesisOptions();
+        synth_opts.parse(p);
         ui_opts = new ScUiOptions();
         ui_opts.parse(p);
         ga_opts = new ScGaOptions();
@@ -62,5 +63,7 @@ public class BackendOptions {
         stat_opts.set_values();
         DebugOut.no_bash_color = ui_opts.no_bash_color;
         ScSourceCache.linesep = ui_opts.linesep_regex;
+        ThreadLocalMT.disable_use_current_time_millis =
+                synth_opts.no_clock_rand;
     }
 }

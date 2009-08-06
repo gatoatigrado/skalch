@@ -34,7 +34,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
 
     public ScDebugConsoleUI(ScDynamicSketchCall<?> sketch) {
         ui_sketch = sketch;
-        if (beopts().ga_opts.enable) {
+        if (beopts().synth_opts.solver.isGa) {
             ga_ctrl_conf = new ScGaCtrlConf();
             ga_oracle_conf = new ScGaInputConf();
         }

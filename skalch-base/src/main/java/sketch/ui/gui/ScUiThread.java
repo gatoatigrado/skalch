@@ -57,7 +57,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         this.synth_runtime = synth_runtime;
         this.sketch_call = sketch_call;
         this.be_opts = be_opts;
-        if (be_opts.ga_opts.enable) {
+        if (be_opts.synth_opts.solver.isGa) {
             ga_ctrl_conf = new ScGaCtrlConf();
             ga_oracle_conf = new ScGaInputConf();
         }

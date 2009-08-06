@@ -18,8 +18,6 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
         super("ga", "genetic algorithm options");
     }
 
-    @CliParameter(help = "use the genetic algorithm instead of stack synthesis")
-    public boolean enable;
     @CliParameter(help = "enable GA analysis (adds overhead)")
     public boolean analysis;
     @CliParameter(help = "number of recent solutions in array for analysis")

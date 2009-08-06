@@ -25,8 +25,8 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
 
     public ScSynthesis() {
         // command line options
-        nsolutions_to_find = beopts().synth_opts.long_("num_solutions");
-        debug_stop_after = beopts().synth_opts.long_("debug_stop_after");
+        nsolutions_to_find = beopts().synth_opts.num_solutions;
+        debug_stop_after = beopts().synth_opts.debug_stop_after;
         max_num_random = beopts().ui_opts.max_num_random_stacks;
     }
 

@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import java.util.Vector;
 
-import sketch.dyn.main.old.ScOldDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.util.ScRichString;
 
 /**
@@ -14,11 +14,11 @@ import sketch.util.ScRichString;
  */
 public class ScSourceUntilvOracle implements ScSourceConstructInfo {
     int uid;
-    ScOldDynamicSketch sketch;
+    ScDynamicSketchCall<?> sketch_call;
 
-    public ScSourceUntilvOracle(int uid, ScOldDynamicSketch sketch) {
+    public ScSourceUntilvOracle(int uid, ScDynamicSketchCall<?> sketch_call) {
         this.uid = uid;
-        this.sketch = sketch;
+        this.sketch_call = sketch_call;
     }
 
     public boolean hasMultipleValues() {
@@ -29,7 +29,7 @@ public class ScSourceUntilvOracle implements ScSourceConstructInfo {
     public String valueString(String srcArgs) {
         try {
             Vector<ScConstructValueString> values =
-                    sketch.oracle_conf.getValueString(uid);
+                    sketch_call.getOracleValueString(uid);
             Vector<String> result_arr = new Vector<String>();
             for (ScConstructValueString value_string : values) {
                 result_arr.add(value_string.formatString());

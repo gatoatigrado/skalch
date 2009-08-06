@@ -1,7 +1,12 @@
 package sketch.dyn.main;
 
+import java.util.Vector;
+
 import sketch.dyn.constructs.ctrls.ScCtrlConf;
 import sketch.dyn.constructs.inputs.ScInputConf;
+import sketch.ui.sourcecode.ScConstructValueString;
+import sketch.ui.sourcecode.ScNoValueStringException;
+import sketch.ui.sourcecode.ScSourceConstruct;
 
 /**
  * provide common functionality (run, etc.) for sketches; mostly a way to
@@ -22,4 +27,12 @@ public interface ScDynamicSketchCall<T> {
     public int get_solution_cost();
 
     public T get_sketch();
+
+    public ScConstructValueString getHoleValueString(int uid)
+            throws ScNoValueStringException;
+
+    public Vector<ScConstructValueString> getOracleValueString(int uid)
+            throws ScNoValueStringException;
+
+    public void addSourceInfo(ScSourceConstruct info);
 }

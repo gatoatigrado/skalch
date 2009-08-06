@@ -1,6 +1,6 @@
 package sketch.ui.sourcecode;
 
-import sketch.dyn.main.old.ScOldDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 
 /**
  * An class which is responsible for formatting untilv holes (holes with an
@@ -12,11 +12,11 @@ import sketch.dyn.main.old.ScOldDynamicSketch;
  */
 public class ScSourceUntilvHole implements ScSourceConstructInfo {
     int uid;
-    ScOldDynamicSketch sketch;
+    ScDynamicSketchCall<?> sketch_call;
 
-    public ScSourceUntilvHole(int uid, ScOldDynamicSketch sketch) {
+    public ScSourceUntilvHole(int uid, ScDynamicSketchCall<?> sketch_call) {
         this.uid = uid;
-        this.sketch = sketch;
+        this.sketch_call = sketch_call;
     }
 
     public boolean hasMultipleValues() {
@@ -25,7 +25,7 @@ public class ScSourceUntilvHole implements ScSourceConstructInfo {
 
     public String valueString(String src_args) {
         try {
-            return sketch.ctrl_conf.getValueString(uid).formatString();
+            return sketch_call.getHoleValueString(uid).formatString();
         } catch (ScNoValueStringException e) {
             return "/* not reached */ ??(" + src_args + ")";
         }

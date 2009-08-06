@@ -1,9 +1,14 @@
 package sketch.dyn.main.old;
 
+import java.util.Vector;
+
 import sketch.dyn.constructs.ctrls.ScCtrlConf;
 import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.ui.sourcecode.ScConstructValueString;
+import sketch.ui.sourcecode.ScNoValueStringException;
+import sketch.ui.sourcecode.ScSourceConstruct;
 
 public class ScOldDynamicSketchCall implements
         ScDynamicSketchCall<ScOldDynamicSketch>
@@ -39,5 +44,21 @@ public class ScOldDynamicSketchCall implements
 
     public ScOldDynamicSketch get_sketch() {
         return sketch;
+    }
+
+    public void addSourceInfo(ScSourceConstruct info) {
+        sketch.addSourceInfo(info);
+    }
+
+    public ScConstructValueString getHoleValueString(int uid)
+            throws ScNoValueStringException
+    {
+        return sketch.ctrl_conf.getValueString(uid);
+    }
+
+    public Vector<ScConstructValueString> getOracleValueString(int uid)
+            throws ScNoValueStringException
+    {
+        return sketch.oracle_conf.getValueString(uid);
     }
 }

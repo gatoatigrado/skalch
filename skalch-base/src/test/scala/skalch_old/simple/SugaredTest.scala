@@ -32,7 +32,6 @@ object SugaredTest {
         skalch.synthesize(() => new SugaredSketch()) match {
             case null => assertFalse("This sketch is solvable! Values: 2, 63")
             case (ctrl_values : ctrls.ScCtrlConf, oracle_values : inputs.ScInputConf) =>
-                println("values array: " + ctrl_values.getValueArray().toString())
                 assert(ctrl_values.getValueArray() deepEquals Array(2, 63))
             case other => assertFalse("unknown solution for sketch", other)
         }

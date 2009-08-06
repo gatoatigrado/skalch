@@ -24,6 +24,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
             sketches[a] = new ScAngelicSketchCall(f.apply());
         }
         ui_sketch = new ScAngelicSketchCall(f.apply());
+        load_ui_sketch_info(ui_sketch);
         synthesis_runtime = get_synthesis_runtime(sketches);
     }
 

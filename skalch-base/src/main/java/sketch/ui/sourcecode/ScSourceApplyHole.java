@@ -1,6 +1,6 @@
 package sketch.ui.sourcecode;
 
-import sketch.dyn.main.old.ScOldDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 
 /**
  * A class responsible for formatting holes parameterized by a collection.
@@ -10,15 +10,15 @@ import sketch.dyn.main.old.ScOldDynamicSketch;
  *          make changes, please consider contributing back!
  */
 public class ScSourceApplyHole extends ScSourceUntilvHole {
-    public ScSourceApplyHole(int uid, ScOldDynamicSketch sketch) {
-        super(uid, sketch);
+    public ScSourceApplyHole(int uid, ScDynamicSketchCall<?> sketch_call) {
+        super(uid, sketch_call);
     }
 
     @Override
     public String valueString(String src_args) {
         try {
             return "(" + src_args + ")("
-                    + sketch.ctrl_conf.getValueString(uid).formatString() + ")";
+                    + sketch_call.getHoleValueString(uid).formatString() + ")";
         } catch (ScNoValueStringException e) {
             return "/* not reached */ ??(" + src_args + ")";
         }

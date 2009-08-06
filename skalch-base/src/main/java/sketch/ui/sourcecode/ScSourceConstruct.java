@@ -1,7 +1,7 @@
 package sketch.ui.sourcecode;
 
 import nu.xom.Element;
-import sketch.dyn.main.old.ScOldDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.util.DebugOut;
 import sketch.util.XmlEltWrapper;
 import sketch.util.XmlNoXpathMatchException;
@@ -56,7 +56,7 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
     }
 
     public static ScSourceConstruct from_node(Element child_, String filename,
-            ScOldDynamicSketch sketch)
+            ScDynamicSketchCall<?> sketch_call)
     {
         XmlEltWrapper elt = new XmlEltWrapper(child_);
         int uid = elt.int_attr("uid");
@@ -69,22 +69,22 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         boolean zero_len_arg_loc = false;
         if (elt.getLocalName().equals("holeapply")) {
             if (pt.contains("[[integer untilv hole]]")) {
-                cons_info = new ScSourceUntilvHole(uid, sketch);
+                cons_info = new ScSourceUntilvHole(uid, sketch_call);
             } else {
                 DebugOut.assertSlow(pt.contains("[[object apply hole]]"),
                         "unknown parameter type", pt);
-                cons_info = new ScSourceApplyHole(uid, sketch);
+                cons_info = new ScSourceApplyHole(uid, sketch_call);
             }
         } else if (elt.getLocalName().equals("oracleapply")) {
             if (pt.contains("[[integer untilv oracle]]")) {
-                cons_info = new ScSourceUntilvOracle(uid, sketch);
+                cons_info = new ScSourceUntilvOracle(uid, sketch_call);
             } else if (pt.contains("[[boolean oracle]]")) {
                 zero_len_arg_loc = true;
-                cons_info = new ScSourceBooleanOracle(uid, sketch);
+                cons_info = new ScSourceBooleanOracle(uid, sketch_call);
             } else {
                 DebugOut.assertSlow(pt.contains("[[object apply oracle]]"),
                         "unknown parameter type", pt);
-                cons_info = new ScSourceApplyOracle(uid, sketch);
+                cons_info = new ScSourceApplyOracle(uid, sketch_call);
             }
             eloc = new ScSourceLocation(filename, eloc.start.line);
         }

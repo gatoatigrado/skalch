@@ -1,6 +1,6 @@
 package sketch.ui.sourcecode;
 
-import sketch.dyn.main.old.ScOldDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 
 /**
  * Oracle which (if it had been a hole) would be rewritten as (arg)(!!-value)
@@ -10,8 +10,8 @@ import sketch.dyn.main.old.ScOldDynamicSketch;
  *          make changes, please consider contributing back!
  */
 public class ScSourceApplyOracle extends ScSourceUntilvOracle {
-    public ScSourceApplyOracle(int uid, ScOldDynamicSketch sketch) {
-        super(uid, sketch);
+    public ScSourceApplyOracle(int uid, ScDynamicSketchCall<?> sketch_call) {
+        super(uid, sketch_call);
     }
 
     @Override

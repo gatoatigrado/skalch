@@ -6,10 +6,14 @@ import static sketch.util.DebugOut.print_exception;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Vector;
 
 import sketch.dyn.constructs.ctrls.ScCtrlConf;
 import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.ui.sourcecode.ScConstructValueString;
+import sketch.ui.sourcecode.ScNoValueStringException;
+import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 
 public class ScAngelicSketchCall implements
@@ -256,5 +260,21 @@ public class ScAngelicSketchCall implements
 
     public ScAngelicSketchBase get_sketch() {
         return sketch;
+    }
+
+    public void addSourceInfo(ScSourceConstruct info) {
+        sketch.addSourceInfo(info);
+    }
+
+    public ScConstructValueString getHoleValueString(int uid)
+            throws ScNoValueStringException
+    {
+        return sketch.ctrl_conf.getValueString(uid);
+    }
+
+    public Vector<ScConstructValueString> getOracleValueString(int uid)
+            throws ScNoValueStringException
+    {
+        return sketch.oracle_conf.getValueString(uid);
     }
 }

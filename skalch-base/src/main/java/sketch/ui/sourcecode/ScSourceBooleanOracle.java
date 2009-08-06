@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import java.util.Vector;
 
-import sketch.dyn.main.old.ScOldDynamicSketch;
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.util.ScRichString;
 
 /**
@@ -13,8 +13,8 @@ import sketch.util.ScRichString;
  *          make changes, please consider contributing back!
  */
 public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
-    public ScSourceBooleanOracle(int uid, ScOldDynamicSketch sketch) {
-        super(uid, sketch);
+    public ScSourceBooleanOracle(int uid, ScDynamicSketchCall<?> sketch_call) {
+        super(uid, sketch_call);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
     public String valueString(String srcArgs) {
         try {
             Vector<ScConstructValueString> values =
-                    sketch.oracle_conf.getValueString(uid);
+                    sketch_call.getOracleValueString(uid);
             Vector<String> result_arr = new Vector<String>();
             for (ScConstructValueString value_string : values) {
                 boolean v = value_string.value.intValue() == 1;

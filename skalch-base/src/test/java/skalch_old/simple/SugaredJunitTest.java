@@ -1,13 +1,13 @@
 package skalch_old.simple;
 
-import org.junit.Test;
+import static skalch_old.simple.ScalaMainRunner.ga_one_soln;
+import static skalch_old.simple.ScalaMainRunner.run;
 
-import sketch.util.DebugOut;
+import org.junit.Test;
 
 public class SugaredJunitTest {
     @Test
     public void SugaredTest() throws Throwable {
-        DebugOut.print("sugared test...");
-        ScalaMainRunner.run("skalch_old.simple.SugaredTest", "--ui_no_gui");
+        run("skalch_old.simple.SugaredTest", ga_one_soln);
     }
 }

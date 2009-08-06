@@ -1,6 +1,7 @@
 package skalch_old.simple;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Vector;
 
 import org.junit.Assert;
 
@@ -12,11 +13,13 @@ import org.junit.Assert;
  *          make changes, please consider contributing back!
  */
 public class ScalaMainRunner {
-    public static void run(String classname, String... args) throws Throwable {
+    public static void run(String classname, ArgsOption args) throws Throwable {
         try {
+            args = new ArgsOption(args, "--ui_no_gui");
             Class<?> cls =
                     ClassLoader.getSystemClassLoader().loadClass(classname);
-            cls.getMethod("main", args.getClass()).invoke(null, (Object) args);
+            cls.getMethod("main", String[].class).invoke(null,
+                    (Object) args.asArray());
         } catch (ClassNotFoundException e) {
             Assert.fail(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -31,4 +34,28 @@ public class ScalaMainRunner {
             Assert.fail(e.getMessage());
         }
     }
+
+    public static class ArgsOption {
+        Vector<String> args;
+
+        public ArgsOption(Object... args) {
+            this.args = new Vector<String>();
+            for (Object arg : args) {
+                if (arg instanceof ArgsOption) {
+                    this.args.addAll(((ArgsOption) arg).args);
+                } else {
+                    this.args.add(arg.toString());
+                }
+            }
+        }
+
+        public String[] asArray() {
+            return args.toArray(new String[0]);
+        }
+    }
+
+    public static ArgsOption one_soln =
+            new ArgsOption("--sy_num_solutions", "1");
+    public static ArgsOption ga = new ArgsOption("--sy_solver", "ga");
+    public static ArgsOption ga_one_soln = new ArgsOption(ga, one_soln);
 }

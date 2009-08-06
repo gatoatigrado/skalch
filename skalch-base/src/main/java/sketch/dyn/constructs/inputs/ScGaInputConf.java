@@ -5,10 +5,10 @@ import static sketch.util.ScArrayUtil.extend_arr;
 import java.util.Vector;
 
 import sketch.dyn.synth.ga.base.ScGaIndividual;
+import sketch.dyn.synth.ga.base.ScPhenotypeEntry;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
-import sketch.util.DebugOut;
 import sketch.util.ScCloneable;
 
 /**
@@ -86,7 +86,13 @@ public class ScGaInputConf extends ScInputConf implements
 
     @Override
     public int[] getValueArray() {
-        DebugOut.not_implemented("ScGaInputConf.getValueArray");
-        return null;
+        Vector<ScPhenotypeEntry> activeCtrls =
+                base.phenotype.getActiveEntriesOfType(false);
+        int[] result = new int[activeCtrls.size()];
+        for (int a = 0; a < activeCtrls.size(); a++) {
+            result[a] =
+                    base.genotype.getValue(activeCtrls.get(a).index, 1 << 50);
+        }
+        return result;
     }
 }

@@ -43,17 +43,18 @@ public class ScActiveGaDispatcher extends ScModifierDispatcher {
         m.enqueueTo(gasynth);
     }
 
-    public class Modifier extends ScUiModifierInner {
+    private class Modifier extends ScUiModifierInner {
         protected ScGaIndividual individual;
 
         @Override
         public void apply() {
-            ui_thread.gui.fillWithGaIndividual(individual);
+            ui_thread.gui.fillWithGaIndividual(ScActiveGaDispatcher.this,
+                    individual);
         }
 
         @Override
-        public void setInfo(ScLocalGaSynthesis gasynth, ScGaSynthesisThread thread,
-                ScGaIndividual individual)
+        public void setInfo(ScLocalGaSynthesis gasynth,
+                ScGaSynthesisThread thread, ScGaIndividual individual)
         {
             this.individual = individual.clone();
         }

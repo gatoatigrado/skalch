@@ -1,8 +1,5 @@
 package sketch.ui.gui;
 
-import static sketch.dyn.BackendOptions.beopts;
-
-import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,6 +11,8 @@ import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScGaInputConf;
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.stats.ScStatsMT;
+import sketch.dyn.stats.ScStatsModifier;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.ga.ScGaSynthesis;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
@@ -24,6 +23,7 @@ import sketch.ui.ScUserInterface;
 import sketch.ui.modifiers.ScActiveGaDispatcher;
 import sketch.ui.modifiers.ScActiveStack;
 import sketch.ui.modifiers.ScGaSolutionDispatcher;
+import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
@@ -52,6 +52,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
             new ConcurrentLinkedQueue<ScUiModifier>();
     public boolean auto_display_first_solution = true;
     public BackendOptions be_opts;
+    public ScModifierDispatcher lastDisplayDispatcher;
 
     public ScUiThread(ScSynthesis<?> synth_runtime,
             ScDynamicSketchCall<?> sketch_call, BackendOptions be_opts)
@@ -72,17 +73,21 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public void init() {
         gui = new ScUiGui(this);
         gui.setVisible(true);
+        new AnimatedRunnableModifier(1.f) {
+            @Override
+            public void run() {
+                ScStatsMT.stats_singleton.showStatsWithUi();
+            }
+        };
     }
 
     @Override
     public void run_inner() {
-        try {
-            while (!modifier_list.isEmpty()) {
-                ScUiModifier m = modifier_list.remove();
-                RunModifier run_modifier = new RunModifier(m);
-                SwingUtilities.invokeLater(run_modifier);
-            }
-        } catch (NoSuchElementException e) {
+        int num_modifiers = modifier_list.size();
+        for (int a = 0; a < num_modifiers; a++) {
+            ScUiModifier m = modifier_list.remove();
+            GuiThreadTask run_modifier = new GuiThreadTask(m);
+            SwingUtilities.invokeLater(run_modifier);
         }
     }
 
@@ -102,73 +107,78 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     public void addStackSynthesis(final ScLocalStackSynthesis local_ssr) {
         final ScUiThread target = this;
-        new RunnableModifier(new Runnable() {
-            public void run() {
+        new AddedModifier() {
+            @Override
+            public void apply() {
                 ScUiGui gui = target.gui;
                 gui.num_synth_active += 1;
                 new ScActiveStack(target, gui.synthCompletions, local_ssr)
                         .add();
             }
-        }).add();
+        };
     }
 
     public void addStackSolution(ScStack stack__) {
         final ScStack stack_to_add = stack__.clone();
-        new RunnableModifier(new Runnable() {
-            public void run() {
+        new AddedModifier() {
+            @Override
+            public void apply() {
                 ScSolutionStack solution =
                         new ScSolutionStack(ScUiThread.this,
                                 gui.synthCompletions, stack_to_add);
                 solution.add();
-                if (auto_display_first_solution) {
-                    auto_display_first_solution = false;
-                    gui.synthCompletions.set_selected(solution);
-                    solution.dispatch();
-                }
+                autoDisplaySolution(solution);
             }
-        }).add();
+        };
     }
 
     public void addGaSynthesis(final ScGaSynthesis sc_ga_synthesis) {
-        new RunnableModifier(new Runnable() {
-            public void run() {
+        new AddedModifier() {
+            @Override
+            public void apply() {
                 gui.num_synth_active += 1;
                 new ScActiveGaDispatcher(ScUiThread.this, gui.synthCompletions,
                         sc_ga_synthesis).add();
             }
-        }).add();
+        };
     }
 
     public void addGaSolution(ScGaIndividual individual__) {
         final ScGaIndividual individual = individual__.clone();
-        new RunnableModifier(new Runnable() {
-            public void run() {
+        new AddedModifier() {
+            @Override
+            public void apply() {
                 ScGaSolutionDispatcher solution_individual =
                         new ScGaSolutionDispatcher(individual, ScUiThread.this,
                                 gui.synthCompletions);
                 solution_individual.add();
-                if (auto_display_first_solution) {
-                    auto_display_first_solution = false;
-                    solution_individual.dispatch();
-                }
+                autoDisplaySolution(solution_individual);
             }
-        }).add();
+        };
     }
 
+    /**
+     * Show the GA evolution progress by repeatedly displaying the current
+     * individual. For debugging only.
+     */
     public void displayAnimated(ScGaIndividual individual__) {
         final ScGaIndividual individual = individual__.clone();
-        new RunnableModifier(new Runnable() {
-            public void run() {
+        new AddedModifier() {
+            @Override
+            public void apply() {
                 ScGaSolutionDispatcher solution_individual =
                         new ScGaSolutionDispatcher(individual, ScUiThread.this,
                                 gui.synthCompletions);
                 solution_individual.dispatch();
             }
-        }).add();
+        };
     }
 
+    /**
+     * Currently usused, as we don't do much with counterexamples.
+     */
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (beopts().ui_opts.print_counterexamples) {
+        if (be_opts.ui_opts.print_counterexamples) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);
@@ -176,11 +186,32 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
     }
 
+    /**
+     * a.t.m. more of a demonstration of how this can be flexible; the code
+     * doesn't need to be this verbose.
+     */
+    public void setStats(final ScStatsModifier modifier) {
+        ScGuiStatsWarningsPrinter wp = new ScGuiStatsWarningsPrinter();
+        modifier.execute(wp);
+        ScGuiStatsEntriesPrinter ep = new ScGuiStatsEntriesPrinter(wp, this);
+        modifier.execute(ep);
+        ep.dispatch();
+    }
+
+    /** dispatch a solution modifier if nothing has been displayed already. */
+    protected void autoDisplaySolution(ScModifierDispatcher solution) {
+        if (auto_display_first_solution) {
+            auto_display_first_solution = false;
+            gui.synthCompletions.set_selected(solution);
+            solution.dispatch();
+        }
+    }
+
     // all of this junk just because Java can't bind non-final variables
-    public class RunModifier implements Runnable {
+    public class GuiThreadTask implements Runnable {
         protected ScUiModifier m;
 
-        public RunModifier(ScUiModifier m) {
+        public GuiThreadTask(ScUiModifier m) {
             this.m = m;
         }
 
@@ -189,24 +220,39 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }
     }
 
-    public class RunnableModifier extends ScUiModifierInner {
-        private Runnable runnable;
-
-        public RunnableModifier(Runnable runnable) {
-            this.runnable = runnable;
+    private abstract class AddedModifier extends ScUiModifierInner {
+        public AddedModifier() {
+            add();
         }
 
-        public void add() {
+        protected void add() {
             try {
                 new ScUiModifier(ScUiThread.this, this).enqueueTo();
             } catch (ScUiQueueableInactive e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public abstract class AnimatedRunnableModifier extends AddedModifier {
+        public float timeout_secs;
+        public float last_time = 0.f;
+
+        public AnimatedRunnableModifier(float timeout_secs) {
+            this.timeout_secs = timeout_secs;
+        }
 
         @Override
         public void apply() {
-            runnable.run();
+            if (!synth_runtime.wait_handler.synthesis_complete.get()) {
+                add(); // re-enqueue;
+            }
+            if (thread_time - last_time > timeout_secs) {
+                run();
+                last_time = thread_time;
+            }
         }
+
+        public abstract void run();
     }
 }

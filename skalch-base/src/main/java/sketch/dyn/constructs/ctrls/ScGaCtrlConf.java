@@ -1,7 +1,9 @@
 package sketch.dyn.constructs.ctrls;
 
-import static sketch.util.DebugOut.not_implemented;
+import java.util.Vector;
+
 import sketch.dyn.synth.ga.base.ScGaIndividual;
+import sketch.dyn.synth.ga.base.ScPhenotypeEntry;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
@@ -39,7 +41,13 @@ public class ScGaCtrlConf extends ScCtrlConf {
 
     @Override
     public int[] getValueArray() {
-        not_implemented("ScGaCtrlConf.getValueArray");
-        return null;
+        Vector<ScPhenotypeEntry> activeCtrls =
+                base.phenotype.getActiveEntriesOfType(true);
+        int[] result = new int[activeCtrls.size()];
+        for (int a = 0; a < activeCtrls.size(); a++) {
+            result[a] =
+                    base.genotype.getValue(activeCtrls.get(a).index, 1 << 50);
+        }
+        return result;
     }
 }

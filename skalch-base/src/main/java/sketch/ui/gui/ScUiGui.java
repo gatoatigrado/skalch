@@ -20,8 +20,10 @@ import sketch.dyn.main.debug.ScDebugEntry;
 import sketch.dyn.main.debug.ScDebugGaRun;
 import sketch.dyn.main.debug.ScDebugRun;
 import sketch.dyn.main.debug.ScDebugStackRun;
+import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScStack;
+import sketch.ui.ScDebugConsoleUI;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -68,9 +70,10 @@ public class ScUiGui extends gui_0_1 {
     public abstract class KeyAction extends AbstractAction {
         public abstract void action();
 
-        public final void add(int key_event0, boolean key_release) {
+        public final void add(int key_event0, int modifiers, boolean key_release)
+        {
             KeyStroke my_keystroke =
-                    KeyStroke.getKeyStroke(key_event0, 0, key_release);
+                    KeyStroke.getKeyStroke(key_event0, modifiers, key_release);
             getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                     my_keystroke, this);
             getRootPane().getActionMap().put(this, this);
@@ -88,12 +91,16 @@ public class ScUiGui extends gui_0_1 {
 
             @Override
             public void action() {
+                // set a console UI so the stats are dumped there.
+                ScStatsMT.stats_singleton.ui =
+                        new ScDebugConsoleUI(ui_thread.be_opts,
+                                ui_thread.sketch_call);
                 stopSolver();
                 setVisible(false);
                 dispose();
                 ui_thread.set_stop();
             }
-        }).add(KeyEvent.VK_ESCAPE, false);
+        }).add(KeyEvent.VK_ESCAPE, 0, false);
         (new KeyAction() {
             private static final long serialVersionUID = -5424144807529052326L;
 
@@ -101,7 +108,7 @@ public class ScUiGui extends gui_0_1 {
             public void action() {
                 stopSolver();
             }
-        }).add(KeyEvent.VK_S, false);
+        }).add(KeyEvent.VK_T, KeyEvent.CTRL_MASK, false);
         (new KeyAction() {
             private static final long serialVersionUID = -5424144807529052326L;
 
@@ -113,7 +120,7 @@ public class ScUiGui extends gui_0_1 {
                     synthCompletions.select_next(selected[0]).dispatch();
                 }
             }
-        }).add(KeyEvent.VK_J, true);
+        }).add(KeyEvent.VK_J, KeyEvent.CTRL_MASK, true);
         (new KeyAction() {
             private static final long serialVersionUID = -5424144807529052326L;
 
@@ -125,7 +132,7 @@ public class ScUiGui extends gui_0_1 {
                     synthCompletions.select_prev(selected[0]).dispatch();
                 }
             }
-        }).add(KeyEvent.VK_K, true);
+        }).add(KeyEvent.VK_K, KeyEvent.CTRL_MASK, true);
     }
 
     // === ui functions ===
@@ -158,8 +165,11 @@ public class ScUiGui extends gui_0_1 {
 
     /** this all happens on the UI thread, but it shouldn't be that slow */
     @SuppressWarnings("unchecked")
-    public void fillWithStack(ScStack stack) {
+    public void fillWithStack(ScModifierDispatcher lastDisplayDispatcher,
+            ScStack stack)
+    {
         // get source
+        ui_thread.lastDisplayDispatcher = lastDisplayDispatcher;
         stack.initialize_fixed_for_illustration(ui_thread.sketch_call);
         StringBuilder result = getSourceWithSynthesisValues();
         result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
@@ -292,7 +302,11 @@ public class ScUiGui extends gui_0_1 {
     }
 
     @SuppressWarnings("unchecked")
-    public void fillWithGaIndividual(ScGaIndividual individual) {
+    public void fillWithGaIndividual(
+            ScModifierDispatcher lastDisplayDispatcher,
+            ScGaIndividual individual)
+    {
+        ui_thread.lastDisplayDispatcher = lastDisplayDispatcher;
         ScGaIndividual clone = individual.clone();
         /*
          * clone.reset_fitness();
@@ -317,6 +331,8 @@ public class ScUiGui extends gui_0_1 {
     protected void changeDisplayedContext(int nlines_context) {
         context_len = nlines_context;
         context_split_len = 3 * nlines_context;
-        // DebugOut.not_implemented("gui_0_1.changeDisplayedContext", nlines);
+        if (ui_thread.lastDisplayDispatcher != null) {
+            ui_thread.lastDisplayDispatcher.dispatch();
+        }
     }
 }

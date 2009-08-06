@@ -120,6 +120,24 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
+    <Component class="javax.swing.JButton" name="stopButton">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/oxygen/process-stop.png"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="stop"/>
+        <Property name="focusCycleRoot" type="boolean" value="true"/>
+      </Properties>
+      <AccessibilityProperties>
+        <Property name="AccessibleContext.accessibleDescription" type="java.lang.String" value=""/>
+      </AccessibilityProperties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stopButtonActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+      </AuxValues>
+    </Component>
     <Component class="javax.swing.JLabel" name="sourceViewLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -260,20 +278,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="stopButton">
-      <Properties>
-        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/oxygen/process-stop.png"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="stop"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stopButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
-      </AuxValues>
-    </Component>
     <Component class="javax.swing.JButton" name="acceptButton">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
@@ -297,7 +301,10 @@
           </FontInfo>
         </Property>
         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-          <SpinnerModel initial="3" maximum="3600" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+          <SpinnerModel initial="3" maximum="3600" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+        </Property>
+        <Property name="editor" type="javax.swing.JComponent" editor="org.netbeans.modules.form.editors.SpinnerEditorEditor">
+          <SpinnerEditor format="" type="3"/>
         </Property>
       </Properties>
       <Events>
@@ -329,7 +336,7 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="SansSerif" size="14" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&lt;style&gt;&#xa;body {&#xa;font-size: 12pt;&#xa;}&#xa;ul {&#xa;margin-left: 20pt;&#xa;}&#xa;&lt;/style&gt;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;&lt;p&gt;&lt;b&gt;Text like the following example should appear when you select inputs and a synthesized completion&lt;/b&gt;. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).&lt;/p&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;[&lt;a href=&quot;line:4&quot;&gt;line 4&lt;/a&gt;] - !! set to 2, selecting expression &quot;q.next&quot; for a complete line of &quot;g(q.next.getValue())&quot;&lt;/li&gt;&#xa;&lt;li&gt;[line 12] - ?? set to 13&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;"/>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&lt;style&gt;&#xa;body {&#xa;font-size: 12pt;&#xa;}&#xa;ul {&#xa;margin-left: 20pt;&#xa;}&#xa;&lt;/style&gt;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;color: #cccccc&quot;&gt;loading statistics and warnings...&lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>

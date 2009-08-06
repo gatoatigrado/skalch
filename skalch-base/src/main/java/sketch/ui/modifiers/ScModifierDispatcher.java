@@ -28,6 +28,9 @@ public abstract class ScModifierDispatcher implements
     }
 
     public void add() {
+        if (list == null) {
+            assertFalse("ScModifierDispatcher.add() -- list is null");
+        }
         list.add(this);
     }
 
@@ -41,7 +44,9 @@ public abstract class ScModifierDispatcher implements
             enqueue(new ScUiModifier(ui_thread, modifier_inner));
         } catch (ScUiQueueableInactive e) {
             e.printStackTrace();
-            list.remove(this);
+            if (list != null) {
+                list.remove(this);
+            }
         }
     }
 

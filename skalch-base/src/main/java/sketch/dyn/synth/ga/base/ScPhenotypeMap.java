@@ -1,5 +1,6 @@
 package sketch.dyn.synth.ga.base;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 import sketch.util.DebugOut;
@@ -14,6 +15,10 @@ import sketch.util.ScCloneable;
  *          make changes, please consider contributing back!
  */
 public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
+    /**
+     * The main array, which maps a hash of (uid, subuid, type) to a genotype
+     * index
+     */
     public Vector<ScPhenotypeEntry> entries;
     public int spine_mask;
     public int spine_length;
@@ -50,7 +55,7 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
             ScPhenotypeEntry entry = entries.get(idx);
             if (entry == null) {
                 entries.set(idx, new ScPhenotypeEntry(type, uid, subuid, idx
-                        + spine_length));
+                        + spine_length, idx));
                 break;
             } else if (entry.match(type, uid, subuid)) {
                 break;
@@ -74,5 +79,28 @@ public class ScPhenotypeMap implements ScCloneable<ScPhenotypeMap> {
             }
         }
         return result.toString();
+    }
+
+    public Vector<ScPhenotypeEntry> getActiveEntriesOfType(boolean type) {
+        ScPhenotypeEntry[] active_entries = getActiveEntriesSorted();
+        Vector<ScPhenotypeEntry> result = new Vector<ScPhenotypeEntry>();
+        for (int a = 0; a < active_entries.length; a++) {
+            if (active_entries[a].type == type) {
+                result.add(active_entries[a]);
+            }
+        }
+        return result;
+    }
+
+    public ScPhenotypeEntry[] getActiveEntriesSorted() {
+        Vector<ScPhenotypeEntry> result = new Vector<ScPhenotypeEntry>();
+        for (int a = 0; a < entries.size(); a++) {
+            if (entries.get(a) != null) {
+                result.add(entries.get(a));
+            }
+        }
+        ScPhenotypeEntry[] arr = result.toArray(new ScPhenotypeEntry[0]);
+        Arrays.sort(arr);
+        return arr;
     }
 }

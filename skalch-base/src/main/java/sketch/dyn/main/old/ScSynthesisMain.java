@@ -48,7 +48,9 @@ public class ScSynthesisMain extends ScSynthesisMainBase {
         ScSolvingInputConf[] inputs = generate_inputs(ui_sketch.get_sketch());
         // start various utilities
         ScUserInterface ui =
-                ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
+                ScUserInterfaceManager.start_ui(be_opts, synthesis_runtime,
+                        ui_sketch);
+        init_stats(ui);
         ui.set_counterexamples(inputs);
         ui_sketch.counterexamples = ScFixedInputConf.from_inputs(inputs);
         for (ScOldDynamicSketchCall sketch : sketches) {
@@ -58,7 +60,7 @@ public class ScSynthesisMain extends ScSynthesisMainBase {
         // actual synthesize call
         synthesis_runtime.synthesize(ui);
         // stop utilities
-        ScStatsMT.stats_singleton.stop_synthesis();
+        ScStatsMT.stats_singleton.showStatsWithUi();
         return synthesis_runtime.get_solution_tuple();
     }
 }

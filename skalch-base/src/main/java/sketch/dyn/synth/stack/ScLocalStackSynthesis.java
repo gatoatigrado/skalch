@@ -2,6 +2,7 @@ package sketch.dyn.synth.stack;
 
 import java.util.Vector;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScLocalSynthesis;
@@ -27,9 +28,9 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
     public Vector<ScStack> random_stacks;
 
     public ScLocalStackSynthesis(ScDynamicSketchCall<?> sketch,
-            ScStackSynthesis ssr, int uid)
+            ScStackSynthesis ssr, BackendOptions be_opts, int uid)
     {
-        super(sketch, uid);
+        super(sketch, be_opts, uid);
         this.ssr = ssr;
     }
 

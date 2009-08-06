@@ -27,12 +27,13 @@ public class ScRandomStack extends ScLocalSynthDispatcher {
         m.enqueueTo();
     }
 
-    public class Modifier extends ScUiModifierInner {
+    private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
             ui_thread.auto_display_first_solution = false;
             int rand_idx = rand.get().nextInt(local_ssr.random_stacks.size());
-            ui_thread.gui.fillWithStack(local_ssr.random_stacks.get(rand_idx));
+            ui_thread.gui.fillWithStack(ScRandomStack.this,
+                    local_ssr.random_stacks.get(rand_idx));
         }
     }
 

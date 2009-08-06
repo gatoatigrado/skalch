@@ -1,6 +1,5 @@
 package sketch.dyn.main;
 
-import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.not_implemented;
 
 import java.io.File;
@@ -17,30 +16,32 @@ import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.ga.ScGaSynthesis;
 import sketch.dyn.synth.stack.ScStackSynthesis;
+import sketch.ui.ScUserInterface;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.EntireFileReader;
 
 public class ScSynthesisMainBase {
     protected int nthreads;
+    public BackendOptions be_opts;
 
     public ScSynthesisMainBase() {
         BackendOptions.initialize_defaults();
-        beopts().initialize_annotated();
-        nthreads = beopts().synth_opts.num_threads;
-        new ScStatsMT();
+        be_opts = BackendOptions.backend_opts.get();
+        be_opts.initialize_annotated();
+        nthreads = be_opts.synth_opts.num_threads;
     }
 
     protected ScSynthesis<?> get_synthesis_runtime(
             ScDynamicSketchCall<?>[] sketches)
     {
-        if (beopts().synth_opts.solver.isGa) {
-            return new ScGaSynthesis(sketches);
-        } else if (beopts().synth_opts.solver.isStack) {
-            return new ScStackSynthesis(sketches);
+        if (be_opts.synth_opts.solver.isGa) {
+            return new ScGaSynthesis(sketches, be_opts);
+        } else if (be_opts.synth_opts.solver.isStack) {
+            return new ScStackSynthesis(sketches, be_opts);
         } else {
             not_implemented("ScSynthesisMainBase -- create unknown solver",
-                    beopts().synth_opts.solver);
+                    be_opts.synth_opts.solver);
             return null;
         }
     }
@@ -71,5 +72,9 @@ public class ScSynthesisMainBase {
         } catch (ParsingException e) {
             DebugOut.print_exception("reading source annotation info ", e);
         }
+    }
+
+    public void init_stats(ScUserInterface ui) {
+        new ScStatsMT(ui, be_opts);
     }
 }

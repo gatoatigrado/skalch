@@ -1,7 +1,6 @@
 package sketch.dyn.synth;
 
 import static ec.util.ThreadLocalMT.mt;
-import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertFalse;
 
 import java.util.NoSuchElementException;
@@ -22,15 +21,17 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
     public AbstractSynthesisThread thread;
     public AsyncMTEvent done_events = new AsyncMTEvent();
     // ui
-    public int uid;
+    public final int uid;
     public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
     public boolean animated;
-    public BackendOptions be_opts;
+    public final BackendOptions be_opts;
 
-    public ScLocalSynthesis(ScDynamicSketchCall<?> sketch, int uid) {
+    public ScLocalSynthesis(ScDynamicSketchCall<?> sketch,
+            BackendOptions be_opts, int uid)
+    {
         this.sketch = sketch;
+        this.be_opts = be_opts;
         this.uid = uid;
-        be_opts = beopts();
         animated = be_opts.ui_opts.display_animated;
         if (animated && uid > 0) {
             assertFalse("use one thread with the animated option.");

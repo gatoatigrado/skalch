@@ -59,7 +59,8 @@ public class ScActiveStack extends ScLocalSynthDispatcher {
 
         @Override
         public void setInfo(ScLocalStackSynthesis localSynth,
-                ScLocalStackSynthesis.ScStackSynthesisThread synthThread, ScStack stack)
+                ScLocalStackSynthesis.ScStackSynthesisThread synthThread,
+                ScStack stack)
         {
             my_stack = stack.clone();
         }
@@ -67,7 +68,7 @@ public class ScActiveStack extends ScLocalSynthDispatcher {
         @Override
         public void apply() {
             ui_thread.auto_display_first_solution = false;
-            ui_thread.gui.fillWithStack(my_stack);
+            ui_thread.gui.fillWithStack(ScActiveStack.this, my_stack);
         }
     }
 

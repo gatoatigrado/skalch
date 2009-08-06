@@ -27,10 +27,11 @@ public class ScGaSolutionDispatcher extends ScModifierDispatcher {
         m.enqueueTo();
     }
 
-    public class Modifier extends ScUiModifierInner {
+    private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.fillWithGaIndividual(my_individual);
+            ui_thread.gui.fillWithGaIndividual(ScGaSolutionDispatcher.this,
+                    my_individual);
         }
     }
 

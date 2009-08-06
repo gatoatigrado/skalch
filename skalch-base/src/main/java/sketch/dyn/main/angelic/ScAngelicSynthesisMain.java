@@ -31,12 +31,14 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     public Object synthesize() throws Exception {
         // start various utilities
         ScUserInterface ui =
-                ScUserInterfaceManager.start_ui(synthesis_runtime, ui_sketch);
+                ScUserInterfaceManager.start_ui(be_opts, synthesis_runtime,
+                        ui_sketch);
+        init_stats(ui);
         ScStatsMT.stats_singleton.start_synthesis();
         // actual synthesize call
         synthesis_runtime.synthesize(ui);
         // stop utilities
-        ScStatsMT.stats_singleton.stop_synthesis();
+        ScStatsMT.stats_singleton.showStatsWithUi();
         return synthesis_runtime.get_solution_tuple();
     }
 }

@@ -1,7 +1,9 @@
 package sketch.ui;
 
-import static sketch.dyn.BackendOptions.beopts;
+import static sketch.util.DebugOut.BASH_SALMON;
 import static sketch.util.DebugOut.assertFalse;
+import static sketch.util.DebugOut.print_colored;
+import sketch.dyn.BackendOptions;
 import sketch.dyn.constructs.ctrls.ScGaCtrlConf;
 import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScGaInputConf;
@@ -12,6 +14,8 @@ import sketch.dyn.main.debug.ScDebugEntry;
 import sketch.dyn.main.debug.ScDebugGaRun;
 import sketch.dyn.main.debug.ScDebugRun;
 import sketch.dyn.main.debug.ScDebugStackRun;
+import sketch.dyn.stats.ScStatsModifier;
+import sketch.dyn.stats.ScStatsPrinter;
 import sketch.dyn.synth.ga.ScGaSynthesis;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
@@ -26,15 +30,19 @@ import sketch.util.DebugOut;
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class ScDebugConsoleUI implements ScUserInterface {
+public class ScDebugConsoleUI implements ScUserInterface, ScStatsPrinter {
     ScFixedInputConf[] all_counterexamples;
     ScDynamicSketchCall<?> ui_sketch;
     protected ScGaCtrlConf ga_ctrl_conf;
     protected ScGaInputConf ga_oracle_conf;
+    public final BackendOptions be_opts;
 
-    public ScDebugConsoleUI(ScDynamicSketchCall<?> sketch) {
+    public ScDebugConsoleUI(BackendOptions be_opts,
+            ScDynamicSketchCall<?> sketch)
+    {
+        this.be_opts = be_opts;
         ui_sketch = sketch;
-        if (beopts().synth_opts.solver.isGa) {
+        if (be_opts.synth_opts.solver.isGa) {
             ga_ctrl_conf = new ScGaCtrlConf();
             ga_oracle_conf = new ScGaInputConf();
         }
@@ -56,7 +64,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
     @SuppressWarnings("unchecked")
     public void addStackSolution(ScStack stack__) {
         DebugOut.print_mt("solution with stack", stack__);
-        if (beopts().ui_opts.no_console_skdprint) {
+        if (be_opts.ui_opts.no_console_skdprint) {
             return;
         }
         ScStack stack = stack__.clone();
@@ -77,7 +85,7 @@ public class ScDebugConsoleUI implements ScUserInterface {
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (beopts().ui_opts.print_counterexamples) {
+        if (be_opts.ui_opts.print_counterexamples) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN,
                     "[user requested print]", "\n", true, text);
@@ -101,5 +109,18 @@ public class ScDebugConsoleUI implements ScUserInterface {
         printDebugRun(new ScDebugGaRun(
                 (ScDynamicSketchCall<ScAngelicSketchBase>) ui_sketch, clone,
                 ga_ctrl_conf, ga_oracle_conf));
+    }
+
+    public void setStats(ScStatsModifier modifier) {
+        print_stat_line("=== statistics ===");
+        modifier.execute(this);
+    }
+
+    public void print_stat_line(String line) {
+        print_colored(BASH_SALMON, "[stats]", "", false, line);
+    }
+
+    public void print_stat_warning(String line) {
+        DebugOut.not_implemented("ScStatsPrinter.print_stat_warning");
     }
 }

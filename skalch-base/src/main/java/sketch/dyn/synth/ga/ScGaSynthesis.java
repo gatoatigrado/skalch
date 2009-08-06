@@ -1,10 +1,10 @@
 package sketch.dyn.synth.ga;
 
-import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertSlow;
 
 import java.util.HashSet;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.constructs.ctrls.ScGaCtrlConf;
 import sketch.dyn.constructs.inputs.ScGaInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
@@ -26,15 +26,20 @@ import sketch.ui.modifiers.ScUiModifier;
 public class ScGaSynthesis extends ScSynthesis<ScLocalGaSynthesis> implements
         ScUiQueueable
 {
-    public int spine_length = beopts().ga_opts.spine_len;
+    public final int spine_length;
     public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
     public ScPopulationManager population_mgr;
     protected ScGaIndividual first_solution;
 
-    public ScGaSynthesis(ScDynamicSketchCall<?>[] sketches) {
+    public ScGaSynthesis(ScDynamicSketchCall<?>[] sketches,
+            BackendOptions be_opts)
+    {
+        super(be_opts);
+        spine_length = be_opts.ga_opts.spine_len;
         local_synthesis = new ScLocalGaSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
-            local_synthesis[a] = new ScLocalGaSynthesis(sketches[a], this, a);
+            local_synthesis[a] =
+                    new ScLocalGaSynthesis(sketches[a], this, be_opts, a);
         }
     }
 

@@ -31,10 +31,10 @@ public class ScSolutionStack extends ScModifierDispatcher {
         m.enqueueTo();
     }
 
-    public class Modifier extends ScUiModifierInner {
+    private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.fillWithStack(my_stack);
+            ui_thread.gui.fillWithStack(ScSolutionStack.this, my_stack);
         }
     }
 

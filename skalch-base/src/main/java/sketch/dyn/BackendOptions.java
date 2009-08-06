@@ -1,6 +1,5 @@
 package sketch.dyn;
 
-import static sketch.util.DebugOut.assertFalse;
 import sketch.dyn.stats.ScStatsOptions;
 import sketch.dyn.synth.ScSynthesisOptions;
 import sketch.dyn.synth.ga.ScGaOptions;
@@ -24,14 +23,6 @@ public class BackendOptions {
     public ScStatsOptions stat_opts;
     public static ThreadLocal<BackendOptions> backend_opts =
             new ThreadLocal<BackendOptions>();
-
-    public static BackendOptions beopts() {
-        BackendOptions rv = backend_opts.get();
-        if (rv == null) {
-            assertFalse("backend options null...");
-        }
-        return rv;
-    }
 
     public BackendOptions(CliParser p) {
         synth_opts = new ScSynthesisOptions();

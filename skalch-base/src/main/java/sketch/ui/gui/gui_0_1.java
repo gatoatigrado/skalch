@@ -44,6 +44,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        stopButton = new javax.swing.JButton();
         sourceViewLabel = new javax.swing.JLabel();
         sourceCodePane = new javax.swing.JScrollPane();
         sourceCodeEditor = new javax.swing.JEditorPane();
@@ -57,7 +58,6 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         solversButton = new javax.swing.JButton();
         debugOutPane = new javax.swing.JScrollPane();
         debugOutEditor = new javax.swing.JEditorPane();
-        stopButton = new javax.swing.JButton();
         acceptButton = new javax.swing.JButton();
         contextSpinBox = new javax.swing.JSpinner();
         jLabel1 = new javax.swing.JLabel();
@@ -66,6 +66,15 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Skalch GUI");
+
+        stopButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/process-stop.png"))); // NOI18N
+        stopButton.setText("stop");
+        stopButton.setFocusCycleRoot(true);
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopButtonActionPerformed(evt);
+            }
+        });
 
         sourceViewLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         sourceViewLabel.setText("Source view");
@@ -79,10 +88,10 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         controlsLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         controlsLabel.setText("Controls");
 
-        selectInputsLabel.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        selectInputsLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         selectInputsLabel.setText("Current statistics and warnings");
 
-        debugPrintoutsLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        debugPrintoutsLabel.setFont(new java.awt.Font("Dialog", 1, 14));
         debugPrintoutsLabel.setText("Debug output for selected completion");
 
         viewSelectionsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/sync.png"))); // NOI18N
@@ -94,7 +103,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
             }
         });
 
-        synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         synthCompletionLabel.setText("Select synthesized completions");
 
         synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
@@ -121,7 +130,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         debugOutEditor.setContentType("text/html");
         debugOutEditor.setEditable(false);
-        debugOutEditor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        debugOutEditor.setFont(new java.awt.Font("SansSerif", 0, 14));
         debugOutEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n<ul>\n<li>[<a href=\"line:4\">line 4</a>] - !! set to 2, selecting expression \"q.next\" for a complete line of \"g(q.next.getValue())\"</li>\n<li>[line 12] - ?? set to 13</li>\n</ul>\n  </body>\n</html>\n");
         debugOutEditor.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -129,14 +138,6 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
             }
         });
         debugOutPane.setViewportView(debugOutEditor);
-
-        stopButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/process-stop.png"))); // NOI18N
-        stopButton.setText("stop");
-        stopButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopButtonActionPerformed(evt);
-            }
-        });
 
         acceptButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/dialog-ok-apply.png"))); // NOI18N
         acceptButton.setText("Accept");
@@ -148,7 +149,8 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         });
 
         contextSpinBox.setFont(contextSpinBox.getFont().deriveFont(contextSpinBox.getFont().getStyle() & ~java.awt.Font.BOLD));
-        contextSpinBox.setModel(new javax.swing.SpinnerNumberModel(3, 0, 3600, 1));
+        contextSpinBox.setModel(new javax.swing.SpinnerNumberModel(3, 1, 3600, 1));
+        contextSpinBox.setEditor(new javax.swing.JSpinner.NumberEditor(contextSpinBox, ""));
         contextSpinBox.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 contextSpinBoxStateChanged(evt);
@@ -160,8 +162,8 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         statsEditor.setContentType("text/html");
         statsEditor.setEditable(false);
-        statsEditor.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        statsEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n<p><b>Text like the following example should appear when you select inputs and a synthesized completion</b>. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).</p>\n<ul>\n<li>[<a href=\"line:4\">line 4</a>] - !! set to 2, selecting expression \"q.next\" for a complete line of \"g(q.next.getValue())\"</li>\n<li>[line 12] - ?? set to 13</li>\n</ul>\n  </body>\n</html>\n");
+        statsEditor.setFont(new java.awt.Font("SansSerif", 0, 14));
+        statsEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n    <p style=\"color: #cccccc\">loading statistics and warnings...</p>\n  </body>\n</html>\n");
         statsPane.setViewportView(statsEditor);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -242,6 +244,8 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
                         .add(debugOutPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)))
                 .addContainerGap())
         );
+
+        stopButton.getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

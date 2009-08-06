@@ -1,6 +1,7 @@
 package sketch.ui;
 
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
+import sketch.dyn.stats.ScStatsModifier;
 import sketch.dyn.synth.ga.ScGaSynthesis;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
@@ -26,6 +27,8 @@ public interface ScUserInterface {
     public void set_counterexamples(ScSolvingInputConf[] inputs);
 
     public void addGaSynthesis(ScGaSynthesis sc_ga_synthesis);
+
+    public void setStats(ScStatsModifier modifier);
 
     /** as with stack synthesis, the individual has not been cloned yet */
     public void addGaSolution(ScGaIndividual individual);

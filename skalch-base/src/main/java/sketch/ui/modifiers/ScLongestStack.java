@@ -25,11 +25,12 @@ public class ScLongestStack extends ScLocalSynthDispatcher {
     }
 
     // the modifier...
-    public class Modifier extends ScUiModifierInner {
+    private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
             ui_thread.auto_display_first_solution = false;
-            ui_thread.gui.fillWithStack(local_ssr.longest_stack);
+            ui_thread.gui.fillWithStack(ScLongestStack.this,
+                    local_ssr.longest_stack);
         }
     }
 

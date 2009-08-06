@@ -1,10 +1,10 @@
 package sketch.dyn.synth.ga;
 
-import static sketch.dyn.BackendOptions.beopts;
 import static sketch.util.DebugOut.assertFalse;
 
 import java.util.Vector;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.constructs.ctrls.ScGaCtrlConf;
 import sketch.dyn.constructs.inputs.ScGaInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
@@ -29,14 +29,14 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
     protected ScGaSynthesis gasynth;
 
     public ScLocalGaSynthesis(ScDynamicSketchCall<?> sketch,
-            ScGaSynthesis gasynth, int uid)
+            ScGaSynthesis gasynth, BackendOptions be_opts, int uid)
     {
-        super(sketch, uid);
+        super(sketch, be_opts, uid);
         this.gasynth = gasynth;
     }
 
     @Override
-    protected AbstractSynthesisThread create_synth_thread() {
+    public AbstractSynthesisThread create_synth_thread() {
         DebugOut.assertSlow(gasynth.wait_handler != null, "wait_null");
         return new ScGaSynthesisThread();
     }
@@ -110,16 +110,16 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         @Override
         protected void run_inner() {
             local_populations = new Vector<ScPopulation>();
-            for (int a = 0; a < beopts().ga_opts.num_populations; a++) {
+            for (int a = 0; a < be_opts.ga_opts.num_populations; a++) {
                 ScPopulation population =
-                        new ScPopulation(gasynth.spine_length);
+                        new ScPopulation(gasynth.spine_length, be_opts);
                 population.perturb_parameters();
                 local_populations.add(population);
             }
             ctrl_conf = new ScGaCtrlConf();
             oracle_conf = new ScGaInputConf();
-            if (beopts().ga_opts.analysis) {
-                analysis = new GaAnalysis();
+            if (be_opts.ga_opts.analysis) {
+                analysis = new GaAnalysis(be_opts);
             }
             for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=
                     nruns)

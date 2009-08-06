@@ -3,6 +3,7 @@ package sketch.dyn.synth.stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import sketch.dyn.BackendOptions;
 import sketch.dyn.constructs.ctrls.ScSynthCtrlConf;
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
@@ -30,12 +31,15 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected AtomicBoolean got_first_run;
     protected AtomicReference<ScStack> first_solution;
 
-    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches) {
+    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches,
+            BackendOptions be_opts)
+    {
+        super(be_opts);
         // initialize backends
         local_synthesis = new ScLocalStackSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
             local_synthesis[a] =
-                    new ScLocalStackSynthesis(sketches[a], this, a);
+                    new ScLocalStackSynthesis(sketches[a], this, be_opts, a);
         }
     }
 

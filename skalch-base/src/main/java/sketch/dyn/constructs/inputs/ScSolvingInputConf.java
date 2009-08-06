@@ -61,6 +61,9 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
 
     /** for ScTestGenerator */
     public void add_input(int uid, int v) {
+        if (uid >= values.length) {
+            realloc(uid + 1);
+        }
         values[uid].add(v);
     }
 

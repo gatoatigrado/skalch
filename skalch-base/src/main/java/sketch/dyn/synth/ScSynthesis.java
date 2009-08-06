@@ -22,8 +22,10 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
     public ScExhaustedWaitHandler wait_handler;
     protected long nsolutions_found = 0;
     public AsyncMTEvent done_events = new AsyncMTEvent();
+    public final BackendOptions be_opts;
 
     public ScSynthesis(BackendOptions be_opts) {
+        this.be_opts = be_opts;
         // command line options
         nsolutions_to_find = be_opts.synth_opts.num_solutions;
         debug_stop_after = be_opts.synth_opts.debug_stop_after;

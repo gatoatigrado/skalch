@@ -7,6 +7,7 @@ import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSearchDoneException;
+import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.dyn.synth.stack.prefix.ScLocalPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearch;
@@ -37,10 +38,12 @@ public class ScStack extends ScPrefixSearch {
     protected int added_entries = 0;
     protected boolean first_run = true;
     public int solution_cost = -1;
+    public final int max_stack_depth;
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
-    public ScStack(ScPrefix default_prefix) {
+    public ScStack(ScPrefix default_prefix, int max_stack_depth) {
+        this.max_stack_depth = max_stack_depth;
         stack = new FactoryStack<ScStackEntry>(16, new ScStackEntry.Factory());
         ctrl_conf = new ScSynthCtrlConf(this, SYNTH_HOLE_LOG_TYPE);
         oracle_conf = new ScSolvingInputConf(this, SYNTH_ORACLE_LOG_TYPE);
@@ -180,13 +183,16 @@ public class ScStack extends ScPrefixSearch {
     }
 
     public void add_entry(int type, int uid, int subuid) {
+        if (stack.size() >= max_stack_depth) {
+            throw new ScSynthesisAssertFailure();
+        }
         stack.push().set(type, uid, subuid);
         added_entries += 1;
     }
 
     @Override
     public ScStack clone() {
-        ScStack result = new ScStack(current_prefix);
+        ScStack result = new ScStack(current_prefix, max_stack_depth);
         result.added_entries = added_entries;
         result.ctrl_conf.copy_values_from(ctrl_conf);
         result.oracle_conf.copy_values_from(oracle_conf);

@@ -40,9 +40,45 @@ public class ScAngelicSketchCall implements
         int nparams = main_method.getParameterTypes().length;
         Object[] tuple_arr = null;
         try {
-            tuple_arr =
-                    (Object[]) sketch.getClass().getMethod("tests").invoke(
-                            sketch);
+            Object test_cases_obj =
+                    sketch.getClass().getMethod("tests").invoke(sketch);
+            if (test_cases_obj instanceof Object[]) {
+                tuple_arr = (Object[]) test_cases_obj;
+            } else if (test_cases_obj instanceof int[]) {
+                int[] int_arr = (int[]) test_cases_obj;
+                tuple_arr = new Object[int_arr.length];
+                for (int a = 0; a < int_arr.length; a++) {
+                    tuple_arr[a] = new Integer(int_arr[a]);
+                }
+            } else if (test_cases_obj instanceof long[]) {
+                long[] long_arr = (long[]) test_cases_obj;
+                tuple_arr = new Object[long_arr.length];
+                for (int a = 0; a < long_arr.length; a++) {
+                    tuple_arr[a] = new Long(long_arr[a]);
+                }
+            } else if (test_cases_obj instanceof float[]) {
+                float[] float_arr = (float[]) test_cases_obj;
+                tuple_arr = new Object[float_arr.length];
+                for (int a = 0; a < float_arr.length; a++) {
+                    tuple_arr[a] = new Float(float_arr[a]);
+                }
+            } else if (test_cases_obj instanceof boolean[]) {
+                boolean[] boolean_arr = (boolean[]) test_cases_obj;
+                tuple_arr = new Object[boolean_arr.length];
+                for (int a = 0; a < boolean_arr.length; a++) {
+                    tuple_arr[a] = new Boolean(boolean_arr[a]);
+                }
+            } else if (test_cases_obj instanceof double[]) {
+                double[] double_arr = (double[]) test_cases_obj;
+                tuple_arr = new Object[double_arr.length];
+                for (int a = 0; a < double_arr.length; a++) {
+                    tuple_arr[a] = new Double(double_arr[a]);
+                }
+            } else {
+                assertFalse(
+                        "ScAngelicSketchCall -- don't know what to do with "
+                                + "test cases object", test_cases_obj);
+            }
         } catch (Exception e) {
             DebugOut
                     .print_exception("requesting tests variable from sketch", e);
@@ -211,7 +247,7 @@ public class ScAngelicSketchCall implements
                 assertSlow(nparams == 15, "got 15 parameters, expected",
                         nparams);
             } else {
-                test_cases[a] = arr(a);
+                test_cases[a] = arr(elt);
                 assertSlow(nparams == 1, "got 1 parameters, expected", nparams);
             }
         }

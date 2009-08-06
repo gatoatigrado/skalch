@@ -46,7 +46,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     @Override
     public void synthesize_inner(ScUserInterface ui) {
         ScDefaultPrefix prefix = new ScDefaultPrefix();
-        ScStack stack = new ScStack(prefix);
+        ScStack stack = new ScStack(prefix, be_opts.synth_opts.max_stack_depth);
         // shared classes to synchronize / manage search
         search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
         got_first_run = new AtomicBoolean(false);

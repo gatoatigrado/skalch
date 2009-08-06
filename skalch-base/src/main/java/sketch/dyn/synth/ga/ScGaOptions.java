@@ -1,7 +1,9 @@
 package sketch.dyn.synth.ga;
 
 import static ec.util.ThreadLocalMT.mt;
+import static sketch.util.DebugOut.assertFalse;
 import static sketch.util.DebugOut.print;
+import sketch.util.DebugOut;
 import sketch.util.cli.CliAnnotatedOptionGroup;
 import sketch.util.cli.CliOptionType;
 import sketch.util.cli.CliParameter;
@@ -31,7 +33,17 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
     @CliParameter(help = "probability of using mutation only")
     public ScGaParameter prob_clone_mutate = new ScGaParameter(0f, 0.2f, 1f);
     @CliParameter(help = "probability of tournament selection searching for a better individual.")
-    public ScGaParameter prob_reselect = new ScGaParameter(0.1f, 0.5f, 0.9f);
+    public ScGaParameter prob_reselect = new ScGaParameter(0.1f, 0.7f, 0.9f);
+    @CliParameter(help = "print choices made by pareto optimality (requires ga_analysis)")
+    public boolean print_pareto_optimal;
+
+    @Override
+    public void post_set_values() {
+        DebugOut.print("post set value");
+        if (print_pareto_optimal && !analysis) {
+            assertFalse("must enable ga_analysis to use ga_print_pareto_optimal");
+        }
+    }
 
     public final class ScGaParameter implements CliOptionType<ScGaParameter> {
         float min;

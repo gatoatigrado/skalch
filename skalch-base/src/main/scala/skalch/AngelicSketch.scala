@@ -101,7 +101,7 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
 }
 
 object AngelicSketchSynthesize {
-    def apply(f : (() => AngelicSketch)) {
+    def apply(f : (() => AngelicSketch)) : AnyRef = {
         val synth = new sketch.dyn.main.angelic.ScAngelicSynthesisMain(f)
         synth.synthesize()
     }

@@ -8,6 +8,7 @@ import sketch.dyn.BackendOptions;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.ga.base.ScGaSolutionId;
+import sketch.util.DebugOut;
 
 /**
  * stats-only analysis of GA
@@ -17,8 +18,9 @@ import sketch.dyn.synth.ga.base.ScGaSolutionId;
  *          make changes, please consider contributing back!
  */
 public class GaAnalysis {
-    ScGaSolutionId[] recent_evaluations;
-    public HashSet<ScGaSolutionId> solutions = new HashSet<ScGaSolutionId>();
+    protected final ScGaSolutionId[] recent_evaluations;
+    public final HashSet<ScGaSolutionId> solutions =
+            new HashSet<ScGaSolutionId>();
     protected int num_repeats = 0;
     protected int num_repeats_recent = 0;
     protected int num_mutate = 0;
@@ -26,6 +28,7 @@ public class GaAnalysis {
     protected int num_select_individual_other_same = 0;
     protected int num_select_individual_other_optimal = 0;
     protected int num_select_individual_selected_optimal = 0;
+    protected final boolean print_pareto_optimal;
 
     public void evaluation_done(ScGaIndividual individual) {
         ScGaSolutionId solution_id = individual.generate_solution_id();
@@ -48,6 +51,7 @@ public class GaAnalysis {
         print("GA Analysis created (this should only be for debugging)");
         recent_evaluations =
                 new ScGaSolutionId[be_opts.ga_opts.analysis_recent];
+        print_pareto_optimal = be_opts.ga_opts.print_pareto_optimal;
     }
 
     public void update_stats() {
@@ -87,11 +91,25 @@ public class GaAnalysis {
         num_select_individual_other_same += 1;
     }
 
-    public void select_individual_other_optimal() {
+    public void select_individual_other_optimal(ScGaIndividual optimal,
+            ScGaIndividual suboptimal)
+    {
         num_select_individual_other_optimal += 1;
+        print_optimal(optimal, suboptimal);
     }
 
-    public void select_individual_selected_optimal() {
+    public void select_individual_selected_optimal(ScGaIndividual optimal,
+            ScGaIndividual suboptimal)
+    {
         num_select_individual_selected_optimal += 1;
+        print_optimal(optimal, suboptimal);
+    }
+
+    public void print_optimal(ScGaIndividual optimal, ScGaIndividual suboptimal)
+    {
+        if (print_pareto_optimal) {
+            DebugOut.print_mt("individual " + optimal + "\noptimal to\n"
+                    + suboptimal + "\n");
+        }
     }
 }

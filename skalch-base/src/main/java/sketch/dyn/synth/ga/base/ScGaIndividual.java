@@ -39,7 +39,7 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public String toString() {
         return "ScGaIndividual [" + System.identityHashCode(this) + ", age="
                 + age + ", num_asserts_passed=" + num_asserts_passed
-                + ", genotype=" + genotype + ", values=<<<\n"
+                + ", cost=" + cost + ", values=<<<\n"
                 + phenotype.formatValuesString(genotype) + ">>>]";
     }
 
@@ -80,12 +80,13 @@ public class ScGaIndividual implements ScCloneable<ScGaIndividual> {
     public boolean pareto_optimal(ScGaIndividual selected) {
         if (age > selected.age) {
             return false;
-        } else if (num_asserts_passed < selected.num_asserts_passed) {
-            return false;
-        } else if (num_asserts_passed > selected.num_asserts_passed) {
-            // NOTE - don't compare costs if this one accessed more values,
-            // since skAddCost() calls can be anywhere.
-            return true;
+            /*
+             * else if (num_asserts_passed < selected.num_asserts_passed) {
+             * return false; } else if (num_asserts_passed >
+             * selected.num_asserts_passed) { // NOTE - don't compare costs if
+             * this one accessed more values, // since skAddCost() calls can be
+             * anywhere. return true; }
+             */
         } else if (cost >= selected.cost) {
             return false;
         }

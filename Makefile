@@ -46,7 +46,10 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 ### Sketch tests; use EXEC_ARGS=args to pass arguments
 
 angelic_sketch: plugin_angelic_sketch # new angelic sketch base
-	cd skalch-base; mvn -e exec:java -Dexec.classpathScope=test -Dexec.mainClass=angelic.simple.SugaredTest -Dexec.args="$(EXEC_ARGS)"
+	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=angelic.simple.SugaredTest" -Dexec.args="$(EXEC_ARGS)"
+
+run_test: plugin_dev # run TEST_CLASS=<canonical java class name><	
+	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
 ### developer-specific commands
 
@@ -76,3 +79,7 @@ gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=RevListTest.scala
 
 g: gatoatigrado-build-plugin-deps plugin_angelic_sketch # whatever gatoatigrado's currently working on
+gc: gatoatigrado-clean-other gatoatigrado-build-plugin-deps plugin_dev
+gd: gc
+	cd ../sketch-util; buildr install upload
+	cd ../SKETCH; buildr install upload

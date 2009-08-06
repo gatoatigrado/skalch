@@ -32,7 +32,8 @@ public class ScSourceHighlightVisitor extends ScSourceLocationVisitor {
             line =
                     line.replaceAll("([^\\w])(val|var|def|while|if|else|for|"
                             + "return|catch|case|try|match|object|class|"
-                            + "extends)([^\\w])", "$1<b>$2</b>$3");
+                            + "extends|import|package)([^\\w])",
+                            "$1<b>$2</b>$3");
             line =
                     line.replaceAll("(synthAssertTerminal|skprint)",
                             "<i>$1</i>");

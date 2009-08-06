@@ -18,7 +18,7 @@ public class ScSynthesisOptions extends CliAnnotatedOptionGroup {
     }
 
     @CliParameter(help = "solver to use (ga or stack, ga default)")
-    public ScSynthSolver solver = new ScSynthSolver("ga");
+    public ScSynthSolver solver = new ScSynthSolver("stack");
     @CliParameter(help = "number of solutions to find")
     public long num_solutions = 1L << 50;
     @CliParameter(help = "override number of threads (default # of processors)")
@@ -28,7 +28,7 @@ public class ScSynthesisOptions extends CliAnnotatedOptionGroup {
     @CliParameter(help = "don't seed the random number generator with the clock.")
     public boolean no_clock_rand;
     @CliParameter(help = "equivalent to throwing synthAssertTerminal() if too many controls"
-            + " have been accessed. value for each input.")
+            + " have been accessed.")
     public int max_stack_depth = 1 << 30L;
 
     public final class ScSynthSolver implements CliOptionType<ScSynthSolver> {

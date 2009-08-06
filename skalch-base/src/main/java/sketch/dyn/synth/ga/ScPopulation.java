@@ -34,6 +34,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
     public ScGaParameter prob_clone_mutate;
     public ScGaParameter prob_reselect;
     public int uid;
+    public static boolean print_pareto_optimal;
     public static int population_sz;
 
     /** initialize a population with a single individual */
@@ -42,6 +43,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         prob_clone_mutate = be_opts.ga_opts.prob_clone_mutate.clone();
         prob_reselect = be_opts.ga_opts.prob_reselect.clone();
         population_sz = be_opts.ga_opts.population_sz;
+        print_pareto_optimal = be_opts.ga_opts.print_pareto_optimal;
         for (int a = 0; a < population_sz; a++) {
             add(new ScGaIndividual(this, new ScGenotype(), phenotype));
         }
@@ -50,7 +52,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
 
     @Override
     public String toString() {
-        return String.format("ScPopulation [config=%6.2f,%6.2f]",
+        return String.format("ScPopulation [config= mut %6.2f, resel %6.2f]",
                 prob_clone_mutate.value, prob_reselect.value);
     }
 
@@ -176,17 +178,17 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
             ScGaIndividual other =
                     done_queue.get(mt_local.nextInt(done_queue.size()));
             if (other == selected) {
-                if (analysis != null) {
+                if (analysis != null && !select_bad) {
                     analysis.select_individual_other_same();
                 }
                 break;
             } else if (other.pareto_optimal(selected) ^ select_bad) {
-                selected = other;
-                if (analysis != null) {
-                    analysis.select_individual_other_optimal();
+                if (analysis != null && !select_bad) {
+                    analysis.select_individual_other_optimal(other, selected);
                 }
-            } else if (analysis != null) {
-                analysis.select_individual_selected_optimal();
+                selected = other;
+            } else if (analysis != null && !select_bad) {
+                analysis.select_individual_selected_optimal(selected, other);
             }
         }
         return selected;

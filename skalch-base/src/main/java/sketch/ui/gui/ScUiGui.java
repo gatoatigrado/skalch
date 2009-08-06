@@ -14,7 +14,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
-import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.main.debug.ScDebugEntry;
@@ -23,7 +22,6 @@ import sketch.dyn.main.debug.ScDebugRun;
 import sketch.dyn.main.debug.ScDebugStackRun;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScStack;
-import sketch.ui.ScUiList;
 import sketch.ui.ScUiSortedList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -44,7 +42,6 @@ import sketch.util.sourcecode.ScSourceLocation;
 public class ScUiGui extends gui_0_1 {
     private static final long serialVersionUID = 6584583626375432139L;
     public ScUiThread ui_thread;
-    public ScUiList<ScFixedInputConf> inputChoices;
     public ScUiSortedList<ScModifierDispatcher> synthCompletions;
     public int num_synth_active = 0;
     public int context_len;
@@ -60,10 +57,6 @@ public class ScUiGui extends gui_0_1 {
         context_split_len = ui_thread.be_opts.ui_opts.context_split_len;
         // java is very annoying
         int max_list_length = ui_thread.be_opts.ui_opts.max_list_length;
-        inputChoices =
-                new ScUiList<ScFixedInputConf>(selectInputList,
-                        (Class<ScFixedInputConf[]>) (new ScFixedInputConf[0])
-                                .getClass(), max_list_length);
         synthCompletions =
                 new ScUiSortedList<ScModifierDispatcher>(
                         synthCompletionList,
@@ -101,6 +94,14 @@ public class ScUiGui extends gui_0_1 {
                 ui_thread.set_stop();
             }
         }).add(KeyEvent.VK_ESCAPE, false);
+        (new KeyAction() {
+            private static final long serialVersionUID = -5424144807529052326L;
+
+            @Override
+            public void action() {
+                stopSolver();
+            }
+        }).add(KeyEvent.VK_S, false);
         (new KeyAction() {
             private static final long serialVersionUID = -5424144807529052326L;
 
@@ -148,12 +149,6 @@ public class ScUiGui extends gui_0_1 {
 
     @Override
     protected void hyperlinkClicked(String linkurl) {
-    }
-
-    @Override
-    protected void setMonospace(boolean monospace) {
-        DebugOut.todo("set monospace to", monospace,
-                "doesn't work with jdk 1.7");
     }
 
     @Override
@@ -316,5 +311,12 @@ public class ScUiGui extends gui_0_1 {
         if (!ui_thread.be_opts.ui_opts.no_scroll_topleft) {
             scroll_topleft();
         }
+    }
+
+    @Override
+    protected void changeDisplayedContext(int nlines_context) {
+        context_len = nlines_context;
+        context_split_len = 3 * nlines_context;
+        // DebugOut.not_implemented("gui_0_1.changeDisplayedContext", nlines);
     }
 }

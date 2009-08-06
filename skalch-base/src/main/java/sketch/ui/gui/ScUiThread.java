@@ -1,5 +1,7 @@
 package sketch.ui.gui;
 
+import static sketch.dyn.BackendOptions.beopts;
+
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,6 +27,7 @@ import sketch.ui.modifiers.ScGaSolutionDispatcher;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
+import sketch.util.DebugOut;
 import sketch.util.InteractiveThread;
 
 /**
@@ -165,14 +168,12 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     }
 
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
+        if (beopts().ui_opts.print_counterexamples) {
+            Object[] text = { "counterexamples", inputs };
+            DebugOut.print_colored(DebugOut.BASH_GREEN,
+                    "[user requested print]", "\n", true, text);
+        }
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
-        new RunnableModifier(new Runnable() {
-            public void run() {
-                for (ScFixedInputConf elt : all_counterexamples) {
-                    gui.inputChoices.add(elt);
-                }
-            }
-        }).add();
     }
 
     // all of this junk just because Java can't bind non-final variables

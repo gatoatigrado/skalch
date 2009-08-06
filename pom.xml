@@ -68,7 +68,7 @@ Update dependency versions
 
     <properties>
         <sketch.proper.version>0.01-SNAPSHOT</sketch.proper.version>
-        <sketch.util.version>0.01</sketch.util.version>
+        <sketch.util.version>0.02</sketch.util.version>
         <scala.version>2.8.0-SNAPSHOT</scala.version>
         <maven.scala.version>2.13</maven.scala.version>
     </properties>

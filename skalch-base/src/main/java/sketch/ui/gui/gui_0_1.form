@@ -39,16 +39,14 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="statsPane" alignment="0" pref="331" max="32767" attributes="1"/>
                                       <Component id="synthCompletionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
-                                          <Group type="102" alignment="0" attributes="1">
-                                              <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace pref="65" max="32767" attributes="0"/>
-                                              <Component id="acceptButton" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Component id="selectInputPane" alignment="0" pref="315" max="32767" attributes="3"/>
-                                          <Component id="synthCompletionPane" alignment="0" pref="315" max="32767" attributes="3"/>
+                                      <Group type="102" alignment="0" attributes="1">
+                                          <Component id="viewSelectionsButton" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace pref="68" max="32767" attributes="0"/>
+                                          <Component id="acceptButton" min="-2" max="-2" attributes="0"/>
                                       </Group>
+                                      <Component id="synthCompletionPane" alignment="0" pref="331" max="32767" attributes="3"/>
                                       <Component id="selectInputsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -62,10 +60,12 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="sourceViewLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="282" max="32767" attributes="0"/>
-                      <Component id="monospaceCheckbox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="277" max="32767" attributes="0"/>
+                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="contextSpinBox" min="-2" pref="38" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="sourceCodePane" pref="458" max="32767" attributes="0"/>
+                  <Component id="sourceCodePane" pref="465" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -77,12 +77,16 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="monospaceCheckbox" min="-2" max="-2" attributes="0"/>
                           <Component id="sourceViewLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                              <Component id="contextSpinBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="sourceCodePane" pref="791" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="sourceCodePane" pref="797" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="controlsLabel" min="-2" max="-2" attributes="0"/>
@@ -94,7 +98,7 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="selectInputsLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="selectInputPane" min="-2" max="-2" attributes="0"/>
+                      <Component id="statsPane" min="-2" pref="131" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="synthCompletionLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -107,7 +111,7 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="debugPrintoutsLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="debugOutPane" pref="342" max="32767" attributes="0"/>
+                      <Component id="debugOutPane" pref="349" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -146,20 +150,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JCheckBox" name="monospaceCheckbox">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Dialog" size="12" style="0"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="monospace"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="monospaceCheckboxActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
-      </AuxValues>
-    </Component>
     <Component class="javax.swing.JLabel" name="controlsLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -173,7 +163,7 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Dialog" size="12" style="0"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Select inputs / tests (use &lt;ctrl&gt; to select multiple)"/>
+        <Property name="text" type="java.lang.String" value="Current statistics and warnings"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="debugPrintoutsLabel">
@@ -181,7 +171,7 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Dialog" size="14" style="1"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Debug printouts (select to highlight source)"/>
+        <Property name="text" type="java.lang.String" value="Debug output for selected completion"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="viewSelectionsButton">
@@ -199,34 +189,6 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
       </AuxValues>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="selectInputPane">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JList" name="selectInputList">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Dialog" size="12" style="0"/>
-            </Property>
-            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-              <StringArray count="5">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
-                <StringItem index="4" value="Item 5"/>
-              </StringArray>
-            </Property>
-          </Properties>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
-          </AuxValues>
-        </Component>
-      </SubComponents>
-    </Container>
     <Component class="javax.swing.JLabel" name="synthCompletionLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -327,5 +289,53 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
       </AuxValues>
     </Component>
+    <Component class="javax.swing.JSpinner" name="contextSpinBox">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.editors2.FontEditor">
+          <FontInfo relative="true">
+            <Font bold="false" component="contextSpinBox" property="font" relativeSize="true" size="0"/>
+          </FontInfo>
+        </Property>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="3" maximum="3600" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="contextSpinBoxStateChanged"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.editors2.FontEditor">
+          <FontInfo relative="true">
+            <Font bold="false" component="jLabel1" property="font" relativeSize="true" size="0"/>
+          </FontInfo>
+        </Property>
+        <Property name="text" type="java.lang.String" value="context:"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="statsPane">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JEditorPane" name="statsEditor">
+          <Properties>
+            <Property name="contentType" type="java.lang.String" value="text/html"/>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="SansSerif" size="14" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&lt;style&gt;&#xa;body {&#xa;font-size: 12pt;&#xa;}&#xa;ul {&#xa;margin-left: 20pt;&#xa;}&#xa;&lt;/style&gt;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;&lt;p&gt;&lt;b&gt;Text like the following example should appear when you select inputs and a synthesized completion&lt;/b&gt;. You can select an in-progress completion if synthesis is not complete (possibly the search space is too large).&lt;/p&gt;&#xa;&lt;ul&gt;&#xa;&lt;li&gt;[&lt;a href=&quot;line:4&quot;&gt;line 4&lt;/a&gt;] - !! set to 2, selecting expression &quot;q.next&quot; for a complete line of &quot;g(q.next.getValue())&quot;&lt;/li&gt;&#xa;&lt;li&gt;[line 12] - ?? set to 13&lt;/li&gt;&#xa;&lt;/ul&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+        </Component>
+      </SubComponents>
+    </Container>
   </SubComponents>
 </Form>

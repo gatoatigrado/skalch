@@ -1,7 +1,5 @@
 package sketch.dyn.main.old;
 
-import static sketch.dyn.BackendOptions.beopts;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -16,8 +14,6 @@ import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.dyn.synth.ga.ScGaSynthesis;
-import sketch.dyn.synth.stack.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -32,9 +28,9 @@ import sketch.util.EntireFileReader;
  *          make changes, please consider contributing back!
  */
 public class ScSynthesisMain extends ScSynthesisMainBase {
-    protected ScOldDynamicSketchCall[] sketches;
-    protected ScOldDynamicSketchCall ui_sketch;
-    protected ScSynthesis<?> synthesis_runtime;
+    protected final ScOldDynamicSketchCall[] sketches;
+    protected final ScOldDynamicSketchCall ui_sketch;
+    protected final ScSynthesis<?> synthesis_runtime;
 
     /**
      * Where everything begins.
@@ -50,11 +46,7 @@ public class ScSynthesisMain extends ScSynthesisMainBase {
         }
         ui_sketch = new ScOldDynamicSketchCall(f.apply());
         load_ui_sketch_info();
-        if (beopts().ga_opts.enable) {
-            synthesis_runtime = new ScGaSynthesis(sketches);
-        } else {
-            synthesis_runtime = new ScStackSynthesis(sketches);
-        }
+        synthesis_runtime = get_synthesis_runtime(sketches);
     }
 
     private void load_ui_sketch_info() {

@@ -1,11 +1,8 @@
 package sketch.dyn.main.angelic;
 
-import static sketch.dyn.BackendOptions.beopts;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.dyn.synth.ga.ScGaSynthesis;
-import sketch.dyn.synth.stack.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
 
@@ -18,8 +15,8 @@ import sketch.ui.ScUserInterfaceManager;
  */
 public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     public final ScAngelicSketchCall ui_sketch;
-    protected ScAngelicSketchCall[] sketches;
-    protected ScSynthesis<?> synthesis_runtime;
+    protected final ScAngelicSketchCall[] sketches;
+    protected final ScSynthesis<?> synthesis_runtime;
 
     public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
         sketches = new ScAngelicSketchCall[nthreads];
@@ -27,11 +24,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
             sketches[a] = new ScAngelicSketchCall(f.apply());
         }
         ui_sketch = new ScAngelicSketchCall(f.apply());
-        if (beopts().ga_opts.enable) {
-            synthesis_runtime = new ScGaSynthesis(sketches);
-        } else {
-            synthesis_runtime = new ScStackSynthesis(sketches);
-        }
+        synthesis_runtime = get_synthesis_runtime(sketches);
     }
 
     public Object synthesize() throws Exception {

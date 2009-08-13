@@ -13,8 +13,7 @@ import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
 
 import ScalaDebugOut._
 import sketch.util.DebugOut
-import streamit.frontend.nodes
-import streamit.frontend.nodes.scala._
+import sketch.compiler.ast.{base, core, scala => scast}
 
 /*
 import skalch.DynamicSketch
@@ -271,7 +270,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 /**
                  * The main recursive call to create SKETCH nodes.
                  */
-                def getSketchAST(tree : Tree, info : ContextInfo) : nodes.base.FEAnyNode = {
+                def getSketchAST(tree : Tree, info : ContextInfo) : base.FEAnyNode = {
                     // TODO - fill in source values...
                     val start = tree.pos.focusStart match {
                         case NoPosition => (0, 0)
@@ -283,8 +282,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         case FakePos(msg) => (0, 0)
                         case t : Position => (t.line, t.column)
                     }
-                    val the_ctx : misc.ScalaFENode = new misc.ScalaFENode(
-                        comp_unit.source.file.path,
+                    val the_ctx = new scast.misc.ScalaFENode(comp_unit.source.file.path,
                         start._1, start._2, end._1, end._2)
 
 
@@ -329,11 +327,11 @@ class SketchRewriter(val global: Global) extends Plugin {
                             })
                         }
                         def getname(elt : Object) : String = getname(elt, tree.symbol)
-                        def gettype(tpe : Type) : nodes.Type = sketch_types.gettype(tpe)
-                        def gettype(tree : Tree) : nodes.Type = gettype(tree.tpe)
+                        def gettype(tpe : Type) : core.typs.Type = sketch_types.gettype(tpe)
+                        def gettype(tree : Tree) : core.typs.Type = gettype(tree.tpe)
 
                         def subtree(tree : Tree, next_info : ContextInfo = null)
-                            : nodes.base.FEAnyNode =
+                            : base.FEAnyNode =
                         {
                             val rv = getSketchAST(tree,
                                 if (next_info == null) (new ContextInfo(info)) else next_info)

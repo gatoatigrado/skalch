@@ -4,8 +4,6 @@ import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
 import ScalaDebugOut._
 import sketch.util.DebugOut
-import streamit.frontend.nodes
-import streamit.frontend.nodes.scala._
 
 /**
  * Abstract class for resolving references to nodes not yet traversed,

@@ -3,8 +3,7 @@ package skalch.plugins
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
 import ScalaDebugOut._
-import streamit.frontend.nodes
-import streamit.frontend.nodes.scala._
+import sketch.compiler.ast.{base, core, scala => scast}
 
 /**
  * support early creation styles, where the sketch node is created
@@ -16,7 +15,7 @@ import streamit.frontend.nodes.scala._
  *          make changes, please consider contributing back!
  */
 class ContextInfo(val old : ContextInfo) {
-    var curr_clazz : typs.ScalaClass =
+    var curr_clazz : scast.typs.ScalaClass =
         if (old != null) old.curr_clazz else null
     var ident : String = if (old == null) "" else ("    " + old.ident)
 }

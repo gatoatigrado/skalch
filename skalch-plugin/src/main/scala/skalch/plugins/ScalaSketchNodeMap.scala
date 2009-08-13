@@ -4,8 +4,7 @@ import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
 import ScalaDebugOut._
 import sketch.util.DebugOut
-import streamit.frontend.nodes
-import streamit.frontend.nodes.scala._
+import sketch.compiler.ast.{base, core, scala => scast}
 
 import scala.tools.nsc
 import nsc._
@@ -23,7 +22,7 @@ import nsc._
 abstract class ScalaSketchNodeMap {
     val global : Global
     val types : SketchTypes
-    val ctx : nodes.FENode
+    val ctx : core.FENode
 
     import global._
     import types._
@@ -32,57 +31,57 @@ abstract class ScalaSketchNodeMap {
     val class_connect : AutoNodeConnector[Symbol]
     val class_fcn_connect : AutoNodeConnector[Symbol]
 
-    def subtree(tree : Tree, next_info : ContextInfo = null) : nodes.base.FEAnyNode
-    def subarr(arr : List[Tree]) : Array[nodes.base.FEAnyNode]
-    def gettype(tpe : Type) : nodes.Type
-    def gettype(tree : Tree) : nodes.Type
+    def subtree(tree : Tree, next_info : ContextInfo = null) : base.FEAnyNode
+    def subarr(arr : List[Tree]) : Array[base.FEAnyNode]
+    def gettype(tpe : Type) : core.typs.Type
+    def gettype(tree : Tree) : core.typs.Type
     def getname(elt : Object, sym : Symbol) : String
     def getname(elt : Object) : String
 
-    def unaryExpr(code : Int, target : nodes.Expression) : nodes.ExprUnary = {
+    def unaryExpr(code : Int, target : core.exprs.Expression) : core.exprs.ExprUnary = {
         val sc = scalaPrimitives
-        import nodes.{ExprUnary => sk}
+        import core.exprs.{ExprUnary => sk}
 
         code match {
-            case sc.ZNOT => new nodes.ExprUnary(ctx, sk.UNOP_NOT, target)
-            case sc.NOT => new nodes.ExprUnary(ctx, sk.UNOP_BNOT, target)
-            case sc.NEG => new nodes.ExprUnary(ctx, sk.UNOP_NEG, target)
+            case sc.ZNOT => new core.exprs.ExprUnary(ctx, sk.UNOP_NOT, target)
+            case sc.NOT => new core.exprs.ExprUnary(ctx, sk.UNOP_BNOT, target)
+            case sc.NEG => new core.exprs.ExprUnary(ctx, sk.UNOP_NEG, target)
         }
     }
 
-    def binaryExpr(code : Int, left : nodes.Expression, right : nodes.Expression)
-        : nodes.ExprBinary =
+    def binaryExpr(code : Int, left : core.exprs.Expression, right : core.exprs.Expression)
+        : core.exprs.ExprBinary =
     {
         val sc = scalaPrimitives
-        import nodes.{ExprBinary => sk}
+        import core.exprs.{ExprBinary => sk}
 
         code match {
-            case sc.ADD => new nodes.ExprBinary(ctx, sk.BINOP_ADD, left, right)
-            case sc.SUB => new nodes.ExprBinary(ctx, sk.BINOP_SUB, left, right)
-            case sc.MUL => new nodes.ExprBinary(ctx, sk.BINOP_MUL, left, right)
-            case sc.DIV => new nodes.ExprBinary(ctx, sk.BINOP_DIV, left, right)
-            case sc.MOD => new nodes.ExprBinary(ctx, sk.BINOP_MOD, left, right)
+            case sc.ADD => new core.exprs.ExprBinary(ctx, sk.BINOP_ADD, left, right)
+            case sc.SUB => new core.exprs.ExprBinary(ctx, sk.BINOP_SUB, left, right)
+            case sc.MUL => new core.exprs.ExprBinary(ctx, sk.BINOP_MUL, left, right)
+            case sc.DIV => new core.exprs.ExprBinary(ctx, sk.BINOP_DIV, left, right)
+            case sc.MOD => new core.exprs.ExprBinary(ctx, sk.BINOP_MOD, left, right)
 
-            case sc.EQ => new nodes.ExprBinary(ctx, sk.BINOP_EQ, left, right)
-            case sc.NE => new nodes.ExprBinary(ctx, sk.BINOP_NEQ, left, right)
-            case sc.LT => new nodes.ExprBinary(ctx, sk.BINOP_LT, left, right)
-            case sc.LE => new nodes.ExprBinary(ctx, sk.BINOP_LE, left, right)
-            case sc.GT => new nodes.ExprBinary(ctx, sk.BINOP_GT, left, right)
-            case sc.GE => new nodes.ExprBinary(ctx, sk.BINOP_GE, left, right)
+            case sc.EQ => new core.exprs.ExprBinary(ctx, sk.BINOP_EQ, left, right)
+            case sc.NE => new core.exprs.ExprBinary(ctx, sk.BINOP_NEQ, left, right)
+            case sc.LT => new core.exprs.ExprBinary(ctx, sk.BINOP_LT, left, right)
+            case sc.LE => new core.exprs.ExprBinary(ctx, sk.BINOP_LE, left, right)
+            case sc.GT => new core.exprs.ExprBinary(ctx, sk.BINOP_GT, left, right)
+            case sc.GE => new core.exprs.ExprBinary(ctx, sk.BINOP_GE, left, right)
 
-            case sc.AND => new nodes.ExprBinary(ctx, sk.BINOP_BAND, left, right)
-            case sc.OR => new nodes.ExprBinary(ctx, sk.BINOP_BOR, left, right)
-            case sc.XOR => new nodes.ExprBinary(ctx, sk.BINOP_BXOR, left, right)
+            case sc.AND => new core.exprs.ExprBinary(ctx, sk.BINOP_BAND, left, right)
+            case sc.OR => new core.exprs.ExprBinary(ctx, sk.BINOP_BOR, left, right)
+            case sc.XOR => new core.exprs.ExprBinary(ctx, sk.BINOP_BXOR, left, right)
 
-            case sc.LSL => new nodes.ExprBinary(ctx, sk.BINOP_LSHIFT, left, right)
-            case sc.ASR => new nodes.ExprBinary(ctx, sk.BINOP_RSHIFT, left, right)
+            case sc.LSL => new core.exprs.ExprBinary(ctx, sk.BINOP_LSHIFT, left, right)
+            case sc.ASR => new core.exprs.ExprBinary(ctx, sk.BINOP_RSHIFT, left, right)
 
             case _ => assertFalse("bad arithmetic op")
         }
     }
 
-    def arrayExpr(code : Int, target : nodes.Expression,
-            args : Array[nodes.base.FEAnyNode]) : nodes.base.FEAnyNode =
+    def arrayExpr(code : Int, target : core.exprs.Expression,
+            args : Array[base.FEAnyNode]) : base.FEAnyNode =
     {
         val sc = scalaPrimitives
 
@@ -91,11 +90,11 @@ abstract class ScalaSketchNodeMap {
         } else if (sc.isArrayLength(code)) {
             not_implemented("array length")
         } else if (sc.isArrayGet(code)) (args match {
-            case Array(idx) => new nodes.ExprArrayRange(target, idx)
+            case Array(idx) => new core.exprs.ExprArrayRange(target, idx)
             case _ => not_implemented("array get with unexpected args", args)
         }) else if (sc.isArraySet(code)) (args match {
-            case Array(idx, expr) => new nodes.StmtAssign(ctx,
-                new nodes.ExprArrayRange(target, idx), expr)
+            case Array(idx, expr) => new core.stmts.StmtAssign(ctx,
+                new core.exprs.ExprArrayRange(target, idx), expr)
             case _ => not_implemented("array set with unexpected args", args)
         }) else {
             assertFalse("no matching array opcode for code", code : Integer)
@@ -105,7 +104,7 @@ abstract class ScalaSketchNodeMap {
     /**
      * NOTE - main translation method.
      */
-    def execute(tree : Tree, info : ContextInfo) : nodes.base.FEAnyNode = {
+    def execute(tree : Tree, info : ContextInfo) : base.FEAnyNode = {
         tree match {
             // much code directly copied from GenICode.scala (BSD license);
             // that file is a lot more complete though.
@@ -118,9 +117,9 @@ abstract class ScalaSketchNodeMap {
                     case ref_typ @ REFERENCE(cls_sym) =>
                         assert(ctor_sym.owner == cls_sym, "new sym owner not class")
                         val thisobj = class_connect.connect_from(cls_sym,
-                            new exprs.ScalaExprClsNew(ctx))
+                            new scast.exprs.ScalaExprClsNew(ctx))
                         thisobj.init_call = class_fcn_connect.connect_from(ctor_sym,
-                            new exprs.ScalaClassFunctionCall(ctx, thisobj, subarr(args)))
+                            new scast.exprs.ScalaClassFunctionCall(ctx, thisobj, subarr(args)))
                         thisobj
                     case _ => not_implemented("unknown new usage")
                 }
@@ -128,14 +127,14 @@ abstract class ScalaSketchNodeMap {
             case Apply(fcn @ Select(Super(_, mix), _), args) =>
                 val fcnsym = fcn.symbol
                 val ths_var = class_connect.connect_from(tree.symbol,
-                    new exprs.vars.ScalaThis(ctx))
+                    new scast.exprs.vars.ScalaThis(ctx))
                 class_fcn_connect.connect_from(fcnsym,
-                        new exprs.ScalaClassFunctionCall(ctx, ths_var, subarr(args)) )
+                        new scast.exprs.ScalaClassFunctionCall(ctx, ths_var, subarr(args)) )
 
             case Apply(fcn, args) =>
                 val fcnsym = fcn.symbol
                 if (fcnsym.isLabel) {
-                    return goto_connect.connect_from(fcnsym, new misc.ScalaGotoCall(ctx))
+                    return goto_connect.connect_from(fcnsym, new scast.misc.ScalaGotoCall(ctx))
                 }
 
                 // otherwise, it's of the form (object or class).(function name)
@@ -153,34 +152,34 @@ abstract class ScalaSketchNodeMap {
                     })
                 } else if (fcnsym.isStaticMember) {
                     not_implemented("static function call", fcnsym.toString, args.toString)
-                    new nodes.ExprFunCall(ctx, getname(fcn), subarr(args))
+                    new core.exprs.ExprFunCall(ctx, getname(fcn), subarr(args))
                 } else if (fcnsym.isClassConstructor) {
                     not_implemented("class constructor call", fcnsym.toString, args.toString)
                 } else {
                     class_fcn_connect.connect_from(fcnsym,
-                        new exprs.ScalaClassFunctionCall(ctx, target, subarr(args)))
+                        new scast.exprs.ScalaClassFunctionCall(ctx, target, subarr(args)))
                 }
 
             case ArrayValue(elemtpt, elems) =>
-                new nodes.ExprArrayInit(ctx, subarr(elems))
+                new core.exprs.ExprArrayInit(ctx, subarr(elems))
 
             case Assign(lhs, rhs) =>
-                new nodes.StmtAssign(ctx, subtree(lhs), subtree(rhs))
+                new core.stmts.StmtAssign(ctx, subtree(lhs), subtree(rhs))
 
             case Bind(name, body) =>
-                new stmts.ScalaBindStmt(
+                new scast.stmts.ScalaBindStmt(
                     ctx, gettype(body), getname(name), subtree(body))
 
             case Block(stmt_arr, expr) =>
-                new stmts.ScalaBlock(ctx, subarr(stmt_arr), subtree(expr))
+                new scast.stmts.ScalaBlock(ctx, subarr(stmt_arr), subtree(expr))
 
             case CaseDef(pat, guard, body) =>
-                new stmts.ScalaCaseStmt(
+                new scast.stmts.ScalaCaseStmt(
                     ctx, subtree(pat), subtree(guard), subtree(body))
 
             case ClassDef(mods, name, tparams, impl) =>
                 val next_info = new ContextInfo(info)
-                next_info.curr_clazz = new typs.ScalaClass(
+                next_info.curr_clazz = new scast.typs.ScalaClass(
                     ctx, getname(name), subarr(tparams))
                 DebugOut.print("class symbol", tree.symbol)
                 class_connect.connect_to(tree.symbol, next_info.curr_clazz)
@@ -197,63 +196,63 @@ abstract class ScalaSketchNodeMap {
                 }
                 // add the return node
                 val body_stmt = (subtree(body) match {
-                    case stmt : nodes.Statement => stmt
-                    case expr : nodes.Expression => new nodes.StmtReturn(ctx, expr)
+                    case stmt : core.stmts.Statement => stmt
+                    case expr : core.exprs.Expression => new core.stmts.StmtReturn(ctx, expr)
                 })
                 class_fcn_connect.connect_to(tree.symbol,
-                    new misc.ScalaClassFunction(ctx, nodes.Function.FUNC_PHASE,
+                    new scast.misc.ScalaClassFunction(ctx, core.Function.FUNC_STATIC,
                         tree.symbol.isStaticMember,
                         info.curr_clazz,
                         getname(name), gettype(tpe), subarr(params), body_stmt))
 
             case Ident(name) =>
-                new nodes.ExprVar(ctx, getname(name))
+                new core.exprs.ExprVar(ctx, getname(name))
 
-            case If(cond, thenstmt, elsestmt) => new nodes.StmtIfThen(
+            case If(cond, thenstmt, elsestmt) => new core.stmts.StmtIfThen(
                     ctx, subtree(cond), subtree(thenstmt), subtree(elsestmt))
 
             case LabelDef(name, params, rhs) =>
-                goto_connect.connect_to(tree.symbol, new misc.ScalaGotoLabel(
+                goto_connect.connect_to(tree.symbol, new scast.misc.ScalaGotoLabel(
                     ctx, getname(name), subarr(params), subtree(rhs)))
 
             case Literal(Constant(value)) => value match {
-                    case v : Boolean => new nodes.ExprConstBoolean(ctx, v)
-                    case v : Char => new nodes.ExprConstChar(ctx, v)
-                    case v : Float => new nodes.ExprConstFloat(ctx, v)
-                    case v : Int => new nodes.ExprConstInt(ctx, v)
-                    case v : String => new nodes.ExprConstStr(ctx, v)
-                    case () => new exprs.ScalaUnitExpression(ctx)
+                    case v : Boolean => new core.exprs.ExprConstBoolean(ctx, v)
+                    case v : Char => new core.exprs.ExprConstChar(ctx, v)
+                    case v : Float => new core.exprs.ExprConstFloat(ctx, v)
+                    case v : Int => new core.exprs.ExprConstInt(ctx, v)
+                    case v : String => new core.exprs.ExprConstStr(ctx, v)
+                    case () => new scast.exprs.ScalaUnitExpression(ctx)
                     case _ => not_implemented("scala constant literal", value.toString)
                 }
 
             case Match(selector, cases) =>
-                new stmts.ScalaMatchStmt(
+                new scast.stmts.ScalaMatchStmt(
                     ctx, subtree(selector), subarr(cases))
 
             case New(tpt : Tree) =>
-                new nodes.ExprNew(ctx, gettype(tpt))
+                new core.exprs.ExprNew(ctx, gettype(tpt))
 
             case PackageDef(pid, stats) =>
                 DebugOut.print("stats", subarr(stats))
-                new misc.ScalaPackageDef()
+                new scast.misc.ScalaPackageDef()
 
             case Return(expr) =>
-                new nodes.StmtReturn(ctx, subtree(expr))
+                new core.stmts.StmtReturn(ctx, subtree(expr))
 
             case Select(qualifier, name) =>
-                new nodes.ExprField(ctx, subtree(qualifier), getname(name))
+                new core.exprs.ExprField(ctx, subtree(qualifier), getname(name))
 
             case Super(qual, mix) =>
-                new exprs.vars.ScalaSuperRef(ctx, gettype(tree))
+                new scast.exprs.vars.ScalaSuperRef(ctx, gettype(tree))
 
             case Template(parents, self, body) =>
                 DebugOut.print("not visiting parents", parents)
                 for (sketch_node <- subarr(body)) sketch_node match {
-                    case f : misc.ScalaClassFunction => ()
-                    case variable : nodes.StmtVarDecl =>
+                    case f : scast.misc.ScalaClassFunction => ()
+                    case variable : core.stmts.StmtVarDecl =>
                         assert(variable.getNumVars == 1,
                             "multi-variable declarations not allowed")
-                        assert(variable.getInit(0).isInstanceOf[exprs.ScalaEmptyExpression],
+                        assert(variable.getInit(0).isInstanceOf[scast.exprs.ScalaEmptyExpression],
                             "all variables in the class body should initially " +
                             "be assigned to the empty expression. class given: " +
                             variable.getInit(0).getClass)
@@ -266,30 +265,30 @@ abstract class ScalaSketchNodeMap {
 
             // qual may reference an outer class.
             case This(qual) =>
-                class_connect.connect_from(tree.symbol, new exprs.vars.ScalaThis(ctx))
+                class_connect.connect_from(tree.symbol, new scast.exprs.vars.ScalaThis(ctx))
 
             case Throw(expr) =>
-                new stmts.ScalaThrow(ctx, subtree(expr))
+                new scast.stmts.ScalaThrow(ctx, subtree(expr))
 
             case Try(block, catches, finalizer) =>
-                new stmts.ScalaTryCatchFinally(
+                new scast.stmts.ScalaTryCatchFinally(
                     ctx, subtree(block), subarr(catches), subtree(finalizer))
 
             case TypeApply(fcn, args) =>
                 DebugOut.not_implemented("type apply", subtree(fcn), subarr(args))
-                new exprs.ScalaTypeApply(ctx, null, null)
+                new scast.exprs.ScalaTypeApply(ctx, null, null)
 
             case TypeTree() => gettype(tree)
 
             case Typed(expr, typ) =>
-                new exprs.ScalaTypedExpression(
+                new scast.exprs.ScalaTypedExpression(
                     ctx, subtree(expr), gettype(typ))
 
-            case ValDef(mods, name, typ, rhs) => new nodes.StmtVarDecl(
+            case ValDef(mods, name, typ, rhs) => new core.stmts.StmtVarDecl(
                 ctx, gettype(typ), getname(name), subtree(rhs))
 
             case EmptyTree =>
-                new exprs.ScalaEmptyExpression(ctx)
+                new scast.exprs.ScalaEmptyExpression(ctx)
 
             case _ =>
                 not_implemented("didn't match Scala node", tree)

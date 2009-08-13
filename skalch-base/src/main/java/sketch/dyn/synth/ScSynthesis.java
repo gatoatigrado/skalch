@@ -2,8 +2,8 @@ package sketch.dyn.synth;
 
 import sketch.dyn.BackendOptions;
 import sketch.ui.ScUserInterface;
-import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
+import sketch.util.thread.AsyncMTEvent;
 
 /**
  * Base for stack and GA synthesis backends.

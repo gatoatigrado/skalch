@@ -2,10 +2,10 @@ package sketch.ui.sourcecode;
 
 import java.util.regex.Pattern;
 
-import sketch.util.ScHtmlUtil;
-import sketch.util.ScRichString;
+import sketch.util.fcns.ScHtmlUtil;
 import sketch.util.sourcecode.ScSourceCache;
 import sketch.util.sourcecode.ScSourceLocation;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * basic scala source code highlighting (bold keywords)

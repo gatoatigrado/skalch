@@ -3,7 +3,7 @@ package sketch.ui.sourcecode;
 import java.util.Vector;
 
 import sketch.dyn.main.ScDynamicSketchCall;
-import sketch.util.ScRichString;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * an oracle which (if it were a hole) would be rewritten to a single number.

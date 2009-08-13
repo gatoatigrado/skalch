@@ -5,7 +5,7 @@ import sketch.dyn.constructs.inputs.ScGaInputConf;
 import sketch.dyn.synth.ga.ScPopulation;
 import sketch.dyn.synth.ga.base.ScGaSolutionId.ScGaSolutionIdEntry;
 import sketch.util.ScCloneable;
-import sketch.util.ScHtmlUtil;
+import sketch.util.fcns.ScHtmlUtil;
 
 /**
  * pretty much a tuple with a clone function. will not become the equivalent of

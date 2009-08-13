@@ -28,7 +28,7 @@ import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
 import sketch.util.DebugOut;
-import sketch.util.InteractiveThread;
+import sketch.util.thread.InteractiveThread;
 
 /**
  * Thread which launches the user interface and shuts it down when requested.

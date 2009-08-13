@@ -1,7 +1,7 @@
 package sketch.dyn.synth.stack.prefix;
 
 import sketch.util.DebugOut;
-import sketch.util.FilteredQueue;
+import sketch.util.datastructures.FilteredQueue;
 
 /**
  * Manages searches of subtrees. Currently doesn't do much.

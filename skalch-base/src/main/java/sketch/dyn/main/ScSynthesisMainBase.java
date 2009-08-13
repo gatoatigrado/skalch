@@ -19,7 +19,7 @@ import sketch.dyn.synth.stack.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
-import sketch.util.EntireFileReader;
+import sketch.util.wrapper.EntireFileReader;
 
 public class ScSynthesisMainBase {
     protected int nthreads;

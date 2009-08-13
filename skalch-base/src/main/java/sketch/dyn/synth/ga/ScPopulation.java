@@ -2,7 +2,7 @@ package sketch.dyn.synth.ga;
 
 import static ec.util.ThreadLocalMT.mt;
 import static sketch.util.DebugOut.print_mt;
-import static sketch.util.ScArrayUtil.deep_clone;
+import static sketch.util.fcns.ScArrayUtil.deep_clone;
 
 import java.util.LinkedList;
 import java.util.Vector;

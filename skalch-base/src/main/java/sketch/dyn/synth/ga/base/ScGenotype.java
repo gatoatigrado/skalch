@@ -3,7 +3,7 @@ package sketch.dyn.synth.ga.base;
 import static ec.util.ThreadLocalMT.mt;
 import static sketch.util.DebugOut.assertSlow;
 import static sketch.util.DebugOut.print;
-import static sketch.util.ScArrayUtil.extend_arr;
+import static sketch.util.fcns.ScArrayUtil.extend_arr;
 
 import java.util.Arrays;
 

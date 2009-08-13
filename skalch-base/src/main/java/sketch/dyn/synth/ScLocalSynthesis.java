@@ -12,8 +12,8 @@ import sketch.dyn.stats.ScStatsMT;
 import sketch.ui.ScUiQueueable;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
-import sketch.util.AsyncMTEvent;
 import sketch.util.DebugOut;
+import sketch.util.thread.AsyncMTEvent;
 import ec.util.MersenneTwisterFast;
 
 public abstract class ScLocalSynthesis implements ScUiQueueable {

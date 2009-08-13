@@ -5,7 +5,7 @@ package sketch.dyn.stats;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import sketch.util.ScRichString;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * The base field type for ScStatsMT; it uses an atomic long counter.

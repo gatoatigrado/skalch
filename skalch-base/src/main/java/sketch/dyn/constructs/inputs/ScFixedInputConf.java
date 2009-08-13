@@ -8,7 +8,7 @@ import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.util.DebugOut;
-import sketch.util.ScRichString;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * Static inputs that may have slightly faster access. This is also used for

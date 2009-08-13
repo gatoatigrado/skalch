@@ -7,7 +7,7 @@ import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
 import sketch.ui.sourcecode.ScNoValueStringException;
-import sketch.util.ScRichString;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * Wrapper for an array of holes.

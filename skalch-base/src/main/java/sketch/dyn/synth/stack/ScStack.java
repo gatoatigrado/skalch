@@ -12,8 +12,8 @@ import sketch.dyn.synth.stack.prefix.ScLocalPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearch;
 import sketch.util.DebugOut;
-import sketch.util.FactoryStack;
-import sketch.util.ScRichString;
+import sketch.util.datastructures.FactoryStack;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * an instance of a backtracking stack search. each instance essentially

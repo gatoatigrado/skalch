@@ -2,7 +2,7 @@ package sketch.dyn.main.debug;
 
 import java.util.LinkedList;
 
-import sketch.util.ScHtmlUtil;
+import sketch.util.fcns.ScHtmlUtil;
 
 public class ScGeneralDebugEntry extends ScDebugEntry {
     String text;

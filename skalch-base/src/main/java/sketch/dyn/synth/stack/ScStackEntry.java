@@ -1,8 +1,8 @@
 package sketch.dyn.synth.stack;
 
 import sketch.util.DebugOut;
-import sketch.util.ObjectFactory;
 import sketch.util.ScCloneable;
+import sketch.util.datastructures.ObjectFactory;
 
 /**
  * An entry of ScStack, contains fields to index holes or inputs.

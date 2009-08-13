@@ -1,13 +1,13 @@
 package sketch.dyn.constructs.inputs;
 
-import static sketch.util.ScArrayUtil.extend_arr;
+import static sketch.util.fcns.ScArrayUtil.extend_arr;
 
 import java.util.Vector;
 
 import sketch.dyn.synth.stack.ScStack;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.util.DebugOut;
-import sketch.util.ScRichString;
+import sketch.util.wrapper.ScRichString;
 
 /**
  * Common functions on an array of solving inputs. These can be converted to

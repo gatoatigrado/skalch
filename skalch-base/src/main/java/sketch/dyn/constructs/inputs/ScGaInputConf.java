@@ -1,6 +1,6 @@
 package sketch.dyn.constructs.inputs;
 
-import static sketch.util.ScArrayUtil.extend_arr;
+import static sketch.util.fcns.ScArrayUtil.extend_arr;
 
 import java.util.Vector;
 

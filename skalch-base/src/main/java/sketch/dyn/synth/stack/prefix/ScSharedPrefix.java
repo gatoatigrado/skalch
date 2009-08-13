@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import sketch.util.DebugOut;
-import sketch.util.MTSafe;
+import sketch.util.thread.MTSafe;
 
 /**
  * A prefix which may be shared by many threads; thus, synchronization is

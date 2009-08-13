@@ -2,7 +2,7 @@ package sketch.ui.sourcecode;
 
 import java.util.Vector;
 
-import sketch.util.Vector4;
+import sketch.util.gui.Vector4;
 
 /**
  * Highlight an array of values, based on which ones are more recently accessed.

@@ -32,10 +32,13 @@ class SketchRewriter(val global: Global) extends Plugin {
     val name = "sketchrewriter"
     val fname_extension = ".hints.xml"
     val description = "de-sugars sketchy constructs"
-    val components = List[PluginComponent](ConstructRewriter,
-        FileCopyComponent
-        //, SketchGeneratorComponent
-        )
+    val components : List[PluginComponent] = (
+        if ("true" == System.getenv().get("TRANSLATE_SKETCH")) {
+            List[PluginComponent](ConstructRewriter, FileCopyComponent,
+                SketchGeneratorComponent)
+        } else {
+            List[PluginComponent](ConstructRewriter, FileCopyComponent)
+        })
     var scalaFileMap = Map[Object, XmlDoc]()
     val fake_pos = FakePos("Inserted literal for call to sketch construct")
 
@@ -329,6 +332,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                         def getname(elt : Object) : String = getname(elt, tree.symbol)
                         def gettype(tpe : Type) : core.typs.Type = sketch_types.gettype(tpe)
                         def gettype(tree : Tree) : core.typs.Type = gettype(tree.tpe)
+                        def process_class(tp : Type) : Boolean = is_dynamic_sketch(tp, true)
 
                         def subtree(tree : Tree, next_info : ContextInfo = null)
                             : base.FEAnyNode =

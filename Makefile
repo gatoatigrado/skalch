@@ -53,13 +53,9 @@ run_test: plugin_dev # run TEST_CLASS=<canonical java class name><
 
 ### developer-specific commands
 
-gatoatigrado-clean-other: clean # clean relative paths in gatoatigrado's project
-	rm -rf ../SKETCH/target ../SKETCH/mvn-bin ../sketch-util/target
-
 gatoatigrado-build-plugin-deps: # build dependencies for the plugin, use skipdeps=1 to skip
 ifndef skipdeps
-	cd ../sketch-util; buildr install
-	cd ../SKETCH; rm -r target/classes/SKETCH/util; buildr install
+	cd ../sketch-frontend; make g_inst
 endif
 
 # gatoatigrado's plugin development trying the red-black tree sketch

@@ -21,6 +21,19 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
     val dynamicSketchClasses =
         List("skalch.DynamicSketch", "skalch.AngelicSketch", "skalch.AllInputSketch")
 
+    /** is a type skalch.DynamicSketch or a subtype of it? */
+    def is_dynamic_sketch(tp : Type, ref_recurse : Boolean) : Boolean = {
+        tp match {
+            case ClassInfoType(parents, decls, type_sym) =>
+                parents.exists(is_dynamic_sketch(_, true))
+
+            case TypeRef(pre, sym, args) => tp.baseClasses.exists(
+                cls => dynamicSketchClasses contains cls.fullNameString)
+
+            case _ => false
+        }
+    }
+
     abstract class SketchTransformer extends Transformer {
         object ConstructType extends Enumeration {
             val Hole = Value("hole")
@@ -83,19 +96,6 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
 
         def transformSketchClass(clsdef : ClassDef) : Tree
         def transformSketchCall(tree : Apply, ct : CallType) : Tree
-
-        /** is a type skalch.DynamicSketch or a subtype of it? */
-        def is_dynamic_sketch(tp : Type, ref_recurse : Boolean) : Boolean = {
-            tp match {
-                case ClassInfoType(parents, decls, type_sym) =>
-                    parents.exists(is_dynamic_sketch(_, true))
-
-                case TypeRef(pre, sym, args) => tp.baseClasses.exists(
-                    cls => dynamicSketchClasses contains cls.fullNameString)
-
-                case _ => false
-            }
-        }
 
         var transformCallDepth = 0
         def transformIdent() : String = {

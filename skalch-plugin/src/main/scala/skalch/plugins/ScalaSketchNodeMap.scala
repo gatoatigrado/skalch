@@ -129,6 +129,8 @@ abstract class ScalaSketchNodeMap {
 
             case Apply(fcn @ Select(Super(_, mix), _), args) =>
                 val fcnsym = fcn.symbol
+                DebugOut.print(">>> super symbol", tree.symbol.toString)
+                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
                 val ths_var = class_connect.connect_from(tree.symbol,
                     new scast.exprs.vars.ScalaThis(ctx))
                 class_fcn_connect.connect_from(fcnsym,
@@ -272,6 +274,9 @@ abstract class ScalaSketchNodeMap {
 
             // qual may reference an outer class.
             case This(qual) =>
+                DebugOut.print(">>> this symbol", tree.symbol.toString)
+                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
+                DebugOut.print(">>> is package class", tree.symbol.isPackageClass.toString)
                 class_connect.connect_from(tree.symbol, new scast.exprs.vars.ScalaThis(ctx))
 
             case Throw(expr) =>

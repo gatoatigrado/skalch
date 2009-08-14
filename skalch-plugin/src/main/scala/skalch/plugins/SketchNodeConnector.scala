@@ -45,9 +45,9 @@ abstract class SketchNodeConnector[Identifier, From, To] {
     }
 
     def checkDone() {
-        for (list <- map.values) list match {
+        for ((k, v) <- map) v match {
             case IdentifiedWaiting(lst) =>
-                assertFalse("sink for list", lst, "not found")
+                assertFalse("sink for list", lst, "with key", k.toString, "not found")
             case _ : IdentifiedDefined => ()
         }
     }

@@ -111,6 +111,15 @@ abstract class ScalaSketchNodeMap {
         tree match {
             // much code directly copied from GenICode.scala (BSD license);
             // that file is a lot more complete though.
+            case Apply(fcn @ Select(Super(_, mix), _), args) =>
+                val fcnsym = fcn.symbol
+                DebugOut.print(">>> super symbol", tree.symbol.toString)
+                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
+                val ths_var = class_connect.connect_from(tree.symbol,
+                    new scast.exprs.vars.ScalaThis(ctx))
+                class_fcn_connect.connect_from(fcnsym,
+                        new scast.exprs.ScalaClassFunctionCall(ctx, ths_var, subarr(args)) )
+
             case Apply(fcn @ Select(New(tpt), nme.CONSTRUCTOR), args) =>
                 val ctor_sym = fcn.symbol
 
@@ -126,15 +135,6 @@ abstract class ScalaSketchNodeMap {
                         thisobj
                     case _ => not_implemented("unknown new usage")
                 }
-
-            case Apply(fcn @ Select(Super(_, mix), _), args) =>
-                val fcnsym = fcn.symbol
-                DebugOut.print(">>> super symbol", tree.symbol.toString)
-                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
-                val ths_var = class_connect.connect_from(tree.symbol,
-                    new scast.exprs.vars.ScalaThis(ctx))
-                class_fcn_connect.connect_from(fcnsym,
-                        new scast.exprs.ScalaClassFunctionCall(ctx, ths_var, subarr(args)) )
 
             case Apply(fcn, args) =>
                 val fcnsym = fcn.symbol
@@ -187,6 +187,7 @@ abstract class ScalaSketchNodeMap {
                     val next_info = new ContextInfo(info)
                     next_info.curr_clazz = new scast.typs.ScalaClass(
                         ctx, getname(name), subarr(tparams))
+                    next_info.clazz_symbol = tree.symbol
                     DebugOut.print("class symbol", tree.symbol)
                     class_connect.connect_to(tree.symbol, next_info.curr_clazz)
                     subtree(impl, next_info)
@@ -277,7 +278,13 @@ abstract class ScalaSketchNodeMap {
                 DebugOut.print(">>> this symbol", tree.symbol.toString)
                 DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
                 DebugOut.print(">>> is package class", tree.symbol.isPackageClass.toString)
-                class_connect.connect_from(tree.symbol, new scast.exprs.vars.ScalaThis(ctx))
+                if (tree.symbol.isModuleClass && tree.symbol != info.clazz_symbol) {
+                    assert(!tree.symbol.isPackageClass, "unexpected package class")
+                    not_implemented("module ref", qual)
+                } else {
+                    class_connect.connect_from(tree.symbol,
+                        new scast.exprs.vars.ScalaThis(ctx))
+                }
 
             case Throw(expr) =>
                 new scast.stmts.ScalaThrow(ctx, subtree(expr))

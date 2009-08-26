@@ -75,8 +75,3 @@ gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=RevListTest.scala
 
 g: gatoatigrado-build-plugin-deps plugin_angelic_sketch # whatever gatoatigrado's currently working on
-gc: gatoatigrado-clean-other gatoatigrado-build-plugin-deps plugin_dev
-gd: gc
-	cd ../sketch-util; buildr install upload
-	cd ../SKETCH; buildr install upload
-	mvn install deploy

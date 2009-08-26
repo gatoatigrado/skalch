@@ -17,5 +17,6 @@ import sketch.compiler.ast.{base, core, scala => scast}
 class ContextInfo(val old : ContextInfo) {
     var curr_clazz : scast.typs.ScalaClass =
         if (old != null) old.curr_clazz else null
+    var clazz_symbol : AnyRef = null
     var ident : String = if (old == null) "" else ("    " + old.ident)
 }

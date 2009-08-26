@@ -76,7 +76,7 @@ class SketchRewriter(val global: Global) extends Plugin {
         import global._
         val runsAfter = List[String]("parser");
         override val runsBefore = List[String]("namer")
-        val phaseName = SketchRewriter.this.name
+        val phaseName = "sketch_construct_rewriter"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {

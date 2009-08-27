@@ -39,7 +39,6 @@ abstract class ScalaSketchNodeMap {
     def gettype(tree : Tree) : core.typs.Type
     def getname(elt : Object, sym : Symbol) : String
     def getname(elt : Object) : String
-    def process_class(tp : Type) : Boolean
 
     def unaryExpr(code : Int, target : core.exprs.Expression) : core.exprs.ExprUnary = {
         val sc = scalaPrimitives
@@ -65,8 +64,8 @@ abstract class ScalaSketchNodeMap {
             case sc.DIV => new core.exprs.ExprBinary(ctx, sk.BINOP_DIV, left, right)
             case sc.MOD => new core.exprs.ExprBinary(ctx, sk.BINOP_MOD, left, right)
 
-            case sc.EQ => new core.exprs.ExprBinary(ctx, sk.BINOP_EQ, left, right)
-            case sc.NE => new core.exprs.ExprBinary(ctx, sk.BINOP_NEQ, left, right)
+            case sc.EQ | sc.ID => new core.exprs.ExprBinary(ctx, sk.BINOP_EQ, left, right)
+            case sc.NE | sc.NI => new core.exprs.ExprBinary(ctx, sk.BINOP_NEQ, left, right)
             case sc.LT => new core.exprs.ExprBinary(ctx, sk.BINOP_LT, left, right)
             case sc.LE => new core.exprs.ExprBinary(ctx, sk.BINOP_LE, left, right)
             case sc.GT => new core.exprs.ExprBinary(ctx, sk.BINOP_GT, left, right)
@@ -79,7 +78,7 @@ abstract class ScalaSketchNodeMap {
             case sc.LSL => new core.exprs.ExprBinary(ctx, sk.BINOP_LSHIFT, left, right)
             case sc.ASR => new core.exprs.ExprBinary(ctx, sk.BINOP_RSHIFT, left, right)
 
-            case _ => assertFalse("bad arithmetic op")
+            case _ => assertFalse("bad arithmetic op", code.toString, left, right)
         }
     }
 
@@ -156,8 +155,7 @@ abstract class ScalaSketchNodeMap {
                             code : java.lang.Integer, args)
                     })
                 } else if (fcnsym.isStaticMember) {
-                    not_implemented("static function call", fcnsym.toString, args.toString)
-                    new core.exprs.ExprFunCall(ctx, getname(fcn), subarr(args))
+                    new core.exprs.ExprFunCall(ctx, getname(fcnsym.name), subarr(args))
                 } else if (fcnsym.isClassConstructor) {
                     not_implemented("class constructor call", fcnsym.toString, args.toString)
                 } else {
@@ -183,18 +181,13 @@ abstract class ScalaSketchNodeMap {
                     ctx, subtree(pat), subtree(guard), subtree(body))
 
             case ClassDef(mods, name, tparams, impl) =>
-                if (process_class(tree.symbol.info)) {
-                    val next_info = new ContextInfo(info)
-                    next_info.curr_clazz = new scast.typs.ScalaClass(
-                        ctx, getname(name), subarr(tparams))
-                    next_info.clazz_symbol = tree.symbol
-                    DebugOut.print("class symbol", tree.symbol)
-                    class_connect.connect_to(tree.symbol, next_info.curr_clazz)
-                    subtree(impl, next_info)
-                    next_info.curr_clazz
-                } else {
-                    MessageProxy("ignored class")
-                }
+                val next_info = new ContextInfo(info)
+                next_info.curr_clazz = new scast.typs.ScalaClass(
+                    ctx, getname(name), subarr(tparams))
+                next_info.clazz_symbol = tree.symbol
+                class_connect.connect_to(tree.symbol, next_info.curr_clazz)
+                subtree(impl, next_info)
+                next_info.curr_clazz
 
             case DefDef(mods, name, tparams, vparamss, tpe, body) =>
                 // info.curr_clazz
@@ -232,7 +225,11 @@ abstract class ScalaSketchNodeMap {
                     case v : Int => new core.exprs.ExprConstInt(ctx, v)
                     case v : String => new core.exprs.ExprConstStr(ctx, v)
                     case () => new scast.exprs.ScalaUnitExpression(ctx)
-                    case _ => not_implemented("scala constant literal", value.toString)
+                    case _ => if (value == null) {
+                        new scast.exprs.ScalaNullConst(ctx)
+                    } else {
+                        not_implemented("scala constant literal", value.toString)
+                    }
                 }
 
             case Match(selector, cases) =>

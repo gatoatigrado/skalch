@@ -27,7 +27,7 @@ abstract class SketchTypes {
     val external_refs : ListBuffer[String]
 
     val known_lib_types : Array[String] = Array(
-        "scala.Function0")
+        "scala.Function0", "scala.Function1", "scala.Function2")
 
     /** resolve a few built-in Scala types */
     def gettype(tpe : Type) : core.typs.Type = {
@@ -111,7 +111,14 @@ abstract class SketchTypes {
     }
 
     implicit def get_param(node : base.FEAnyNode) : core.Parameter = {
-        not_implemented("convert node to parameter\n", node)
+        node match {
+            case vardecl : core.stmts.StmtVarDecl =>
+                assert(vardecl.getNumVars() == 1,
+                    "parameters should only be a single varaible declaration.")
+                new core.Parameter(vardecl, vardecl.getType(0), vardecl.getName(0))
+            case _ =>
+                not_implemented("convert node to parameter\n", node.getClass)
+        }
     }
 
     def java_list[T](arr : Array[T]) : java.util.List[T] = {

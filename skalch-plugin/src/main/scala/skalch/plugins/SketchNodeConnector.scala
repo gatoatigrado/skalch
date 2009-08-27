@@ -51,4 +51,14 @@ abstract class SketchNodeConnector[Identifier, From, To] {
             case _ : IdentifiedDefined => ()
         }
     }
+
+    def getUnconnected() = {
+        val result = ListBuffer[From]()
+        for ((k, v) <- map) v match {
+            case IdentifiedWaiting(lst) =>
+                result ++= lst
+            case _ : IdentifiedDefined => ()
+        }
+        result
+    }
 }

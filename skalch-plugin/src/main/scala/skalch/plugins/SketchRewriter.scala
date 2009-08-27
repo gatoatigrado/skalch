@@ -266,7 +266,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                     result
                 }
                 val _goto_connect = AutoNodeConnector("scala_goto_label")
-                val _class_connect = AutoNodeConnector("scala_class")
+                val _class_connect = new AutoNodeConnector[Symbol]("scala_class")
                 val _class_fcn_connect = AutoNodeConnector("scala_class_fcn")
                 val _external_refs = ListBuffer[String]()
 
@@ -332,7 +332,6 @@ class SketchRewriter(val global: Global) extends Plugin {
                         def getname(elt : Object) : String = getname(elt, tree.symbol)
                         def gettype(tpe : Type) : core.typs.Type = sketch_types.gettype(tpe)
                         def gettype(tree : Tree) : core.typs.Type = gettype(tree.tpe)
-                        def process_class(tp : Type) : Boolean = is_dynamic_sketch(tp, true)
 
                         def subtree(tree : Tree, next_info : ContextInfo = null)
                             : base.FEAnyNode =
@@ -364,6 +363,9 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                 override def transform(tree : Tree) : Tree = {
                     root = getSketchAST(tree, new ContextInfo(null))
+                    for (unconnected <- _class_connect.getUnconnected()) {
+                        DebugOut.print("unconnected node", unconnected : Object)
+                    }
                     for (connector <- connectors) {
                         connector.checkDone()
                     }

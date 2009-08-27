@@ -92,7 +92,12 @@ class NextPermutationSketch() extends DynamicSketch {
         }
         */
 
-        val unchanged = p.subArray(0, swap_index)
+//         val unchanged = p.subArray(0, swap_index)
+        // FIXME - bug in 2.8.0 latest
+        val unchanged = new Array[Int](swap_index)
+        for (i <- 0 until swap_index) {
+            unchanged(i) = p(i)
+        }
 
         val candidates = for(entry @ (value, index) <- p.zipWithIndex.slice(swap_index + 1, p.length) if value > p(swap_index)) yield entry
 

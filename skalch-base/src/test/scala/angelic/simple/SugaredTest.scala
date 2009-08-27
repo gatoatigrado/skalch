@@ -10,6 +10,9 @@ class SugaredSketch() extends AngelicSketch {
     def main() {
         synthAssertTerminal(??(List("a", "b", "c")) == "c")
         synthAssertTerminal(??(100) == 63)
+        for (i <- 0 until 10) {
+            synthAssertTerminal(!!(10) == i);
+        }
     }
 }
 

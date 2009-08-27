@@ -67,14 +67,25 @@ abstract class SketchTypes {
 
     /** convert nodes to Expression nodes */
     implicit def get_expr(node : base.FEAnyNode) : core.exprs.Expression = {
+        if (node == null) {
+            return null
+        }
         node match {
+            // expressions, expression-statements
             case expr : core.exprs.Expression => expr
             case stmt : scast.stmts.ScalaExprStmt =>
                 new scast.exprs.ScalaExprStmtWrapper(stmt)
-            case assign : core.stmts.StmtAssign => new scast.exprs.ScalaNonExpressionUnit(assign)
-            case call : scast.misc.ScalaGotoCall => new scast.exprs.ScalaNonExpressionUnit(call)
-            case lbl : scast.misc.ScalaGotoLabel => new scast.exprs.ScalaNonExpressionUnit(lbl)
-            case ifthen : core.stmts.StmtIfThen => new scast.exprs.ScalaExprIf(ifthen)
+
+            // specific classes
+            case assign : core.stmts.StmtAssign =>
+                new scast.exprs.ScalaNonExpressionUnit(assign)
+            case call : scast.misc.ScalaGotoCall =>
+                new scast.exprs.ScalaNonExpressionUnit(call)
+            case lbl : scast.misc.ScalaGotoLabel =>
+                new scast.exprs.ScalaNonExpressionUnit(lbl)
+            case ifthen : core.stmts.StmtIfThen =>
+                new scast.exprs.ScalaExprIf(ifthen)
+
             case _ => not_implemented("get_expr", node)
         }
     }

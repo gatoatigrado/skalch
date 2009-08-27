@@ -125,11 +125,11 @@ class SketchRewriter(val global: Global) extends Plugin {
     }
 
     /**
-     * SECOND TASK - AFTER JVM.
+     * SECOND TASK - AFTER icode.
      * Write out XML hints files -- info about constructs and source files.
      */
     private object FileCopyComponent extends SketchPluginComponent(global) {
-        val runsAfter = List("jvm")
+        val runsAfter = List("icode")
         val phaseName = "sketch_copy_src_desc"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 
@@ -217,7 +217,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                                 "please set annotations for call " + tree.toString())
                             xmldoc.cons_fcn_arr(uid).parameter_type = param_type
                         }
-                        case _ => assert(false, "INTERNAL ERROR - NewConstruct after jvm")
+                        case _ => assert(false, "INTERNAL ERROR - NewConstruct after icode")
                     }
                     null
                 }
@@ -228,12 +228,12 @@ class SketchRewriter(val global: Global) extends Plugin {
 
 
     /**
-     * THIRD TASK - ALSO AFTER JVM.
+     * THIRD TASK - ALSO AFTER icode.
      * Generate the SKETCH AST and dump it via xstream.
      */
     private object SketchGeneratorComponent extends SketchPluginComponent(global) {
         import global._
-        val runsAfter = List("jvm")
+        val runsAfter = List("icode")
         val phaseName = "sketch_static_ast_gen"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 

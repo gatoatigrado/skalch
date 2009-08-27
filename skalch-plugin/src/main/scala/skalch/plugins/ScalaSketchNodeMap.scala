@@ -279,8 +279,12 @@ abstract class ScalaSketchNodeMap {
                 DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
                 DebugOut.print(">>> is package class", tree.symbol.isPackageClass.toString)
                 if (tree.symbol.isModuleClass && tree.symbol != info.clazz_symbol) {
-                    assert(!tree.symbol.isPackageClass, "unexpected package class")
-                    not_implemented("module ref", qual)
+                    if (tree.symbol.isPackageClass) {
+                        DebugOut.print("WARNING - package class, returning null")
+                    } else {
+                        not_implemented("other symbol...")
+                    }
+                    null
                 } else {
                     class_connect.connect_from(tree.symbol,
                         new scast.exprs.vars.ScalaThis(ctx))

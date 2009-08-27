@@ -106,6 +106,11 @@ Update dependency versions
     </repositories>
     <pluginRepositories>
         <pluginRepository>
+            <id>uc berkeley cobol</id>
+            <name>UC Berkeley Maven2 Repository</name>
+            <url>http://cobol.cs.berkeley.edu/mvn/</url>
+        </pluginRepository>
+        <pluginRepository>
             <id>scala-tools.org</id>
             <name>Scala-Tools Maven2 Repository</name>
             <url>http://scala-tools.org/repo-snapshots</url>

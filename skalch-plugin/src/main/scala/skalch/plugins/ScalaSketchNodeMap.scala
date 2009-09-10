@@ -107,14 +107,15 @@ abstract class ScalaSketchNodeMap {
      * NOTE - main translation method.
      */
     def execute(tree : Tree, info : ContextInfo) : base.FEAnyNode = {
+        val treesym = tree.symbol
         tree match {
             // much code directly copied from GenICode.scala (BSD license);
             // that file is a lot more complete though.
             case Apply(fcn @ Select(Super(_, mix), _), args) =>
                 val fcnsym = fcn.symbol
-                DebugOut.print(">>> super symbol", tree.symbol.toString)
-                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
-                val ths_var = class_connect.connect_from(tree.symbol,
+                DebugOut.print(">>> super symbol", treesym.toString)
+                DebugOut.print(">>> is module symbol", treesym.isModuleClass.toString)
+                val ths_var = class_connect.connect_from(treesym,
                     new scast.exprs.vars.ScalaThis(ctx))
                 class_fcn_connect.connect_from(fcnsym,
                         new scast.exprs.ScalaClassFunctionCall(ctx, ths_var, subarr(args)) )
@@ -184,8 +185,8 @@ abstract class ScalaSketchNodeMap {
                 val next_info = new ContextInfo(info)
                 next_info.curr_clazz = new scast.typs.ScalaClass(
                     ctx, getname(name), subarr(tparams))
-                next_info.clazz_symbol = tree.symbol
-                class_connect.connect_to(tree.symbol, next_info.curr_clazz)
+                next_info.clazz_symbol = treesym
+                class_connect.connect_to(treesym, next_info.curr_clazz)
                 subtree(impl, next_info)
                 next_info.curr_clazz
 
@@ -202,9 +203,9 @@ abstract class ScalaSketchNodeMap {
                     case stmt : core.stmts.Statement => stmt
                     case expr : core.exprs.Expression => new core.stmts.StmtReturn(ctx, expr)
                 })
-                class_fcn_connect.connect_to(tree.symbol,
+                class_fcn_connect.connect_to(treesym,
                     new scast.misc.ScalaClassFunction(ctx, core.Function.FUNC_STATIC,
-                        tree.symbol.isStaticMember,
+                        treesym.isStaticMember,
                         info.curr_clazz,
                         getname(name), gettype(tpe), subarr(params), body_stmt))
 
@@ -215,7 +216,7 @@ abstract class ScalaSketchNodeMap {
                     ctx, subtree(cond), subtree(thenstmt), subtree(elsestmt))
 
             case LabelDef(name, params, rhs) =>
-                goto_connect.connect_to(tree.symbol, new scast.misc.ScalaGotoLabel(
+                goto_connect.connect_to(treesym, new scast.misc.ScalaGotoLabel(
                     ctx, getname(name), subarr(params), subtree(rhs)))
 
             case Literal(Constant(value)) => value match {
@@ -226,7 +227,7 @@ abstract class ScalaSketchNodeMap {
                     case v : String => new core.exprs.ExprConstStr(ctx, v)
                     case () => new scast.exprs.ScalaUnitExpression(ctx)
                     case _ => if (value == null) {
-                        new scast.exprs.ScalaNullConst(ctx)
+                        new core.exprs.ExprNullPtr(ctx)
                     } else {
                         not_implemented("scala constant literal", value.toString)
                     }
@@ -247,7 +248,11 @@ abstract class ScalaSketchNodeMap {
                 new core.stmts.StmtReturn(ctx, subtree(expr))
 
             case Select(qualifier, name) =>
-                new core.exprs.ExprField(ctx, subtree(qualifier), getname(name))
+                if (treesym.isModule) {
+                    gettype(treesym.tpe)
+                } else {
+                    new core.exprs.ExprField(ctx, subtree(qualifier), getname(name))
+                }
 
             case Super(qual, mix) =>
                 new scast.exprs.vars.ScalaSuperRef(ctx, gettype(tree))
@@ -272,18 +277,19 @@ abstract class ScalaSketchNodeMap {
 
             // qual may reference an outer class.
             case This(qual) =>
-                DebugOut.print(">>> this symbol", tree.symbol.toString)
-                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
-                DebugOut.print(">>> is package class", tree.symbol.isPackageClass.toString)
-                if (tree.symbol.isModuleClass && tree.symbol != info.clazz_symbol) {
-                    if (tree.symbol.isPackageClass) {
-                        DebugOut.print("WARNING - package class, returning null")
+                DebugOut.print(">>> this symbol", treesym.toString)
+                DebugOut.print(">>> is module symbol", treesym.isModuleClass.toString)
+                DebugOut.print(">>> is package class", treesym.isPackageClass.toString)
+                if (treesym.isModuleClass && treesym != info.clazz_symbol) {
+                    if (treesym.isPackageClass) {
+                        not_implemented("package class")
+//                         DebugOut.print("WARNING - package class, returning null")
                     } else {
                         not_implemented("other symbol...")
                     }
                     null
                 } else {
-                    class_connect.connect_from(tree.symbol,
+                    class_connect.connect_from(treesym,
                         new scast.exprs.vars.ScalaThis(ctx))
                 }
 

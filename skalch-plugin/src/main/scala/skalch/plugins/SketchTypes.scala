@@ -27,7 +27,8 @@ abstract class SketchTypes {
     val external_refs : ListBuffer[String]
 
     val known_lib_types : Array[String] = Array(
-        "scala.Function0", "scala.Function1", "scala.Function2")
+        "scala.Function0", "scala.Function1", "scala.Function2",
+        "scala.collection.immutable.List")
 
     /** resolve a few built-in Scala types */
     def gettype(tpe : Type) : core.typs.Type = {
@@ -59,6 +60,7 @@ abstract class SketchTypes {
                     external_refs += typename
                     new scast.typs.ScalaExternalLibraryType(typename)
                 } else {
+                    DebugOut.print("[unknown type]", typename)
                     class_connect.connect_from(tpe.typeSymbol,
                         new scast.typs.ScalaUnknownType())
                 }

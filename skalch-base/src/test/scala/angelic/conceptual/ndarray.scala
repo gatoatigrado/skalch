@@ -1,3 +1,4 @@
+package angelic.conceptual
 
 object ArrayUtil {
     def clone[T](x : Array[T]) = {
@@ -12,6 +13,7 @@ class Array2D[T](val width : Int, val height : Int, var values : Array[Array[T]]
     assert(values.length == height, "wrong height of initial values")
     for (v <- values) { assert(v.length == width, "wrong width of initial values") }
 
+    def size = (width, height)
     def apply(x : Int, y : Int) = (values(y))(x)
     def update(x : Int, y : Int, value : T) { (values(y))(x) = value; }
 
@@ -42,6 +44,24 @@ class Array2D[T](val width : Int, val height : Int, var values : Array[Array[T]]
             v1 + "\n" + ("" /: v2)(_ + ", " + _) ) + " >>>"
     }
 
+    override def clone() : Array2D[T] = {
+        val next_values = new Array[Array[T]](height)
+        for (y <- 0 until height) {
+            next_values(y) = ArrayUtil.clone(values(y))
+        }
+        new Array2D(width, height, next_values)
+    }
+
+    def map(f : ((Int, Int, T) => T)) = {
+        val rv = clone()
+        for (y <- 0 until height) {
+            for (x <- 0 until width) {
+                rv(x, y) = f(x, y, rv(x, y))
+            }
+        }
+        rv
+    }
+
     def this(width : Int, height : Int) = {
         this(width, height, {
             val values = new Array[Array[T]](height)
@@ -60,22 +80,6 @@ class Array2D[T](val width : Int, val height : Int, var values : Array[Array[T]]
             }
             values })
     }
-}
 
-println("hello_world")
-val arr1 = new Array2D[Int](1, 2, 1)
-val arr2 = new Array2D[Int](2, 2, 0)
-val arr3 = new Array2D[Int](2, 1, 3)
-val arr4 = new Array2D[Int](2, 2, -1)
-arr2(0, 0) = 1
-arr2(1, 1) = 1
-arr3(1, 0) = 4
-arr4(1, 0) = 3
-arr4(0, 1) = 13
-arr4(1, 1) = 6
-println("array 1", arr1)
-println("array 2", arr2)
-println("array 3", arr3)
-println("array 4", arr4)
-println("[array1, array2]", arr1 hcat arr2)
-println("[array3; array4]", arr3 vcat arr4)
+    def this(values : Array[Array[T]]) = this(values(0).length, values.length, values)
+}

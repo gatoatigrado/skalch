@@ -28,6 +28,15 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
     def ??[T](uid : Int, arr: Array[T]) : T =
         arr(ctrl_conf.getDynamicValue(uid, arr.length))
 
+    @DescriptionAnnotation("[[list select hole]] varargs select hole")
+    def ??[T](uid : Int, first : T, second : T, values : T*) : T = {
+        ctrl_conf.getDynamicValue(uid, values.length + 2) match {
+            case 0 => first
+            case 1 => second
+            case other => values(other - 2)
+        }
+    }
+
 
 
     @DescriptionAnnotation("[[boolean oracle]] boolean oracle")

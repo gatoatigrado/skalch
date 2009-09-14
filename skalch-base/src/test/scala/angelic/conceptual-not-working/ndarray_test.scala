@@ -1,10 +1,11 @@
 
 class NdArrayLibraryClass[T](val sz : Int) {
     type mytype = NdArrayLibraryClass[T]
+    var dimensions : Array[Int] = null
     var size = 0
     var values = new Array[T](sz)
     var mult = 1
-    val multipliers = dimensions map { v => { val prev = mult; mult *= v; prev } }
+    val multipliers : Array[Int] = null
 
     def init_recursive() : List[Int] = {
         var dimensions = sz :: (values(0) match {

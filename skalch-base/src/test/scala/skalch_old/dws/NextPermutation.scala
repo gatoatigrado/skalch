@@ -1,3 +1,4 @@
+/*
 // @code standards ignore file
 package skalch_old.dws
 
@@ -121,3 +122,4 @@ object NextPermutation {
         skalch.synthesize(() => new NextPermutationSketch())
     }
 }
+*/

@@ -1,4 +1,4 @@
-package angelic.conceptual
+/*package angelic.conceptual
 
 import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
@@ -100,4 +100,4 @@ object StrassenMultiplyTest {
         BackendOptions.add_opts(cmdopts)
         skalch.AngelicSketchSynthesize(() => new StrassenMultiplySketch(6, 7, 12))
     }
-}
+}*/

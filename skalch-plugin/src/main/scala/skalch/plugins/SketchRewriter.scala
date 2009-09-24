@@ -139,8 +139,16 @@ class SketchRewriter(val global: Global) extends Plugin {
             var processed = List[String]()
             var processed_no_holes = List[String]()
 
-            def prefixLen(x0 : String, x1 : String) =
-                (x0 zip x1).prefixLength((x : (Char, Char)) => x._1 == x._2)
+            def prefixLen(x0 : String, x1 : String) : Int = {
+                for (i <- 0 until Math.min(x0.length, x1.length)) {
+                    if (x0.charAt(i) != x1.charAt(i)) {
+                        return i
+                    }
+                }
+                return 0
+            }
+            // broken by Scala trunk
+//                 (x0 zip x1).prefixLength((x : (Char, Char)) => x._1 == x._2)
 
             def stripPrefix(arr : List[String], other : List[String])
                 : List[String] =

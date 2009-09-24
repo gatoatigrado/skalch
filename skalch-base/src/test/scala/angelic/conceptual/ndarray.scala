@@ -1,3 +1,4 @@
+/*
 package angelic.conceptual
 
 object ArrayUtil {
@@ -83,3 +84,4 @@ class Array2D[T](val width : Int, val height : Int, var values : Array[Array[T]]
 
     def this(values : Array[Array[T]]) = this(values(0).length, values.length, values)
 }
+*/

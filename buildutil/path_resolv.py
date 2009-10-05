@@ -45,6 +45,10 @@ class Path(str):
     def subpath(self, *argv):
         return Path(self, *argv)
 
+    def files(self):
+        assert self.isdir()
+        return (self.subpath(fname) for fname in self.listdir())
+
     def remove_tree(self):
         self.rmtree() if self.isdir() else self.unlink()
 

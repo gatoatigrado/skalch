@@ -1,3 +1,4 @@
+/*
 package skalch_old.dws
 import skalch.DynamicSketch
 import scala.collection.mutable._
@@ -259,3 +260,4 @@ object Experiment {
         skalch.synthesize(() => new ExperimentalSketch())
     }
 }
+*/

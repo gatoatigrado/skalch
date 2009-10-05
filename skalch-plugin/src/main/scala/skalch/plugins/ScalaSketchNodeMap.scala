@@ -99,7 +99,7 @@ abstract class ScalaSketchNodeMap {
                 new core.exprs.ExprArrayRange(target, idx), expr)
             case _ => not_implemented("array set with unexpected args", args)
         }) else {
-            assertFalse("no matching array opcode for code", code : Integer)
+            assertFalse("no matching array opcode for code", code : java.lang.Integer)
         }
     }
 

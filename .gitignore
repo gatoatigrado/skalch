@@ -13,3 +13,6 @@ bin.timestamp
 lib/scala-library.jar
 lib/sketchrewriter.jar
 .scala_dependencies
+buildutil/*.build-args
+buildutil/sketchrewriter.jar
+buildutil/build_info.pickle

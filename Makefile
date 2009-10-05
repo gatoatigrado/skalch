@@ -31,6 +31,8 @@ set-test-package-decls: # hack to use sed and rename all java package declaratio
                 set_package_decls skalch-base/src/test/scala; \
                 set_package_decls skalch-base/src/main/java"
 
+
+
 ### Compile various tests using the plugin (to test the plugin)
 
 plugin_sugared:
@@ -43,6 +45,8 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 	cd skalch-plugin; mvn install
 	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 
+
+
 ### Sketch tests; use EXEC_ARGS=args to pass arguments
 
 angelic_sketch: plugin_angelic_sketch # new angelic sketch base
@@ -51,7 +55,21 @@ angelic_sketch: plugin_angelic_sketch # new angelic sketch base
 run_test: plugin_dev # run TEST_CLASS=<canonical java class name><	
 	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
+
+
 ### developer-specific commands
+
+buildutil/build_info.pickle:
+	buildutil/get_sources.zsh
+
+fsc-plugin: buildutil/build_info.pickle
+	buildutil/run_fsc.py --compile_plugin
+
+fsc-base: buildutil/build_info.pickle
+	buildutil/run_fsc.py --compile_base
+
+fsc-test: buildutil/build_info.pickle
+	buildutil/run_fsc.py --compile_test
 
 gatoatigrado-build-plugin-deps: # build dependencies for the plugin, use skipdeps=1 to skip
 ifndef skipdeps

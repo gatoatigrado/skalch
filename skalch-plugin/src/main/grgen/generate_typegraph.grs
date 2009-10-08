@@ -1,0 +1,3 @@
+new graph "NoRules.grg"
+export scalatypes.gxl
+exit

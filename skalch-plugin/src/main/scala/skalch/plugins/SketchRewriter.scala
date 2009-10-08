@@ -14,6 +14,7 @@ import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
 import ScalaDebugOut._
 import sketch.util.DebugOut
 import sketch.compiler.ast.{base, core, scala => scast}
+import net.sourceforge.gxl._
 
 /*
 import skalch.DynamicSketch
@@ -32,13 +33,8 @@ class SketchRewriter(val global: Global) extends Plugin {
     val name = "sketchrewriter"
     val fname_extension = ".hints.xml"
     val description = "de-sugars sketchy constructs"
-    val components : List[PluginComponent] = (
-        if ("true" == System.getenv().get("TRANSLATE_SKETCH")) {
-            List[PluginComponent](ConstructRewriter, FileCopyComponent,
-                SketchGeneratorComponent)
-        } else {
-            List[PluginComponent](ConstructRewriter, FileCopyComponent)
-        })
+    val components : List[PluginComponent] = List[PluginComponent](
+        ConstructRewriter, FileCopyComponent, GxlGeneratorComponent)
     var scalaFileMap = Map[Object, XmlDoc]()
     val fake_pos = FakePos("Inserted literal for call to sketch construct")
 
@@ -239,147 +235,37 @@ class SketchRewriter(val global: Global) extends Plugin {
      * THIRD TASK - ALSO AFTER icode.
      * Generate the SKETCH AST and dump it via xstream.
      */
-    private object SketchGeneratorComponent extends SketchPluginComponent(global) {
+    private object GxlGeneratorComponent extends SketchPluginComponent(global) {
+        val _glbl : global.type = global
         import global._
+
         val runsAfter = List("icode")
         val phaseName = "sketch_static_ast_gen"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 
+        object gxl_node_map extends {
+            val _glbl : global.type = global
+        } with ScalaGxlNodeMap
+
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             override def run {
-                try {
-                    scalaPrimitives.init
-                    super.run
-                } catch {
-                    case e : java.lang.Exception => DebugOut.print_exception(
-                        "skipping generating SKETCH AST's due to exception", e)
-                }
+                scalaPrimitives.init
+                super.run
             }
 
             def apply(comp_unit : CompilationUnit) {
-                val ast_gen = new SketchAstGenerator(comp_unit)
+                val ast_gen = new GxlAstGenerator(comp_unit)
+                gxl_node_map.nf.sourceFile = comp_unit.source.file.path
                 ast_gen.transform(comp_unit.body)
                 (new CheckVisited(ast_gen.visited)).transform(comp_unit.body)
             }
 
-            class SketchAstGenerator(comp_unit : CompilationUnit) extends Transformer {
+            class GxlAstGenerator(comp_unit : CompilationUnit) extends Transformer {
                 val visited = new HashSet[Tree]()
                 var root : Object = null
-                val name_string_factory = new SketchNames.NameStringFactory(false)
-
-                val connectors = ListBuffer[AutoNodeConnector[Symbol]]()
-                def AutoNodeConnector(x : String) = {
-                    val result = new AutoNodeConnector[Symbol](x)
-                    connectors += result
-                    result
-                }
-                val _goto_connect = AutoNodeConnector("scala_goto_label")
-                val _class_connect = new AutoNodeConnector[Symbol]("scala_class")
-                val _class_fcn_connect = AutoNodeConnector("scala_class_fcn")
-                val _external_refs = ListBuffer[String]()
-
-                /**
-                 * The main recursive call to create SKETCH nodes.
-                 */
-                def getSketchAST(tree : Tree, info : ContextInfo) : base.FEAnyNode = {
-                    // TODO - fill in source values...
-                    val start = tree.pos.focusStart match {
-                        case NoPosition => (0, 0)
-                        case FakePos(msg) => (0, 0)
-                        case t : Position => (t.line, t.column)
-                    }
-                    val end = tree.pos.focusEnd match {
-                        case NoPosition => (0, 0)
-                        case FakePos(msg) => (0, 0)
-                        case t : Position => (t.line, t.column)
-                    }
-                    val the_ctx = new scast.misc.ScalaFENode(comp_unit.source.file.path,
-                        start._1, start._2, end._1, end._2)
-
-
-
-                    // move code out of this class, it's already 300 lines! ick. --ntung
-                    val _glbl : SketchGeneratorComponent.this.global.type = global
-
-                    object sketch_types extends {
-                        val global : SketchGeneratorComponent.this.global.type = _glbl
-                        val ctx = the_ctx
-
-                        val class_connect = _class_connect
-                        val external_refs = _external_refs
-                    } with SketchTypes
-
-                    object sketch_node_map extends {
-                        val global : SketchGeneratorComponent.this.global.type = _glbl
-                        val types = sketch_types
-                        val ctx = the_ctx
-
-                        val goto_connect = _goto_connect
-                        val class_connect = _class_connect
-                        val class_fcn_connect = _class_fcn_connect
-                    } with ScalaSketchNodeMap {
-                        def getname(elt : Object, sym : Symbol) : String = {
-                            name_string_factory.get_name(elt match {
-                                case name : Name =>
-                                    def alternatives(idx : Int, verbosity : Int) = verbosity match {
-                                        case 0 => name.toString
-                                        case 1 => sym.owner.simpleName + "." + sym.simpleName
-                                        case 2 => sym.fullNameString
-                                        case 3 => name.toString + "_" + idx.toString
-                                    }
-                                    SketchNames.LogicalName(name.toString, sym.fullNameString,
-                                        if (name.isTypeName) "type" else "term",
-                                        _ + "_t", alternatives)
-                                case t : Tree => subtree(t) match {
-                                    case subtree =>
-                                        DebugOut.not_implemented("getname(tree)", tree, elt, subtree)
-                                        null
-                                }
-                            })
-                        }
-                        def getname(elt : Object) : String = getname(elt, tree.symbol)
-                        def gettype(tpe : Type) : core.typs.Type = sketch_types.gettype(tpe)
-                        def gettype(tree : Tree) : core.typs.Type = gettype(tree.tpe)
-
-                        def subtree(tree : Tree, next_info : ContextInfo = null)
-                            : base.FEAnyNode =
-                        {
-                            val rv = getSketchAST(tree,
-                                if (next_info == null) (new ContextInfo(info)) else next_info)
-                            DebugOut.print(info.ident + ".")
-                            rv
-                        }
-                        def subarr(arr : List[Tree]) =
-                            (for (elt <- arr) yield subtree(elt)).toArray
-                    }
-
-
-
-                    if (visited != EmptyTree && visited.contains(tree)) {
-                        DebugOut.print("warning: already visited tree", tree)
-                    }
-                    visited.add(tree)
-
-                    val tree_str = tree.toString.replace("\n", " ")
-                    DebugOut.print(info.ident +
-                        "SKETCH AST translation for Scala tree", tree.getClass)
-                    DebugOut.print(info.ident + tree_str.substring(
-                        0, Math.min(tree_str.length, 60)))
-
-                    sketch_node_map.execute(tree, info)
-                }
 
                 override def transform(tree : Tree) : Tree = {
-                    root = getSketchAST(tree, new ContextInfo(null))
-                    for (unconnected <- _class_connect.getUnconnected()) {
-                        DebugOut.print("unconnected node", unconnected : Object)
-                    }
-                    for (connector <- connectors) {
-                        connector.checkDone()
-                    }
-                    if (!_external_refs.isEmpty) {
-                        DebugOut.assertFalse("external refs not empty")
-                    }
+                    root = gxl_node_map.getGxlAST(tree)
                     tree
                 }
             }

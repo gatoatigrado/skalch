@@ -1,0 +1,16 @@
+node class ScAstNode {
+    sourceFile : string;
+    sourceLine : int;
+    sourceCol : int;
+}
+
+
+
+// === Statements ===
+
+node class BlockElement extends ScAstNode;
+edge class BlockNext connect BlockElement[1] -> BlockElement[0:1];
+
+node class ForLoop extends ScAstNode;
+
+node class If extends ScAstNode;

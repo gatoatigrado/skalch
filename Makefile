@@ -35,14 +35,16 @@ set-test-package-decls: # hack to use sed and rename all java package declaratio
 
 ### Compile various tests using the plugin (to test the plugin)
 
+compile_install_plugin:
+	cd skalch-plugin; mvn install
+
 plugin_sugared:
 	@make plugin_dev testfile=skalch_old/simple/SugaredTest.scala
 
 plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
-plugin_dev: # build the plugin and compile the a test given by $(testfile)
-	cd skalch-plugin; mvn install
+plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)
 	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 
 

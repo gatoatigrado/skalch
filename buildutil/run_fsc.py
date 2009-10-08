@@ -12,8 +12,11 @@ def run_quiet(cmd):
     assert not proc.returncode is None
     return proc.returncode == 0
 
+def strcmd(cmd):
+    return " ".join(("'%s'" %(v) if " " in v else v) for v in cmd)
+
 def run_noisy(cmd):
-    print(" ".join(("'%s'" %(v) if " " in v else v) for v in cmd))
+    print(strcmd(cmd))
     proc = subprocess.Popen(cmd)
     proc.communicate()
     return proc.returncode == 0
@@ -29,6 +32,8 @@ def main(plugin_classpath, plugin_args_fname, plugin_clsdir, plugin_outname,
     plugin_cmd = ["fsc", "-classpath", plugin_classpath,
         "-deprecation", "@%s" %(plugin_args_fname)]
     if compile_plugin:
+        if os.path.isfile(plugin_outname):
+            Path(plugin_outname).unlink()
         if not run_noisy(plugin_cmd):
             print("FAILED, rerunning...")
             run_quiet(["fsc", "--reset"])
@@ -42,8 +47,8 @@ def main(plugin_classpath, plugin_args_fname, plugin_clsdir, plugin_outname,
 
     if not os.path.isdir(base_clsdir):
         os.makedirs(base_clsdir)
-    base_cmd = ["fsc", "-classpath", base_classpath,
-        "-deprecation", "@%s" %(base_args_fname)]
+    os.environ["JAVA_OPTS"] = strcmd(["-cp", base_classpath])
+    base_cmd = ["fsc", "-deprecation", "@%s" %(base_args_fname)]
     if compile_base:
         if not run_noisy(base_cmd):
             print("FAILED, rerunning...")
@@ -65,8 +70,6 @@ def main(plugin_classpath, plugin_args_fname, plugin_clsdir, plugin_outname,
                 print("recompiling test succeeded")
             else:
                 return
-
-    #subprocess.Popen(["fsc", 
 
 if __name__ == "__main__":
     cmdopts = optparse.OptionParser()

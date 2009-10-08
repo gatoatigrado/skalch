@@ -1,20 +1,18 @@
 package skalch.plugins
 
-import sketch.util.DebugOut
-
 object ScalaDebugOut {
     def assert(truth : Boolean, text : => String) : Null = {
-        if (!truth) {
-            DebugOut.assertFalse(text)
-        }
+        scala.Predef.assert(truth)
         null
     }
     def assertFalse(values : Object*) : Null = {
-        DebugOut.assertFalse(("" /: values)(_ + "\n" + _))
+        println(("" /: values)(_ + "\n" + _))
+        scala.Predef.assert(false)
         null
     }
     def not_implemented(values : Object*) : Null = {
-        DebugOut.not_implemented(("" /: values)(_ + "\n" + _))
+        println("[Not implemented] " + ("" /: values)(_ + "\n" + _))
+        scala.Predef.assert(false)
         null
     }
 }

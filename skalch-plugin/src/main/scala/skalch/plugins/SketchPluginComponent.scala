@@ -18,6 +18,12 @@ import scala.tools.nsc.util.{FakePos, OffsetPosition, RangePosition}
 abstract class SketchPluginComponent(val global : Global) extends PluginComponent {
     import global._
 
+    def get_srcdir_outname(comp_unit : CompilationUnit, extension : String)
+            : java.io.File =
+    {
+        new File(comp_unit.source.file.path + extension)
+    }
+
     val dynamicSketchClasses =
         List("skalch.DynamicSketch", "skalch.AngelicSketch", "skalch.AllInputSketch")
 

@@ -3,7 +3,6 @@ package skalch.plugins
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
 import ScalaDebugOut._
-import sketch.util.DebugOut
 import sketch.compiler.ast.{base, core, scala => scast}
 
 import scala.tools.nsc
@@ -32,70 +31,69 @@ abstract class ScalaGxlNodeMap() {
     } with NodeFactory
     import nf._
 
-    /*
-    def unaryExpr(code : Int, target : core.exprs.Expression) : core.exprs.ExprUnary = {
-        val sc = scalaPrimitives
-        import core.exprs.{ExprUnary => sk}
+    var visited : HashSet[Tree] = null
 
-        code match {
-            case sc.ZNOT => new core.exprs.ExprUnary(ctx, sk.UNOP_NOT, target)
-            case sc.NOT => new core.exprs.ExprUnary(ctx, sk.UNOP_BNOT, target)
-            case sc.NEG => new core.exprs.ExprUnary(ctx, sk.UNOP_NEG, target)
+
+    // === String representation of node types ===
+    // All names should be unambiguous, and immediately identifiable
+
+    def unaryExpr(code : Int) : String = "Unary" + (code match {
+        case scalaPrimitives.ZNOT => "Nonzero"
+        case scalaPrimitives.NOT => "InvertBits"
+        case scalaPrimitives.POS => "Positive"
+        case scalaPrimitives.NEG => "Negative"
+        case scalaPrimitives.C2I => "IntCast"
+        case _ => not_implemented("other unary expr", code.toString)
+    })
+
+    def binaryExpr(code : Int) : String = {
+        import scalaPrimitives._
+
+        val map = Map(
+            ADD -> "Add", SUB -> "Subtract", MUL -> "Multiply",
+            DIV -> "Divide", MOD -> "Modulo",
+
+            // object equality versus reference identity
+            EQ -> "PrimitiveEquals", NE -> "PrimitiveNotEquals",
+            ID -> "SameObj", NI -> "NotSameObj",
+
+            // ordered set operations
+            LT -> "LessThan", LE -> "LessThanOrEqual",
+            GT -> "GreaterThan", GE -> "GreaterThanOrEqual",
+
+            // logical / bitwise ops
+            AND -> "BitwiseAnd", OR -> "BitwiseOr", XOR -> "BitwiseXor",
+            LSL -> "BitwiseShiftLeft",
+            LSR -> "ArithmeticShiftLeft",
+            ASR -> "ArithmeticShiftRight",
+
+            // logic operations
+            ZOR -> "LogicOr", ZAND -> "LogicAnd",
+
+            // others which aren't supported in SKETCH
+            CONCAT -> "StringConcat"
+            )
+        return "Binary" + map(code)
+    }
+
+    def arrayExpr(code : Int) : String = {
+        if (scalaPrimitives.isArrayNew(code)) {
+            "ArrayNew"
+        } else if (scalaPrimitives.isArrayLength(code)) {
+            "ArrayLength"
+        } else if (scalaPrimitives.isArrayGet(code)) {
+            "ArrayGet"
+        } else if (scalaPrimitives.isArraySet(code)) {
+            "ArraySet"
+        } else {
+            not_implemented("arrayExpr(): couldn't find anything for code " + code)
         }
     }
 
-    def binaryExpr(code : Int, left : core.exprs.Expression, right : core.exprs.Expression)
-        : core.exprs.ExprBinary =
-    {
-        val sc = scalaPrimitives
-        import core.exprs.{ExprBinary => sk}
 
-        code match {
-            case sc.ADD => new core.exprs.ExprBinary(ctx, sk.BINOP_ADD, left, right)
-            case sc.SUB => new core.exprs.ExprBinary(ctx, sk.BINOP_SUB, left, right)
-            case sc.MUL => new core.exprs.ExprBinary(ctx, sk.BINOP_MUL, left, right)
-            case sc.DIV => new core.exprs.ExprBinary(ctx, sk.BINOP_DIV, left, right)
-            case sc.MOD => new core.exprs.ExprBinary(ctx, sk.BINOP_MOD, left, right)
 
-            case sc.EQ | sc.ID => new core.exprs.ExprBinary(ctx, sk.BINOP_EQ, left, right)
-            case sc.NE | sc.NI => new core.exprs.ExprBinary(ctx, sk.BINOP_NEQ, left, right)
-            case sc.LT => new core.exprs.ExprBinary(ctx, sk.BINOP_LT, left, right)
-            case sc.LE => new core.exprs.ExprBinary(ctx, sk.BINOP_LE, left, right)
-            case sc.GT => new core.exprs.ExprBinary(ctx, sk.BINOP_GT, left, right)
-            case sc.GE => new core.exprs.ExprBinary(ctx, sk.BINOP_GE, left, right)
 
-            case sc.AND => new core.exprs.ExprBinary(ctx, sk.BINOP_BAND, left, right)
-            case sc.OR => new core.exprs.ExprBinary(ctx, sk.BINOP_BOR, left, right)
-            case sc.XOR => new core.exprs.ExprBinary(ctx, sk.BINOP_BXOR, left, right)
-
-            case sc.LSL => new core.exprs.ExprBinary(ctx, sk.BINOP_LSHIFT, left, right)
-            case sc.ASR => new core.exprs.ExprBinary(ctx, sk.BINOP_RSHIFT, left, right)
-
-            case _ => assertFalse("bad arithmetic op", code.toString, left, right)
-        }
-    }
-
-    def arrayExpr(code : Int, target : core.exprs.Expression,
-            args : Array[base.FEAnyNode]) : base.FEAnyNode =
-    {
-        val sc = scalaPrimitives
-
-        if (sc.isArrayNew(code)) {
-            not_implemented("array new")
-        } else if (sc.isArrayLength(code)) {
-            not_implemented("array length")
-        } else if (sc.isArrayGet(code)) (args match {
-            case Array(idx) => new core.exprs.ExprArrayRange(target, idx)
-            case _ => not_implemented("array get with unexpected args", args)
-        }) else if (sc.isArraySet(code)) (args match {
-            case Array(idx, expr) => new core.stmts.StmtAssign(ctx,
-                new core.exprs.ExprArrayRange(target, idx), expr)
-            case _ => not_implemented("array set with unexpected args", args)
-        }) else {
-            assertFalse("no matching array opcode for code", code : java.lang.Integer)
-        }
-    }
-    */
+    // === boilerplate ===
 
     def pos_to_tuple(pos : Position) = pos match {
         case NoPosition => (0, 0)
@@ -107,14 +105,20 @@ abstract class ScalaGxlNodeMap() {
      * NOTE - main translation method.
      */
     def getGxlAST(tree : Tree) : GrNode = {
+//         println("=== gxlast ===")
+//         println("    " + tree + ", " + tree.getClass)
+//         println()
+        visited.add(tree)
         start = pos_to_tuple(tree.pos.focusStart)
         end = pos_to_tuple(tree.pos.focusEnd)
 
         val clsname = tree.getClass().getName() match {
             case "Apply" => "FcnCall"
             case "Ident" => "Var"
+            case "Select" => "ClassRef"
             case "ClassDef" => "Class"
             case "DefDef" => "FcnDef"
+            case "ArrayValue" => "NewArray"
             case other => other
         }
         var node = GrNode(clsname, "line_" + start._1 + "_" + id_ctr())
@@ -145,6 +149,7 @@ abstract class ScalaGxlNodeMap() {
             symlink(clsname, tree.symbol)
         }
 
+        /** the actual match statement */
         tree match {
             // === package / class definitions ===
 
@@ -172,15 +177,19 @@ abstract class ScalaGxlNodeMap() {
                 }
                 // add the return node
                 subtree("Body", body)
+                subchain("Params", params)
 
             case Apply(fcn @ Select(Super(_, mix), _), args) =>
-                DebugOut.print(">>> super symbol", tree.symbol.toString)
-                DebugOut.print(">>> is module symbol", tree.symbol.isModuleClass.toString)
+                assert(!tree.symbol.isModuleClass, "not implemented")
+//                 println(">>> super symbol", tree.symbol.toString)
+//                 println(">>> is module symbol", tree.symbol.isModuleClass.toString)
+                visited.add(fcn)
                 node.typ = "FcnSuperCall"
+                symlink("FcnSuperCall", fcn.symbol)
                 subarr("FcnArgs", args)
-                not_implemented("check array args", mix.toString, mix.getClass)
 
             case Apply(fcn @ Select(New(tpt), nme.CONSTRUCTOR), args) =>
+                visited.add(fcn)
                 symlink("FcnCtorCall", fcn.symbol)
                 subarr("FcnArgs", args)
 
@@ -195,50 +204,66 @@ abstract class ScalaGxlNodeMap() {
                 }
 
             case Apply(fcn, args) =>
+                visited.add(fcn)
                 symlink("Fcn", fcn.symbol)
                 subarr("FcnArgs", args)
 
                 val fcnsym = fcn.symbol
                 if (fcn.symbol.isLabel) {
-                    not_implemented("label")
-//                     return goto_connect.connect_from(fcnsym, new
-//                         scast.misc.ScalaGotoCall(ctx)
+                    node.typ = "GotoCall"
                 } else {
                     // otherwise, it's of the form (object or class).(function name)
-                    val Select(target_tree, fcn_name) = fcn
-                    val target = getGxlAST(target_tree)
-                    if (scalaPrimitives.isPrimitive(fcn.symbol)) {
-                        val code = scalaPrimitives.getPrimitive(fcn.symbol, target_tree.tpe)
-                        not_implemented(code.toString)
-//                         if (scalaPrimitives.isArrayOp(code)) {
-//                             arrayExpr(code, target, subarr(args))
-//                         } else (args match {
-//                             case Nil => unaryExpr(code, target)
-//                             case right :: Nil => binaryExpr(code, target, subtree(right))
-//                             case _ => assertFalse("bad argument list for arithmetic op", target,
-//                                 code : java.lang.Integer, args)
-//                         })
-                    } else if (fcn.symbol.isStaticMember) {
-                        node.typ = "StaticFcnCall"
-                    } else if (fcn.symbol.isClassConstructor) {
-                        node.typ = "ClassConstructorCall"
-                    } else {
-                        node.typ = "FcnCall"
+                    fcn match {
+                        case Select(target_tree, fcn_name) =>
+                            subtree("FcnTarget", target_tree)
+                            if (scalaPrimitives.isPrimitive(fcn.symbol)) {
+                                val code = scalaPrimitives.getPrimitive(fcn.symbol, target_tree.tpe)
+                                node.typ = "FcnCall" + (if (scalaPrimitives.isArrayOp(code)) {
+                                    arrayExpr(code)
+                                } else (args match {
+                                    case Nil => unaryExpr(code)
+                                    case right :: Nil => binaryExpr(code)
+                                    case _ => assertFalse("bad argument list for arithmetic op",
+                                        target_tree, code : java.lang.Integer, args)
+                                }))
+                            } else if (fcn.symbol.isStaticMember) {
+                                node.typ = "StaticFcnCall"
+                            } else if (fcn.symbol.isClassConstructor) {
+                                node.typ = "ClassConstructorCall"
+                            } else {
+                                node.typ = "FcnCall"
+                            }
+                        case TypeApply(fcn, args) =>
+                            node.typ = "FcnCallTypeApply"
+                        case other =>
+                            not_implemented("fcn call " + other, "type", fcn.getClass)
+                            not_implemented("fcn call type " + other)
                     }
                 }
+
+            // already grabbed the symbol; what else matters?
+            case LabelDef(name, params, rhs) => ()
+
+            case Try(block, catches, finalizer) =>
+                subtree("Try", block)
+                subchain("Catch", catches)
+                subtree("Finally", finalizer)
 
 
 
             // === expressions ===
 
-            case Ident(name) =>
-                symlink("Var", tree.symbol)
+            case ArrayValue(elemtpt, elems) =>
+                subchain("Value", elems)
+
+            case Ident(name) => ()
+//                 symlink("Var", tree.symbol)
 
             case Select(qualifier, name) =>
                 if (tree.symbol.isModule) {
                     // FIXME -- not quite...
                     node.typ = "QualifiedClass"
-                    symlink("Class", tree.symbol)
+//                     symlink("Class", tree.symbol)
 //                     gettype(tree.symbol.tpe)
                 } else {
                     node.typ = "FieldAccess"
@@ -251,25 +276,62 @@ abstract class ScalaGxlNodeMap() {
                     not_implemented("package class")
                 }
 
+            case Throw(expr) =>
+                subtree("Expr", expr)
+
             case Literal(Constant(value)) =>
-                node.attrs.append( ("value", value) )
+                node.attrs.append( ("value", if (value == null) "null" else value.toString) )
                 value match {
                     case v : Boolean => node.typ = "BooleanConstant"
                     case v : Char => node.typ = "CharConstant"
                     case v : Float => node.typ = "FloatConstant"
+                    case v : Short => node.typ = "ShortConstant"
                     case v : Int => node.typ = "IntConstant"
+                    case v : Long => node.typ = "LongConstant"
                     case v : String => node.typ = "StringConstant"
-                    case () => new scast.exprs.ScalaUnitExpression(ctx)
+                    case () => node.typ = "UnitConstant"
+                    case null => node.typ = "NullTypeConstant"
+                    case r : AnyRef =>
+                        not_implemented("scala constant literal", r.getClass().getName(),  value.toString)
                     case _ => if (value == null) {
-                        new core.exprs.ExprNullPtr(ctx)
+                        node.typ = "NullPointer"
                     } else {
                         not_implemented("scala constant literal", value.toString)
                     }
                 }
 
+            case EmptyTree => ()
+
+            case Bind(name, body) =>
+                subtree("Body", body)
+
+            // === branching ===
+
+            case If(cond, thenstmt, elsestmt) =>
+                subtree("Cond", cond)
+                subtree("Then", thenstmt)
+                subtree("Else", elsestmt)
+
+            case Match(selector, cases) =>
+                subtree("Target", selector)
+                subchain("Case", cases)
+
+            case CaseDef(pat, guard, body) =>
+                subtree("Pattern", pat)
+                subtree("Guard", guard)
+                subtree("Body", body)
+
+            case Typed(expr, typ) =>
+                subtree("Expression", expr)
+                symlink("Type", typ.symbol)
+
 
 
             // === statements ===
+
+            case Assign(lhs, rhs) =>
+                subtree("lhs", lhs)
+                subtree("rhs", rhs)
 
             case Block(stmt_arr, expr) =>
                 subchain("BlockStmt", stmt_arr)
@@ -278,8 +340,11 @@ abstract class ScalaGxlNodeMap() {
             case ValDef(mods, name, typ, rhs) =>
                 subtree("VarDeclRhs", rhs)
 
+            case Return(expr) =>
+                subtree("Expr", expr)
+
             case _ =>
-                not_implemented("didn't match Scala node", tree.getClass)
+                not_implemented("ERROR -- Scala construct not supported:", tree.getClass)
         }
         node
     }

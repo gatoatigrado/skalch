@@ -3,7 +3,7 @@
 
 from __future__ import division, print_function
 from collections import namedtuple
-import cPickle, optparse, os, shutil, subprocess
+import cPickle, optparse, os, shutil, subprocess, sys
 from path_resolv import Path, ExecuteIn
 
 def run_quiet(cmd):
@@ -27,23 +27,19 @@ def main(plugin_classpath, plugin_args_fname, plugin_clsdir, plugin_outname,
         compile_plugin=False, compile_base=False, compile_test=False,
         **kwargs):
 
-    if not os.path.isdir(plugin_clsdir):
-        os.makedirs(plugin_clsdir)
+    plugin_clsdir = Path(plugin_clsdir)
+    plugin_clsdir.rmtree()
+    plugin_clsdir.makedirs()
     plugin_cmd = ["fsc", "-classpath", plugin_classpath,
         "-deprecation", "@%s" %(plugin_args_fname)]
     if compile_plugin:
         if os.path.isfile(plugin_outname):
             Path(plugin_outname).unlink()
         if not run_noisy(plugin_cmd):
-            print("FAILED, rerunning...")
-            run_quiet(["fsc", "--reset"])
-            if run_quiet(plugin_cmd):
-                print("recompiling plugin succeeded")
-            else:
-                return
-        [v.copy(plugin_clsdir) for v in Path("skalch-plugin/src/main/resources").files()]
-        with ExecuteIn(Path(plugin_clsdir)):
-            run_noisy(["jar", "c0f", plugin_outname] + Path(plugin_clsdir).listdir())
+            return False
+        [v.copyinto(plugin_clsdir) for v in Path("skalch-plugin/src/main/resources").files()]
+        with ExecuteIn(plugin_clsdir):
+            run_noisy(["jar", "c0f", plugin_outname] + plugin_clsdir.listdir())
 
     if not os.path.isdir(base_clsdir):
         os.makedirs(base_clsdir)
@@ -51,12 +47,7 @@ def main(plugin_classpath, plugin_args_fname, plugin_clsdir, plugin_outname,
     base_cmd = ["fsc", "-deprecation", "@%s" %(base_args_fname)]
     if compile_base:
         if not run_noisy(base_cmd):
-            print("FAILED, rerunning...")
-            run_quiet(["fsc", "--reset"])
-            if run_quiet(base_cmd):
-                print("recompiling base succeeded")
-            else:
-                return
+            return False
 
     if not os.path.isdir(test_clsdir):
         os.makedirs(test_clsdir)
@@ -64,12 +55,9 @@ def main(plugin_classpath, plugin_args_fname, plugin_clsdir, plugin_outname,
         "-deprecation", "@%s" %(test_args_fname)]
     if compile_test:
         if not run_noisy(test_cmd):
-            print("FAILED, rerunning...")
-            run_quiet(["fsc", "--reset"])
-            if run_quiet(test_cmd):
-                print("recompiling test succeeded")
-            else:
-                return
+            return False
+
+    return True
 
 if __name__ == "__main__":
     cmdopts = optparse.OptionParser()
@@ -79,4 +67,4 @@ if __name__ == "__main__":
     options, args = cmdopts.parse_args()
     args = cPickle.load(open("buildutil/build_info.pickle"))
     args.update(options.__dict__)
-    main(**args)
+    sys.exit(1 if not main(**args) else 0)

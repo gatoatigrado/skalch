@@ -16,6 +16,8 @@ abstract class NodeFactory() {
     val global : Global
     import global._
 
+    println("TODO -- output symbol owner chain, for rewriting $this")
+
     /** rename some Scala AST nodes */
     val type_map = HashMap("Apply" -> "FcnCall")
 
@@ -68,5 +70,13 @@ abstract class NodeFactory() {
         from.edges.append(result)
         to.edges.append(result)
         result
+    }
+
+    class GxlOutput(fname : java.io.File) {
+        def outputGraph(node : GrNode) = {
+            node.output = true
+            for (edge <- node.edges) {
+            }
+        }
     }
 }

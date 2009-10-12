@@ -32,6 +32,7 @@ import sketch.util.cli
 class SketchRewriter(val global: Global) extends Plugin {
     val name = "sketchrewriter"
     val fname_extension = ".hints.xml"
+    val gxl_extension = ".ast.gxl"
     val description = "de-sugars sketchy constructs"
     val components : List[PluginComponent] = List[PluginComponent](
         ConstructRewriter, FileCopyComponent, GxlGeneratorComponent)
@@ -182,18 +183,15 @@ class SketchRewriter(val global: Global) extends Plugin {
                 }
 
                 val xmldoc = scalaFileMap(comp_unit)
-                val out_dir = global.getFile(comp_unit.body.symbol, "")
-                val out_dir_path = out_dir.getCanonicalPath.replaceAll("<empty>$", "")
-                val copy_name = comp_unit.source.file.name + fname_extension
-                val out_file = (new File(out_dir_path +
-                    File.separator + copy_name)).getCanonicalPath
+                val out_file = new File(comp_unit.source.file.path + fname_extension)
+                val gxlout = new File(comp_unit.source.file.path + gxl_extension)
 
                 var sketchClasses = ListBuffer[Symbol]()
                 (new SketchDetector(sketchClasses, xmldoc)).transform(comp_unit.body)
                 for (cls_sym <- sketchClasses) {
                     val cls_out_file = global.getFile(cls_sym, "") + ".info"
-                    (new FileOutputStream(cls_out_file)).write("%s\n%s".format(
-                        out_file, comp_unit.source.file.path).getBytes)
+                    (new FileOutputStream(cls_out_file)).write("%s\n%s\n%s".format(
+                        out_file, comp_unit.source.file.path, gxlout).getBytes)
                 }
 
                 // NOTE - the tranformer now also adds info about which construct
@@ -254,18 +252,25 @@ class SketchRewriter(val global: Global) extends Plugin {
             }
 
             def apply(comp_unit : CompilationUnit) {
-                val ast_gen = new GxlAstGenerator(comp_unit)
+                val gxlout = new File(comp_unit.source.file.path + gxl_extension)
+                val ast_gen = new GxlAstGenerator(comp_unit, gxlout)
                 gxl_node_map.nf.sourceFile = comp_unit.source.file.path
                 ast_gen.transform(comp_unit.body)
-                (new CheckVisited(ast_gen.visited)).transform(comp_unit.body)
+                println("WARNING -- please re-enable visitor checks sometime")
+//                 (new CheckVisited(gxl_node_map.visited)).transform(comp_unit.body)
             }
 
-            class GxlAstGenerator(comp_unit : CompilationUnit) extends Transformer {
-                val visited = new HashSet[Tree]()
+            class GxlAstGenerator(comp_unit : CompilationUnit, gxlout : File)
+                extends Transformer
+            {
+                gxl_node_map.visited = new HashSet[Tree]()
                 var root : Object = null
 
                 override def transform(tree : Tree) : Tree = {
                     root = gxl_node_map.getGxlAST(tree)
+                    val rcurl = getClass().getResource("/skalch/plugins/type_graph.gxl")
+                    assert(rcurl != null, "resource type_graph.gxl not in jar package!")
+                    val gxldoc = new GXLDocument(rcurl)
                     tree
                 }
             }
@@ -274,11 +279,21 @@ class SketchRewriter(val global: Global) extends Plugin {
              * Make sure we're handling all of the nodes in the Scala AST.
              */
             class CheckVisited(transformed : HashSet[Tree]) extends Transformer {
-                override def transform(tree : Tree) : Tree = {
-                    if (!transformed.contains(tree)) {
-                        println("WARNING - didn't transform node\n    " + tree.toString())
-                    }
-                    super.transform(tree)
+                var parentCls : String = null
+                override def transform(tree : Tree) : Tree = tree match {
+                    case New(tpt) => tree
+                    case TypeTree() => tree
+                    case _ =>
+                        if (!transformed.contains(tree)) {
+                            println("WARNING - didn't transform node    " + tree.getClass() +
+                                "; parent class " + parentCls)
+                            println(tree.toString + "\n")
+                        }
+                        val prev_parent : String = parentCls
+                        parentCls = tree.getClass().toString
+                        val rv = super.transform(tree)
+                        parentCls = prev_parent
+                        rv
                 }
             }
         }

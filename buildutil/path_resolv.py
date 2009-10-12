@@ -42,6 +42,11 @@ class Path(str):
             return result
         return inner
 
+    def makedirs(self):
+        if not self.exists():
+            os.makedirs(self)
+        assert self.isdir()
+
     def subpath(self, *argv):
         return Path(self, *argv)
 
@@ -51,6 +56,15 @@ class Path(str):
 
     def remove_tree(self):
         self.rmtree() if self.isdir() else self.unlink()
+
+    def copyinto(self, dst):
+        dst = Path(dst) if not isinstance(dst, Path) else dst
+        if self.isfile():
+            self.copy(dst)
+        else:
+            dst = dst.subpath(self.basename())
+            dst.makedirs()
+            [self.subpath(v).copyinto(dst) for v in self.listdir()]
 
     def read(self):
         return open(self, "r").read()

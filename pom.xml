@@ -4,14 +4,14 @@ To build, try
 
 For some reason, you need to install the plugin (it's not smart enough to just use the jar)
 therefore, if you want to install (to ~/.m2) as little as possible, try
-    >>> (cd skalch-plugin; mvn install)
+    >>> (cd plugin; mvn install)
     >>> mvn compile
 
 Archetypes (project templates) for sketches using Skalch will be made available soon.
 
 === Internal notes ===
 Execute a test
-    >>> (cd skalch-base; mvn exec:java -Dexec.classpathScope=test
+    >>> (cd base; mvn exec:java -Dexec.classpathScope=test
         -Dexec.mainClass=test.BitonicSortTest -Dexec.args="...")
 
 Bump the version number
@@ -73,8 +73,8 @@ Update dependency versions
     </properties>
 
     <modules>
-        <module>skalch-plugin</module>
-        <module>skalch-base</module>
+        <module>plugin</module>
+        <module>base</module>
     </modules>
 
     <scm>

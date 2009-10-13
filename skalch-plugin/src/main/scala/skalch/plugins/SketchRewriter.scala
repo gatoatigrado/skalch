@@ -267,10 +267,23 @@ class SketchRewriter(val global: Global) extends Plugin {
                 var root : Object = null
 
                 override def transform(tree : Tree) : Tree = {
-                    root = gxl_node_map.getGxlAST(tree)
                     val rcurl = getClass().getResource("/skalch/plugins/type_graph.gxl")
                     assert(rcurl != null, "resource type_graph.gxl not in jar package!")
                     val gxldoc = new GXLDocument(rcurl)
+                    val gxlroot = gxldoc.getDocumentElement()
+                    val graphs = (for (i <- 0 until gxlroot.getGraphCount)
+                        yield gxlroot.getGraphAt(i)).toArray
+                    println("number of graphs", graphs.length)
+                    val typ_graph = graphs.filter(_.getAttribute("id") == "SCE_ScalaAstModel")(0)
+                    val def_graph = graphs.filter(_.getAttribute("id") == "DefaultGraph")(0)
+                    println("typ graph", typ_graph)
+                    println("def graph", def_graph)
+                    println("graph roles " + ("" /: graphs)(_ + ", " + _.getAttribute("id")))
+
+                    root = gxl_node_map.getGxlAST(tree)
+
+                    println("writing " + gxlout)
+                    gxldoc.write(gxlout)
                     tree
                 }
             }

@@ -32,7 +32,7 @@ abstract class ScalaGxlNodeMap() {
     import nf._
 
     var visited : HashSet[Tree] = null
-
+    var gxldoc : GXLDocument = null
 
     // === String representation of node types ===
     // All names should be unambiguous, and immediately identifiable

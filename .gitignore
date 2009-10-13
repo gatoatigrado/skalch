@@ -9,6 +9,7 @@ skalch-base/bin.timestamp
 bin.timestamp
 *.pyc
 *.hints.xml
+*.ast.gxl
 # compile and symlink it yourself...
 lib/scala-library.jar
 lib/sketchrewriter.jar

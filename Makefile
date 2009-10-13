@@ -54,7 +54,7 @@ plugin_dev: compile_install_plugin # build the plugin and compile the a test giv
 angelic_sketch: plugin_angelic_sketch # new angelic sketch base
 	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=angelic.simple.SugaredTest" -Dexec.args="$(EXEC_ARGS)"
 
-run_test: plugin_dev # run TEST_CLASS=<canonical java class name><	
+run_test: plugin_dev # run TEST_CLASS=<canonical java class name>	
 	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
 

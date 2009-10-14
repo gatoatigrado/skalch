@@ -43,6 +43,41 @@
 	<edge from="NAT_ScAstNode_sourceCol" to="DM_int">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
 	</edge>
+	<node id="NAT_IntConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>value</string></attr>
+	</node>
+	<edge from="NAT_IntConstant_value" to="DM_int">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_StringConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>value</string></attr>
+	</node>
+	<edge from="NAT_StringConstant_value" to="DM_string">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_BooleanConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>value</string></attr>
+	</node>
+	<edge from="NAT_BooleanConstant_value" to="DM_bool">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_LongConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>value</string></attr>
+	</node>
+	<edge from="NAT_LongConstant_value" to="DM_int">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_CharConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>value</string></attr>
+	</node>
+	<edge from="NAT_CharConstant_value" to="DM_string">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
 	<node id="Node">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
 		<attr name="name"><string>Node</string></attr>
@@ -332,6 +367,9 @@
 		<attr name="name"><string>IntConstant</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
+	<edge from="IntConstant" to="NAT_IntConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
 	<edge from="ScalaAstModel" to="IntConstant">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
@@ -428,6 +466,9 @@
 		<attr name="name"><string>StringConstant</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
+	<edge from="StringConstant" to="NAT_StringConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
 	<edge from="ScalaAstModel" to="StringConstant">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
@@ -476,6 +517,9 @@
 		<attr name="name"><string>BooleanConstant</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
+	<edge from="BooleanConstant" to="NAT_BooleanConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
 	<edge from="ScalaAstModel" to="BooleanConstant">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
@@ -516,6 +560,9 @@
 		<attr name="name"><string>LongConstant</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
+	<edge from="LongConstant" to="NAT_LongConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
 	<edge from="ScalaAstModel" to="LongConstant">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
@@ -556,6 +603,9 @@
 		<attr name="name"><string>CharConstant</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
+	<edge from="CharConstant" to="NAT_CharConstant_value">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
 	<edge from="ScalaAstModel" to="CharConstant">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>

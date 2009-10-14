@@ -270,7 +270,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 extends Transformer
             {
                 gxl_node_map.visited = new HashSet[Tree]()
-                var root : Object = null
+                var root : gxl_node_map.nf.GrNode = null
 
                 override def transform(tree : Tree) : Tree = {
                     import GxlViews.{xmlwrapper, arrwrapper, nodewrapper}
@@ -281,7 +281,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                     val graphs : Array[GXLGraph] = (for (i <- 0 until gxlroot.getGraphCount)
                         yield gxlroot.getGraphAt(i)).toArray
                     val typ_graph = graphs.get_by_attr("id" -> "SCE_ScalaAstModel")
-                    val def_graph = graphs.get_by_attr("id" -> "DefaultGraph")
+                    val def_graph = graphs.get_by_attr("id" -> "DefaultGraph").asInstanceOf[GXLGraph]
 
                     // gxl type graph edges are really nodes
                     // kinda ugly but not hard to fix
@@ -296,6 +296,7 @@ class SketchRewriter(val global: Global) extends Plugin {
 
                     root = gxl_node_map.getGxlAST(tree)
 
+                    (new gxl_node_map.nf.GxlOutput(def_graph)).outputGraph(root)
                     println("writing " + gxlout)
                     gxldoc.write(gxlout)
                     tree

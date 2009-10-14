@@ -1,5 +1,7 @@
 package skalch.plugins
 
+import java.net.URI
+
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
 import ScalaDebugOut._
@@ -67,8 +69,8 @@ abstract class NodeFactory() {
         /** keep track of edges so only used nodes are output */
         val edges = new ListBuffer[GrEdge]()
         /** whether this node has been printed to the grshell script (or gxl) yet */
-        var output = false
-        val attrs = new ListBuffer[Tuple2[String, String]]()
+        var output : GXLNode = null
+        val attrs = new ListBuffer[Tuple2[String, GXLValue]]()
     }
 
     def GrNode(typ : String, name : String) = new GrNode(
@@ -93,11 +95,23 @@ abstract class NodeFactory() {
         result
     }
 
-    class GxlOutput(fname : java.io.File) {
-        def outputGraph(node : GrNode) = {
-            node.output = true
-            for (edge <- node.edges) {
+    class GxlOutput(var graph : GXLGraph) {
+        def outputGraph(node : GrNode) : GXLNode = if (node.output == null) {
+            node.output = new GXLNode(node.name)
+            node.output.setType(new URI("#" + node.typ))
+            for ( (name, value) <- node.attrs ) {
+                node.output.setAttr(name, value)
             }
-        }
+            graph.add(node.output)
+            for (edge <- node.edges; if !edge.output) {
+                edge.output = true
+                val from = outputGraph(edge.from)
+                val to = outputGraph(edge.to)
+                val gxledge = new GXLEdge(from, to)
+                gxledge.setType(new URI("#" + edge.typ))
+                graph.add(gxledge)
+            }
+            node.output
+        } else (node.output)
     }
 }

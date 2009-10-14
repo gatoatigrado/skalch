@@ -24,7 +24,9 @@ node class Var;
 node class PackageDef;
 node class FcnCallTypeApply extends FcnCall;
 node class Block;
-node class IntConstant extends Constant;
+node class IntConstant extends Constant {
+    value : int;
+}
 node class Throw;
 node class NewConstructor extends FcnCall;
 node class FcnSuperCall extends FcnCall;
@@ -36,23 +38,31 @@ node class FcnDef;
 node class QualifiedClassRef;
 node class If;
 node class ValDef;
-node class StringConstant extends Constant;
+node class StringConstant extends Constant {
+    value : string;
+}
 node class FieldAccess;
 node class NewArray;
 node class Template;
 node class Assign;
 node class StaticFcnCall extends FcnCall;
-node class BooleanConstant extends Constant;
+node class BooleanConstant extends Constant {
+    value : boolean;
+}
 node class Return;
 node class CaseDef;
 node class FcnCallBinaryDivide extends FcnCall;
 node class FcnCallBinaryLessThan extends FcnCall;
-node class LongConstant extends Constant;
+node class LongConstant extends Constant {
+    value : int;
+}
 node class FcnCallBinarySubtract extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
 node class FcnCallArrayLength extends FcnCall;
 node class Try;
-node class CharConstant extends Constant;
+node class CharConstant extends Constant {
+    value : string;
+}
 node class FcnCallBinaryAdd extends FcnCall;
 node class FcnCallBinaryLogicAnd extends FcnCall;
 node class FcnCallArrayGet extends FcnCall;

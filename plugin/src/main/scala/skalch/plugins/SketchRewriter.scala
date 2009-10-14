@@ -249,6 +249,12 @@ class SketchRewriter(val global: Global) extends Plugin {
             override def run {
                 scalaPrimitives.init
                 super.run
+                for (v <- gxl_node_map.nf.new_node_names) {
+                    println("node class " + v + ";")
+                }
+                for (v <- gxl_node_map.nf.new_edge_names) {
+                    println("edge class " + v + ";")
+                }
             }
 
             def apply(comp_unit : CompilationUnit) {
@@ -267,18 +273,26 @@ class SketchRewriter(val global: Global) extends Plugin {
                 var root : Object = null
 
                 override def transform(tree : Tree) : Tree = {
+                    import GxlViews.{xmlwrapper, arrwrapper, nodewrapper}
                     val rcurl = getClass().getResource("/skalch/plugins/type_graph.gxl")
                     assert(rcurl != null, "resource type_graph.gxl not in jar package!")
                     val gxldoc = new GXLDocument(rcurl)
                     val gxlroot = gxldoc.getDocumentElement()
-                    val graphs = (for (i <- 0 until gxlroot.getGraphCount)
+                    val graphs : Array[GXLGraph] = (for (i <- 0 until gxlroot.getGraphCount)
                         yield gxlroot.getGraphAt(i)).toArray
-                    println("number of graphs", graphs.length)
-                    val typ_graph = graphs.filter(_.getAttribute("id") == "SCE_ScalaAstModel")(0)
-                    val def_graph = graphs.filter(_.getAttribute("id") == "DefaultGraph")(0)
-                    println("typ graph", typ_graph)
-                    println("def graph", def_graph)
-                    println("graph roles " + ("" /: graphs)(_ + ", " + _.getAttribute("id")))
+                    val typ_graph = graphs.get_by_attr("id" -> "SCE_ScalaAstModel")
+                    val def_graph = graphs.get_by_attr("id" -> "DefaultGraph")
+
+                    // gxl type graph edges are really nodes
+                    // kinda ugly but not hard to fix
+                    val node_types = typ_graph.getnodes()
+                    val real_nodes = node_types.filtertype(
+                        "http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass")
+                    val edges = node_types.filtertype(
+                        "http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass")
+
+                    gxl_node_map.nf.node_ids = real_nodes map (_.getAttribute("id"))
+                    gxl_node_map.nf.edge_ids = edges map (_.getAttribute("id"))
 
                     root = gxl_node_map.getGxlAST(tree)
 

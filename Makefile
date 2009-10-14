@@ -35,6 +35,9 @@ set-test-package-decls: # hack to use sed and rename all java package declaratio
 
 ### Compile various tests using the plugin (to test the plugin)
 
+generate_type_graph:
+	cd plugin/src/main/grgen; grshell generate_typegraph.grs
+
 compile_install_plugin:
 	cd plugin; mvn install
 

@@ -16,6 +16,12 @@ abstract class NodeFactory() {
     val global : Global
     import global._
 
+    /** print out all of the new nodes and edges created */
+    val new_node_names = new HashSet[String]()
+    var node_ids : Array[String] = null
+    val new_edge_names = new HashSet[String]()
+    var edge_ids : Array[String] = null
+
     println("TODO -- output symbol owner chain, for rewriting $this")
 
     /** rename some Scala AST nodes */
@@ -47,6 +53,17 @@ abstract class NodeFactory() {
     /** name is currently the unique name of the node; not to
      * be confused with e.g. the name of variables or classes */
     class GrNode(var typ : String, var name : String) {
+        var use_default_type = true
+        def set_type(typ : String, extend_ : String) {
+            this.typ = typ
+            this.use_default_type = false
+            val typ_name = typ + (if (extend_ != null) " extends " + extend_ else "")
+            if (!(node_ids contains typ)) {
+                new_node_names.add(typ_name)
+            }
+        }
+        /** register the type if nothing else was selected */
+        def accept_type() { if (this.use_default_type) { set_type(typ, null) } }
         /** keep track of edges so only used nodes are output */
         val edges = new ListBuffer[GrEdge]()
         /** whether this node has been printed to the grshell script (or gxl) yet */
@@ -67,6 +84,10 @@ abstract class NodeFactory() {
     /** probably override this later */
     def GrEdge(from : GrNode, typ : String, to : GrNode) = {
         val result = new GrEdge(from, typ, to)
+        if (!(edge_ids contains typ)) {
+            new_edge_names.add(typ)
+            assert (!(typ contains "scala.tools.nsc.symtab"), "bad edge type")
+        }
         from.edges.append(result)
         to.edges.append(result)
         result

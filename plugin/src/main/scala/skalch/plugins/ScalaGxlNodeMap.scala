@@ -73,7 +73,7 @@ abstract class ScalaGxlNodeMap() {
             // others which aren't supported in SKETCH
             CONCAT -> "StringConcat"
             )
-        return "Binary" + map(code)
+        "Binary" + map(code)
     }
 
     def arrayExpr(code : Int) : String = {
@@ -112,13 +112,13 @@ abstract class ScalaGxlNodeMap() {
         start = pos_to_tuple(tree.pos.focusStart)
         end = pos_to_tuple(tree.pos.focusEnd)
 
-        val clsname = tree.getClass().getName() match {
+        val clsname = tree.getClass().getSimpleName() match {
             case "Apply" => "FcnCall"
             case "Ident" => "Var"
             case "Select" => "ClassRef"
-            case "ClassDef" => "Class"
             case "DefDef" => "FcnDef"
             case "ArrayValue" => "NewArray"
+            case "Trees$EmptyTree$" => "EmptyTree"
             case other => other
         }
         var node = GrNode(clsname, "line_" + start._1 + "_" + id_ctr())
@@ -133,7 +133,7 @@ abstract class ScalaGxlNodeMap() {
         }
         def subchain(edge_typ : String, arr : List[Tree]) = arr match {
             case hd :: tail_ =>
-                GrEdge(node, nme + "symbol", getGxlAST(hd))
+                GrEdge(node, edge_typ + "Chain", getGxlAST(hd))
                 var last_node = node
                 for (v <- (tail_ map getGxlAST)) {
                     GrEdge(last_node, edge_typ + "Next", v)
@@ -157,11 +157,11 @@ abstract class ScalaGxlNodeMap() {
                 subarr("PackageDefElement", stats)
 
             case ClassDef(mods, name, tparams, impl) =>
-                subchain("TypeParams", tparams)
-                subtree("Impl", impl)
+                subchain("ClassDefTypeParams", tparams)
+                subtree("ClassDefImpl", impl)
 
             case Template(parents, self, body) =>
-                subarr("Element", body)
+                subarr("TemplateElement", body)
 
 
 
@@ -176,15 +176,15 @@ abstract class ScalaGxlNodeMap() {
                         assertFalse("unknown defdef params", vparamss)
                 }
                 // add the return node
-                subtree("Body", body)
-                subchain("Params", params)
+                subtree("FcnBody", body)
+                subchain("FcnDefParams", params)
 
             case Apply(fcn @ Select(Super(_, mix), _), args) =>
                 assert(!tree.symbol.isModuleClass, "not implemented")
 //                 println(">>> super symbol", tree.symbol.toString)
 //                 println(">>> is module symbol", tree.symbol.isModuleClass.toString)
                 visited.add(fcn)
-                node.typ = "FcnSuperCall"
+                node.set_type("FcnSuperCall", "FcnCall")
                 symlink("FcnSuperCall", fcn.symbol)
                 subarr("FcnArgs", args)
 
@@ -195,10 +195,10 @@ abstract class ScalaGxlNodeMap() {
 
                 import global.icodes._
                 toTypeKind(tpt.tpe) match {
-                    case arr : ARRAY => node.typ = "NewArrayCall"
+                    case arr : ARRAY => node.set_type("NewArrayCall", "FcnCall")
                     case ref_typ @ REFERENCE(cls_sym) =>
                         assert(fcn.symbol.owner == cls_sym, "new sym owner not class")
-                        node.typ = "NewConstructor"
+                        node.set_type("NewConstructor", "FcnCall")
                         symlink("NewClass", cls_sym)
                     case _ => not_implemented("unknown new usage")
                 }
@@ -210,7 +210,7 @@ abstract class ScalaGxlNodeMap() {
 
                 val fcnsym = fcn.symbol
                 if (fcn.symbol.isLabel) {
-                    node.typ = "GotoCall"
+                    node.set_type("GotoCall", null)
                 } else {
                     // otherwise, it's of the form (object or class).(function name)
                     fcn match {
@@ -218,23 +218,21 @@ abstract class ScalaGxlNodeMap() {
                             subtree("FcnTarget", target_tree)
                             if (scalaPrimitives.isPrimitive(fcn.symbol)) {
                                 val code = scalaPrimitives.getPrimitive(fcn.symbol, target_tree.tpe)
-                                node.typ = "FcnCall" + (if (scalaPrimitives.isArrayOp(code)) {
+                                node.set_type("FcnCall" + (if (scalaPrimitives.isArrayOp(code)) {
                                     arrayExpr(code)
                                 } else (args match {
                                     case Nil => unaryExpr(code)
                                     case right :: Nil => binaryExpr(code)
                                     case _ => assertFalse("bad argument list for arithmetic op",
                                         target_tree, code : java.lang.Integer, args)
-                                }))
+                                })), "FcnCall")
                             } else if (fcn.symbol.isStaticMember) {
-                                node.typ = "StaticFcnCall"
+                                node.set_type("StaticFcnCall", "FcnCall")
                             } else if (fcn.symbol.isClassConstructor) {
-                                node.typ = "ClassConstructorCall"
-                            } else {
-                                node.typ = "FcnCall"
+                                node.set_type("ClassConstructorCall", "FcnCall")
                             }
                         case TypeApply(fcn, args) =>
-                            node.typ = "FcnCallTypeApply"
+                            node.set_type("FcnCallTypeApply", "FcnCall")
                         case other =>
                             not_implemented("fcn call " + other, "type", fcn.getClass)
                             not_implemented("fcn call type " + other)
@@ -254,7 +252,7 @@ abstract class ScalaGxlNodeMap() {
             // === expressions ===
 
             case ArrayValue(elemtpt, elems) =>
-                subchain("Value", elems)
+                subchain("ArrValue", elems)
 
             case Ident(name) => ()
 //                 symlink("Var", tree.symbol)
@@ -262,11 +260,11 @@ abstract class ScalaGxlNodeMap() {
             case Select(qualifier, name) =>
                 if (tree.symbol.isModule) {
                     // FIXME -- not quite...
-                    node.typ = "QualifiedClass"
+                    node.set_type("QualifiedClassRef", null)
 //                     symlink("Class", tree.symbol)
 //                     gettype(tree.symbol.tpe)
                 } else {
-                    node.typ = "FieldAccess"
+                    node.set_type("FieldAccess", null)
                     subtree("FieldAccessObject", qualifier)
 //                     new core.exprs.ExprField(ctx, , getname(name))
                 }
@@ -277,24 +275,24 @@ abstract class ScalaGxlNodeMap() {
                 }
 
             case Throw(expr) =>
-                subtree("Expr", expr)
+                subtree("ThrowExpr", expr)
 
             case Literal(Constant(value)) =>
                 node.attrs.append( ("value", if (value == null) "null" else value.toString) )
                 value match {
-                    case v : Boolean => node.typ = "BooleanConstant"
-                    case v : Char => node.typ = "CharConstant"
-                    case v : Float => node.typ = "FloatConstant"
-                    case v : Short => node.typ = "ShortConstant"
-                    case v : Int => node.typ = "IntConstant"
-                    case v : Long => node.typ = "LongConstant"
-                    case v : String => node.typ = "StringConstant"
-                    case () => node.typ = "UnitConstant"
-                    case null => node.typ = "NullTypeConstant"
+                    case v : Boolean => node.set_type("BooleanConstant", "Constant")
+                    case v : Char => node.set_type("CharConstant", "Constant")
+                    case v : Float => node.set_type("FloatConstant", "Constant")
+                    case v : Short => node.set_type("ShortConstant", "Constant")
+                    case v : Int => node.set_type("IntConstant", "Constant")
+                    case v : Long => node.set_type("LongConstant", "Constant")
+                    case v : String => node.set_type("StringConstant", "Constant")
+                    case () => node.set_type("UnitConstant", "Constant")
+                    case null => node.set_type("NullTypeConstant", "Constant")
                     case r : AnyRef =>
                         not_implemented("scala constant literal", r.getClass().getName(),  value.toString)
                     case _ => if (value == null) {
-                        node.typ = "NullPointer"
+                        node.set_type("NullPointer", "Constant")
                     } else {
                         not_implemented("scala constant literal", value.toString)
                     }
@@ -303,35 +301,35 @@ abstract class ScalaGxlNodeMap() {
             case EmptyTree => ()
 
             case Bind(name, body) =>
-                subtree("Body", body)
+                subtree("BindBody", body)
 
             // === branching ===
 
             case If(cond, thenstmt, elsestmt) =>
-                subtree("Cond", cond)
-                subtree("Then", thenstmt)
-                subtree("Else", elsestmt)
+                subtree("IfCond", cond)
+                subtree("IfThen", thenstmt)
+                subtree("IfElse", elsestmt)
 
             case Match(selector, cases) =>
-                subtree("Target", selector)
-                subchain("Case", cases)
+                subtree("MatchTarget", selector)
+                subchain("MatchCase", cases)
 
             case CaseDef(pat, guard, body) =>
-                subtree("Pattern", pat)
-                subtree("Guard", guard)
-                subtree("Body", body)
+                subtree("CasePattern", pat)
+                subtree("CaseGuard", guard)
+                subtree("CaseBody", body)
 
             case Typed(expr, typ) =>
-                subtree("Expression", expr)
-                symlink("Type", typ.symbol)
+                subtree("TypedExpression", expr)
+                symlink("TypedType", typ.symbol)
 
 
 
             // === statements ===
 
             case Assign(lhs, rhs) =>
-                subtree("lhs", lhs)
-                subtree("rhs", rhs)
+                subtree("AssignLhs", lhs)
+                subtree("AssignRhs", rhs)
 
             case Block(stmt_arr, expr) =>
                 subchain("BlockStmt", stmt_arr)
@@ -341,11 +339,12 @@ abstract class ScalaGxlNodeMap() {
                 subtree("VarDeclRhs", rhs)
 
             case Return(expr) =>
-                subtree("Expr", expr)
+                subtree("ReturnExpr", expr)
 
             case _ =>
                 not_implemented("ERROR -- Scala construct not supported:", tree.getClass)
         }
+        node.accept_type()
         node
     }
 }

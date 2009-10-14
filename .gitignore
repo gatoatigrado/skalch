@@ -1,12 +1,7 @@
 bin/*
 dist/*
-skalch-plugin/bin/*
-skalch-plugin/target/*
-skalch-plugin/bin.timestamp
-skalch-base/bin/*
-skalch-base/target/*
-skalch-base/bin.timestamp
-bin.timestamp
+*/target/*
+*.timestamp
 *.pyc
 *.hints.xml
 *.ast.gxl

@@ -26,12 +26,9 @@ abstract class NodeFactory() {
 
     println("TODO -- output symbol owner chain, for rewriting $this")
 
-    /** rename some Scala AST nodes */
-    val type_map = HashMap("Apply" -> "FcnCall")
-
     /** bookkeeping stuff */
     var sourceFile : String = null
-    var start, end : Tuple2[Int, Int] = null
+    class SimplePosition(val line : Int, val col : Int)
     var id_ctr_ = 0
     def id_ctr() = {
         val rv = id_ctr_
@@ -44,17 +41,22 @@ abstract class NodeFactory() {
      * it with more semantic edges, like "FunctionDefinition" or
      * "VariableDeclaration" or "EnclosingClassDefinition" */
     val sym_to_gr_map = new HashMap[Symbol, GrNode]()
-    def getsym(sym : Symbol) = sym_to_gr_map.get(sym) match {
+    def getsym(sym : Symbol) : GrNode = sym_to_gr_map.get(sym) match {
         case None =>
-            val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
+            val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr(),
+                new SimplePosition(0, 0), new SimplePosition(0, 0) )
+            node.attrs.append("symbolName" -> new GXLString(sym.name.toString()))
             sym_to_gr_map.put(sym, node)
+            if (sym != NoSymbol) {
+                GrEdge(node, "SymbolOwner", getsym(sym.owner))
+            }
             node
         case Some(node) => node
     }
 
     /** name is currently the unique name of the node; not to
      * be confused with e.g. the name of variables or classes */
-    class GrNode(var typ : String, var name : String) {
+    class GrNode(var typ : String, var name : String, start : SimplePosition, end : SimplePosition) {
         var use_default_type = true
         def set_type(typ : String, extend_ : String) {
             this.typ = typ
@@ -70,14 +72,11 @@ abstract class NodeFactory() {
         val edges = new ListBuffer[GrEdge]()
         /** whether this node has been printed to the grshell script (or gxl) yet */
         var output : GXLNode = null
-        val attrs = new ListBuffer[Tuple2[String, GXLValue]]()
+        val attrs = ListBuffer("sourceFile" -> new GXLString(sourceFile),
+            "startLine" -> new GXLInt(start.line), "startCol" -> new GXLInt(start.col),
+            "endLine" -> new GXLInt(end.line), "endCol" -> new GXLInt(end.col)
+            )
     }
-
-    def GrNode(typ : String, name : String) = new GrNode(
-        type_map.get(typ) match {
-            case None => typ
-            case Some(mapped) => mapped
-        }, name)
 
     class GrEdge(val from : GrNode, val typ : String, val to : GrNode) {
         var output = false

@@ -1,3 +1,5 @@
-new graph "NoRules.grg"
+#!/bin/bash
+# not really, I just want to use formatting
+new graph "SimpleLowering.grg"
 export ../resources/skalch/plugins/type_graph.gxl
 exit

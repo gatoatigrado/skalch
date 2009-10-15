@@ -29,18 +29,39 @@
 	<edge from="NAT_ScAstNode_sourceFile" to="DM_string">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
 	</edge>
-	<node id="NAT_ScAstNode_sourceLine">
+	<node id="NAT_ScAstNode_startLine">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
-		<attr name="name"><string>sourceLine</string></attr>
+		<attr name="name"><string>startLine</string></attr>
 	</node>
-	<edge from="NAT_ScAstNode_sourceLine" to="DM_int">
+	<edge from="NAT_ScAstNode_startLine" to="DM_int">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
 	</edge>
-	<node id="NAT_ScAstNode_sourceCol">
+	<node id="NAT_ScAstNode_startCol">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
-		<attr name="name"><string>sourceCol</string></attr>
+		<attr name="name"><string>startCol</string></attr>
 	</node>
-	<edge from="NAT_ScAstNode_sourceCol" to="DM_int">
+	<edge from="NAT_ScAstNode_startCol" to="DM_int">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_ScAstNode_endLine">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>endLine</string></attr>
+	</node>
+	<edge from="NAT_ScAstNode_endLine" to="DM_int">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_ScAstNode_endCol">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>endCol</string></attr>
+	</node>
+	<edge from="NAT_ScAstNode_endCol" to="DM_int">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
+	</edge>
+	<node id="NAT_Symbol_symbolName">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#AttributeClass"/>
+		<attr name="name"><string>symbolName</string></attr>
+	</node>
+	<edge from="NAT_Symbol_symbolName" to="DM_string">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasDomain"/>
 	</edge>
 	<node id="NAT_IntConstant_value">
@@ -89,81 +110,6 @@
 	<edge from="ScAstNode" to="Node">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
-	<edge from="Constant" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="FcnCall" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="This" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Typed" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="ClassDef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Var" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="PackageDef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Block" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Throw" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="EmptyTree" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="FcnDef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="QualifiedClassRef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="If" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="ValDef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="FieldAccess" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="NewArray" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Template" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Assign" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Return" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="CaseDef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Try" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="GotoCall" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Bind" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="Match" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="LabelDef" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
 	<node id="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
 		<attr name="name"><string>ScAstNode</string></attr>
@@ -172,24 +118,108 @@
 	<edge from="ScAstNode" to="NAT_ScAstNode_sourceFile">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
 	</edge>
-	<edge from="ScAstNode" to="NAT_ScAstNode_sourceLine">
+	<edge from="ScAstNode" to="NAT_ScAstNode_startLine">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
 	</edge>
-	<edge from="ScAstNode" to="NAT_ScAstNode_sourceCol">
+	<edge from="ScAstNode" to="NAT_ScAstNode_startCol">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
+	<edge from="ScAstNode" to="NAT_ScAstNode_endLine">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
+	<edge from="ScAstNode" to="NAT_ScAstNode_endCol">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
 	</edge>
 	<edge from="ScalaAstModel" to="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
-	<edge from="BlockElement" to="ScAstNode">
+	<edge from="Symbol" to="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
-	<node id="BlockElement">
+	<edge from="Constant" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="FcnCall" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="This" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Typed" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="ClassDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Var" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="PackageDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Block" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Throw" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="EmptyTree" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="FcnDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="QualifiedClassRef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="If" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="ValDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="FieldAccess" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="NewArray" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Template" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Assign" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Return" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="CaseDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Try" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="GotoCall" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Bind" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="Match" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<edge from="LabelDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
+	<node id="Symbol">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
-		<attr name="name"><string>BlockElement</string></attr>
+		<attr name="name"><string>Symbol</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
-	<edge from="ScalaAstModel" to="BlockElement">
+	<edge from="Symbol" to="NAT_Symbol_symbolName">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#hasAttribute"/>
+	</edge>
+	<edge from="ScalaAstModel" to="Symbol">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
 	<node id="Constant">
@@ -771,7 +801,7 @@
 	<edge from="ScalaAstModel" to="Edge">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
-	<edge from="BlockNext" to="Edge">
+	<edge from="SymbolOwner" to="Edge">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
 	<edge from="AssignLhs" to="Edge">
@@ -902,21 +932,21 @@
 		<attr name="limits"><tup><int>0</int><int>-1</int></tup></attr>
 		<attr name="isordered"><bool>false</bool></attr>
 	</edge>
-	<node id="BlockNext">
+	<node id="SymbolOwner">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass"/>
-		<attr name="name"><string>BlockNext</string></attr>
+		<attr name="name"><string>SymbolOwner</string></attr>
 		<attr name="isabstract"><bool>false</bool></attr>
 		<attr name="isdirected"><bool>true</bool></attr>
 	</node>
-	<edge from="ScalaAstModel" to="BlockNext">
+	<edge from="ScalaAstModel" to="SymbolOwner">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
-	<edge from="BlockNext" to="Node">
+	<edge from="SymbolOwner" to="Node">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#from"/>
 		<attr name="limits"><tup><int>0</int><int>-1</int></tup></attr>
 		<attr name="isordered"><bool>false</bool></attr>
 	</edge>
-	<edge from="BlockNext" to="Node">
+	<edge from="SymbolOwner" to="Node">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#to"/>
 		<attr name="limits"><tup><int>0</int><int>-1</int></tup></attr>
 		<attr name="isordered"><bool>false</bool></attr>

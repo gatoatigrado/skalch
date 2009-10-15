@@ -96,9 +96,9 @@ abstract class ScalaGxlNodeMap() {
     // === boilerplate ===
 
     def pos_to_tuple(pos : Position) = pos match {
-        case NoPosition => (0, 0)
-        case FakePos(msg) => (0, 0)
-        case t : Position => (t.line, t.column)
+        case NoPosition => new SimplePosition(0, 0)
+        case FakePos(msg) => new SimplePosition(0, 0)
+        case t : Position => new SimplePosition(t.line, t.column)
     }
 
     /**
@@ -109,8 +109,6 @@ abstract class ScalaGxlNodeMap() {
 //         println("    " + tree + ", " + tree.getClass)
 //         println()
         visited.add(tree)
-        start = pos_to_tuple(tree.pos.focusStart)
-        end = pos_to_tuple(tree.pos.focusEnd)
 
         val clsname = tree.getClass().getSimpleName() match {
             case "Apply" => "FcnCall"
@@ -121,7 +119,9 @@ abstract class ScalaGxlNodeMap() {
             case "Trees$EmptyTree$" => "EmptyTree"
             case other => other
         }
-        var node = GrNode(clsname, "line_" + start._1 + "_" + id_ctr())
+        val start = pos_to_tuple(tree.pos.focusStart)
+        var node = new GrNode(clsname, "line_" + start.line + "_" + id_ctr(),
+            start, pos_to_tuple(tree.pos.focusEnd))
 
         /** closure functions */
         def subtree(edge_typ : String, subtree : Tree) =

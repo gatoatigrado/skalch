@@ -1,4 +1,6 @@
-// NOTE -- most everything here is generated automatically! Don't modify it unless you have to.
+// NOTE -- do not touch generated nodes unless you have to
+// avoid the asserts for connects and use xgrs if you need
+// to check validity.
 
 node class ScAstNode {
     sourceFile : string;
@@ -17,6 +19,16 @@ edge class SymbolOwner;
 edge class EnclosingFcn;
 edge class BridgeFcn;
 node class EmptyChain;
+
+
+
+// === SKETCH nodes ===
+
+node class SKAssert extends ScAstNode;
+edge class SKAssertExpr;
+
+
+
 
 // === Generated code ===
 // a bit of regex postprocessing
@@ -100,12 +112,9 @@ edge class ClassRefSymbol;
 edge class FcnArgs;
 edge class FcnBody;
 edge class FcnCallSymbol;
-edge class FcnCtorCallSymbol;
 edge class FcnDefParamsChain;
 edge class FcnDefParamsNext;
 edge class FcnDefSymbol;
-edge class FcnSuperCallSymbol;
-edge class FcnSymbol;
 edge class FcnTarget;
 edge class FieldAccessObject;
 edge class IfCond;

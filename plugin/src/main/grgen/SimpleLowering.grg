@@ -70,9 +70,11 @@ test testNoBridgeFunctions {
 
 rule transformThisRef(fcn:FcnDef) {
     ths:This -:EnclosingFcn-> fcn;
+    ths -thssymlink:ThisSymbol-> clssym:Symbol;
     fcn -:FcnDefParamsChain-> :ValDef -:ValDefSymbol-> thssym:Symbol;
     modify {
         thsref:VarRef<ths> -:VarRefSymbol-> thssym;
+        delete(thssymlink);
     }
 }
 
@@ -111,6 +113,27 @@ test testNoThisNodes {
     negative {
         ths:This;
     }
+    negative {
+        . -:ThisSymbol-> .;
+    }
+}
+
+
+
+// rewrite sketch constructs
+rule replaceAssertCalls() {
+    fcn:FcnCall -fcnsymedge:FcnCallSymbol->
+        assertSym:Symbol -:SymbolOwner-> angelicSym:Symbol;
+    fcn -:FcnTarget-> fa:FieldAccess;
+    if {
+        assertSym.symbolName == "synthAssertTerminal";
+        angelicSym.symbolName == "ScAngelicSketchBase";
+    }
+    modify {
+        assert:SKAssert<fcn>;
+        delete(fcnsymedge);
+        delete(fa);
+    }
 }
 
 
@@ -132,10 +155,7 @@ rule deleteDangling {
     }
 }
 
-// rule rewriteThis {
-// }
-
-rule cleanupForDebug {
+rule removeEnclosingLinks {
     . -e:EnclosingFcn-> .;
     modify {
         delete(e);

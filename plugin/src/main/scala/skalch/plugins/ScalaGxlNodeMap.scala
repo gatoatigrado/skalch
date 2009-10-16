@@ -177,12 +177,10 @@ abstract class ScalaGxlNodeMap() {
 //                 println(">>> is module symbol", tree.symbol.isModuleClass.toString)
                 visited.add(fcn)
                 node.set_type("FcnSuperCall", "FcnCall")
-                symlink("FcnSuperCall", fcn.symbol)
                 subarr("FcnArgs", args)
 
             case Apply(fcn @ Select(New(tpt), nme.CONSTRUCTOR), args) =>
                 visited.add(fcn)
-                symlink("FcnCtorCall", fcn.symbol)
                 subarr("FcnArgs", args)
 
                 import global.icodes._
@@ -197,7 +195,6 @@ abstract class ScalaGxlNodeMap() {
 
             case Apply(fcn, args) =>
                 visited.add(fcn)
-                symlink("Fcn", fcn.symbol)
                 subarr("FcnArgs", args)
 
                 val fcnsym = fcn.symbol

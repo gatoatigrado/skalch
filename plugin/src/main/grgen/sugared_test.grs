@@ -2,45 +2,42 @@
 # not really, I just want to use formatting
 # grshell script
 new graph "SimpleLowering.grg"
-# export hello.gxl
 import SugaredTest.scala.ast.gxl ScalaAstModel.gm
 select actions lgsp-SimpleLoweringActions.dll
-# debug set layout Organic
+
+
+
+# node colors for printing
 debug set layout Compilergraph
 dump set node FcnDef color black
 dump set node ClassDef color red
 dump set node Symbol color blue
 dump set edge BridgeFcn color green
 dump set node MemberFcn color green
-# show graph ycomp "--dolayout"
-# debug enable
-echo "loaded graph"
-show num nodes
-show num edges
 
+
+
+# functions requiring setEnclosing links
 echo "adding info links"
 xgrs setEnclosingFunctionInitial* & setEnclosingFunction*
-show num nodes
-show num edges
-
 echo "delete bridge functions"
 xgrs deleteBridgeFunctions
+# mostly my learning...
 validate xgrs testNoBridgeFunctions
-show num nodes
-show num edges
-
 echo "convert $this to a parameter"
 xgrs [transformFcnWrapper]
 validate xgrs testNoThisNodes
-show num nodes
-show num edges
-
-echo "delete dangling nodes"
+echo "delete dangling nodes, and remove enclosing links"
 xgrs deleteDangling*
-show num nodes
-show num edges
+xgrs removeEnclosingLinks*
 
-# exit
-xgrs cleanupForDebug*
+
+
+# transformations not requiring EnclosingFcn links
+xgrs replaceAssertCalls*
+
+
+
+# final printing
+xgrs deleteDangling*
 show graph ycomp "--dolayout"
-# debug enable

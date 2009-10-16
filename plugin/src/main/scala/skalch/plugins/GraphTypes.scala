@@ -17,6 +17,7 @@ import net.sourceforge.gxl._
 abstract class NodeFactory() {
     val global : Global
     import global._
+    import symtab.Flags
 
     /** print out all of the new nodes and edges created */
     val new_node_names = new HashSet[String]()
@@ -43,12 +44,14 @@ abstract class NodeFactory() {
     val sym_to_gr_map = new HashMap[Symbol, GrNode]()
     def getsym(sym : Symbol) : GrNode = sym_to_gr_map.get(sym) match {
         case None =>
-            val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr(),
-                new SimplePosition(0, 0), new SimplePosition(0, 0) )
+            val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
             node.attrs.append("symbolName" -> new GXLString(sym.name.toString()))
             sym_to_gr_map.put(sym, node)
             if (sym != NoSymbol) {
                 GrEdge(node, "SymbolOwner", getsym(sym.owner))
+                if (sym.hasFlag(Flags.BRIDGE)) {
+                    GrEdge(node, "BridgeFcn", node)
+                }
             }
             node
         case Some(node) => node
@@ -56,7 +59,7 @@ abstract class NodeFactory() {
 
     /** name is currently the unique name of the node; not to
      * be confused with e.g. the name of variables or classes */
-    class GrNode(var typ : String, var name : String, start : SimplePosition, end : SimplePosition) {
+    class GrNode(var typ : String, var name : String) {
         var use_default_type = true
         def set_type(typ : String, extend_ : String) {
             this.typ = typ
@@ -72,10 +75,16 @@ abstract class NodeFactory() {
         val edges = new ListBuffer[GrEdge]()
         /** whether this node has been printed to the grshell script (or gxl) yet */
         var output : GXLNode = null
-        val attrs = ListBuffer("sourceFile" -> new GXLString(sourceFile),
-            "startLine" -> new GXLInt(start.line), "startCol" -> new GXLInt(start.col),
-            "endLine" -> new GXLInt(end.line), "endCol" -> new GXLInt(end.col)
-            )
+        val attrs = new ListBuffer[Tuple2[String, GXLValue]]()
+
+        def this(typ : String, name : String,
+            start : SimplePosition, end : SimplePosition) =
+        {
+            this(typ, name)
+            attrs ++= ListBuffer("sourceFile" -> new GXLString(sourceFile),
+                "startLine" -> new GXLInt(start.line), "startCol" -> new GXLInt(start.col),
+                "endLine" -> new GXLInt(end.line), "endCol" -> new GXLInt(end.col) )
+        }
     }
 
     class GrEdge(val from : GrNode, val typ : String, val to : GrNode) {
@@ -102,13 +111,15 @@ abstract class NodeFactory() {
                 node.output.setAttr(name, value)
             }
             graph.add(node.output)
-            for (edge <- node.edges; if !edge.output) {
-                edge.output = true
-                val from = outputGraph(edge.from)
-                val to = outputGraph(edge.to)
-                val gxledge = new GXLEdge(from, to)
-                gxledge.setType(new URI("#" + edge.typ))
-                graph.add(gxledge)
+            for (edge <- node.edges) {
+                if (!edge.output) {
+                    edge.output = true
+                    val from = outputGraph(edge.from)
+                    val to = outputGraph(edge.to)
+                    val gxledge = new GXLEdge(from, to)
+                    gxledge.setType(new URI("#" + edge.typ))
+                    graph.add(gxledge)
+                }
             }
             node.output
         } else (node.output)

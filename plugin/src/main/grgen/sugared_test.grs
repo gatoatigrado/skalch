@@ -10,5 +10,35 @@ debug set layout Compilergraph
 dump set node FcnDef color black
 dump set node ClassDef color red
 dump set node Symbol color blue
+dump set edge BridgeFcn color green
 # show graph ycomp "--dolayout"
-debug enable
+# debug enable
+echo "loaded graph"
+show num nodes
+show num edges
+
+echo "adding info links"
+xgrs setEnclosingFunctionInitial* & setEnclosingFunction*
+show num nodes
+show num edges
+
+echo "delete bridge functions"
+xgrs deleteBridgeFunctions
+validate xgrs testNoBridgeFunctions
+show num nodes
+show num edges
+
+# echo "convert $this to a parameter"
+# xgrs [transformThis]
+# show num nodes
+# show num edges
+
+echo "delete dangling nodes"
+xgrs deleteDangling*
+show num nodes
+show num edges
+
+# exit
+xgrs cleanupForDebug*
+# show graph ycomp
+# debug enable

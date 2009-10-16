@@ -1,1 +1,120 @@
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
 using ScalaAstModel;
+
+
+
+// decorate nodes with relevant information
+
+rule setEnclosingFunctionInitial {
+    x:FcnDef --> y:ScAstNode;
+    negative {
+        y -:EnclosingFcn->;
+    }
+    modify {
+        y -:EnclosingFcn-> x;
+    }
+}
+
+rule setEnclosingFunction {
+    x:ScAstNode -:EnclosingFcn -> fcn:FcnDef;
+    x --> y:ScAstNode;
+    negative {
+        y -:EnclosingFcn ->;
+    }
+    modify {
+        y -:EnclosingFcn -> fcn;
+    }
+}
+
+
+
+// overly verbose method to delete all bridge-function related nodes
+
+rule deleteBridgeFunctions1 {
+    x:ScAstNode -:EnclosingFcn-> :FcnDef -:FcnDefSymbol-> sym:Symbol;
+    sym -:BridgeFcn-> sym;
+    modify {
+        delete(x);
+    }
+}
+
+rule deleteBridgeFunctions2 {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
+    sym -:BridgeFcn-> sym;
+    modify {
+        delete(x);
+    }
+}
+
+rule deleteBridgeFunctions3 {
+    sym:Symbol -:BridgeFcn-> sym;
+    modify { delete(sym); }
+}
+
+rule deleteBridgeFunctions {
+    modify { exec(deleteBridgeFunctions1* &
+        deleteBridgeFunctions2* &
+        deleteBridgeFunctions3*); }
+}
+
+test testNoBridgeFunctions {
+    negative {
+        sym:Symbol -:BridgeFcn-> sym;
+    }
+}
+
+
+
+// $then variable translation to function parameters
+
+// rule transformThisRef(fcn:FcnDef) {
+//     ths:This -:EnclosingFcn-> fcn;
+//     fcn -:FcnDefParamsChain-> .:ValDef -:ValDefSymbol-> next_ths_sym:Symbol;
+//     modify {
+//         next_ths:VarRef<ths> -:VarRefSymbol-> next_ths_sym;
+//     }
+// }
+// 
+// rule transformThis {
+//     fcn:FcnDef -:FcnDefSymbol-> Symbol -:SymbolOwner-> cls:Symbol;
+//     :ClassDef -:ClassDefSymbol-> cls;
+//     modify {
+//         exec(transformThisRef(fcn)*);
+//     }
+// }
+
+
+
+// cleanup
+
+rule deleteDangling {
+    x:Node;
+    negative {
+        x;
+        . --> x;
+    }
+    negative {
+        if { typeof(x) == PackageDef; }
+    }
+    modify {
+//         emit("node ", x, "\n");
+        delete(x);
+    }
+}
+
+// rule rewriteThis {
+// }
+
+rule cleanupForDebug {
+    . -e:EnclosingFcn-> .;
+    modify {
+        delete(e);
+    }
+}
+
+rule allChecks {
+    modify {
+        exec(! testNoBridgeFunctions);
+    }
+}

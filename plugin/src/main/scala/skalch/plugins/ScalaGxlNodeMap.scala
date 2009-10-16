@@ -112,7 +112,7 @@ abstract class ScalaGxlNodeMap() {
 
         val clsname = tree.getClass().getSimpleName() match {
             case "Apply" => "FcnCall"
-            case "Ident" => "Var"
+            case "Ident" => "VarRef"
             case "Select" => "ClassRef"
             case "DefDef" => "FcnDef"
             case "ArrayValue" => "NewArray"
@@ -122,26 +122,18 @@ abstract class ScalaGxlNodeMap() {
         val start = pos_to_tuple(tree.pos.focusStart)
         var node = new GrNode(clsname, "line_" + start.line + "_" + id_ctr(),
             start, pos_to_tuple(tree.pos.focusEnd))
+        node.attrs.append("scalaSource" -> new GXLString(tree.toString()))
 
         /** closure functions */
         def subtree(edge_typ : String, subtree : Tree) =
             GrEdge(node, edge_typ, getGxlAST(subtree))
-        def subarr(edge_typ : String, arr : List[Tree]) {
-            for (v <- arr) {
-                GrEdge(node, edge_typ, getGxlAST(v))
-            }
-        }
-        def subchain(edge_typ : String, arr : List[Tree]) = arr match {
-            case hd :: tail_ =>
-                GrEdge(node, edge_typ + "Chain", getGxlAST(hd))
-                var last_node = node
-                for (v <- (tail_ map getGxlAST)) {
-                    GrEdge(last_node, edge_typ + "Next", v)
-                    last_node = v
-                }
-            case Nil => ()
-            case _ => ()
-        }
+        def subarr(edge_typ : String, arr : List[Tree]) =
+            arr map (x => GrEdge(node, edge_typ, getGxlAST(x)))
+        def subchain(edge_typ : String, arr : List[Tree]) = if (arr != Nil) {
+            var nodes = arr map getGxlAST
+            GrEdge(node, edge_typ + "Chain", nodes(0))
+            nodes.reduceLeft((x, y) => { GrEdge(x, edge_typ + "Next", y); y })
+        } else Nil
         def symlink(nme : String, sym : Symbol) =
             GrEdge(node, nme + "Symbol", getsym(sym))
 

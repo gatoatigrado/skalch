@@ -2,20 +2,25 @@
 
 node class ScAstNode {
     sourceFile : string;
+    scalaSource : string;
     startLine : int;
     startCol : int;
     endLine : int;
     endCol : int;
 }
 
-node class Symbol extends ScAstNode {
+// N.B. -- not an AST node
+node class Symbol {
     symbolName : string;
 }
 edge class SymbolOwner;
+edge class EnclosingFcn;
+edge class BridgeFcn;
+node class EmptyChain {
+}
 
-
-
-// === Statements ===
+// === Generated code ===
+// a bit of regex postprocessing
 
 abstract node class Constant extends ScAstNode;
 
@@ -24,7 +29,7 @@ node class This extends ScAstNode;
 node class Typed extends ScAstNode;
 node class FcnCall extends ScAstNode;
 node class ClassDef extends ScAstNode;
-node class Var extends ScAstNode;
+node class VarRef extends ScAstNode;
 node class PackageDef extends ScAstNode;
 node class FcnCallTypeApply extends FcnCall;
 node class Block extends ScAstNode;
@@ -116,4 +121,4 @@ edge class TypedExpression;
 edge class TypedTypeSymbol;
 edge class ValDefSymbol;
 edge class VarDeclRhs;
-edge class VarSymbol;
+edge class VarRefSymbol;

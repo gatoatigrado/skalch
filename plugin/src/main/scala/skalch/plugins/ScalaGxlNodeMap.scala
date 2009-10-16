@@ -133,7 +133,7 @@ abstract class ScalaGxlNodeMap() {
             var nodes = arr map getGxlAST
             GrEdge(node, edge_typ + "Chain", nodes(0))
             nodes.reduceLeft((x, y) => { GrEdge(x, edge_typ + "Next", y); y })
-        } else Nil
+        } else GrEdge(node, edge_typ + "Chain", emptychainnode())
         def symlink(nme : String, sym : Symbol) =
             GrEdge(node, nme + "Symbol", getsym(sym))
 

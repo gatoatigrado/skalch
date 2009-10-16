@@ -68,21 +68,50 @@ test testNoBridgeFunctions {
 
 // $then variable translation to function parameters
 
-// rule transformThisRef(fcn:FcnDef) {
-//     ths:This -:EnclosingFcn-> fcn;
-//     fcn -:FcnDefParamsChain-> .:ValDef -:ValDefSymbol-> next_ths_sym:Symbol;
-//     modify {
-//         next_ths:VarRef<ths> -:VarRefSymbol-> next_ths_sym;
-//     }
-// }
-// 
-// rule transformThis {
-//     fcn:FcnDef -:FcnDefSymbol-> Symbol -:SymbolOwner-> cls:Symbol;
-//     :ClassDef -:ClassDefSymbol-> cls;
-//     modify {
-//         exec(transformThisRef(fcn)*);
-//     }
-// }
+rule transformThisRef(fcn:FcnDef) {
+    ths:This -:EnclosingFcn-> fcn;
+    fcn -:FcnDefParamsChain-> :ValDef -:ValDefSymbol-> thssym:Symbol;
+    modify {
+        thsref:VarRef<ths> -:VarRefSymbol-> thssym;
+    }
+}
+
+rule addThisParam(fcn:FcnDef) {
+    fcn -:FcnDefParamsChain-> first:Node;
+    replace {
+        thsparam:ValDef;
+        thssym:Symbol;
+        fcn2:MemberFcn<fcn>;
+        eval {
+            thsparam.scalaSource = "artificially inserted $this variable";
+            thssym.symbolName = "$this";
+        }
+        fcn2 -:FcnDefParamsChain-> thsparam;
+        thsparam -:FcnDefParamsNext-> first;
+        thsparam -:ValDefSymbol -> thssym;
+    }
+}
+
+rule transformThis(fcn:FcnDef) {
+    fcn -:FcnDefSymbol-> fcnsym:Symbol -:SymbolOwner-> cls:Symbol;
+    fcnsym -:ClsMethod-> fcnsym;
+    :ClassDef -:ClassDefSymbol-> cls;
+    modify {
+        exec(addThisParam(fcn) & transformThisRef(fcn)*);
+    }
+}
+
+// wrapper for "[rule]" (apply to all matches) graph rewriting
+rule transformFcnWrapper {
+    fcn:FcnDef;
+    modify { exec(transformThis(fcn)); }
+}
+
+test testNoThisNodes {
+    negative {
+        ths:This;
+    }
+}
 
 
 
@@ -98,7 +127,7 @@ rule deleteDangling {
         if { typeof(x) == PackageDef; }
     }
     modify {
-//         emit("node ", x, "\n");
+//         emit("deleting node ", x, "\n");
         delete(x);
     }
 }

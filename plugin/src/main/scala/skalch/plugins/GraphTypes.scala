@@ -47,11 +47,13 @@ abstract class NodeFactory() {
             val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
             node.attrs.append("symbolName" -> new GXLString(sym.name.toString()))
             sym_to_gr_map.put(sym, node)
+
+            def attr_edge(name : String) = GrEdge(node, name, node)
             if (sym != NoSymbol) {
                 GrEdge(node, "SymbolOwner", getsym(sym.owner))
-                if (sym.hasFlag(Flags.BRIDGE)) {
-                    GrEdge(node, "BridgeFcn", node)
-                }
+                if (sym.hasFlag(Flags.BRIDGE)) attr_edge("BridgeFcn")
+                if (sym.isStaticMember) attr_edge("StaticMember")
+                else if (sym.isMethod) attr_edge("ClsMethod")
             }
             node
         case Some(node) => node
@@ -86,6 +88,8 @@ abstract class NodeFactory() {
                 "endLine" -> new GXLInt(end.line), "endCol" -> new GXLInt(end.col) )
         }
     }
+
+    def emptychainnode() = new GrNode("EmptyChain", "empty_chain_" + id_ctr())
 
     class GrEdge(val from : GrNode, val typ : String, val to : GrNode) {
         var output = false

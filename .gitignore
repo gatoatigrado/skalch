@@ -1,6 +1,7 @@
 bin/*
 dist/*
 */target/*
+*.vcg
 *.timestamp
 *.pyc
 *.hints.xml

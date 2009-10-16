@@ -16,8 +16,7 @@ node class Symbol {
 edge class SymbolOwner;
 edge class EnclosingFcn;
 edge class BridgeFcn;
-node class EmptyChain {
-}
+node class EmptyChain;
 
 // === Generated code ===
 // a bit of regex postprocessing
@@ -44,6 +43,7 @@ node class FcnCallBinarySameObj extends FcnCall;
 node class NullTypeConstant extends Constant;
 node class EmptyTree extends ScAstNode;
 node class FcnDef extends ScAstNode;
+node class MemberFcn extends ScAstNode;
 node class QualifiedClassRef extends ScAstNode;
 node class If extends ScAstNode;
 node class ValDef extends ScAstNode;
@@ -102,6 +102,7 @@ edge class FcnBody;
 edge class FcnCallSymbol;
 edge class FcnCtorCallSymbol;
 edge class FcnDefParamsChain;
+edge class FcnDefParamsNext;
 edge class FcnDefSymbol;
 edge class FcnSuperCallSymbol;
 edge class FcnSymbol;
@@ -122,3 +123,7 @@ edge class TypedTypeSymbol;
 edge class ValDefSymbol;
 edge class VarDeclRhs;
 edge class VarRefSymbol;
+edge class ClassDefTypeParamsChain;
+edge class ArrValueChain;
+edge class StaticMember;
+edge class ClsMethod;

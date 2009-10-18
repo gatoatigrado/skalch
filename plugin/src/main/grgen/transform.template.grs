@@ -12,13 +12,14 @@ dump set node ClassDef color red
 dump set node Symbol color blue
 dump set edge BridgeFcn color green
 dump set node MemberFcn color green
+dump set node Annotation color orchid
 
 
 
 # show nodes Annotation
 # functions requiring setEnclosing links
 echo "[REWRITE PRODUCTION] retype certain skalch constructs and function symbols"
-xgrs replaceAngelicSketch* & replaceAssertSymbol*
+xgrs replaceAngelicSketchSymbol* & replaceAssertSymbol*
 echo "[REWRITE PRODUCTION] adding info links"
 xgrs setEnclosingFunctionInitial* & setEnclosingFunction*
 echo "[REWRITE PRODUCTION] delete bridge functions"

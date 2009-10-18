@@ -20,7 +20,7 @@ abstract class NodeFactory {
     import _glbl._
     import symtab.Flags
 
-    val annotations : HashMap[String, List[AnnotationInfo]]
+    val annotations = new HashMap[String, List[GrNode]]()
 
     def getGxlAST(tree : Tree) : GrNode
 
@@ -55,13 +55,19 @@ abstract class NodeFactory {
             GrEdge(node, nme + "Symbol", getsym(sym))
     }
 
-    def handle_annot(node : GrNode, annot : AnnotationInfo) {
+    def get_annotation_node(info : AnnotationInfo) : GrNode = {
         var annot_node = new GrNode("Annotation", "annot_" + id_ctr())
-        GrEdge(node, "SymbolAnnotation", annot_node)
         val node_fcns = new BoundNodeFcns(annot_node, "Annotation")
         import node_fcns._
-        symlink("Annotation", annot.atp.typeSymbol)
-        subchain("AnnotationArgs", annot.args)
+        symlink("Annotation", info.atp.typeSymbol)
+        subchain("AnnotationArgs", info.args)
+        annot_node
+    }
+
+    def set_annotation_info(infos : HashMap[String, List[AnnotationInfo]]) {
+        for ((k, arr) <- infos) {
+            annotations.put(k, arr map (x => get_annotation_node(x)))
+        }
     }
 
     /** symbol table map; shows usefulness of using graphs vs only trees
@@ -78,13 +84,18 @@ abstract class NodeFactory {
             def attr_edge(name : String) = GrEdge(node, name, node)
             if (sym != NoSymbol) {
                 GrEdge(node, "SymbolOwner", getsym(sym.owner))
+
+                // attribute edges
                 if (sym.hasFlag(Flags.BRIDGE)) attr_edge("BridgeFcn")
                 if (sym.isStaticMember) attr_edge("StaticMember")
                 else if (sym.isMethod) attr_edge("ClsMethod")
+
+                // static symbol annotations
                 val symname = sym.fullNameString.replace("$", ".")
                 annotations.get(symname) match {
                     case None => ()
-                    case Some(lst) => lst foreach (x => handle_annot(node, x))
+                    case Some(lst) => lst foreach (x =>
+                        GrEdge(node, "SymbolAnnotation", x))
                 }
             }
             node
@@ -135,6 +146,7 @@ abstract class NodeFactory {
     /** probably override this later */
     def GrEdge(from : GrNode, typ : String, to : GrNode) = {
         val result = new GrEdge(from, typ, to)
+        assert(edge_ids != null, "edge ids null")
         if (!(edge_ids contains typ)) {
             new_edge_names.add(typ)
             assert (!(typ contains "scala.tools.nsc.symtab"), "bad edge type")

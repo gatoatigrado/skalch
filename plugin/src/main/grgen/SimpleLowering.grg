@@ -27,7 +27,7 @@ rule setEnclosingFunction {
     }
 }
 
-rule replaceAngelicSketch {
+rule replaceAngelicSketchSymbol {
     cls_sym:Symbol -:SymbolOwner-> pkg_sym:Symbol;
     if {
         cls_sym.symbolName == "AngelicSketch";

@@ -85,7 +85,6 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
         object gxl_node_map extends {
             val _glbl : ExternalGxlTransformer.this.global.type =
                 ExternalGxlTransformer.this.global
-            val annotations = ExternalGxlTransformer.this.annotations
         } with ScalaGxlNodeMap
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
@@ -116,6 +115,7 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
 
                 override def transform(tree : Tree) : Tree = {
                     import GxlViews.{xmlwrapper, arrwrapper, nodewrapper}
+
                     val rcurl = getClass().getResource("/skalch/plugins/type_graph.gxl")
                     assert(rcurl != null, "resource type_graph.gxl not in jar package!")
                     val gxldoc = new GXLDocument(rcurl)
@@ -135,6 +135,10 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
 
                     gxl_node_map.node_ids = real_nodes map (_.getAttribute("id"))
                     gxl_node_map.edge_ids = edges map (_.getAttribute("id"))
+
+                    // FIXME -- move up when GXL library bugs are fixed
+                    gxl_node_map.annotations.clear()
+                    gxl_node_map.set_annotation_info(annotations)
 
                     root = gxl_node_map.getGxlAST(tree)
 

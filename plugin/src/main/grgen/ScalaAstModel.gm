@@ -21,6 +21,11 @@ edge class BridgeFcn;
 node class EmptyChain;
 node class Annotation;
 
+// special symbols. Use these!
+node class SketchBaseSymbol extends Symbol;
+node class AngelicSketchSymbol extends SketchBaseSymbol;
+node class AssertFcnSymbol extends Symbol;
+
 
 
 // === SKETCH nodes ===

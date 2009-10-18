@@ -27,6 +27,29 @@ rule setEnclosingFunction {
     }
 }
 
+rule replaceAngelicSketch {
+    cls_sym:Symbol -:SymbolOwner-> pkg_sym:Symbol;
+    if {
+        cls_sym.symbolName == "AngelicSketch";
+        pkg_sym.symbolName == "skalch";
+        typeof(cls_sym) == Symbol;
+    }
+    modify {
+        angelicsym:AngelicSketchSymbol<cls_sym>;
+    }
+}
+
+rule replaceAssertSymbol {
+    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+    if {
+        fcnsym.symbolName == "synthAssert";
+        typeof(fcnsym) == Symbol;
+    }
+    modify {
+        assertsym:AssertFcnSymbol<fcnsym>;
+    }
+}
+
 test testFail { negative { } }
 
 
@@ -124,17 +147,10 @@ test testNoThisNodes {
 
 // rewrite sketch constructs
 rule replaceAssertCalls() {
-    fcn:FcnCall -fcnsymedge:FcnCallSymbol->
-        assertSym:Symbol -:SymbolOwner-> angelicSym:Symbol;
-    fcn -:FcnTarget-> fa:FieldAccess;
-    if {
-        assertSym.symbolName == "synthAssert";
-        angelicSym.symbolName == "ScAngelicSketchBase";
-    }
+    fcn:FcnCall -:FcnCallSymbol-> :AssertFcnSymbol;
+    fcn -:FcnTarget-> . --> :AngelicSketchSymbol;
     modify {
         assert:SKAssert<fcn>;
-        delete(fcnsymedge);
-        delete(fa);
     }
 }
 

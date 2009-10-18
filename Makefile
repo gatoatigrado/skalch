@@ -51,6 +51,8 @@ grgen_compile:
 	plugin/src/main/grgen/sugared_test.sh
 
 ycomp:
+	killall mono; true
+	killall java; true
 	plugin/src/main/grgen/sugared_test.sh --ycomp
 
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)

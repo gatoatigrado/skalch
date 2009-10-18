@@ -51,6 +51,7 @@ Executing Graph Rewrite Sequence.+
 The graph is valid with respect to the given sequence.
 Building libraries\.\.\.
 (\> )?Bye\!
+ - (Model|Actions) assembly "([^"]+)" generated.*
 """.splitlines() if v]
                 if any(v.match(line) for v in mundane): pass
                 elif not line: pass

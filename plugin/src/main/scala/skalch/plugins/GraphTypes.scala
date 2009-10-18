@@ -79,6 +79,7 @@ abstract class NodeFactory {
         case None =>
             val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
             node.attrs.append("symbolName" -> new GXLString(sym.name.toString()))
+            node.attrs.append("fullSymbolName" -> new GXLString(sym.fullNameString))
             sym_to_gr_map.put(sym, node)
 
             def attr_edge(name : String) = GrEdge(node, name, node)

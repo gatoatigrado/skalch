@@ -14,6 +14,7 @@ node class ScAstNode {
 // N.B. -- not an AST node
 node class Symbol {
     symbolName : string;
+    fullSymbolName : string;
 }
 edge class SymbolOwner;
 edge class EnclosingFcn;
@@ -22,14 +23,28 @@ node class EmptyChain;
 node class Annotation;
 
 // special symbols. Use these!
-node class SketchBaseSymbol extends Symbol;
+abstract node class SketchBaseSymbol extends Symbol;
 node class AngelicSketchSymbol extends SketchBaseSymbol;
-node class AssertFcnSymbol extends Symbol;
+node class AssertFcnSymbol extends SketchBaseSymbol;
+node class BangBangSymbol extends SketchBaseSymbol;
+node class HoleSymbol extends SketchBaseSymbol;
+
+abstract node class SketchConstructCall extends ScAstNode;
+node class BangBangCall extends SketchConstructCall;
+edge class BooleanConstructCall;
+
+// all symbols in the "scala" package become ScalaSymbols
+node class ScalaSymbol extends Symbol;
+
+// execute this statement before the given one.
+edge class CreatePreStmt;
 
 
 
 // === SKETCH nodes ===
 
+node class SKRoot;
+node class SKHelperFcns;
 node class SKAssert extends ScAstNode;
 edge class SKAssertExpr;
 
@@ -39,57 +54,61 @@ edge class SKAssertExpr;
 // === Generated code ===
 // a bit of regex postprocessing
 
+node class Assign extends ScAstNode;
+node class Block extends ScAstNode;
+node class CaseDef extends ScAstNode;
+node class ClassDef extends ScAstNode;
+node class EmptyTree extends ScAstNode;
+
+node class FcnCall extends ScAstNode;
+node class FcnCallArrayLength extends FcnCall;
+node class FcnCallBinaryDivide extends FcnCall;
+node class FcnCallBinaryLessThan extends FcnCall;
+node class FcnCallBinaryPrimitiveEquals extends FcnCall;
+node class FcnCallBinarySameObj extends FcnCall;
+node class FcnCallBinarySubtract extends FcnCall;
+node class FcnCallTypeApply extends FcnCall;
+node class FcnCallUnaryNonzero extends FcnCall;
+
+node class FcnDef extends ScAstNode;
+node class FcnSuperCall extends FcnCall;
+node class FieldAccess extends ScAstNode;
+node class If extends ScAstNode;
+node class MemberFcn extends ScAstNode;
+node class NewArray extends ScAstNode;
+node class NewConstructor extends FcnCall;
+node class PackageDef extends ScAstNode;
+node class QualifiedClassRef extends ScAstNode;
+node class Return extends ScAstNode;
+node class StaticFcnCall extends FcnCall;
+node class Template extends ScAstNode;
+node class This extends ScAstNode;
+node class Throw extends ScAstNode;
+node class Try extends ScAstNode;
+node class Typed extends ScAstNode;
+node class ValDef extends ScAstNode;
+node class VarRef extends ScAstNode;
+
 abstract node class Constant extends ScAstNode;
 
-node class FcnCallBinaryPrimitiveEquals extends FcnCall;
-node class This extends ScAstNode;
-node class Typed extends ScAstNode;
-node class FcnCall extends ScAstNode;
-node class ClassDef extends ScAstNode;
-node class VarRef extends ScAstNode;
-node class PackageDef extends ScAstNode;
-node class FcnCallTypeApply extends FcnCall;
-node class Block extends ScAstNode;
-node class IntConstant extends Constant {
-    value : int;
-}
-node class Throw extends ScAstNode;
-node class NewConstructor extends FcnCall;
-node class FcnSuperCall extends FcnCall;
-node class UnitConstant extends Constant;
-node class FcnCallBinarySameObj extends FcnCall;
-node class NullTypeConstant extends Constant;
-node class EmptyTree extends ScAstNode;
-node class FcnDef extends ScAstNode;
-node class MemberFcn extends ScAstNode;
-node class QualifiedClassRef extends ScAstNode;
-node class If extends ScAstNode;
-node class ValDef extends ScAstNode;
-node class StringConstant extends Constant {
-    value : string;
-}
-node class FieldAccess extends ScAstNode;
-node class NewArray extends ScAstNode;
-node class Template extends ScAstNode;
-node class Assign extends ScAstNode;
-node class StaticFcnCall extends FcnCall;
 node class BooleanConstant extends Constant {
     value : boolean;
 }
-node class Return extends ScAstNode;
-node class CaseDef extends ScAstNode;
-node class FcnCallBinaryDivide extends FcnCall;
-node class FcnCallBinaryLessThan extends FcnCall;
-node class LongConstant extends Constant {
-    value : int;
-}
-node class FcnCallBinarySubtract extends FcnCall;
-node class FcnCallUnaryNonzero extends FcnCall;
-node class FcnCallArrayLength extends FcnCall;
-node class Try extends ScAstNode;
 node class CharConstant extends Constant {
     value : string;
 }
+node class LongConstant extends Constant {
+    value : int;
+}
+node class IntConstant extends Constant {
+    value : int;
+}
+node class StringConstant extends Constant {
+    value : string;
+}
+node class NullTypeConstant extends Constant;
+node class UnitConstant extends Constant;
+
 node class FcnCallBinaryAdd extends FcnCall;
 node class FcnCallBinaryLogicAnd extends FcnCall;
 node class FcnCallArrayGet extends FcnCall;
@@ -107,6 +126,7 @@ node class NewArrayCall extends FcnCall;
 node class Match extends ScAstNode;
 node class LabelDef extends ScAstNode;
 node class FcnCallBinaryGreaterThanOrEqual extends FcnCall;
+node class TypeTree extends ScAstNode;
 
 edge class AssignLhs;
 edge class AssignRhs;
@@ -116,7 +136,8 @@ edge class BlockStmtNext;
 edge class ClassDefImpl;
 edge class ClassDefSymbol;
 edge class ClassRefSymbol;
-edge class FcnArgs;
+edge class FcnArgNext;
+edge class FcnArgChain;
 edge class FcnBody;
 edge class FcnCallSymbol;
 edge class FcnDefParamsChain;
@@ -158,3 +179,5 @@ edge class AnnotationArgsChain;
 edge class AnnotationArgsNext;
 edge class AnnotationSymbol;
 edge class SymbolAnnotation;
+edge class TypeTreeSymbol;
+edge class FcnCallTypeArgsChain;

@@ -159,11 +159,11 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
 //                 println(">>> is module symbol", tree.symbol.isModuleClass.toString)
                 visited.add(fcn)
                 node.set_type("FcnSuperCall", "FcnCall")
-                subarr("FcnArgs", args)
+                subchain("FcnArg", args)
 
             case Apply(fcn @ Select(New(tpt), nme.CONSTRUCTOR), args) =>
                 visited.add(fcn)
-                subarr("FcnArgs", args)
+                subchain("FcnArg", args)
 
                 import _glbl.icodes._
                 toTypeKind(tpt.tpe) match {
@@ -177,7 +177,7 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
 
             case Apply(fcn, args) =>
                 visited.add(fcn)
-                subarr("FcnArgs", args)
+                subchain("FcnArg", args)
 
                 val fcnsym = fcn.symbol
                 if (fcn.symbol.isLabel) {
@@ -202,7 +202,9 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
                             } else if (fcn.symbol.isClassConstructor) {
                                 node.set_type("ClassConstructorCall", "FcnCall")
                             }
-                        case TypeApply(fcn, args) =>
+                        case TypeApply(fcn, type_args) =>
+                            subtree("FcnTarget", fcn)
+                            subchain("FcnCallTypeArgs", type_args)
                             node.set_type("FcnCallTypeApply", "FcnCall")
                         case other =>
                             not_implemented("fcn call " + other, "type", fcn.getClass)
@@ -305,6 +307,8 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
             case Typed(expr, typ) =>
                 subtree("TypedExpression", expr)
                 symlink("TypedType", typ.symbol)
+
+            case TypeTree() => ()
 
 
 

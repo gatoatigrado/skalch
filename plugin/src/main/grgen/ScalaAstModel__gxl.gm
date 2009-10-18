@@ -1,0 +1,397 @@
+node class ScAstNode
+{
+	sourceFile:string;
+	scalaSource:string;
+	startLine:int;
+	startCol:int;
+	endLine:int;
+	endCol:int;
+}
+node class Symbol
+{
+	symbolName:string;
+	fullSymbolName:string;
+}
+node class EmptyChain
+{
+}
+node class Annotation
+{
+}
+node class SketchBaseSymbol extends Symbol
+{
+}
+node class AngelicSketchSymbol extends SketchBaseSymbol
+{
+}
+node class AssertFcnSymbol extends Symbol
+{
+}
+node class BangBangSymbol extends Symbol
+{
+}
+node class HoleSymbol extends Symbol
+{
+}
+node class ScalaSymbol extends Symbol
+{
+}
+node class SKRoot
+{
+}
+node class SKHelperFcns
+{
+}
+node class SKAssert extends ScAstNode
+{
+}
+abstract node class Constant extends ScAstNode
+{
+}
+node class FcnCallBinaryPrimitiveEquals extends FcnCall
+{
+}
+node class This extends ScAstNode
+{
+}
+node class Typed extends ScAstNode
+{
+}
+node class FcnCall extends ScAstNode
+{
+}
+node class ClassDef extends ScAstNode
+{
+}
+node class VarRef extends ScAstNode
+{
+}
+node class PackageDef extends ScAstNode
+{
+}
+node class FcnCallTypeApply extends FcnCall
+{
+}
+node class Block extends ScAstNode
+{
+}
+node class IntConstant extends Constant
+{
+	value:int;
+}
+node class Throw extends ScAstNode
+{
+}
+node class NewConstructor extends FcnCall
+{
+}
+node class FcnSuperCall extends FcnCall
+{
+}
+node class UnitConstant extends Constant
+{
+}
+node class FcnCallBinarySameObj extends FcnCall
+{
+}
+node class NullTypeConstant extends Constant
+{
+}
+node class EmptyTree extends ScAstNode
+{
+}
+node class FcnDef extends ScAstNode
+{
+}
+node class MemberFcn extends ScAstNode
+{
+}
+node class QualifiedClassRef extends ScAstNode
+{
+}
+node class If extends ScAstNode
+{
+}
+node class ValDef extends ScAstNode
+{
+}
+node class StringConstant extends Constant
+{
+	value:string;
+}
+node class FieldAccess extends ScAstNode
+{
+}
+node class NewArray extends ScAstNode
+{
+}
+node class Template extends ScAstNode
+{
+}
+node class Assign extends ScAstNode
+{
+}
+node class StaticFcnCall extends FcnCall
+{
+}
+node class BooleanConstant extends Constant
+{
+	value:boolean;
+}
+node class Return extends ScAstNode
+{
+}
+node class CaseDef extends ScAstNode
+{
+}
+node class FcnCallBinaryDivide extends FcnCall
+{
+}
+node class FcnCallBinaryLessThan extends FcnCall
+{
+}
+node class LongConstant extends Constant
+{
+	value:int;
+}
+node class FcnCallBinarySubtract extends FcnCall
+{
+}
+node class FcnCallUnaryNonzero extends FcnCall
+{
+}
+node class FcnCallArrayLength extends FcnCall
+{
+}
+node class Try extends ScAstNode
+{
+}
+node class CharConstant extends Constant
+{
+	value:string;
+}
+node class FcnCallBinaryAdd extends FcnCall
+{
+}
+node class FcnCallBinaryLogicAnd extends FcnCall
+{
+}
+node class FcnCallArrayGet extends FcnCall
+{
+}
+node class FcnCallBinaryLogicOr extends FcnCall
+{
+}
+node class FcnCallUnaryIntCast extends FcnCall
+{
+}
+node class FcnCallBinaryGreaterThan extends FcnCall
+{
+}
+node class FcnCallBinaryLessThanOrEqual extends FcnCall
+{
+}
+node class FcnCallArraySet extends FcnCall
+{
+}
+node class FcnCallBinaryPrimitiveNotEquals extends FcnCall
+{
+}
+node class GotoCall extends ScAstNode
+{
+}
+node class FcnCallBinaryStringConcat extends FcnCall
+{
+}
+node class FcnCallBinaryNotSameObj extends FcnCall
+{
+}
+node class Bind extends ScAstNode
+{
+}
+node class NewArrayCall extends FcnCall
+{
+}
+node class Match extends ScAstNode
+{
+}
+node class LabelDef extends ScAstNode
+{
+}
+node class FcnCallBinaryGreaterThanOrEqual extends FcnCall
+{
+}
+node class TypeTree
+{
+}
+edge class SymbolOwner
+{
+}
+edge class EnclosingFcn
+{
+}
+edge class BridgeFcn
+{
+}
+edge class CreatePreStmt
+{
+}
+edge class SKAssertExpr
+{
+}
+edge class AssignLhs
+{
+}
+edge class AssignRhs
+{
+}
+edge class BlockExpr
+{
+}
+edge class BlockStmtChain
+{
+}
+edge class BlockStmtNext
+{
+}
+edge class ClassDefImpl
+{
+}
+edge class ClassDefSymbol
+{
+}
+edge class ClassRefSymbol
+{
+}
+edge class FcnArgs
+{
+}
+edge class FcnBody
+{
+}
+edge class FcnCallSymbol
+{
+}
+edge class FcnDefParamsChain
+{
+}
+edge class FcnDefParamsNext
+{
+}
+edge class FcnDefSymbol
+{
+}
+edge class FcnTarget
+{
+}
+edge class FieldAccessObject
+{
+}
+edge class IfCond
+{
+}
+edge class IfElse
+{
+}
+edge class IfThen
+{
+}
+edge class NewClassSymbol
+{
+}
+edge class PackageDefElement
+{
+}
+edge class PackageDefSymbol
+{
+}
+edge class TemplateElement
+{
+}
+edge class TemplateSymbol
+{
+}
+edge class ThisSymbol
+{
+}
+edge class ThrowExpr
+{
+}
+edge class TypedExpression
+{
+}
+edge class TypedTypeSymbol
+{
+}
+edge class ValDefSymbol
+{
+}
+edge class VarDeclRhs
+{
+}
+edge class VarRefSymbol
+{
+}
+edge class ClassDefTypeParamsChain
+{
+}
+edge class ClassDefTypeParamsNext
+{
+}
+edge class ArrValueChain
+{
+}
+edge class ArrValueNext
+{
+}
+edge class StaticMember
+{
+}
+edge class ClsMethod
+{
+}
+edge class CasePattern
+{
+}
+edge class MatchCaseChain
+{
+}
+edge class CaseBody
+{
+}
+edge class MatchTarget
+{
+}
+edge class LabelDefSymbol
+{
+}
+edge class MatchCaseNext
+{
+}
+edge class CaseGuard
+{
+}
+edge class ReturnSymbol
+{
+}
+edge class ReturnExpr
+{
+}
+edge class AnnotationArgsChain
+{
+}
+edge class AnnotationArgsNext
+{
+}
+edge class AnnotationSymbol
+{
+}
+edge class SymbolAnnotation
+{
+}
+edge class TypeTreeSymbol
+{
+}
+edge class FcnCallTypeArgsChain
+{
+}

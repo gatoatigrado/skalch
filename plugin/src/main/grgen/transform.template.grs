@@ -20,15 +20,19 @@ dump set node Annotation color orchid
 # functions requiring setEnclosing links
 echo "[REWRITE PRODUCTION] retype certain skalch constructs and function symbols"
 xgrs replaceAngelicSketchSymbol* & replaceAssertSymbol*
+xgrs replaceBangBangSymbol* & replaceHoleSymbol*
+xgrs setScalaRoot & setScalaSubtypes*
 echo "[REWRITE PRODUCTION] adding info links"
 xgrs setEnclosingFunctionInitial* & setEnclosingFunction*
 echo "[REWRITE PRODUCTION] delete bridge functions"
 xgrs deleteBridgeFunctions
 # mostly my learning...
 validate xgrs testNoBridgeFunctions
+
 echo "[REWRITE PRODUCTION] convert $this to a parameter"
 xgrs [transformFcnWrapper]
 validate xgrs testNoThisNodes
+
 echo "[REWRITE PRODUCTION] delete dangling nodes, and remove enclosing links"
 xgrs deleteDangling*
 xgrs removeEnclosingLinks*
@@ -36,7 +40,12 @@ xgrs removeEnclosingLinks*
 
 
 # transformations not requiring EnclosingFcn links
+echo "[REWRITE PRODUCTION] replace assert calls"
 xgrs replaceAssertCalls*
+
+echo "[REWRITE PRODUCTION] clean calls to !! / ??"
+xgrs replaceBangBangCalls*
+xgrs unboxConstructCalls*
 
 
 

@@ -20,10 +20,10 @@ abstract class AngelicSketch {
 
     implicit def resolveBool(x : ??.type) : Boolean =
         { assert(false); false }
-    implicit def resolveInt(x : ??.type) : Int =
-        { assert(false); 0 }
+//     implicit def resolveInt(x : ??.type) : Int =
+//         { assert(false); 0 }
     implicit def resolve[T <: AnyRef](x : ??.type) : T =
-        { assert(false); null; }
+        { assert(false); if (stopOptimization) null else "".asInstanceOf[T] }
 
 //     implicit def resolveBool(x : !!.type) : boolean =
 //         { assert(false); false }

@@ -6,6 +6,11 @@ using ScalaAstModel;
 
 // decorate nodes with relevant information
 
+rule addScalaRoot {
+    pkg:PackageDef;
+    modify { pkg --> :SKRoot; }
+}
+
 rule setEnclosingFunctionInitial {
     x:FcnDef --> y:ScAstNode;
     negative {
@@ -49,6 +54,44 @@ rule replaceAssertSymbol {
         assertsym:AssertFcnSymbol<fcnsym>;
     }
 }
+
+rule replaceBangBangSymbol {
+    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+    if {
+        fcnsym.symbolName == "$bang$bang";
+        typeof(fcnsym) == Symbol;
+    }
+    modify {
+        assertsym:BangBangSymbol<fcnsym>;
+    }
+}
+
+rule replaceHoleSymbol {
+    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+    if {
+        fcnsym.symbolName == "$qmark$qmark";
+        typeof(fcnsym) == Symbol;
+    }
+    modify {
+        assertsym:HoleSymbol<fcnsym>;
+    }
+}
+
+rule setScalaRoot {
+    s1:Symbol;
+    if { s1.fullSymbolName == "scala"; }
+    modify { rt:ScalaSymbol<s1>; }
+}
+
+rule setScalaSubtypes {
+    s1:Symbol -:SymbolOwner-> s2:ScalaSymbol;
+    if { typeof(s1) == Symbol; }
+    modify { rt1:ScalaSymbol<s1>; }
+}
+
+// rule setStaticAnnotationTypes {
+//     s1:Symbol
+// }
 
 test testFail { negative { } }
 
@@ -154,12 +197,38 @@ rule replaceAssertCalls() {
     }
 }
 
+rule replaceBangBangCalls() {
+    resolv_call:FcnCall -:FcnArgChain-> bang_bang_call:FcnCall
+        -:FcnCallSymbol-> :BangBangSymbol;
+    resolv_call -rcsymedge:FcnCallSymbol-> resolv_sym:Symbol;
+    resolv_call -targetedge:FcnTarget-> .;
+    if { resolv_sym.symbolName == "resolve"; }
+    modify {
+//         delete(bang_bang_call, rcsymedge, targetedge);
+        new_call:BangBangCall<resolv_call>;
+    }
+}
+
+// more artifacts from the Scala view
+rule unboxConstructCalls() {
+    unbox_call:FcnCall -:FcnCallSymbol-> unbox_sym:ScalaSymbol;
+    unbox_call -:FcnArgChain-> constr_sym:SketchConstructCall;
+    unbox_call -:FcnTarget-> n:Node;
+    if { unbox_sym.fullSymbolName == "scala.Boolean.unbox"; }
+    replace {
+        n;
+        boolean_call:typeof(constr_sym)<unbox_call>;
+        boolean_call -:BooleanConstructCall-> boolean_call;
+    }
+}
+
 
 
 // cleanup
 
 rule deleteDangling {
     x:Node;
+    // due to non-homomorphic matching, should delete nodes with self-edges
     negative {
         x;
         . --> x;

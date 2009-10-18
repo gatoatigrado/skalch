@@ -65,6 +65,9 @@ Building libraries\.\.\.
                 elif debug:
                     print("unrecognized line %r" %(line))
                 else:
+                    if line == "Unable to import graph: Object reference not set to an instance of an object":
+                        print("""\n\n\nNOTE -- maybe you added an attribute not set in the
+grammar, or forgot to make a new node class inherit ScAstNode?\n\n\n""")
                     raise Exception("unrecognized line %r" %(line))
 
 if __name__ == "__main__":

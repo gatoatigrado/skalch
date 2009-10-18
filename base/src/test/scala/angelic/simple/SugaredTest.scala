@@ -12,6 +12,8 @@ class MySketch() extends AngelicSketch {
 //         val elt = List(1, 2, 3)(!!)
 //         val mv2 = SKF1(2)
         val v2 = !! : MyValue
+        // TODO -- disallow this
+//         skdprint((?? : Int @ Range(List(-1, 0))).toString)
         if (!!) synthAssert(v2.a == 4)
     }
 }

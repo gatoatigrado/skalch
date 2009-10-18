@@ -27,6 +27,8 @@ rule setEnclosingFunction {
     }
 }
 
+test testFail { negative { } }
+
 
 
 // overly verbose method to delete all bridge-function related nodes
@@ -126,7 +128,7 @@ rule replaceAssertCalls() {
         assertSym:Symbol -:SymbolOwner-> angelicSym:Symbol;
     fcn -:FcnTarget-> fa:FieldAccess;
     if {
-        assertSym.symbolName == "synthAssertTerminal";
+        assertSym.symbolName == "synthAssert";
         angelicSym.symbolName == "ScAngelicSketchBase";
     }
     modify {

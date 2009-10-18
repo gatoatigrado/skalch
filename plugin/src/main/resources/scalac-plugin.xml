@@ -1,4 +1,4 @@
 <plugin>
   <name>sketchrewriter</name>
-  <classname>skalch.plugins.SketchRewriter</classname>
+  <classname>skalch.plugins.ExternalGxlTransformer</classname>
 </plugin>

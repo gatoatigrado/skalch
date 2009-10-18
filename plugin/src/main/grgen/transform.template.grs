@@ -1,8 +1,6 @@
-#!/bin/bash
-# not really, I just want to use formatting
 # grshell script
 new graph "SimpleLowering.grg"
-import SugaredTest.scala.ast.gxl ScalaAstModel.gm
+import "%(gxl_file)s" ScalaAstModel.gm
 select actions lgsp-SimpleLoweringActions.dll
 
 
@@ -17,17 +15,18 @@ dump set node MemberFcn color green
 
 
 
+show nodes Annotation
 # functions requiring setEnclosing links
-echo "adding info links"
+echo "[REWRITE PRODUCTION] adding info links"
 xgrs setEnclosingFunctionInitial* & setEnclosingFunction*
-echo "delete bridge functions"
+echo "[REWRITE PRODUCTION] delete bridge functions"
 xgrs deleteBridgeFunctions
 # mostly my learning...
 validate xgrs testNoBridgeFunctions
-echo "convert $this to a parameter"
+echo "[REWRITE PRODUCTION] convert $this to a parameter"
 xgrs [transformFcnWrapper]
 validate xgrs testNoThisNodes
-echo "delete dangling nodes, and remove enclosing links"
+echo "[REWRITE PRODUCTION] delete dangling nodes, and remove enclosing links"
 xgrs deleteDangling*
 xgrs removeEnclosingLinks*
 
@@ -40,4 +39,4 @@ xgrs replaceAssertCalls*
 
 # final printing
 xgrs deleteDangling*
-show graph ycomp "--dolayout"
+%(endstr)s

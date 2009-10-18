@@ -2,6 +2,7 @@ bin/*
 dist/*
 */target/*
 *.vcg
+*tmpgrgen*
 *.timestamp
 *.pyc
 *.hints.xml

@@ -21,18 +21,9 @@ import net.sourceforge.gxl._
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-abstract class ScalaGxlNodeMap() {
-    val _glbl : Global
-
+abstract class ScalaGxlNodeMap() extends NodeFactory {
     import _glbl._
-
-    object nf extends {
-        val global : _glbl.type = _glbl
-    } with NodeFactory
-    import nf._
-
     var visited : HashSet[Tree] = null
-    var gxldoc : GXLDocument = null
 
     // === String representation of node types ===
     // All names should be unambiguous, and immediately identifiable
@@ -125,17 +116,8 @@ abstract class ScalaGxlNodeMap() {
         node.attrs.append("scalaSource" -> new GXLString(tree.toString()))
 
         /** closure functions */
-        def subtree(edge_typ : String, subtree : Tree) =
-            GrEdge(node, edge_typ, getGxlAST(subtree))
-        def subarr(edge_typ : String, arr : List[Tree]) =
-            arr map (x => GrEdge(node, edge_typ, getGxlAST(x)))
-        def subchain(edge_typ : String, arr : List[Tree]) = if (arr != Nil) {
-            var nodes = arr map getGxlAST
-            GrEdge(node, edge_typ + "Chain", nodes(0))
-            nodes.reduceLeft((x, y) => { GrEdge(x, edge_typ + "Next", y); y })
-        } else GrEdge(node, edge_typ + "Chain", emptychainnode())
-        def symlink(nme : String, sym : Symbol) =
-            GrEdge(node, nme + "Symbol", getsym(sym))
+        val node_fcns = new BoundNodeFcns(node, clsname)
+        import node_fcns._
 
         if (tree.symbol != null) {
             symlink(clsname, tree.symbol)
@@ -183,7 +165,7 @@ abstract class ScalaGxlNodeMap() {
                 visited.add(fcn)
                 subarr("FcnArgs", args)
 
-                import global.icodes._
+                import _glbl.icodes._
                 toTypeKind(tpt.tpe) match {
                     case arr : ARRAY => node.set_type("NewArrayCall", "FcnCall")
                     case ref_typ @ REFERENCE(cls_sym) =>

@@ -4,22 +4,14 @@ import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
 import sketch.util._
 
-/** rewrite for Skalch + SKETCH integration */
-class SugaredSketch() extends AngelicSketch {
-    val tests = Array( () )
-    def main() {
-        synthAssertTerminal(??(List("a", "b", "c")) == "c")
-        synthAssertTerminal(??(100) == 63)
-        for (i <- 0 until 10) {
-            synthAssertTerminal(!!(10) == i);
-        }
-    }
-}
+class MySketch() extends AngelicSketch {
+    class MyValue(val a : Int @ Range(3 to 444),
+        val c : Int @ Range(List(3, 5)))
 
-object SugaredTest {
-    def main(args: Array[String])  = {
-        val cmdopts = new cli.CliParser(args)
-        BackendOptions.add_opts(cmdopts)
-        skalch.AngelicSketchSynthesize(() => new SugaredSketch())
+    def main() {
+//         val elt = List(1, 2, 3)(!!)
+//         val mv2 = SKF1(2)
+        val v2 = !! : MyValue
+        if (!!) synthAssert(v2.a == 4)
     }
 }

@@ -19,6 +19,7 @@ edge class SymbolOwner;
 edge class EnclosingFcn;
 edge class BridgeFcn;
 node class EmptyChain;
+node class Annotation;
 
 
 
@@ -100,6 +101,7 @@ node class Bind extends ScAstNode;
 node class NewArrayCall extends FcnCall;
 node class Match extends ScAstNode;
 node class LabelDef extends ScAstNode;
+node class FcnCallBinaryGreaterThanOrEqual extends FcnCall;
 
 edge class AssignLhs;
 edge class AssignRhs;
@@ -133,6 +135,21 @@ edge class ValDefSymbol;
 edge class VarDeclRhs;
 edge class VarRefSymbol;
 edge class ClassDefTypeParamsChain;
+edge class ClassDefTypeParamsNext;
 edge class ArrValueChain;
+edge class ArrValueNext;
 edge class StaticMember;
 edge class ClsMethod;
+edge class CasePattern;
+edge class MatchCaseChain;
+edge class CaseBody;
+edge class MatchTarget;
+edge class LabelDefSymbol;
+edge class MatchCaseNext;
+edge class CaseGuard;
+edge class ReturnSymbol;
+edge class ReturnExpr;
+edge class AnnotationArgsChain;
+edge class AnnotationArgsNext;
+edge class AnnotationSymbol;
+edge class SymbolAnnotation;

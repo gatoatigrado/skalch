@@ -23,236 +23,79 @@ import sketch.util.cli
 */
 
 /**
- * Scala plugin for sketching support. See "FIRST TASK", "SECOND TASK", etc. below
+ * Scala plugin for sketching support. Generates a GXL file, executes a
+ * script, and stores the result of the script in the header of the GXL file.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-class SketchRewriter(val global: Global) extends Plugin {
+class ExternalGxlTransformer(val global: Global) extends Plugin {
+    import global._
+
     val name = "sketchrewriter"
-    val fname_extension = ".hints.xml"
     val gxl_extension = ".ast.gxl"
-    val description = "de-sugars sketchy constructs"
-    val components : List[PluginComponent] = List[PluginComponent](
-        ConstructRewriter, FileCopyComponent, GxlGeneratorComponent)
-    var scalaFileMap = Map[Object, XmlDoc]()
-    val fake_pos = FakePos("Inserted literal for call to sketch construct")
+    val description = "Dumps a Scala AST to GXL for further processing"
+    val components = List(TypeAnnotationComponent, GxlGeneratorComponent)
 
-    case class ConstructFcn(val type_ : String, val uid : Int,
-            val entire_pos : Object, val arg_pos : Object)
-    {
-        var parameter_type : String = "undefined"
-    }
-    case class XmlDoc(var cons_fcn_arr : List[ConstructFcn])
+    val script_override = System.getenv().get("GRGEN_TRANSLATE")
+    val script = if (script_override != null && (new File(script_override)).exists())
+        script_override else "src/main/grgen/transform_sketch.py"
 
-    object SketchXMLFormatter extends XmlFormatter {
-        def formatObjectInner(x : Object) = x match {
-            case XmlDoc(cons_fcn_arr) => ("document", List(),
-                (for (construct <- cons_fcn_arr)
-                    yield ("construct_" + construct.uid.toString, construct)).toList)
-            case construct_fcn : ConstructFcn => (construct_fcn.type_,
-                List(("uid", construct_fcn.uid.toString),
-                    ("param_type", construct_fcn.parameter_type.toString)),
-                List(("entire_pos", construct_fcn.entire_pos),
-                    ("arg_pos", construct_fcn.arg_pos)))
-            case rangepos : RangePosition => ("rangepos", List(),
-                List(("start", rangepos.focusStart), ("end", rangepos.focusEnd)))
-            case offsetpos : OffsetPosition => ("position", List(
-                ("line", offsetpos.line.toString),
-                ("column", offsetpos.column.toString)), List())
-            case _ => ("unknown", List(("stringrep", x.toString)), List())
-        }
-    }
+    val annotations = new HashMap[String, List[AnnotationInfo]]()
 
-    /**
-     * FIRST TASK - BEFORE THE TYPE SYSTEM.
-     * Rewrite ??(arglist) to ??(uid, arglist)
-     */
-    private object ConstructRewriter extends SketchPluginComponent(global) {
-        import global._
-        val runsAfter = List[String]("parser");
-        override val runsBefore = List[String]("namer")
-        val phaseName = "sketch_construct_rewriter"
-        def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
+    object TypeAnnotationComponent extends PluginComponent {
+        val global : ExternalGxlTransformer.this.global.type =
+            ExternalGxlTransformer.this.global
+        val runsAfter = List("typer")
+        override val runsBefore = List("explicitouter")
+        val phaseName = "grab_static_type_annotations"
+        def newPhase(prev: Phase) = new GrabAnnotations(prev)
 
-        class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
-            override def name = SketchRewriter.this.name
-            var hintsSink: List[ConstructFcn] = null
-
-            def apply(comp_unit: CompilationUnit) {
-                hintsSink = List()
-                comp_unit.body = CallTransformer.transform(comp_unit.body)
-                if (!hintsSink.isEmpty) {
-                    scalaFileMap += (comp_unit -> XmlDoc(hintsSink))
-                }
-                hintsSink = null
+        class GrabAnnotations(prev: Phase) extends StdPhase(prev) {
+            def apply(comp_unit : CompilationUnit) = {
+                (new AnnotTf()).transform(comp_unit.body)
             }
 
-            // Rewrite calls to ?? to include a call site specific uid
-            object CallTransformer extends SketchTransformer {
-                def zeroLenPosition(pos : Position) : RangePosition = {
-                    val v = pos match {
-                        case rp : RangePosition => pos.end - 1
-                        case _ => pos.point - 1
+            class AnnotTf() extends Transformer {
+                override def transform(tree : Tree) = {
+                    val sym = tree.symbol
+                    if ((sym != null) && (sym != NoSymbol) &&
+                            (sym.tpe.annotations != Nil))
+                    {
+                        annotations.put(sym.fullNameString, sym.tpe.annotations)
                     }
-                    new RangePosition(pos.source, v, v, v)
-                }
-
-                def transformSketchClass(clsdef : ClassDef) = null
-                def transformSketchCall(tree : Apply, ct : CallType) = {
-                    val uid = hintsSink.length
-                    val uidLit = Literal(uid)
-                    uidLit.setPos(fake_pos)
-                    uidLit.setType(ConstantType(Constant(uid)))
-                    val type_ = ct.cons_type match {
-                        case ConstructType.Hole => "holeapply"
-                        case ConstructType.Oracle => "oracleapply"
-                    }
-                    assert(hintsSink != null, "internal err - CallTransformer - hintsSink null")
-                    // make a fake 0-length position for the argument position
-                    val arg_pos = (if (tree.args.length == 0) { zeroLenPosition(tree.pos) }
-                        else { tree.args(0).pos })
-                    hintsSink = hintsSink ::: List(new ConstructFcn(
-                        type_, uid, tree.pos, arg_pos))
-                    treeCopy.Apply(tree, tree.fun, uidLit :: transformTrees(tree.args))
+                    super.transform(tree)
                 }
             }
         }
     }
 
     /**
-     * SECOND TASK - AFTER icode.
-     * Write out XML hints files -- info about constructs and source files.
+     * Generate a GXL representation of the sketch.
      */
-    private object FileCopyComponent extends SketchPluginComponent(global) {
+    object GxlGeneratorComponent extends PluginComponent {
+        val global : ExternalGxlTransformer.this.global.type =
+            ExternalGxlTransformer.this.global
         val runsAfter = List("icode")
-        val phaseName = "sketch_copy_src_desc"
-        def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
-
-        class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
-            import global._
-
-            var processed = List[String]()
-            var processed_no_holes = List[String]()
-
-            def prefixLen(x0 : String, x1 : String) : Int = {
-                for (i <- 0 until Math.min(x0.length, x1.length)) {
-                    if (x0.charAt(i) != x1.charAt(i)) {
-                        return i
-                    }
-                }
-                return 0
-            }
-            // broken by Scala trunk
-//                 (x0 zip x1).prefixLength((x : (Char, Char)) => x._1 == x._2)
-
-            def stripPrefix(arr : List[String], other : List[String])
-                : List[String] =
-            {
-                arr match {
-                    case head :: next :: tail =>
-                        val longestPrefix = (for (v <- (arr ::: other))
-                            yield prefixLen(v, head)).min
-                        (for (v <- arr) yield v.substring(longestPrefix)).toList
-                    case _ => arr
-                }
-            }
-
-            def join_str(sep : String, arr : List[String]) = arr match {
-                case head :: tail => (head /: tail)(_ + sep + _)
-                case _ => ""
-            }
-
-            override def run() {
-                currentRun.units foreach applyPhase
-                val processed_noprefix = stripPrefix(processed, processed_no_holes)
-                val processed_no_holes_noprefix = stripPrefix(processed_no_holes,
-                    processed)
-                println("sketchrewriter processed: " + join_str(", ", processed_noprefix))
-                println("sketchrewriter processed, no holes: " +
-                    join_str(", ", processed_no_holes_noprefix))
-            }
-
-            def apply(comp_unit : CompilationUnit) {
-                if (!scalaFileMap.keySet.contains(comp_unit)) {
-                    processed_no_holes ::= comp_unit.source.file.path
-                    return
-                } else {
-                    processed ::= comp_unit.source.file.path
-                }
-
-                val xmldoc = scalaFileMap(comp_unit)
-                val out_file = new File(comp_unit.source.file.path + fname_extension)
-                val gxlout = new File(comp_unit.source.file.path + gxl_extension)
-
-                var sketchClasses = ListBuffer[Symbol]()
-                (new SketchDetector(sketchClasses, xmldoc)).transform(comp_unit.body)
-                for (cls_sym <- sketchClasses) {
-                    val cls_out_file = global.getFile(cls_sym, "") + ".info"
-                    (new FileOutputStream(cls_out_file)).write("%s\n%s\n%s".format(
-                        out_file, comp_unit.source.file.path, gxlout).getBytes)
-                }
-
-                // NOTE - the tranformer now also adds info about which construct
-                // was used.
-                val xml : String = SketchXMLFormatter.formatXml(xmldoc)
-                (new FileOutputStream(out_file)).write(xml.getBytes())
-            }
-
-            class SketchDetector(val sketchClasses : ListBuffer[Symbol],
-                    val xmldoc : XmlDoc) extends SketchTransformer
-            {
-                def transformSketchClass(clsdef : ClassDef) = {
-                    sketchClasses += clsdef.symbol
-                    null
-                }
-
-                def transformSketchCall(tree : Apply, ct : CallType) = {
-                    ct match {
-                        case AssignedConstruct(cons_type, param_type) => {
-                            val uid = tree.args(0) match {
-                                case Literal(Constant(v : Int)) => v
-                                case _ => -1
-                            }
-                            assert(param_type != null,
-                                "please set annotations for call " + tree.toString())
-                            xmldoc.cons_fcn_arr(uid).parameter_type = param_type
-                        }
-                        case _ => assert(false, "INTERNAL ERROR - NewConstruct after icode")
-                    }
-                    null
-                }
-            }
-        }
-    }
-
-
-
-    /**
-     * THIRD TASK - ALSO AFTER icode.
-     * Generate the SKETCH AST and dump it via xstream.
-     */
-    private object GxlGeneratorComponent extends SketchPluginComponent(global) {
-        val _glbl : global.type = global
-        import global._
-
-        val runsAfter = List("icode")
+        override val runsBefore = List("jvm")
         val phaseName = "sketch_static_ast_gen"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 
         object gxl_node_map extends {
-            val _glbl : global.type = global
+            val _glbl : ExternalGxlTransformer.this.global.type =
+                ExternalGxlTransformer.this.global
+            val annotations = ExternalGxlTransformer.this.annotations
         } with ScalaGxlNodeMap
 
         class SketchRewriterPhase(prev: Phase) extends StdPhase(prev) {
             override def run {
                 scalaPrimitives.init
                 super.run
-                for (v <- gxl_node_map.nf.new_node_names) {
+                for (v <- gxl_node_map.new_node_names) {
                     println("node class " + v + ";")
                 }
-                for (v <- gxl_node_map.nf.new_edge_names) {
+                for (v <- gxl_node_map.new_edge_names) {
                     println("edge class " + v + ";")
                 }
             }
@@ -260,9 +103,8 @@ class SketchRewriter(val global: Global) extends Plugin {
             def apply(comp_unit : CompilationUnit) {
                 val gxlout = new File(comp_unit.source.file.path + gxl_extension)
                 val ast_gen = new GxlAstGenerator(comp_unit, gxlout)
-                gxl_node_map.nf.sourceFile = comp_unit.source.file.path
+                gxl_node_map.sourceFile = comp_unit.source.file.path
                 ast_gen.transform(comp_unit.body)
-                println("WARNING -- please re-enable visitor checks sometime")
 //                 (new CheckVisited(gxl_node_map.visited)).transform(comp_unit.body)
             }
 
@@ -270,7 +112,7 @@ class SketchRewriter(val global: Global) extends Plugin {
                 extends Transformer
             {
                 gxl_node_map.visited = new HashSet[Tree]()
-                var root : gxl_node_map.nf.GrNode = null
+                var root : gxl_node_map.GrNode = null
 
                 override def transform(tree : Tree) : Tree = {
                     import GxlViews.{xmlwrapper, arrwrapper, nodewrapper}
@@ -291,14 +133,18 @@ class SketchRewriter(val global: Global) extends Plugin {
                     val edges = node_types.filtertype(
                         "http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass")
 
-                    gxl_node_map.nf.node_ids = real_nodes map (_.getAttribute("id"))
-                    gxl_node_map.nf.edge_ids = edges map (_.getAttribute("id"))
+                    gxl_node_map.node_ids = real_nodes map (_.getAttribute("id"))
+                    gxl_node_map.edge_ids = edges map (_.getAttribute("id"))
 
                     root = gxl_node_map.getGxlAST(tree)
 
-                    (new gxl_node_map.nf.GxlOutput(def_graph)).outputGraph(root)
+                    (new gxl_node_map.GxlOutput(def_graph)).outputGraph(root)
                     println("writing " + gxlout)
                     gxldoc.write(gxlout)
+
+                    // FIXME -- remove this when bugs in the GXL library are fixed
+                    gxl_node_map.sym_to_gr_map.clear()
+
                     tree
                 }
             }

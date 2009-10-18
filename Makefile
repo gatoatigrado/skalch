@@ -47,6 +47,12 @@ plugin_sugared:
 plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
+grgen_compile:
+	plugin/src/main/grgen/sugared_test.sh
+
+ycomp:
+	plugin/src/main/grgen/sugared_test.sh --ycomp
+
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)
 	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 

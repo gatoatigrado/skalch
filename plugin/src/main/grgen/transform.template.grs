@@ -7,53 +7,17 @@ select actions lgsp-AllRulesActions.dll
 
 # node colors for printing
 debug set layout Compilergraph
-dump set node FcnDef color black
-dump set node ClassDef color red
-dump set node Symbol color blue
-dump set edge BridgeFcn color green
 dump set node MemberFcn color green
+dump set node ClassDef color red
+dump set node SketchConstructCall color orange
+dump set node Symbol color blue
 dump set node Annotation color orchid
-dump set node OuterSymbol color orange
 
 
 
-# show nodes Annotation
-# functions requiring setEnclosing links
-echo "[REWRITE PRODUCTION] retype certain skalch constructs and function symbols"
-xgrs replaceAngelicSketchSymbol* & replaceAssertSymbol*
-xgrs replaceBangBangSymbol* & replaceHoleSymbol*
-xgrs setStaticAnnotationTypes* & [setOuterSymbol]
-xgrs setScalaRoot & setScalaSubtypes*
-
-echo "[REWRITE PRODUCTION] adding info links"
-xgrs [setEnclosingFunctionInitial]
-echo "[REWRITE PRODUCTION] delete bridge functions"
-xgrs deleteBridgeFunctions
-# mostly my learning...
-validate exitonfailure xgrs testNoBridgeFunctions
-
-echo "[REWRITE PRODUCTION] convert $this to a parameter"
-xgrs [transformFcnWrapper]
-validate exitonfailure xgrs testNoThisNodes
-
-echo "[REWRITE PRODUCTION] delete dangling nodes, and remove enclosing links"
-xgrs deleteDangling*
-xgrs removeEnclosingLinks*
-
-
-
-# transformations not requiring EnclosingFcn links
-echo "[REWRITE PRODUCTION] replace assert calls"
-xgrs replaceAssertCalls*
-
-echo "[REWRITE PRODUCTION] clean calls to !! / ??"
-xgrs replaceBangBangCalls*
-xgrs unboxConstructCalls*
-
-xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)*
-
-
-
+include "stages-scripts/decorate.grs"
+include "stages-scripts/convert_this.grs"
+include "stages-scripts/clean_sketch_constructs.grs"
 
 # final printing
 xgrs deleteDangling*

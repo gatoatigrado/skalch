@@ -1,0 +1,17 @@
+# grshell script
+new graph "AllRules.grg"
+import "%(gxl_file)s" ScalaAstModel.gm
+select actions lgsp-AllRulesActions.dll
+
+include "stages-scripts/decorate.grs"
+include "stages-scripts/convert_this.grs"
+include "stages-scripts/clean_sketch_constructs.grs"
+
+xgrs [markAssignableClassDef]
+
+echo '[ASSERT NEXT LINE] Number of nodes compatible to type \"ClassDef\": 5'
+show num nodes ClassDef
+echo '[ASSERT NEXT LINE] Number of nodes compatible to type "ConstructAssignableClassDef": 3'
+show num nodes ConstructAssignableClassDef
+
+exit

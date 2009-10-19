@@ -139,9 +139,6 @@
 	<edge from="SKHelperFcns" to="Node">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
-	<edge from="HelloWorld" to="Node">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
 	<node id="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
 		<attr name="name"><string>ScAstNode</string></attr>
@@ -174,6 +171,9 @@
 	<edge from="SKAssert" to="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
+	<edge from="ClassDef" to="ScAstNode">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
+	</edge>
 	<edge from="Assign" to="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
@@ -181,9 +181,6 @@
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
 	<edge from="CaseDef" to="ScAstNode">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-	</edge>
-	<edge from="ClassDef" to="ScAstNode">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
 	<edge from="EmptyTree" to="ScAstNode">
@@ -427,6 +424,14 @@
 	<edge from="ScalaAstModel" to="SKAssert">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
+	<node id="ConstructAssignableClassDef">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
+		<attr name="name"><string>ConstructAssignableClassDef</string></attr>
+		<attr name="isabstract"><bool>false</bool></attr>
+	</node>
+	<edge from="ScalaAstModel" to="ConstructAssignableClassDef">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
+	</edge>
 	<node id="Assign">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
 		<attr name="name"><string>Assign</string></attr>
@@ -458,6 +463,9 @@
 	</node>
 	<edge from="ScalaAstModel" to="ClassDef">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
+	</edge>
+	<edge from="ConstructAssignableClassDef" to="ClassDef">
+		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 	</edge>
 	<node id="EmptyTree">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
@@ -997,14 +1005,6 @@
 		<attr name="isabstract"><bool>false</bool></attr>
 	</node>
 	<edge from="ScalaAstModel" to="TypeTree">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
-	</edge>
-	<node id="HelloWorld">
-		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#NodeClass"/>
-		<attr name="name"><string>HelloWorld</string></attr>
-		<attr name="isabstract"><bool>false</bool></attr>
-	</node>
-	<edge from="ScalaAstModel" to="HelloWorld">
 		<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 	</edge>
 	<node id="AEdge">

@@ -17,25 +17,7 @@ except ImportError, e:
     import sys; print("please install gatoatigrado's utility library from "
         "bitbucket.org/gatoatigrado/gatoatigrado_lib", file=sys.stderr)
 
-def main(gxl_file=None, debug=False, runonly=False, ycomp=False):
-    if not gxl_file:
-        gxl_file = Path("~/.sketch/tmp/input.gxl")
-        gxl_file.write(sys.stdin.read())
-    gxl_file = Path(gxl_file)
-    endstr = "show graph ycomp \"--dolayout\"" if ycomp else "exit"
-    grs_file = Path("~/.sketch/tmp/transform.grs")
-    grs_file.write(Path("!/transform.template.grs").read() %(locals()))
-    # to slow down: substitue e.g. "%(gxl_file)s" in the template file,
-    # which is stored in the same directory as this script.
-
-    grshell = Path.resolve("grshell", "GrShell")
-    proc = SubProc([grshell, grs_file])
-    with ExecuteIn(Path("!")):
-        if runonly:
-            return (proc.start(), proc.proc.wait())[-1]
-        with proc.kill_on_fail():
-            for line in proc.exec_lines():
-                mundane = [re.compile("^%s$" %(v)) for v in r"""
+mundane = [re.compile("^%s$" %(v)) for v in r"""
 Model assembly "" generated.
 GrShell v2.+
 New graph "DefaultGraph" and actions created.+
@@ -53,10 +35,36 @@ Building libraries\.\.\.
 (\> )?Bye\!
  - (Model|Actions) assembly "([^"]+)" generated.*
 """.splitlines() if v]
-                if any(v.match(line) for v in mundane): pass
+
+def main(grs_template=None, gxl_file=None, debug=False, runonly=False, ycomp=False):
+    assert grs_template
+    if not gxl_file:
+        gxl_file = Path("~/.sketch/tmp/input.gxl")
+        gxl_file.write(sys.stdin.read())
+    gxl_file = Path(gxl_file)
+    endstr = "show graph ycomp \"--dolayout\"" if ycomp else "exit"
+    grs_file = Path("~/.sketch/tmp/transform.grs")
+    grs_file.write(Path(grs_template).read() %(locals()))
+    # to slow down: substitue e.g. "%(gxl_file)s" in the template file,
+    # which is stored in the same directory as this script.
+
+    grshell = Path.resolve("grshell", "GrShell")
+    proc = SubProc([grshell, grs_file])
+    with ExecuteIn(Path("!")):
+        if runonly:
+            return (proc.start(), proc.proc.wait())[-1]
+        with proc.kill_on_fail():
+            assert_next = None
+            for line in proc.exec_lines():
+                if not assert_next is None:
+                    assert line == assert_next
+                    assert_next = None
+                elif any(v.match(line) for v in mundane): pass
                 elif not line: pass
                 elif line.startswith("[REWRITE PRODUCTION] "):
                     print(line, file=sys.stdout)
+                elif line.startswith("[ASSERT NEXT LINE] "):
+                    assert_next = line.replace("[ASSERT NEXT LINE] ", "")
                 #elif line.endswith("matches found"): pass
                 #elif line.endswith("rewrites performed"): pass
                 #elif line.endswith("is valid with respect to"): pass
@@ -73,6 +81,8 @@ grammar, or forgot to make a new node class inherit ScAstNode?\n\n\n""")
 if __name__ == "__main__":
     import optparse
     cmdopts = optparse.OptionParser(usage="%prog [options] args")
+    cmdopts.add_option("--grs_template", default="!/transform.template.grs",
+        help="location of grs template")
     cmdopts.add_option("--gxl_file",
         help="gxl file, default stdin and saved to ~/.sketch/tmp/input.gxl")
     cmdopts.add_option("--debug", action="store_true",

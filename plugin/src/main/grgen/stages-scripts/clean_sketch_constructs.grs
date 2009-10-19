@@ -1,0 +1,11 @@
+
+# transformations not requiring EnclosingFcn links
+echo "[REWRITE PRODUCTION] replace assert calls"
+xgrs replaceAssertCalls*
+
+echo "[REWRITE PRODUCTION] detect which classes can be assigned by !! or ??"
+xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)*
+
+echo "[REWRITE PRODUCTION] clean calls to !! / ??"
+xgrs replaceBangBangCalls*
+xgrs unboxConstructCalls*

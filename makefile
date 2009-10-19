@@ -8,6 +8,10 @@ clean:
 	mvn clean
 	rm -rf bin target */{bin,target} ~/.m2/repository/edu/berkeley/cs/sketch *timestamp */*timestamp
 
+test:
+	echo "TODO -- run mvn test when it works again."
+	(cd plugin/src/test/grgen; make test)
+
 ### utilities
 
 cs: # code standards check, ignoring skalch_old, etc/util, no license, and Java files (eclipse formatter reigns supreme)

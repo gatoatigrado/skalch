@@ -35,7 +35,7 @@ node class HoleSymbol extends SketchBaseSymbol;
 
 abstract node class SketchConstructCall extends ScAstNode;
 node class BangBangCall extends SketchConstructCall;
-edge class BooleanConstructCall;
+
 
 
 // === Symbol type annotations ===
@@ -44,7 +44,6 @@ node class StaticSketchAnnotation extends SketchAnnotation;
 node class OuterSymbol extends Symbol;
 // can be LHS target of a sketch construct assignment
 edge class CanBeConstructAssigned;
-// edge class CannotBeConstructAssigned; // recursive negatives don't seem to work
 
 
 
@@ -52,6 +51,9 @@ edge class CanBeConstructAssigned;
 // all symbols in the "scala" package become ScalaSymbols
 node class ScalaSymbol extends Symbol;
 
+
+
+// === Intermediate nodes ===
 // execute this statement before the given one.
 edge class CreatePreStmt;
 
@@ -63,6 +65,11 @@ node class SKRoot;
 node class SKHelperFcns;
 node class SKAssert extends ScAstNode;
 edge class SKAssertExpr;
+
+
+
+// === Unit test markers ===
+node class ConstructAssignableClassDef extends ClassDef;
 
 
 

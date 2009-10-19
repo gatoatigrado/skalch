@@ -1,7 +1,7 @@
 # grshell script
-new graph "SimpleLowering.grg"
+new graph "AllRules.grg"
 import "%(gxl_file)s" ScalaAstModel.gm
-select actions lgsp-SimpleLoweringActions.dll
+select actions lgsp-AllRulesActions.dll
 
 
 
@@ -13,6 +13,7 @@ dump set node Symbol color blue
 dump set edge BridgeFcn color green
 dump set node MemberFcn color green
 dump set node Annotation color orchid
+dump set node OuterSymbol color orange
 
 
 
@@ -21,17 +22,19 @@ dump set node Annotation color orchid
 echo "[REWRITE PRODUCTION] retype certain skalch constructs and function symbols"
 xgrs replaceAngelicSketchSymbol* & replaceAssertSymbol*
 xgrs replaceBangBangSymbol* & replaceHoleSymbol*
+xgrs setStaticAnnotationTypes* & [setOuterSymbol]
 xgrs setScalaRoot & setScalaSubtypes*
+
 echo "[REWRITE PRODUCTION] adding info links"
-xgrs setEnclosingFunctionInitial* & setEnclosingFunction*
+xgrs [setEnclosingFunctionInitial]
 echo "[REWRITE PRODUCTION] delete bridge functions"
 xgrs deleteBridgeFunctions
 # mostly my learning...
-validate xgrs testNoBridgeFunctions
+validate exitonfailure xgrs testNoBridgeFunctions
 
 echo "[REWRITE PRODUCTION] convert $this to a parameter"
 xgrs [transformFcnWrapper]
-validate xgrs testNoThisNodes
+validate exitonfailure xgrs testNoThisNodes
 
 echo "[REWRITE PRODUCTION] delete dangling nodes, and remove enclosing links"
 xgrs deleteDangling*
@@ -46,6 +49,9 @@ xgrs replaceAssertCalls*
 echo "[REWRITE PRODUCTION] clean calls to !! / ??"
 xgrs replaceBangBangCalls*
 xgrs unboxConstructCalls*
+
+xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)*
+
 
 
 

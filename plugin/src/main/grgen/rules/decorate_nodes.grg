@@ -1,0 +1,110 @@
+// -*- coding: utf-8 -*-
+// Copyright 2009 gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// decorate nodes with relevant information
+
+rule addScalaRoot {
+    pkg:PackageDef;
+    modify { pkg --> :SKRoot; }
+}
+
+rule setEnclosingFunctionInitial {
+    x:FcnDef;
+    modify {
+        x -:EnclosingFcn-> x;
+        exec(setEnclosingFunction(x, x)*);
+    }
+}
+
+rule setEnclosingFunction(x : ScAstNode, fcn:FcnDef) {
+    hom(x, fcn);
+    x --> y:ScAstNode;
+    negative { y -:EnclosingFcn ->; }
+    modify {
+        y -:EnclosingFcn -> fcn;
+        exec(setEnclosingFunction(y, fcn)*);
+    }
+}
+
+rule replaceAngelicSketchSymbol {
+    cls_sym:Symbol -:SymbolOwner-> pkg_sym:Symbol;
+    if {
+        cls_sym.symbolName == "AngelicSketch";
+        pkg_sym.symbolName == "skalch";
+        typeof(cls_sym) == Symbol;
+    }
+    modify {
+        angelicsym:AngelicSketchSymbol<cls_sym>;
+    }
+}
+
+rule replaceAssertSymbol {
+    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+    if {
+        fcnsym.symbolName == "synthAssert";
+        typeof(fcnsym) == Symbol;
+    }
+    modify {
+        assertsym:AssertFcnSymbol<fcnsym>;
+    }
+}
+
+rule replaceBangBangSymbol {
+    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+    if {
+        fcnsym.symbolName == "$bang$bang";
+        typeof(fcnsym) == Symbol;
+    }
+    modify {
+        assertsym:BangBangSymbol<fcnsym>;
+    }
+}
+
+rule replaceHoleSymbol {
+    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+    if {
+        fcnsym.symbolName == "$qmark$qmark";
+        typeof(fcnsym) == Symbol;
+    }
+    modify {
+        assertsym:HoleSymbol<fcnsym>;
+    }
+}
+
+rule setScalaRoot {
+    s1:Symbol;
+    if { s1.fullSymbolName == "scala"; }
+    modify { rt:ScalaSymbol<s1>; }
+}
+
+rule setScalaSubtypes {
+    s1:Symbol -:SymbolOwner-> s2:ScalaSymbol;
+    if { typeof(s1) == Symbol; }
+    modify { rt1:ScalaSymbol<s1>; }
+}
+
+rule setStaticAnnotationTypes {
+    annot:Annotation -symlink:AnnotationSymbol-> annot_sym:Symbol;
+    if { annot_sym.fullSymbolName == "skalch.AngelicSketch$Range"; }
+    modify {
+        delete(symlink);
+        next_sym:StaticSketchAnnotation<annot>;
+    }
+}
+
+rule setOuterSymbol {
+    outer_sym:Symbol -:SymbolOwner-> cls_sym:Symbol;
+    clsdef:ClassDef -:ClassDefFieldSymbol-> outer_sym;
+    clsdef -:ClassDefSymbol-> cls_sym;
+    if {
+        outer_sym.symbolName == "$outer";
+        typeof(outer_sym) == Symbol;
+    }
+    modify { next_sym:OuterSymbol<outer_sym>; }
+}
+
+test testFail { negative { } }

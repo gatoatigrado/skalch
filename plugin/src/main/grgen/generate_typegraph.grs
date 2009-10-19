@@ -1,5 +1,5 @@
 #!/bin/bash
 # not really, I just want to use formatting
-new graph "SimpleLowering.grg"
+new graph "AllRules.grg"
 export ../resources/skalch/plugins/type_graph.gxl
 exit

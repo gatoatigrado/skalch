@@ -1,0 +1,36 @@
+// -*- coding: utf-8 -*-
+// Copyright 2009 gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// determine which classes can be instantiated by ?? or !!, and
+// write the code to do so.
+
+// NOTE -- do not apply recursively
+rule valueConstructAssigned {
+    val:ValDef -:ValDefSymbol-> :Symbol -:SymbolAnnotation-> :SketchAnnotation;
+    negative { val -:CanBeConstructAssigned-> val; }
+    modify { val -:CanBeConstructAssigned-> val; }
+}
+
+rule valueConstructAssigned2 {
+    val:ValDef -:ValDefSymbol-> valsym:Symbol;
+    valsym -:TypeSymbol-> typesym:Symbol;
+    clsdef:ClassDef -:ClassDefSymbol-> typesym;
+    clsdef -:CanBeConstructAssigned-> clsdef;
+    negative { val -:CanBeConstructAssigned-> val; }
+    modify { val -:CanBeConstructAssigned-> val; }
+}
+
+rule classConstructAssigned {
+    cls:ClassDef -:ClassDefImpl-> tmpl:Template;
+    negative {
+        tmpl -:TemplateElement-> val:ValDef;// -:CannotBeConstructAssigned-> val;
+        negative { val -:CanBeConstructAssigned-> val; }
+        negative { val -:ValDefSymbol-> :OuterSymbol; }
+    }
+    negative { cls -:CanBeConstructAssigned-> cls; }
+    modify { cls -:CanBeConstructAssigned-> cls; }
+}

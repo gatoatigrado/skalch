@@ -1,0 +1,58 @@
+// -*- coding: utf-8 -*-
+// Copyright 2009 gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// $then variable translation to function parameters
+
+rule transformThisRef(fcn:FcnDef) {
+    ths:This -:EnclosingFcn-> fcn;
+    ths -thssymlink:ThisSymbol-> clssym:Symbol;
+    fcn -:FcnDefParamsChain-> :ValDef -:ValDefSymbol-> thssym:Symbol;
+    modify {
+        thsref:VarRef<ths> -:VarRefSymbol-> thssym;
+        delete(thssymlink);
+    }
+}
+
+rule addThisParam(fcn:FcnDef) {
+    fcn -:FcnDefParamsChain-> first:Node;
+    replace {
+        thsparam:ValDef;
+        thssym:Symbol;
+        fcn2:MemberFcn<fcn>;
+        eval {
+            thsparam.scalaSource = "artificially inserted $this variable";
+            thssym.symbolName = "$this";
+        }
+        fcn2 -:FcnDefParamsChain-> thsparam;
+        thsparam -:FcnDefParamsNext-> first;
+        thsparam -:ValDefSymbol -> thssym;
+    }
+}
+
+rule transformThis(fcn:FcnDef) {
+    fcn -:FcnDefSymbol-> fcnsym:Symbol -:SymbolOwner-> cls:Symbol;
+    fcnsym -:ClsMethod-> fcnsym;
+    :ClassDef -:ClassDefSymbol-> cls;
+    modify {
+        exec(addThisParam(fcn) & transformThisRef(fcn)*);
+    }
+}
+
+// wrapper for "[rule]" (apply to all matches) graph rewriting
+rule transformFcnWrapper {
+    fcn:FcnDef;
+    modify { exec(transformThis(fcn)); }
+}
+
+test testNoThisNodes {
+    negative {
+        ths:This;
+    }
+    negative {
+        . -:ThisSymbol-> .;
+    }
+}

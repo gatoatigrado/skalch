@@ -1,0 +1,39 @@
+// -*- coding: utf-8 -*-
+// Copyright 2009 gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// rewrite sketch constructs
+rule replaceAssertCalls {
+    fcn:FcnCall -:FcnCallSymbol-> :AssertFcnSymbol;
+    fcn -:FcnTarget-> . --> :AngelicSketchSymbol;
+    modify {
+        assert:SKAssert<fcn>;
+    }
+}
+
+rule replaceBangBangCalls {
+    resolv_call:FcnCall -:FcnArgChain-> bang_bang_call:FcnCall
+        -:FcnCallSymbol-> :BangBangSymbol;
+    resolv_call -rcsymedge:FcnCallSymbol-> resolv_sym:Symbol;
+    resolv_call -targetedge:FcnTarget-> .;
+    if { resolv_sym.symbolName == "resolve"; }
+    modify {
+        new_call:BangBangCall<resolv_call>;
+    }
+}
+
+// more artifacts from the Scala view
+rule unboxConstructCalls() {
+    unbox_call:FcnCall -:FcnCallSymbol-> unbox_sym:ScalaSymbol;
+    unbox_call -:FcnArgChain-> constr_sym:SketchConstructCall;
+    unbox_call -:FcnTarget-> n:Node;
+    if { unbox_sym.fullSymbolName == "scala.Boolean.unbox"; }
+    replace {
+        n;
+        boolean_call:typeof(constr_sym)<unbox_call>;
+        boolean_call -:BooleanConstructCall-> boolean_call;
+    }
+}

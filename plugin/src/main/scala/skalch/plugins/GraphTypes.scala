@@ -51,8 +51,11 @@ abstract class NodeFactory {
             GrEdge(node, edge_typ + "Chain", nodes(0))
             nodes.reduceLeft((x, y) => { GrEdge(x, edge_typ + "Next", y); y })
         } else GrEdge(node, edge_typ + "Chain", emptychainnode())
-        def symlink(nme : String, sym : Symbol) =
-            GrEdge(node, nme + "Symbol", getsym(sym))
+        def symlink(nme : String, sym : Symbol) = {
+            if ((sym != null) && (sym != NoSymbol)) {
+                GrEdge(node, nme + "Symbol", getsym(sym))
+            } else (null)
+        }
     }
 
     def get_annotation_node(info : AnnotationInfo) : GrNode = {
@@ -78,9 +81,11 @@ abstract class NodeFactory {
     def getsym(sym : Symbol) : GrNode = sym_to_gr_map.get(sym) match {
         case None =>
             val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
-            node.attrs.append("symbolName" -> new GXLString(sym.name.toString()))
-            node.attrs.append("fullSymbolName" -> new GXLString(sym.fullNameString))
+            node.attrs.append("symbolName" -> new GXLString(sym.name.toString().trim()))
+            node.attrs.append("fullSymbolName" -> new GXLString(sym.fullNameString.trim()))
             sym_to_gr_map.put(sym, node)
+
+            (new BoundNodeFcns(node, "Symbol")).symlink("Type", sym.tpe.typeSymbol)
 
             def attr_edge(name : String) = GrEdge(node, name, node)
             if (sym != NoSymbol) {

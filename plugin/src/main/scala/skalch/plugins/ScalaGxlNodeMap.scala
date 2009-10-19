@@ -119,9 +119,9 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
         val node_fcns = new BoundNodeFcns(node, clsname)
         import node_fcns._
 
-        if (tree.symbol != null) {
-            symlink(clsname, tree.symbol)
-        }
+        symlink(clsname, tree.symbol)
+        symlink(clsname + "Type", tree.tpe.typeSymbol)
+        symlink(clsname + "Term", tree.tpe.termSymbol)
 
         /** the actual match statement */
         tree match {
@@ -133,6 +133,9 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
             case ClassDef(mods, name, tparams, impl) =>
                 subchain("ClassDefTypeParams", tparams)
                 subtree("ClassDefImpl", impl)
+                for (fldsym <- tree.symbol.info.decls.iterator)
+                    if (!fldsym.isMethod && fldsym.isTerm)
+                        symlink("ClassDefField", fldsym)
 
             case Template(parents, self, body) =>
                 subarr("TemplateElement", body)

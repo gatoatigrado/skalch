@@ -2,6 +2,8 @@
 // avoid the asserts for connects and use xgrs if you need
 // to check validity.
 
+// FIXME -- suggestions for how to better organize this file would be appreciated.
+
 node class ScAstNode {
     sourceFile : string;
     scalaSource : string;
@@ -22,6 +24,8 @@ edge class BridgeFcn;
 node class EmptyChain;
 node class Annotation;
 
+
+// === SKETCH constructs ===
 // special symbols. Use these!
 abstract node class SketchBaseSymbol extends Symbol;
 node class AngelicSketchSymbol extends SketchBaseSymbol;
@@ -33,6 +37,18 @@ abstract node class SketchConstructCall extends ScAstNode;
 node class BangBangCall extends SketchConstructCall;
 edge class BooleanConstructCall;
 
+
+// === Symbol type annotations ===
+abstract node class SketchAnnotation extends Annotation;
+node class StaticSketchAnnotation extends SketchAnnotation;
+node class OuterSymbol extends Symbol;
+// can be LHS target of a sketch construct assignment
+edge class CanBeConstructAssigned;
+// edge class CannotBeConstructAssigned; // recursive negatives don't seem to work
+
+
+
+// === Scala symbols ===
 // all symbols in the "scala" package become ScalaSymbols
 node class ScalaSymbol extends Symbol;
 
@@ -128,56 +144,75 @@ node class LabelDef extends ScAstNode;
 node class FcnCallBinaryGreaterThanOrEqual extends FcnCall;
 node class TypeTree extends ScAstNode;
 
+edge class AnnotationArgsChain;
+edge class AnnotationArgsNext;
+edge class AnnotationSymbol;
+edge class ArrValueChain;
+edge class ArrValueNext;
 edge class AssignLhs;
 edge class AssignRhs;
+edge class AssignTypeSymbol;
 edge class BlockExpr;
 edge class BlockStmtChain;
 edge class BlockStmtNext;
+edge class BlockTypeSymbol;
+edge class CaseBody;
+edge class CaseGuard;
+edge class CasePattern;
+edge class ClassDefFieldSymbol;
 edge class ClassDefImpl;
 edge class ClassDefSymbol;
+edge class ClassDefTypeParamsChain;
+edge class ClassDefTypeParamsNext;
+edge class ClassDefTypeSymbol;
 edge class ClassRefSymbol;
-edge class FcnArgNext;
+edge class ClassRefTypeSymbol;
+edge class ClsMethod;
+edge class EmptyTreeTypeSymbol;
 edge class FcnArgChain;
+edge class FcnArgNext;
 edge class FcnBody;
 edge class FcnCallSymbol;
+edge class FcnCallTypeArgsChain;
+edge class FcnCallTypeSymbol;
 edge class FcnDefParamsChain;
 edge class FcnDefParamsNext;
 edge class FcnDefSymbol;
+edge class FcnDefTypeSymbol;
 edge class FcnTarget;
 edge class FieldAccessObject;
 edge class IfCond;
 edge class IfElse;
 edge class IfThen;
+edge class IfTypeSymbol;
+edge class LabelDefSymbol;
+edge class LiteralTypeSymbol;
+edge class MatchCaseChain;
+edge class MatchCaseNext;
+edge class MatchTarget;
 edge class NewClassSymbol;
 edge class PackageDefElement;
 edge class PackageDefSymbol;
+edge class PackageDefTypeSymbol;
+edge class ReturnExpr;
+edge class ReturnSymbol;
+edge class StaticMember;
+edge class SymbolAnnotation;
 edge class TemplateElement;
 edge class TemplateSymbol;
+edge class TemplateTypeSymbol;
 edge class ThisSymbol;
+edge class ThisTypeSymbol;
 edge class ThrowExpr;
+edge class ThrowTypeSymbol;
 edge class TypedExpression;
 edge class TypedTypeSymbol;
+edge class TypeTreeSymbol;
+edge class TypeTreeTypeSymbol;
 edge class ValDefSymbol;
+edge class ValDefTypeSymbol;
 edge class VarDeclRhs;
 edge class VarRefSymbol;
-edge class ClassDefTypeParamsChain;
-edge class ClassDefTypeParamsNext;
-edge class ArrValueChain;
-edge class ArrValueNext;
-edge class StaticMember;
-edge class ClsMethod;
-edge class CasePattern;
-edge class MatchCaseChain;
-edge class CaseBody;
-edge class MatchTarget;
-edge class LabelDefSymbol;
-edge class MatchCaseNext;
-edge class CaseGuard;
-edge class ReturnSymbol;
-edge class ReturnExpr;
-edge class AnnotationArgsChain;
-edge class AnnotationArgsNext;
-edge class AnnotationSymbol;
-edge class SymbolAnnotation;
-edge class TypeTreeSymbol;
-edge class FcnCallTypeArgsChain;
+edge class VarRefTypeSymbol;
+edge class ClassRefTermSymbol;
+edge class TypeSymbol;

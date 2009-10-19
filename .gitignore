@@ -15,3 +15,4 @@ buildutil/*.build-args
 buildutil/sketchrewriter.jar
 buildutil/build_info.pickle
 *.dll
+plugin/src/main/grgen/AllRules.grg

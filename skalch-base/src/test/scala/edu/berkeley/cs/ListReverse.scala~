@@ -1,0 +1,38 @@
+package edu.berkeley.cs
+
+import skalch.AngelicSketch
+
+class ListReverse() extends AngelicSketch {
+
+  val bool = List(false, true)
+  val tests = Array( () )
+
+  def main() = {
+    var x = List("4", "3", "2", "1")
+    var r:List[String] = Nil
+    val up = !!()
+
+    def descent() : Unit = {
+      if (!!()) {
+        if (!up) {
+          r = x.head :: r
+          x = x.tail
+        }
+        descent()
+        if (up) {
+          r = x.head :: r
+          x = x.tail
+        }
+      }
+    }
+    
+    descent()
+    //synthAssertTerminal(r == List("1", "2", "3", "4"))
+    synthAssertTerminal(true)
+  }
+}
+
+
+object ListReverseMain {
+  def main(args: Array[String]) = skalch.AngelicSketchSynthesize(() => new ListReverse())
+}

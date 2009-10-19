@@ -52,8 +52,12 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 angelic_sketch: plugin_angelic_sketch # new angelic sketch base
 	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=angelic.simple.SugaredTest" -Dexec.args="$(EXEC_ARGS)"
 
-run_test: plugin_dev # run TEST_CLASS=<canonical java class name><	
+run_test: plugin_dev # run TEST_CLASS=<canonical java class name> EXEC_ARGS=<args>	
 	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
+
+run_test_debug: plugin_dev # run debug TEST_CLASS=<canonical java class name> EXEC_ARGS=<args>	
+	cd skalch-base; export MAVEN_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=y"; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
+
 
 
 

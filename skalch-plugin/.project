@@ -1,10 +1,7 @@
 <projectDescription>
   <name>skalch-plugin</name>
   <comment>package of the plugin only, for building skalch-base. You probably don&apos;t need it unless you&apos;re building skalch-base, but it won&apos;t hurt.</comment>
-  <projects>
-    <project>SKETCH</project>
-    <project>sketch-util</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>ch.epfl.lamp.sdt.core.scalabuilder</name>

@@ -9,3 +9,4 @@ xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)
 echo "[REWRITE PRODUCTION] clean calls to !! / ??"
 xgrs replaceBangBangCalls*
 xgrs unboxConstructCalls*
+xgrs simplifyClassConstruction*

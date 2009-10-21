@@ -19,7 +19,7 @@ rule replaceBangBangCalls {
         -:FcnCallSymbol-> :BangBangSymbol;
     resolv_call -rcsymedge:FcnCallSymbol-> resolv_sym:Symbol;
     resolv_call -targetedge:FcnTarget-> .;
-    if { resolv_sym.symbolName == "resolve"; }
+    if { resolv_sym.symbolName == "_resolve"; }
     modify {
         new_call:BangBangCall<resolv_call>;
     }
@@ -34,5 +34,45 @@ rule unboxConstructCalls() {
     replace {
         n;
         boolean_call:typeof(constr_sym)<unbox_call>;
+    }
+}
+
+rule simplifyClassConstruction() {
+    // typed to a class that can be construct assigned
+    type_resolv:FcnCallTypeApply -old_type_args:FcnCallTypeArgsChain-> type_tree:TypeTree;
+    type_tree -:TypeTreeTypeSymbol-> clssym:Symbol;
+    clsdef:ClassDef -:ClassDefSymbol-> clssym;
+    clsdef -:CanBeConstructAssigned-> clsdef;
+
+    // is a sketch construct
+    type_resolv -old_target:FcnTarget-> :FieldAccess -:FieldAccessObject->
+        sk_constr:SketchConstructCall;
+    type_resolv -old_args:FcnArgChain-> :EmptyChain;
+
+    // delete other edges
+    type_resolv -old_call_sym:FcnCallSymbol -> .;
+
+    modify {
+        delete(old_args, old_type_args, old_call_sym, old_target);
+        new_sk_constr:typeof(sk_constr)<type_resolv>;
+//         new_sk_constr -:FcnCallTypeSymbol-> clssym;
+    }
+}
+
+// NOTE -- run this in parallel with remove dangling.
+rule removeNopTypeCast() {
+    typed:Typed -:TypedTypeSymbol-> sym:Symbol;
+    typed -:TypedExpression-> expr:ScAstNode --> sym;
+    modify {
+        exec(redirect_incoming(typed, expr)*);
+    }
+}
+
+// redirect all edges going to x as going to y instead
+rule redirect_incoming(x : Node, y : Node) {
+    z:Node -e:Edge-> x;
+    modify {
+        z -e2:typeof(e)-> y;
+        delete(e);
     }
 }

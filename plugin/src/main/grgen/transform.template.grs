@@ -21,4 +21,8 @@ include "stages-scripts/clean_sketch_constructs.grs"
 
 # final printing
 xgrs deleteDangling*
+xgrs (removeNopTypeCast | deleteDangling)*
+
+
+export "%(output_file)s"
 %(endstr)s

@@ -1,5 +1,5 @@
 package angelic.simple
-import skalch.AngelicSketch
+import skalch.{AngelicSketch, SkalchIgnoreClass}
 import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
 import sketch.util._
@@ -11,5 +11,12 @@ class MySketch() extends AngelicSketch {
     def main() {
         val v2 = !! : MyValue
         if (!!) synthAssert(v2.a == 4)
+    }
+}
+
+@SkalchIgnoreClass
+class IrrelevantClass {
+    def myirrelevantfunction() {
+        println("hello")
     }
 }

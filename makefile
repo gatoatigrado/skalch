@@ -2,7 +2,7 @@
 
 help:
 	@echo "NOTE - this makefile is mostly unix aliases. Use 'mvn install' to build."
-	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" Makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
+	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
 	mvn clean
@@ -11,6 +11,7 @@ clean:
 test:
 	echo "TODO -- run mvn test when it works again."
 	(cd plugin/src/test/grgen; make test)
+	@echo "TEST SUCCEEDED"
 
 ### utilities
 
@@ -58,6 +59,9 @@ ycomp:
 	killall mono; true
 	killall java; true
 	plugin/src/main/grgen/sugared_test.sh --ycomp
+
+jython_example:
+	mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=org.python.util.jython" -Dexec.args="base/src/main/jython/print_graph.py base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl"
 
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)
 	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true

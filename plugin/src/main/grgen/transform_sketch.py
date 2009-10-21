@@ -34,13 +34,15 @@ The graph is valid with respect to the given sequence.
 Building libraries\.\.\.
 (\> )?Bye\!
  - (Model|Actions) assembly "([^"]+)" generated.*
+Graph "DefaultGraph" exported.*
 """.splitlines() if v]
 
-def main(grs_template=None, gxl_file=None, debug=False, runonly=False, ycomp=False):
+def main(grs_template=None, output_file=None, gxl_file=None, debug=False, runonly=False, ycomp=False):
     assert grs_template
     if not gxl_file:
         gxl_file = Path("~/.sketch/tmp/input.gxl")
         gxl_file.write(sys.stdin.read())
+    output_file = Path(output_file or "~/.sketch/tmp/output.gxl")
     gxl_file = Path(gxl_file)
     endstr = "show graph ycomp \"--dolayout\"" if ycomp else "exit"
     grs_file = Path("~/.sketch/tmp/transform.grs")
@@ -85,6 +87,8 @@ if __name__ == "__main__":
         help="location of grs template")
     cmdopts.add_option("--gxl_file",
         help="gxl file, default stdin and saved to ~/.sketch/tmp/input.gxl")
+    cmdopts.add_option("--output_file",
+        help="gxl file to export after lowering")
     cmdopts.add_option("--debug", action="store_true",
         help="debug settings (use when developing)")
     cmdopts.add_option("--runonly", action="store_true",

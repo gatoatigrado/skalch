@@ -60,9 +60,11 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
             class AnnotTf() extends Transformer {
                 override def transform(tree : Tree) = {
                     val sym = tree.symbol
+//                     println("tree symbol '%s'" format sym.fullNameString)
                     if ((sym != null) && (sym != NoSymbol) &&
                             (sym.tpe.annotations != Nil))
                     {
+//                         println("    put annotation for '%s'" format sym.fullNameString)
                         annotations.put(sym.fullNameString, sym.tpe.annotations)
                     }
                     super.transform(tree)

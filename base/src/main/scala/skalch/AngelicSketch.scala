@@ -18,10 +18,10 @@ abstract class AngelicSketch {
 
     var stopOptimization : Boolean = false
 
-    implicit def resolve[T <: AnyRef](x : ??.type) : T =
+    implicit def _resolve[T <: AnyRef](x : ??.type) : T =
         { assert(false); if (stopOptimization) null else "".asInstanceOf[T] }
 
-    implicit def resolve[T <: AnyRef](x : !!.type) : T =
+    implicit def _resolve[T <: AnyRef](x : !!.type) : T =
         { assert(false); if (stopOptimization) null else "".asInstanceOf[T] }
 
     def synthAssert(v : Boolean) { scala.Predef.assert(false); }

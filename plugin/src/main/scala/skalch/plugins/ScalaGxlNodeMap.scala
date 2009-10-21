@@ -309,7 +309,6 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
 
             case Typed(expr, typ) =>
                 subtree("TypedExpression", expr)
-                symlink("TypedType", typ.symbol)
 
             case TypeTree() => ()
 

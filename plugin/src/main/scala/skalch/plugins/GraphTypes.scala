@@ -30,6 +30,14 @@ abstract class NodeFactory {
     val new_edge_names = new HashSet[String]()
     var edge_ids : Array[String] = null
 
+    def printNewNodes() {
+        new_node_names foreach (x => println("node class %s;" format x))
+        new_edge_names foreach (x => println("edge class %s;" format x))
+        if (new_node_names.size + new_edge_names.size > 0) {
+            assert(false, "insert new nodes into the graph");
+        }
+    }
+
     /** bookkeeping stuff */
     var sourceFile : String = null
     class SimplePosition(val line : Int, val col : Int)
@@ -49,6 +57,7 @@ abstract class NodeFactory {
         def subchain(edge_typ : String, arr : List[Tree]) = if (arr != Nil) {
             var nodes = arr map getGxlAST
             GrEdge(node, edge_typ + "Chain", nodes(0))
+            GrEdge(node, edge_typ + "Last", nodes(nodes.length - 1))
             nodes.reduceLeft((x, y) => { GrEdge(x, edge_typ + "Next", y); y })
         } else GrEdge(node, edge_typ + "Chain", emptychainnode())
         def symlink(nme : String, sym : Symbol) = {
@@ -115,7 +124,8 @@ abstract class NodeFactory {
         def set_type(typ : String, extend_ : String) {
             this.typ = typ
             this.use_default_type = false
-            val typ_name = typ + (if (extend_ != null) " extends " + extend_ else "")
+            val typ_name = typ + (if (extend_ != null)
+                " extends " + extend_ else " extends ScAstNode")
             if (!(node_ids contains typ)) {
                 new_node_names.add(typ_name)
             }

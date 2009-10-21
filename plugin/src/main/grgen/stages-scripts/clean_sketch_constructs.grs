@@ -7,6 +7,7 @@ echo "[REWRITE PRODUCTION] detect which classes can be assigned by !! or ??"
 xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)*
 
 echo "[REWRITE PRODUCTION] clean calls to !! / ??"
-xgrs replaceBangBangCalls*
+xgrs replaceConstructCalls*
+# xgrs replaceBangBangCalls* & replaceHoleCalls*
 xgrs unboxConstructCalls*
 xgrs simplifyClassConstruction*

@@ -60,12 +60,11 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
             class AnnotTf() extends Transformer {
                 override def transform(tree : Tree) = {
                     val sym = tree.symbol
-//                     println("tree symbol '%s'" format sym.fullNameString)
-                    if ((sym != null) && (sym != NoSymbol) &&
-                            (sym.tpe.annotations != Nil))
-                    {
-//                         println("    put annotation for '%s'" format sym.fullNameString)
-                        annotations.put(sym.fullNameString, sym.tpe.annotations)
+                    if ((sym != null) && (sym != NoSymbol)) {
+                        (sym.annotations ::: sym.tpe.annotations) match {
+                            case Nil => ()
+                            case lst => annotations.put(sym.fullNameString, lst)
+                        }
                     }
                     super.transform(tree)
                 }
@@ -93,12 +92,7 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
             override def run {
                 scalaPrimitives.init
                 super.run
-                for (v <- gxl_node_map.new_node_names) {
-                    println("node class " + v + ";")
-                }
-                for (v <- gxl_node_map.new_edge_names) {
-                    println("edge class " + v + ";")
-                }
+                gxl_node_map.printNewNodes()
             }
 
             def apply(comp_unit : CompilationUnit) {

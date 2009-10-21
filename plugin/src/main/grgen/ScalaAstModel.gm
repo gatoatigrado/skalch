@@ -1,8 +1,9 @@
-// NOTE -- do not touch generated nodes unless you have to
-// avoid the asserts for connects and use xgrs if you need
-// to check validity.
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
 
-// FIXME -- suggestions for how to better organize this file would be appreciated.
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
 node class ScAstNode {
     sourceFile : string;
@@ -30,18 +31,22 @@ node class Annotation;
 abstract node class SketchBaseSymbol extends Symbol;
 node class AngelicSketchSymbol extends SketchBaseSymbol;
 node class AssertFcnSymbol extends SketchBaseSymbol;
-node class BangBangSymbol extends SketchBaseSymbol;
-node class HoleSymbol extends SketchBaseSymbol;
+abstract node class SketchConstructSymbol extends SketchBaseSymbol;
+node class BangBangSymbol extends SketchConstructSymbol;
+node class HoleSymbol extends SketchConstructSymbol;
 
 abstract node class SketchConstructCall extends ScAstNode;
 node class BangBangCall extends SketchConstructCall;
+node class HoleCall extends SketchConstructCall;
 
 
 
 // === Symbol type annotations ===
 abstract node class SketchAnnotation extends Annotation;
 node class StaticSketchAnnotation extends SketchAnnotation;
+node class IgnoreClassAnnotation extends Annotation;
 node class OuterSymbol extends Symbol;
+node class ScalaUnboxSymbol extends Symbol;
 // can be LHS target of a sketch construct assignment
 edge class CanBeConstructAssigned;
 
@@ -63,8 +68,12 @@ edge class CreatePreStmt;
 
 node class SKRoot;
 node class SKHelperFcns;
+
 node class SKAssert extends ScAstNode;
 edge class SKAssertExpr;
+
+node class SKBlock extends ScAstNode;
+node class TmpSymbol extends Symbol;
 
 
 
@@ -74,11 +83,15 @@ node class ConstructAssignableClassDef extends ClassDef;
 
 
 
-// === Generated code ===
-// a bit of regex postprocessing
+// === Nodes from the GXL Scala compiler plugin ===
+
+// Scala statements (if, for, blocks, etc.) which will need
+// to be translated into statements for SKETCH and
+// other c-style languages
+node class ScalaExprStmt extends ScAstNode;
 
 node class Assign extends ScAstNode;
-node class Block extends ScAstNode;
+node class Block extends ScalaExprStmt;
 node class CaseDef extends ScAstNode;
 node class ClassDef extends ScAstNode;
 node class EmptyTree extends ScAstNode;
@@ -96,7 +109,7 @@ node class FcnCallUnaryNonzero extends FcnCall;
 node class FcnDef extends ScAstNode;
 node class FcnSuperCall extends FcnCall;
 node class FieldAccess extends ScAstNode;
-node class If extends ScAstNode;
+node class If extends ScalaExprStmt;
 node class MemberFcn extends ScAstNode;
 node class NewArray extends ScAstNode;
 node class NewConstructor extends FcnCall;
@@ -107,7 +120,7 @@ node class StaticFcnCall extends FcnCall;
 node class Template extends ScAstNode;
 node class This extends ScAstNode;
 node class Throw extends ScAstNode;
-node class Try extends ScAstNode;
+node class Try extends ScalaExprStmt;
 node class Typed extends ScAstNode;
 node class ValDef extends ScAstNode;
 node class VarRef extends ScAstNode;
@@ -147,9 +160,15 @@ node class FcnCallBinaryNotSameObj extends FcnCall;
 node class Bind extends ScAstNode;
 node class NewArrayCall extends FcnCall;
 node class Match extends ScAstNode;
-node class LabelDef extends ScAstNode;
+node class LabelDef extends ScalaExprStmt;
 node class FcnCallBinaryGreaterThanOrEqual extends FcnCall;
 node class TypeTree extends ScAstNode;
+
+
+
+// === Edge classes ===
+
+abstract edge class FcnArg;
 
 edge class AnnotationArgsChain;
 edge class AnnotationArgsNext;
@@ -176,8 +195,8 @@ edge class ClassRefSymbol;
 edge class ClassRefTypeSymbol;
 edge class ClsMethod;
 edge class EmptyTreeTypeSymbol;
-edge class FcnArgChain;
-edge class FcnArgNext;
+edge class FcnArgChain extends FcnArg;
+edge class FcnArgNext extends FcnArg;
 edge class FcnBody;
 edge class FcnCallSymbol;
 edge class FcnCallTypeArgsChain;
@@ -223,3 +242,7 @@ edge class VarRefSymbol;
 edge class VarRefTypeSymbol;
 edge class ClassRefTermSymbol;
 edge class TypeSymbol;
+edge class FcnArgLast;
+edge class FcnDefParamsLast;
+edge class BlockStmtLast;
+edge class AnnotationArgsLast;

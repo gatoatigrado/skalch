@@ -96,6 +96,15 @@ rule setStaticAnnotationTypes {
     }
 }
 
+rule setIgnoreAnnotationType {
+    annot:Annotation -symlink:AnnotationSymbol-> annot_sym:Symbol;
+    if { annot_sym.fullSymbolName == "skalch.SkalchIgnoreClass"; }
+    modify {
+        delete(symlink);
+        next_sym:IgnoreClassAnnotation<annot>;
+    }
+}
+
 rule setOuterSymbol {
     outer_sym:Symbol -:SymbolOwner-> cls_sym:Symbol;
     clsdef:ClassDef -:ClassDefFieldSymbol-> outer_sym;
@@ -105,6 +114,18 @@ rule setOuterSymbol {
         typeof(outer_sym) == Symbol;
     }
     modify { next_sym:OuterSymbol<outer_sym>; }
+}
+
+rule setUnboxSymbols {
+    sym:ScalaSymbol;
+//     if { sym.fullSymbolName == "scala.Boolean.unbox"; }
+    if {
+        sym.fullSymbolName == "scala.Int.unbox" ||
+        sym.fullSymbolName == "scala.Boolean.unbox" ||
+        sym.fullSymbolName == "scala.Float.unbox" ||
+        sym.fullSymbolName == "scala.Double.unbox";
+    }
+    replace { next_sym:ScalaUnboxSymbol<sym>; }
 }
 
 test testFail { negative { } }

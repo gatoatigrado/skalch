@@ -7,6 +7,12 @@
 
 // cleanup
 
+rule deleteIgnoreAnnotated {
+    clsdef:ClassDef -:ClassDefSymbol-> sym:Symbol;
+    sym -:SymbolAnnotation-> :IgnoreClassAnnotation;
+    modify { delete(clsdef); }
+}
+
 rule deleteDangling {
     x:Node;
     // due to non-homomorphic matching, should delete nodes with self-edges

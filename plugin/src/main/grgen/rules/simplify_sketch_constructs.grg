@@ -6,6 +6,7 @@
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
 // rewrite sketch constructs
+
 rule replaceAssertCalls {
     fcn:FcnCall -:FcnCallSymbol-> :AssertFcnSymbol;
     fcn -:FcnTarget-> . --> :AngelicSketchSymbol;
@@ -14,25 +15,36 @@ rule replaceAssertCalls {
     }
 }
 
-rule replaceBangBangCalls {
-    resolv_call:FcnCall -:FcnArgChain-> bang_bang_call:FcnCall
-        -:FcnCallSymbol-> :BangBangSymbol;
+rule retypeBangBangCall(resolv_call:FcnCall, sk_sym:SketchConstructSymbol) {
+    if { typeof(sk_sym) == BangBangSymbol; }
+    modify { new_call:BangBangCall<resolv_call>; }
+}
+
+rule retypeHoleCall(resolv_call:FcnCall, sk_sym:SketchConstructSymbol) {
+    if { typeof(sk_sym) == HoleSymbol; }
+    modify { new_call:HoleCall<resolv_call>; }
+}
+
+rule replaceConstructCalls {
+    resolv_call:FcnCall -:FcnArgChain-> constr_call:FcnCall
+        -:FcnCallSymbol-> sk_sym:SketchConstructSymbol;
     resolv_call -rcsymedge:FcnCallSymbol-> resolv_sym:Symbol;
     resolv_call -targetedge:FcnTarget-> .;
     if { resolv_sym.symbolName == "_resolve"; }
     modify {
-        new_call:BangBangCall<resolv_call>;
+        exec(retypeBangBangCall(resolv_call, sk_sym) ||
+            retypeHoleCall(resolv_call, sk_sym));
     }
 }
 
 // more artifacts from the Scala view
 rule unboxConstructCalls() {
-    unbox_call:FcnCall -:FcnCallSymbol-> unbox_sym:ScalaSymbol;
-    unbox_call -:FcnArgChain-> constr_sym:SketchConstructCall;
-    unbox_call -:FcnTarget-> n:Node;
-    if { unbox_sym.fullSymbolName == "scala.Boolean.unbox"; }
-    replace {
-        n;
+    unbox_call:FcnCall -unboxedge:FcnCallSymbol-> unbox_sym:ScalaUnboxSymbol;
+    unbox_call -constredge:FcnArgChain-> constr_sym:SketchConstructCall;
+    unbox_call -targetedge:FcnTarget-> n:Node;
+    unbox_call -constrlastedge:FcnArgLast-> constr_sym;
+    modify {
+        delete(unboxedge, constredge, targetedge, constrlastedge);
         boolean_call:typeof(constr_sym)<unbox_call>;
     }
 }
@@ -65,14 +77,5 @@ rule removeNopTypeCast() {
     typed -:TypedExpression-> expr:ScAstNode --> sym;
     modify {
         exec(redirect_incoming(typed, expr)*);
-    }
-}
-
-// redirect all edges going to x as going to y instead
-rule redirect_incoming(x : Node, y : Node) {
-    z:Node -e:Edge-> x;
-    modify {
-        z -e2:typeof(e)-> y;
-        delete(e);
     }
 }

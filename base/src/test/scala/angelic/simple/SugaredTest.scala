@@ -5,12 +5,9 @@ import sketch.util.DebugOut
 import sketch.util._
 
 class MySketch() extends AngelicSketch {
-    class MyValue(val a : Int @ Range(3 to 444),
-        val c : Int @ Range(List(3, 5)))
-
+    def annoyance(x : Boolean) = x
     def main() {
-        val v2 = !! : MyValue
-        if (!!) synthAssert(v2.a == 4)
+        synthAssert(annoyance(annoyance(annoyance(if (!!) true else !!))))
     }
 }
 

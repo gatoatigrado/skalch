@@ -6,7 +6,13 @@ select actions lgsp-AllRulesActions.dll
 
 
 # node colors for printing
+# colors:
+# Default Black Blue Green Cyan Red Purple Brown Grey LightGrey LightBlue
+# LightGreen LightCyan LightRed LightPurple Yellow White DarkBlue DarkRed
+# DarkGreen DarkYellow DarkMagenta DarkCyan Gold Lilac
+# Aquamarine Khaki Pink Orange Orchid
 debug set layout Compilergraph
+dump set node ScalaExprStmt color lilac
 dump set node MemberFcn color green
 dump set node ClassDef color red
 dump set node SketchConstructCall color orange
@@ -15,9 +21,11 @@ dump set node Annotation color orchid
 
 
 
+include "stages-scripts/delete_marked_ignore.grs"
 include "stages-scripts/decorate.grs"
 include "stages-scripts/convert_this.grs"
 include "stages-scripts/clean_sketch_constructs.grs"
+include "stages-scripts/cstyle_stmts.grs"
 
 # final printing
 xgrs deleteDangling*

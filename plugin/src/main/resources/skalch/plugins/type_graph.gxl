@@ -1722,7 +1722,7 @@
     <edge from="ValDefTypeSymbol" to="Edge">
       <type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA" />
     </edge>
-    <edge from="VarDeclRhs" to="Edge">
+    <edge from="ValDefRhs" to="Edge">
       <type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA" />
     </edge>
     <edge from="VarRefSymbol" to="Edge">
@@ -4248,10 +4248,10 @@
         <bool>false</bool>
       </attr>
     </edge>
-    <node id="VarDeclRhs">
+    <node id="ValDefRhs">
       <type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass" />
       <attr name="name">
-        <string>VarDeclRhs</string>
+        <string>ValDefRhs</string>
       </attr>
       <attr name="isabstract">
         <bool>false</bool>
@@ -4260,10 +4260,10 @@
         <bool>true</bool>
       </attr>
     </node>
-    <edge from="ScalaAstModel" to="VarDeclRhs">
+    <edge from="ScalaAstModel" to="ValDefRhs">
       <type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains" />
     </edge>
-    <edge from="VarDeclRhs" to="Node">
+    <edge from="ValDefRhs" to="Node">
       <type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#from" />
       <attr name="limits">
         <tup>&lt;int&gt;0&lt;/int&gt;&lt;int&gt;-1&lt;/int&gt;</tup>
@@ -4272,7 +4272,7 @@
         <bool>false</bool>
       </attr>
     </edge>
-    <edge from="VarDeclRhs" to="Node">
+    <edge from="ValDefRhs" to="Node">
       <type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#to" />
       <attr name="limits">
         <tup>&lt;int&gt;0&lt;/int&gt;&lt;int&gt;-1&lt;/int&gt;</tup>

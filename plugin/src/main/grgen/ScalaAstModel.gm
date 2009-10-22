@@ -237,7 +237,7 @@ edge class TypeTreeSymbol;
 edge class TypeTreeTypeSymbol;
 edge class ValDefSymbol;
 edge class ValDefTypeSymbol;
-edge class VarDeclRhs;
+edge class ValDefRhs;
 edge class VarRefSymbol;
 edge class VarRefTypeSymbol;
 edge class ClassRefTermSymbol;

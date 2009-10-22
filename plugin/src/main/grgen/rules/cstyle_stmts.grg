@@ -5,9 +5,18 @@
 // not use this file except in compliance with the License. You may obtain a
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
+// === README ===
+// The current rewrites
+//      (a) Create assignments to temporary variables
+//      (b) The blocks know how to
+
 rule retypeUnitBlocks {
     block:Block -:BlockExpr-> :UnitConstant;
     replace { next_block:SKBlock<block>; }
+}
+
+rule postsetValDefRhs(x : ValDef, y : ScAstNode) {
+    modify { x -:ValDefRhs-> y; }
 }
 
 // NOTE -- if this is too special-case, then perhaps
@@ -16,6 +25,15 @@ rule retypeUnitBlocks {
 rule fcnArgsToStmts {
     fcncall:FcnCall -:FcnArg-> expr:ScalaExprStmt;
     modify {
-        tmp:ValDef -:ValDefSymbol-> expr;
+        tmp_assign:ValDef -:ValDefSymbol-> tmpsym:Symbol;
+        eval {
+            tmpsym.symbolName = "tmp";
+            tmpsym.fullSymbolName = "<tmp inserted by fcncall>";
+        }
+        ref:VarRef -:VarRefSymbol-> tmpsym;
+        ref -:CreatePreStmt-> tmp_assign;
+        // otherwise, order is not explicit
+        exec(redirect_incoming(expr, ref)* &
+            postsetValDefRhs(tmp_assign, expr));
     }
 }

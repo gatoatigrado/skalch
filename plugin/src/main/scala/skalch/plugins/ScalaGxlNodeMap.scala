@@ -317,6 +317,7 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
             // === statements ===
 
             case Assign(lhs, rhs) =>
+                not_implemented("are there still assigns?")
                 subtree("AssignLhs", lhs)
                 subtree("AssignRhs", rhs)
 
@@ -325,7 +326,7 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
                 subtree("BlockExpr", expr)
 
             case ValDef(mods, name, typ, rhs) =>
-                subtree("VarDeclRhs", rhs)
+                subtree("ValDefRhs", rhs)
 
             case Return(expr) =>
                 subtree("ReturnExpr", expr)

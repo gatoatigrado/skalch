@@ -35,6 +35,7 @@ Building libraries\.\.\.
 (\> )?Bye\!
  - (Model|Actions) assembly "([^"]+)" generated.*
 Graph "DefaultGraph" exported.*
+Warning: Unknown Statement.+
 """.splitlines() if v]
 
 def main(grs_template=None, output_file=None, gxl_file=None, debug=False, runonly=False, ycomp=False):

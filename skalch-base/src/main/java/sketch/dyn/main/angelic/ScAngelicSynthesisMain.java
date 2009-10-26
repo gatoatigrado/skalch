@@ -34,10 +34,6 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
 		// start various utilities
 		ScUserInterface ui = ScUserInterfaceManager.start_ui(be_opts,
 				synthesis_runtime, ui_sketch);
-		if (be_opts.synth_opts.queue_file_name != "") {
-			ui = new QueueFileOutput(ui, ui_sketch,
-					be_opts.synth_opts.queue_file_name);
-		}
 		init_stats(ui);
 		ScStatsMT.stats_singleton.start_synthesis();
 		// actual synthesize call

@@ -8,13 +8,15 @@
 // determine which classes can be instantiated by ?? or !!, and
 // write the code to do so.
 
-// NOTE -- do not apply recursively
+/// values which have SKETCH annotations, e.g. @ Range
 rule valueConstructAssigned {
-    val:ValDef -:ValDefSymbol-> :Symbol -:SymbolAnnotation-> :SketchAnnotation;
+    val:ValDef -:ValDefSymbol-> :Symbol
+        -:SymbolAnnotation-> :SketchAnnotation;
     negative { val -:CanBeConstructAssigned-> val; }
     modify { val -:CanBeConstructAssigned-> val; }
 }
 
+/// values whose type are classes that are construct assignable
 rule valueConstructAssigned2 {
     val:ValDef -:ValDefSymbol-> valsym:Symbol;
     valsym -:TypeSymbol-> typesym:Symbol;
@@ -24,10 +26,12 @@ rule valueConstructAssigned2 {
     modify { val -:CanBeConstructAssigned-> val; }
 }
 
+/// classes that have only construct assignable variables
+/// and an $outer variable.
 rule classConstructAssigned {
     cls:ClassDef -:ClassDefImpl-> tmpl:Template;
     negative {
-        tmpl -:TemplateElement-> val:ValDef;// -:CannotBeConstructAssigned-> val;
+        tmpl -:TemplateElement-> val:ValDef;
         negative { val -:CanBeConstructAssigned-> val; }
         negative { val -:ValDefSymbol-> :OuterSymbol; }
     }

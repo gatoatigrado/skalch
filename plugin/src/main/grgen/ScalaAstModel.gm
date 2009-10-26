@@ -35,7 +35,7 @@ abstract node class SketchConstructSymbol extends SketchBaseSymbol;
 node class BangBangSymbol extends SketchConstructSymbol;
 node class HoleSymbol extends SketchConstructSymbol;
 
-abstract node class SketchConstructCall extends ScAstNode;
+abstract node class SketchConstructCall extends ScAstNode, BlockifySafe;
 node class BangBangCall extends SketchConstructCall;
 node class HoleCall extends SketchConstructCall;
 
@@ -46,7 +46,8 @@ abstract node class SketchAnnotation extends Annotation;
 node class StaticSketchAnnotation extends SketchAnnotation;
 node class IgnoreClassAnnotation extends Annotation;
 node class OuterSymbol extends Symbol;
-node class ScalaUnboxSymbol extends Symbol;
+node class ScalaUnboxSymbol extends ScalaSymbol;
+node class ScalaUnitTypeSymbol extends ScalaSymbol;
 // can be LHS target of a sketch construct assignment
 edge class CanBeConstructAssigned;
 
@@ -59,8 +60,37 @@ node class ScalaSymbol extends Symbol;
 
 
 // === Intermediate nodes ===
+abstract node class BlockifySafe;
+node class MemberFcn extends FcnDef;
+node class InsertedReturnSymbol extends Symbol;
 // execute this statement before the given one.
-edge class CreatePreStmt;
+node class BlockifyValDef extends ValDef;
+abstract edge class BlockifyLink;
+edge class BlockifySubtreeInner extends BlockifyLink;
+edge class BlockifyNext extends BlockifyLink;
+node class TmpVarRef extends VarRef, BlockifySafe;
+
+
+// === CFG ===
+// CFG nodes
+node class CfgNode;
+node class CfgNormalNode extends CfgNode;
+// don't create next ptrs from return stmts.
+// Only for the epilogue of the return statement.
+node class CfgReturnNode extends CfgNode;
+
+edge class CfgBlockify;
+edge class CfgBlockifySkip;
+
+// edges from CFG nodes to CFG nodes
+edge class CfgAbstractNext;
+edge class CfgNext extends CfgAbstractNext; // static control flow
+edge class CfgConditionalNext extends CfgAbstractNext;
+
+// edges from the original AST to the CFG
+edge class CfgPrologue;
+edge class CfgEpilogue;
+edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
 
 
 
@@ -72,6 +102,7 @@ node class SKHelperFcns;
 node class SKAssert extends ScAstNode;
 edge class SKAssertExpr;
 
+// same edge classes as Block
 node class SKBlock extends ScAstNode;
 node class TmpSymbol extends Symbol;
 
@@ -110,7 +141,6 @@ node class FcnDef extends ScAstNode;
 node class FcnSuperCall extends FcnCall;
 node class FieldAccess extends ScAstNode;
 node class If extends ScalaExprStmt;
-node class MemberFcn extends ScAstNode;
 node class NewArray extends ScAstNode;
 node class NewConstructor extends FcnCall;
 node class PackageDef extends ScAstNode;
@@ -125,7 +155,7 @@ node class Typed extends ScAstNode;
 node class ValDef extends ScAstNode;
 node class VarRef extends ScAstNode;
 
-abstract node class Constant extends ScAstNode;
+abstract node class Constant extends ScAstNode, BlockifySafe;
 
 node class BooleanConstant extends Constant {
     value : boolean;
@@ -169,80 +199,92 @@ node class TypeTree extends ScAstNode;
 // === Edge classes ===
 
 abstract edge class FcnArg;
+abstract edge class BlockStmt;
 
-edge class AnnotationArgsChain;
-edge class AnnotationArgsNext;
-edge class AnnotationSymbol;
-edge class ArrValueChain;
-edge class ArrValueNext;
-edge class AssignLhs;
-edge class AssignRhs;
-edge class AssignTypeSymbol;
-edge class BlockExpr;
-edge class BlockStmtChain;
-edge class BlockStmtNext;
-edge class BlockTypeSymbol;
-edge class CaseBody;
-edge class CaseGuard;
-edge class CasePattern;
-edge class ClassDefFieldSymbol;
-edge class ClassDefImpl;
-edge class ClassDefSymbol;
-edge class ClassDefTypeParamsChain;
-edge class ClassDefTypeParamsNext;
-edge class ClassDefTypeSymbol;
-edge class ClassRefSymbol;
-edge class ClassRefTypeSymbol;
-edge class ClsMethod;
-edge class EmptyTreeTypeSymbol;
-edge class FcnArgChain extends FcnArg;
-edge class FcnArgNext extends FcnArg;
-edge class FcnBody;
-edge class FcnCallSymbol;
-edge class FcnCallTypeArgsChain;
-edge class FcnCallTypeSymbol;
-edge class FcnDefParamsChain;
-edge class FcnDefParamsNext;
-edge class FcnDefSymbol;
-edge class FcnDefTypeSymbol;
-edge class FcnTarget;
-edge class FieldAccessObject;
-edge class IfCond;
-edge class IfElse;
-edge class IfThen;
-edge class IfTypeSymbol;
-edge class LabelDefSymbol;
-edge class LiteralTypeSymbol;
-edge class MatchCaseChain;
-edge class MatchCaseNext;
-edge class MatchTarget;
-edge class NewClassSymbol;
-edge class PackageDefElement;
-edge class PackageDefSymbol;
-edge class PackageDefTypeSymbol;
-edge class ReturnExpr;
-edge class ReturnSymbol;
-edge class StaticMember;
-edge class SymbolAnnotation;
-edge class TemplateElement;
-edge class TemplateSymbol;
-edge class TemplateTypeSymbol;
-edge class ThisSymbol;
-edge class ThisTypeSymbol;
-edge class ThrowExpr;
-edge class ThrowTypeSymbol;
-edge class TypedExpression;
-edge class TypedTypeSymbol;
-edge class TypeTreeSymbol;
-edge class TypeTreeTypeSymbol;
-edge class ValDefSymbol;
-edge class ValDefTypeSymbol;
-edge class ValDefRhs;
-edge class VarRefSymbol;
-edge class VarRefTypeSymbol;
-edge class ClassRefTermSymbol;
-edge class TypeSymbol;
-edge class FcnArgLast;
-edge class FcnDefParamsLast;
-edge class BlockStmtLast;
-edge class AnnotationArgsLast;
+// these edges convey what the naming conventions already tell us
+abstract edge class Subtree;
+abstract edge class ScTermSymbol;
+abstract edge class ScTypeSymbol;
+
+edge class BlockStmtChain extends BlockStmt, Subtree;
+edge class BlockStmtNext extends BlockStmt, Subtree;
+edge class FcnArgChain extends FcnArg, Subtree;
+edge class FcnArgNext extends FcnArg, Subtree;
+
+// Subtree links currently include the Last edges. These
+// should be removed if they become a problem.
+edge class AnnotationArgsChain extends Subtree;
+edge class AnnotationArgsLast extends Subtree;
+edge class AnnotationArgsNext extends Subtree;
+edge class ArrValueChain extends Subtree;
+edge class ArrValueNext extends Subtree;
+edge class AssignLhs extends Subtree;
+edge class AssignRhs extends Subtree;
+edge class BlockExpr extends Subtree;
+edge class BlockStmtLast extends Subtree;
+edge class CaseBody extends Subtree;
+edge class CaseGuard extends Subtree;
+edge class CasePattern extends Subtree;
+edge class ClassDefImpl extends Subtree;
+edge class ClassDefTypeParamsChain extends Subtree;
+edge class ClassDefTypeParamsNext extends Subtree;
+edge class ClsMethod extends Subtree;
+edge class FcnArgLast extends Subtree;
+edge class FcnBody extends Subtree;
+edge class FcnCallTypeArgsChain extends Subtree;
+edge class FcnDefParamsChain extends Subtree;
+edge class FcnDefParamsLast extends Subtree;
+edge class FcnDefParamsNext extends Subtree;
+edge class FcnTarget extends Subtree;
+edge class FieldAccessObject extends Subtree;
+edge class IfCond extends Subtree;
+edge class IfElse extends Subtree;
+edge class IfThen extends Subtree;
+edge class MatchCaseChain extends Subtree;
+edge class MatchCaseNext extends Subtree;
+edge class MatchTarget extends Subtree;
+edge class PackageDefElement extends Subtree;
+edge class ReturnExpr extends Subtree;
+edge class StaticMember extends Subtree;
+edge class SymbolAnnotation extends Subtree;
+edge class TemplateElement extends Subtree;
+edge class ThrowExpr extends Subtree;
+edge class TypedExpression extends Subtree;
+edge class ValDefRhs extends Subtree;
+
+// Term symbols
+edge class AnnotationSymbol extends ScTermSymbol;
+edge class ClassDefFieldSymbol extends ScTermSymbol;
+edge class ClassDefSymbol extends ScTermSymbol;
+edge class ClassRefSymbol extends ScTermSymbol;
+edge class EmptyTreeTypeSymbol extends ScTermSymbol;
+edge class FcnCallSymbol extends ScTermSymbol;
+edge class FcnDefSymbol extends ScTermSymbol;
+edge class LabelDefSymbol extends ScTermSymbol;
+edge class NewClassSymbol extends ScTermSymbol;
+edge class PackageDefSymbol extends ScTermSymbol;
+edge class ReturnSymbol extends ScTermSymbol;
+edge class TemplateSymbol extends ScTermSymbol;
+edge class ThisSymbol extends ScTermSymbol;
+edge class TypeTreeSymbol extends ScTermSymbol;
+edge class ValDefSymbol extends ScTermSymbol;
+edge class VarRefSymbol extends ScTermSymbol;
+
+// Type symbols
+edge class AssignTypeSymbol extends ScTypeSymbol;
+edge class BlockTypeSymbol extends ScTypeSymbol;
+edge class ClassDefTypeSymbol extends ScTypeSymbol;
+edge class ClassRefTypeSymbol extends ScTypeSymbol;
+edge class FcnCallTypeSymbol extends ScTypeSymbol;
+edge class FcnDefTypeSymbol extends ScTypeSymbol;
+edge class IfTypeSymbol extends ScTypeSymbol;
+edge class LiteralTypeSymbol extends ScTypeSymbol;
+edge class PackageDefTypeSymbol extends ScTypeSymbol;
+edge class TemplateTypeSymbol extends ScTypeSymbol;
+edge class ThisTypeSymbol extends ScTypeSymbol;
+edge class ThrowTypeSymbol extends ScTypeSymbol;
+edge class TypedTypeSymbol extends ScTypeSymbol;
+edge class TypeSymbol extends ScTypeSymbol;
+edge class TypeTreeTypeSymbol extends ScTypeSymbol;
+edge class ValDefTypeSymbol extends ScTypeSymbol;
+edge class VarRefTypeSymbol extends ScTypeSymbol;

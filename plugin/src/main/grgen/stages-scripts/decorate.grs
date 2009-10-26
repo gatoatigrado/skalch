@@ -4,4 +4,4 @@ xgrs replaceAngelicSketchSymbol* & replaceAssertSymbol*
 xgrs replaceBangBangSymbol* & replaceHoleSymbol*
 xgrs setStaticAnnotationTypes* & [setOuterSymbol]
 xgrs setScalaRoot & setScalaSubtypes*
-xgrs [setUnboxSymbols]
+xgrs [setUnboxSymbols] & [setUnitSymbols]

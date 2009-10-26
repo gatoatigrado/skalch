@@ -1,6 +1,8 @@
-#Sat Jul 25 14:12:37 PDT 2009
+#Fri Oct 23 18:05:21 PDT 2009
 eclipse.preferences.version=1
 editor_save_participant_org.eclipse.jdt.ui.postsavelistener.cleanup=true
+formatter_profile=_ntung
+formatter_settings_version=11
 org.eclipse.jdt.ui.exception.name=e
 org.eclipse.jdt.ui.gettersetter.use.is=true
 org.eclipse.jdt.ui.keywordthis=false

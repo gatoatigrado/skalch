@@ -10,30 +10,262 @@
 //      (a) Create assignments to temporary variables
 //      (b) The blocks know how to
 
-rule retypeUnitBlocks {
-    block:Block -:BlockExpr-> :UnitConstant;
-    replace { next_block:SKBlock<block>; }
+rule retypeUnitTypeBlocks {
+    block:Block -e_sym:BlockTypeSymbol-> unitsym:ScalaUnitTypeSymbol;
+    block -e1:BlockStmtLast-> last:ScAstNode;
+    block -e2:BlockExpr-> expr:ScAstNode;
+    replace {
+        next_block:SKBlock<block> -e_sym-> unitsym;
+        last -e3:BlockStmtNext-> expr;
+        block -e4:BlockStmtLast-> expr;
+    }
 }
+
+rule convertFunctionBlocksToReturns {
+    fcndef:FcnDef -:FcnBody-> block:Block
+        -e:BlockExpr-> expr:ScAstNode;
+    block -le:BlockStmtLast-> last:ScAstNode;
+    block -:BlockTypeSymbol-> blk_typ:Symbol;
+    modify {
+        delete(e, le);
+        ret:Return -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
+        last -:BlockStmtNext-> ret -:ReturnExpr-> expr;
+        block -:BlockStmtLast-> ret;
+        next_block:SKBlock<block>;
+    }
+}
+
+// rule createImplicitBlocks {
+//     fcndef:FcnDef -e:FcnBody-> expr:ScAstNode;
+//     expr -:Blockify-> .;
+//     expr --> s1:Symbol -:TypeSymbol-> s2:Symbol;
+//     hom(s1, s2);
+//     modify {
+//         delete(e);
+//         fcndef -:FcnBody-> blk:SKBlock -:BlockStmtChain-> ret:Return -:ReturnExpr-> expr;
+//         blk -:BlockStmtLast-> ret;
+//         ret -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> s2;
+//         ret -:BlockifyNext-> expr;
+//     }
+// }
 
 rule postsetValDefRhs(x : ValDef, y : ScAstNode) {
     modify { x -:ValDefRhs-> y; }
+}
+
+// redirect the chain from a previous argument to the new reference
+rule redirect_outgoing_fcn_edges(prev_arg : ScAstNode, varref : ScAstNode) {
+    prev_arg -e:FcnArg-> x:ScAstNode;
+    modify {
+        varref -e2:typeof(e)-> x;
+        delete(e);
+    }
+}
+
+rule createTemporary(from : ScAstNode, expr : ScAstNode) {
+    modify {
+        tmp_assign:BlockifyValDef -:ValDefSymbol-> tmpsym:TmpSymbol;
+        ref:TmpVarRef -:VarRefSymbol-> tmpsym;
+        ref -:BlockifySubtreeInner-> tmp_assign;
+        // otherwise, order is not explicit
+        exec(redirect_incoming(expr, ref)* &
+            redirect_outgoing_fcn_edges(expr, ref)* &
+            postsetValDefRhs(tmp_assign, expr));
+    }
 }
 
 // NOTE -- if this is too special-case, then perhaps
 // an edge class could be created to designate
 // nodes which should be transformed to statements.
 rule fcnArgsToStmts {
-    fcncall:FcnCall -:FcnArg-> expr:ScalaExprStmt;
+    from:ScAstNode -:FcnArg-> expr:ScalaExprStmt;
     modify {
-        tmp_assign:ValDef -:ValDefSymbol-> tmpsym:Symbol;
-        eval {
-            tmpsym.symbolName = "tmp";
-            tmpsym.fullSymbolName = "<tmp inserted by fcncall>";
-        }
-        ref:VarRef -:VarRefSymbol-> tmpsym;
-        ref -:CreatePreStmt-> tmp_assign;
-        // otherwise, order is not explicit
-        exec(redirect_incoming(expr, ref)* &
-            postsetValDefRhs(tmp_assign, expr));
+        exec(createTemporary(from, expr));
     }
 }
+
+// NOTE -- this should definitely happen outside of creating temporaries, so
+// all temporaries can be created before blockify links are set.
+// NOTE -- this is not recursive because the blockify source node will
+// be transformed into the target of a ValDefRhs instead of a FcnArg.
+
+rule propagateBlockify {
+    x:ScAstNode -:BlockifySubtreeInner-> y:ScAstNode;
+    z:ScAstNode -:FcnArg-> x;
+    modify {
+        exec(createTemporary(z, x));
+    }
+}
+
+
+
+
+
+
+// The control flow graph -- a structure linked to the AST.
+// Currently, the CFG is used to attach additional data, which
+// is moved back to the AST.
+
+// STEP 1: Links from AST to CFG
+// based on AST node type
+
+rule cfgInitFcnNodes {
+    call:FcnCall;
+    negative { call -:CfgPrologue-> .; }
+    modify {
+        call -:CfgPrologue-> prologue:CfgNormalNode;
+        call -:CfgEpilogue-> epilogue:CfgNormalNode;
+    }
+}
+
+rule cfgInitReturnNodes {
+    ret:Return;
+    negative { ret -:CfgPrologue->.; }
+    modify {
+        ret -:CfgPrologue-> prologue:CfgNormalNode;
+        ret -:CfgEpilogue-> epilogue:CfgReturnNode;
+    }
+}
+
+// this works if the others are initialized first :)
+// This code can also be used:
+// negative { if { typeof(x) < FcnCall; } }
+// negative { if { typeof(x) < Return; } }
+rule cfgInitOtherNodes {
+    x:ScAstNode;
+    negative { x -:CfgPrologue-> .; }
+    modify {
+        x -:CfgPrologueEpilogue-> :CfgNormalNode;
+    }
+}
+
+rule cfgInit {
+    modify { exec(cfgInitFcnNodes* |
+        cfgInitReturnNodes* |
+        cfgInitOtherNodes*); }
+}
+
+// rule cfgInitNormalNodes {
+// }
+
+// STEP 2: Links from CFG to CFG
+// based on AST edge type
+
+// rule fcnCallPrologue {
+//     call -:FcnArgChain-> first;
+//     call -:FcnArgLast-> last;
+//     modify {
+//     }
+// }
+
+
+
+
+
+
+
+
+// rule propagateBlockify2 {
+//     z:ScAstNode --> x:ScAstNode -:FcnArg-> y:ScAstNode
+//         -:BlockifyNext-> .;
+// }
+
+/*
+rule createImplicitBlocks {
+    fcndef:FcnDef -e:FcnBody-> expr:ScAstNode;
+    expr -:Blockify-> .;
+    expr --> s1:Symbol -:TypeSymbol-> s2:Symbol;
+    hom(s1, s2);
+    modify {
+        delete(e);
+        fcndef -:FcnBody-> blk:SKBlock -:BlockStmtChain-> ret:Return -:ReturnExpr-> expr;
+        blk -:BlockStmtLast-> ret;
+        ret -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> s2;
+        ret -:BlockifyNext-> expr;
+    }
+}
+*/
+
+// rule insertBlockStmt(prev:ScAstNode, insert_before:ScAstNode, to_insert:ScAstNode) {
+// }
+
+// eat up the BlockifyNext links...
+// rule insertNextBlockStmt(prev:ScAstNode, insert_before:ScAstNode, to_insert:ScAstNode) {
+// }
+
+// rule followBlockifyNextFor(prev:ScAstNode, insert_before:ScAstNode, curr:ScAstNode) {
+//     curr -e:BlockifyNext-> next:ScAstNode;
+//     modify {
+//         delete(e);
+//         exec(followBlockifyLinkFor(prev, insert_before, curr));
+//     }
+// }
+// 
+// // NOTE -- curr is only used as a ptr.
+// rule followBlockifyFor(prev:ScAstNode, insert_before:ScAstNode, curr:ScAstNode) {
+//     curr -e:Blockify-> next:ScAstNode;
+//     modify {
+//         delete(e);
+//     }
+// }
+// 
+// rule followBlockifyLinkFor(prev:ScAstNode, insert_before:ScAstNode, curr:ScAstNode) {
+//     modify {
+//         exec(followBlockifyFor(prev, insert_before, curr) &
+//             followBlockifyNextFor(prev, insert_before, curr));
+//     }
+// }
+
+// === match api functions ===
+// rule followBlockifyNext {
+//     // if prev in in a block, this should already start at the beginning of the block.
+//     prev:ScAstNode -e:BlockStmt-> blk_stmt:ScAstNode
+//         -blockify_link:BlockifyNext-> next:ScAstNode;
+//     modify { exec(followBlockifyLinkFor(prev, blk_stmt, blk_stmt)); }
+// }
+
+
+
+
+
+
+
+// rule blockify(before_insert:ScAstNode, after_insert:ScAstNode, x:ScAstNode) {
+//     before_insert -e:BlockStmt-> after_insert;
+//     x -e2:Blockify-> y:ScAstNode;
+//     modify {
+//         before_insert -:typeof(e)-> y -:BlockStmtNext-> after_insert;
+//         delete(e, e2);
+//     }
+// }
+// 
+// rule followBlockifyLinkChain(x:ScAstNode) : (ScAstNode) {
+//     x -:BlockifyNext-> y:ScAstNode;
+//     modify { return (y); }
+// }
+// 
+// rule findBlockifyLinks {
+//     before_insert:ScAstNode -:BlockStmt-> after_insert:ScAstNode
+//         -:BlockifyLink-> next:ScAstNode;
+//     modify {
+//         exec( (z:ScAstNode = after_insert) &
+//             ((z) = followBlockifyLinkChain(z))* &&
+//             blockify(before_insert, after_insert, z) );
+//     }
+// }
+
+
+
+
+
+
+
+// rule insertBlockStmts {
+//     prev -e:BlockStmt-> blk_stmt:ScAstNode -blockify_link:Blockify-> toinsert;
+//     // debugging...
+//     negative { blk_stmt -:BlockStmt-> to_insert; }
+//     modify {
+//         delete(blockify_link);
+//         prev -:typeof(e)-> toinsert -:BlockStmtNext-> blk_stmt;
+//     }
+// }

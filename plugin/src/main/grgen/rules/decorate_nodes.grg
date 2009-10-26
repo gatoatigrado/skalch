@@ -128,4 +128,10 @@ rule setUnboxSymbols {
     replace { next_sym:ScalaUnboxSymbol<sym>; }
 }
 
+rule setUnitSymbols {
+    sym:ScalaSymbol;
+    if { sym.fullSymbolName == "scala.Unit"; }
+    replace { next_sym:ScalaUnitTypeSymbol<sym>; }
+}
+
 test testFail { negative { } }

@@ -45,7 +45,7 @@ def main(grs_template=None, output_file=None, gxl_file=None, debug=False, runonl
         gxl_file.write(sys.stdin.read())
     output_file = Path(output_file or "~/.sketch/tmp/output.gxl")
     gxl_file = Path(gxl_file)
-    endstr = "show graph ycomp \"--dolayout\"" if ycomp else "exit"
+    endstr = "debug enable" if ycomp else "exit"
     grs_file = Path("~/.sketch/tmp/transform.grs")
     grs_file.write(Path(grs_template).read() %(locals()))
     # to slow down: substitue e.g. "%(gxl_file)s" in the template file,

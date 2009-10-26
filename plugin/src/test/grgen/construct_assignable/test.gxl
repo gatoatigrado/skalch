@@ -1629,7 +1629,7 @@
 		<edge from="ValDefTypeSymbol" to="Edge">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 		</edge>
-		<edge from="VarDeclRhs" to="Edge">
+		<edge from="ValDefRhs" to="Edge">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 		</edge>
 		<edge from="VarRefSymbol" to="Edge">
@@ -4593,10 +4593,10 @@
 				<bool>false</bool>
 			</attr>
 		</edge>
-		<node id="VarDeclRhs">
+		<node id="ValDefRhs">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass"/>
 			<attr name="name">
-				<string>VarDeclRhs</string>
+				<string>ValDefRhs</string>
 			</attr>
 			<attr name="isabstract">
 				<bool>false</bool>
@@ -4605,10 +4605,10 @@
 				<bool>true</bool>
 			</attr>
 		</node>
-		<edge from="ScalaAstModel" to="VarDeclRhs">
+		<edge from="ScalaAstModel" to="ValDefRhs">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
 		</edge>
-		<edge from="VarDeclRhs" to="Node">
+		<edge from="ValDefRhs" to="Node">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#from"/>
 			<attr name="limits">
 				<tup>
@@ -4620,7 +4620,7 @@
 				<bool>false</bool>
 			</attr>
 		</edge>
-		<edge from="VarDeclRhs" to="Node">
+		<edge from="ValDefRhs" to="Node">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#to"/>
 			<attr name="limits">
 				<tup>
@@ -6030,7 +6030,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_8_103" to="line_0_105">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_8_101">
 			<type xlink:href="#Template"/>
@@ -6137,7 +6137,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_9_110" to="line_0_112">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_8_101" to="line_9_110">
 			<type xlink:href="#TemplateElement"/>
@@ -6752,7 +6752,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_8_161" to="line_0_162">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_8_159">
 			<type xlink:href="#ValDef"/>
@@ -6800,7 +6800,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_8_159" to="line_0_160">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_8_126" to="line_8_159">
 			<type xlink:href="#FcnDefParamsChain"/>
@@ -7743,7 +7743,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_10_211" to="line_0_212">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_10_209">
 			<type xlink:href="#ValDef"/>
@@ -7791,7 +7791,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_10_209" to="line_0_210">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_10_186">
 			<type xlink:href="#FcnDef"/>
@@ -7948,7 +7948,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_10_170" to="line_0_172">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_10_168" to="line_10_170">
 			<type xlink:href="#TemplateElement"/>
@@ -8242,7 +8242,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_10_178" to="line_0_180">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_10_168" to="line_10_178">
 			<type xlink:href="#TemplateElement"/>
@@ -8420,7 +8420,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_11_218" to="line_0_220">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_11_216" to="line_11_218">
 			<type xlink:href="#TemplateElement"/>
@@ -9027,7 +9027,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_11_259" to="line_0_260">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_11_257">
 			<type xlink:href="#ValDef"/>
@@ -9075,7 +9075,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_11_257" to="line_0_258">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_11_234" to="line_11_257">
 			<type xlink:href="#FcnDefParamsChain"/>
@@ -9949,7 +9949,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_12_307" to="line_0_308">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_12_305">
 			<type xlink:href="#ValDef"/>
@@ -9997,7 +9997,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_12_305" to="line_0_306">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<node id="line_12_282">
 			<type xlink:href="#FcnDef"/>
@@ -10154,7 +10154,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_12_266" to="line_0_268">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_12_264" to="line_12_266">
 			<type xlink:href="#TemplateElement"/>
@@ -10448,7 +10448,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_12_274" to="line_0_276">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_12_264" to="line_12_274">
 			<type xlink:href="#TemplateElement"/>
@@ -10658,7 +10658,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_11_226" to="line_0_228">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_11_216" to="line_11_226">
 			<type xlink:href="#TemplateElement"/>
@@ -11432,7 +11432,7 @@ else
 			<type xlink:href="#BlockStmtChain"/>
 		</edge>
 		<edge from="line_15_46" to="line_15_49">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_15_49" to="line_15_50">
 			<type xlink:href="#TypedExpression"/>
@@ -11552,7 +11552,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_9_163" to="line_0_164">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_8_161" to="line_9_163">
 			<type xlink:href="#FcnDefParamsNext"/>
@@ -11713,7 +11713,7 @@ else
 			</attr>
 		</node>
 		<edge from="line_8_118" to="line_0_120">
-			<type xlink:href="#VarDeclRhs"/>
+			<type xlink:href="#ValDefRhs"/>
 		</edge>
 		<edge from="line_8_101" to="line_8_118">
 			<type xlink:href="#TemplateElement"/>

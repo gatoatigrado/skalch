@@ -1,6 +1,17 @@
 
 # transformations not requiring EnclosingFcn links
 echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporaries"
-xgrs retypeUnitBlocks*
-xgrs fcnArgsToStmts*
+xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
+# xgrs cfgInit
+# xgrs fcnArgsToStmts*
+# xgrs convertFunctionBlocksToReturns*
+
+# xgrs propagateBlockify*
+# xgrs createImplicitBlocks*
+
+# xgrs findBlockifyLinks
+# xgrs insertBlockStmts
+
+# xgrs (createImplicitBlocks | insertBlockifyToBlocks | propagateBlockify)*
+# xgrs (propagate
 # xgrs ifCreateTemporaries

@@ -317,7 +317,6 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
             // === statements ===
 
             case Assign(lhs, rhs) =>
-                not_implemented("are there still assigns?")
                 subtree("AssignLhs", lhs)
                 subtree("AssignRhs", rhs)
 

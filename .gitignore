@@ -18,3 +18,4 @@ buildutil/sketchrewriter.jar
 buildutil/build_info.pickle
 */.manager/*
 *.log
+*.diff

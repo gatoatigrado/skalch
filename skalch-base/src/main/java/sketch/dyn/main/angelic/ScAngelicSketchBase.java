@@ -27,6 +27,7 @@ public class ScAngelicSketchBase {
 	public ScInputConf oracle_conf;
 	public Vector<ScSourceConstruct> construct_src_info = new Vector<ScSourceConstruct>();
 	public Vector<Object> sketch_queue;
+	public Vector<Object> sketch_queue_trace;
 	public boolean debug_print_enable = false;
 	public Vector<ScDebugEntry> debug_out;
 	public ScSourceLocation dysketch_fcn_location;
@@ -68,6 +69,7 @@ public class ScAngelicSketchBase {
 		debug_assert_failure_location = null;
 		debug_out = new Vector<ScDebugEntry>();
 		sketch_queue = new Vector<Object>();
+		sketch_queue_trace = new Vector<Object>();
 	}
 
 	public synchronized void skCompilerAssertInternal(Object... arr) {
@@ -109,7 +111,7 @@ public class ScAngelicSketchBase {
 	}
 
 	public void skqueue_check_backend(Object value) {
-		synthAssertTerminal(true);
+		sketch_queue_trace.add(value);
 	}
 
 	public void skdprint_location_backend(String location) {

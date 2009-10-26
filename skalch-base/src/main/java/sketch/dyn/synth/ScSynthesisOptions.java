@@ -33,6 +33,8 @@ public class ScSynthesisOptions extends CliAnnotatedOptionGroup {
 	public int max_stack_depth = 1 << 30L;
 	@CliParameter(help = "filename to dump output of queues.")
 	public String queue_file_name = "";
+	@CliParameter(help = "filename to retrieve the queues from the last program refinement.")
+	public String queue_input_file_name = "";
 
 	public final class ScSynthSolver implements CliOptionType<ScSynthSolver> {
 		public final String type;

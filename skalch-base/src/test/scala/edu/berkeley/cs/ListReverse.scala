@@ -12,17 +12,16 @@ class ListReverse2() extends AngelicSketch {
   def main() = {
     val x = List("4", "3", "2", "1")
     var r:List[String] = Nil
-
+      
     def reverse(a:List[String]) : Unit = {
       if (!!()) {
-        r = !!(a) :: r
+    	r = !!(a) :: r
         synthAssertTerminal(!a.isEmpty)
         reverse(a.tail)
       }
+      r
     }
     
-    reverse(x)
-    skdprint(r.toString())
     synthAssertTerminal(r == List("1", "2", "3", "4"))
     //synthAssertTerminal(true)
   }

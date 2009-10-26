@@ -24,6 +24,7 @@ public abstract class ScDebugRun {
 	public StackTraceElement assert_info;
 	public Vector<ScDebugEntry> debug_out;
 	public Vector<Object> queue;
+	public Vector<Object> queue_trace;
 
 	public ScDebugRun(ScDynamicSketchCall<?> sketch) {
 		sketch_call = sketch;
@@ -56,6 +57,7 @@ public abstract class ScDebugRun {
 		}
 		debug_out = get_debug_out();
 		queue = get_queue();
+		queue_trace = get_queue_trace();
 	}
 
 	protected final void set_assert_info(StackTraceElement assert_info,
@@ -84,4 +86,6 @@ public abstract class ScDebugRun {
 	public abstract Vector<ScDebugEntry> get_debug_out();
 
 	public abstract Vector<Object> get_queue();
+
+	public abstract Vector<Object> get_queue_trace();
 }

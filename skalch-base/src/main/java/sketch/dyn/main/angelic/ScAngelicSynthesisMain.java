@@ -3,7 +3,7 @@ package sketch.dyn.main.angelic;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.queues.QueueFileOutput;
+import sketch.queues.QueueUI;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
 
@@ -34,10 +34,8 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
 		// start various utilities
 		ScUserInterface ui = ScUserInterfaceManager.start_ui(be_opts,
 				synthesis_runtime, ui_sketch);
-		if (be_opts.synth_opts.queue_file_name != "") {
-			ui = new QueueFileOutput(ui, ui_sketch,
-					be_opts.synth_opts.queue_file_name);
-		}
+		ui = new QueueUI(ui, ui_sketch, be_opts.synth_opts.queue_file_name,
+				be_opts.synth_opts.queue_input_file_name);
 		init_stats(ui);
 		ScStatsMT.stats_singleton.start_synthesis();
 		// actual synthesize call

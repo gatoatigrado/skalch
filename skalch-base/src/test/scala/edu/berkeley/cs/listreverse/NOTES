@@ -1,0 +1,14 @@
+Started off with the trivial iterative solution. I used queues to store the
+values as they were accessed, but this did not prove to be useful since
+I didn't know where to place the queues in the next iteration. The next
+iteration failed and I tried giving more possibilities to the angel. But, 
+this led me a trap. I was giving the angel too much freedom and it was 
+able to recursively call the function without changing the parameter state.
+This created a bunch of "solutions" that didn't tell me anything about the
+problem. This was fixed in the next iteration by bounding the depth of the
+recursive calls. I then saw the only was the angels were working was to 
+add elements at the end of the list. Another failure. I finally realized 
+there was no possible way to do this by just passing the list as a
+parameter and getting the reversed list back from the recursive call. I 
+needed to have some sort of global list which would serve as the reversed
+list in order to do this in O(n) steps.

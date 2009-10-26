@@ -47,4 +47,10 @@ public abstract class ScDefaultDebugRun extends ScDebugRun {
 	public Vector<Object> get_queue() {
 		return sketch.sketch_queue;
 	}
+
+	@Override
+	public Vector<Object> get_queue_trace() {
+		return sketch.sketch_queue_trace;
+	}
+
 }

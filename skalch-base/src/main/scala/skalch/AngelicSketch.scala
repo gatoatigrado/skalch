@@ -121,6 +121,14 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
     	}
     x
     }
+    
+    def skput_and_check(x : Object) = {
+    	if (debug_print_enable) {
+    		skput(x)
+    		skcheck(x)
+    	}
+    x
+    }
 }
 
 object AngelicSketchSynthesize {

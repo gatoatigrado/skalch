@@ -4,7 +4,21 @@ import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
 import sketch.util._
 
-// failure
+/* Failure. This is my first iteration writing the program recursively.
+ * Constraints:
+ *   Must only traverse the original list once.
+ *   Control flow of program. Must access head, then recurse, then append.
+ *   Must append to beginning of list.
+ * Angelic choices:
+ *   Base case.
+ *   What should be passed to the recursive call.
+ *   Whether to append the element to the list.
+ *   
+ * Lessens learned:
+ *   Too many constraints and not enough freedom for angels. This method
+ *   clearly will not work.
+ */
+
 class LinkedListReversalSketch1 extends AngelicSketch {
 	val tests = Array( () )
 	

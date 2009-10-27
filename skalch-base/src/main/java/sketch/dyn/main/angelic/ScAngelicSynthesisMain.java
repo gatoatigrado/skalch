@@ -16,32 +16,34 @@ import sketch.ui.ScUserInterfaceManager;
  *          make changes, please consider contributing back!
  */
 public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
-	public final ScAngelicSketchCall ui_sketch;
-	protected final ScAngelicSketchCall[] sketches;
-	protected final ScSynthesis<?> synthesis_runtime;
+    public final ScAngelicSketchCall ui_sketch;
+    protected final ScAngelicSketchCall[] sketches;
+    protected final ScAngelicSketchCall queue_sketch;
+    protected final ScSynthesis<?> synthesis_runtime;
 
-	public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
-		sketches = new ScAngelicSketchCall[nthreads];
-		for (int a = 0; a < nthreads; a++) {
-			sketches[a] = new ScAngelicSketchCall(f.apply());
-		}
-		ui_sketch = new ScAngelicSketchCall(f.apply());
-		load_ui_sketch_info(ui_sketch);
-		synthesis_runtime = get_synthesis_runtime(sketches);
-	}
+    public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
+        sketches = new ScAngelicSketchCall[nthreads];
+        for (int a = 0; a < nthreads; a++) {
+            sketches[a] = new ScAngelicSketchCall(f.apply());
+        }
+        ui_sketch = new ScAngelicSketchCall(f.apply());
+        queue_sketch = new ScAngelicSketchCall(f.apply());
+        load_ui_sketch_info(ui_sketch);
+        synthesis_runtime = get_synthesis_runtime(sketches);
+    }
 
-	public Object synthesize() throws Exception {
-		// start various utilities
-		ScUserInterface ui = ScUserInterfaceManager.start_ui(be_opts,
-				synthesis_runtime, ui_sketch);
-		ui = new QueueUI(ui, ui_sketch, be_opts.synth_opts.queue_file_name,
-				be_opts.synth_opts.queue_input_file_name);
-		init_stats(ui);
-		ScStatsMT.stats_singleton.start_synthesis();
-		// actual synthesize call
-		synthesis_runtime.synthesize(ui);
-		// stop utilities
-		ScStatsMT.stats_singleton.showStatsWithUi();
-		return synthesis_runtime.get_solution_tuple();
-	}
+    public Object synthesize() throws Exception {
+        // start various utilities
+        ScUserInterface ui = ScUserInterfaceManager.start_ui(be_opts,
+                synthesis_runtime, ui_sketch);
+        ui = new QueueUI(ui, queue_sketch, be_opts.synth_opts.queue_file_name,
+                be_opts.synth_opts.queue_input_file_name);
+        init_stats(ui);
+        ScStatsMT.stats_singleton.start_synthesis();
+        // actual synthesize call
+        synthesis_runtime.synthesize(ui);
+        // stop utilities
+        ScStatsMT.stats_singleton.showStatsWithUi();
+        return synthesis_runtime.get_solution_tuple();
+    }
 }

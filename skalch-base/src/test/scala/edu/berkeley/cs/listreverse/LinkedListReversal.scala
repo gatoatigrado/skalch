@@ -4,6 +4,21 @@ import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
 import sketch.util._
 
+/*
+ * I wanted to test if list reversal could be done iteratively. This
+ * example is quite staightforward. Additionally, I wanted to test using the queues
+ * and see if they could help the refinement process.
+ * 
+ * Constraints:
+ *   Can only iterate through loop n times
+ *   Must append to beginning of loop
+ * Angelic choices:
+ *   Can access any element in the loop to append to beginning
+ *   
+ * Lessens learned:
+ *   It might be possible to do the function iteratively in n steps.
+ */
+
 class LinkedListReversalSketch extends AngelicSketch {
 	val tests = Array( () )
 	

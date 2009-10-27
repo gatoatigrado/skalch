@@ -4,7 +4,19 @@ import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
 import sketch.util._
 
-// fail, only works at appending to end, need external list
+/* 
+ * Constraints:
+ *   Must only traverse the original list once.
+ *   Must only pass the tail of the list to the next call.
+ *   Can only append to the beginning of the list.
+ *   Have a global list which is returned. Global list is initially nil.
+ *   Base case.
+ *   Tail recursion.
+ * Angelic choices:
+ *   
+ * Lessens learned:
+ *   Deterministic tail recursion. Now need to get rid of global variable.
+ */
 class LinkedListReversalSketch5 extends AngelicSketch {
 	val tests = Array( () )
 	
@@ -19,7 +31,6 @@ class LinkedListReversalSketch5 extends AngelicSketch {
 				
 				if (!list.tail.isEmpty) {
 					reverseRec(list.tail)
-					skdprint(revList.toString())
 				}		
 			}
 			reverseRec(list)

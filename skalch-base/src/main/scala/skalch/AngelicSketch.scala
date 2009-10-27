@@ -108,21 +108,21 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
         }
     }
  
-    def skput(x : Object) = {
+    def skput[T](x : T) = {
         if (debug_print_enable) {
             skqueue_put_backend(x)
         }
 	x
     }
     
-    def skcheck(x : Object) = {
+    def skcheck[T](x : T) = {
     	if (debug_print_enable) {
     		skqueue_check_backend(x)
     	}
     x
     }
     
-    def skput_and_check(x : Object) = {
+    def skput_and_check[T](x : T) = {
     	if (debug_print_enable) {
     		skput(x)
     		skcheck(x)

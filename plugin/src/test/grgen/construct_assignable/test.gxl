@@ -1638,9 +1638,6 @@
 		<edge from="VarRefTypeSymbol" to="Edge">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 		</edge>
-		<edge from="ClassRefTermSymbol" to="Edge">
-			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
-		</edge>
 		<edge from="TypeSymbol" to="Edge">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#isA"/>
 		</edge>
@@ -4710,45 +4707,6 @@
 				<bool>false</bool>
 			</attr>
 		</edge>
-		<node id="ClassRefTermSymbol">
-			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass"/>
-			<attr name="name">
-				<string>ClassRefTermSymbol</string>
-			</attr>
-			<attr name="isabstract">
-				<bool>false</bool>
-			</attr>
-			<attr name="isdirected">
-				<bool>true</bool>
-			</attr>
-		</node>
-		<edge from="ScalaAstModel" to="ClassRefTermSymbol">
-			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#contains"/>
-		</edge>
-		<edge from="ClassRefTermSymbol" to="Node">
-			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#from"/>
-			<attr name="limits">
-				<tup>
-					<int>0</int>
-					<int>-1</int>
-				</tup>
-			</attr>
-			<attr name="isordered">
-				<bool>false</bool>
-			</attr>
-		</edge>
-		<edge from="ClassRefTermSymbol" to="Node">
-			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#to"/>
-			<attr name="limits">
-				<tup>
-					<int>0</int>
-					<int>-1</int>
-				</tup>
-			</attr>
-			<attr name="isordered">
-				<bool>false</bool>
-			</attr>
-		</edge>
 		<node id="TypeSymbol">
 			<type xlink:href="http://www.gupro.de/GXL/gxl-1.0.gxl#EdgeClass"/>
 			<attr name="name">
@@ -5189,9 +5147,6 @@
 		<edge from="line_8_18" to="symbol_Predef_16">
 			<type xlink:href="#ClassRefTypeSymbol"/>
 		</edge>
-		<edge from="line_8_18" to="symbol_Predef_19">
-			<type xlink:href="#ClassRefTermSymbol"/>
-		</edge>
 		<edge from="line_8_14" to="line_8_18">
 			<type xlink:href="#FcnTarget"/>
 		</edge>
@@ -5371,9 +5326,6 @@
 		</node>
 		<edge from="line_9_30" to="symbol_List_23">
 			<type xlink:href="#ClassRefTypeSymbol"/>
-		</edge>
-		<edge from="line_9_30" to="symbol_List_31">
-			<type xlink:href="#ClassRefTermSymbol"/>
 		</edge>
 		<node id="line_9_29">
 			<type xlink:href="#FieldAccess"/>

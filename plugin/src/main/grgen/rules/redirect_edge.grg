@@ -16,6 +16,15 @@ rule redirect_incoming(x : Node, y : Node) {
     }
 }
 
+// N.B. -- not homomorphic, so it won't create loop subtree edges.
+rule redirect_outgoing_subtrees(x : Node, y : Node) {
+    x -e:Subtree-> z:ScAstNode;
+    modify {
+        y -e2:typeof(e)-> z;
+        delete(e);
+    }
+}
+
 rule redirect_between(from : Node, old_to : Node, new_to : Node) {
     from -e:Edge-> old_to;
     modify {

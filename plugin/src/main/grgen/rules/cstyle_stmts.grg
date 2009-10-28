@@ -109,40 +109,120 @@ rule propagateBlockify {
 // STEP 1: Links from AST to CFG
 // based on AST node type
 
-rule cfgInitFcnNodes {
-    call:FcnCall;
-    negative { call -:CfgPrologue-> .; }
-    modify {
-        call -:CfgPrologue-> prologue:CfgNormalNode;
-        call -:CfgEpilogue-> epilogue:CfgNormalNode;
-    }
-}
-
 rule cfgInitReturnNodes {
     ret:Return;
-    negative { ret -:CfgPrologue->.; }
+    negative { ret -:CfgPrologue-> .; }
     modify {
-        ret -:CfgPrologue-> prologue:CfgNormalNode;
+        ret -:CfgPrologue-> prologue:CfgEvalNormalNode;
         ret -:CfgEpilogue-> epilogue:CfgReturnNode;
     }
 }
 
-// this works if the others are initialized first :)
-// This code can also be used:
-// negative { if { typeof(x) < FcnCall; } }
-// negative { if { typeof(x) < Return; } }
+/// NOTE -- this function is slightly fragile, in that
+/// return *must* be processed before.
+rule cfgInitEnclosingNodes {
+    x : ScAstNode -:Subtree-> :ScAstNode;
+    negative { x -:CfgPrologue-> .; }
+    modify {
+        x -:CfgPrologue-> prologue:CfgDummyPrologueNode;
+        x -:CfgEpilogue-> epilogue:CfgEvalNormalNode;
+    }
+}
+
+/// this works if the others are initialized first :)
+/// This code can also be used:
+/// negative { if { typeof(x) < FcnCall; } }
+/// negative { if { typeof(x) < Return; } }
 rule cfgInitOtherNodes {
     x:ScAstNode;
     negative { x -:CfgPrologue-> .; }
+    negative { x; x -:Subtree-> y:ScAstNode; }
     modify {
-        x -:CfgPrologueEpilogue-> :CfgNormalNode;
+        x -:CfgPrologueEpilogue-> :CfgEvalNormalNode;
+    }
+}
+
+
+
+// STEP 2: Edges from CFG to CFG nodes
+// based on AST edge types
+
+/// general function to wire x's epilogue to y's prologue.
+rule cfgEpilogueToPrologueNext(x : ScAstNode, y : ScAstNode) {
+    x -:CfgEpilogue-> x_epilogue:CfgNormalNode;
+    y -:CfgPrologue-> y_prologue:CfgNormalNode;
+    negative { x_epilogue -:CfgAbstractNext-> y_prologue; }
+    modify { x_epilogue -:CfgNext-> y_prologue; }
+}
+
+/// general function to connect internal nodes (first and last) to
+/// the prologue and epilogue of an enclosing node.
+rule cfgEnclosingPrologueEpilogue(enclosing : ScAstNode,
+    first : ScAstNode, last : ScAstNode)
+{
+    enclosing -:CfgPrologue-> enclosing_prologue:CfgNormalNode;
+    enclosing -:CfgEpilogue-> enclosing_epilogue:CfgNormalNode;
+    first -:CfgPrologue-> first_prologue:CfgNormalNode;
+    last -:CfgEpilogue-> last_epilogue:CfgNormalNode;
+    negative { enclosing_prologue -:CfgAbstractNext-> first_prologue; }
+    negative { last_epilogue -:CfgAbstractNext-> enclosing_epilogue; }
+    modify {
+        enclosing_prologue -:CfgNext-> first_prologue;
+        last_epilogue -:CfgNext-> enclosing_epilogue;
+    }
+}
+
+rule cfgSetNextForScalaBlocks {
+    block:Block;
+    block -:BlockStmtChain-> first:ScAstNode;
+    block -:BlockStmtLast-> last:ScAstNode;
+    block -:BlockExpr-> expr:ScAstNode;
+    hom(first, last);
+    negative { block -:tmpCfgDone-> block; }
+    modify {
+        block -:tmpCfgDone-> block;
+        exec(cfgEpilogueToPrologueNext(last, expr) |
+             cfgEnclosingPrologueEpilogue(block, first, expr));
+    }
+}
+
+rule cfgSetNextForFcnArgs {
+    x:ScAstNode -:CfgEpilogue-> x_epilogue:CfgNormalNode;
+    y:ScAstNode -:CfgPrologue-> y_prologue:CfgNormalNode;
+    x -:FcnArgNext-> y;
+    negative { x_epilogue -:CfgAbstractNext-> y_prologue; }
+    modify { x_epilogue -:CfgNext-> y_prologue; }
+}
+
+rule cfgSetNextIntraFcn {
+    fcn:FcnCall -:FcnArgChain-> first:ScAstNode;
+    fcn -:FcnArgLast-> last:ScAstNode;
+    fcn -:CfgPrologue-> fcn_prologue:CfgNode;
+    fcn -:CfgEpilogue-> fcn_epilogue:CfgNode;
+
+    first -firstcfgedge:CfgPrologue-> firstcfgnode:CfgNode;
+    last -lastcfgedge:CfgEpilogue-> lastcfgnode:CfgNode;
+
+    hom(first, last);
+    hom(firstcfgedge, lastcfgedge);
+    hom(firstcfgnode, lastcfgnode);
+    hom(fcn_prologue, fcn_epilogue); // in case behavior above changes
+
+    negative { fcn_prologue -:CfgAbstractNext-> firstcfgnode; }
+    negative { lastcfgnode -:CfgAbstractNext-> fcn_epilogue; }
+
+    modify {
+        fcn_prologue -:CfgNext-> firstcfgnode;
+        lastcfgnode -:CfgNext-> fcn_epilogue;
     }
 }
 
 rule cfgInit {
-    modify { exec(cfgInitFcnNodes* |
-        cfgInitReturnNodes* |
-        cfgInitOtherNodes*); }
+    modify { exec(cfgInitReturnNodes* |
+        cfgInitEnclosingNodes* |
+        cfgInitOtherNodes* |
+        cfgSetNextForFcnArgs* |
+        cfgSetNextIntraFcn*); }
 }
 
 // rule cfgInitNormalNodes {

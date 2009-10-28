@@ -60,7 +60,7 @@ def main(grs_template=None, output_file=None, gxl_file=None, debug=False, runonl
             assert_next = None
             for line in proc.exec_lines():
                 if not assert_next is None:
-                    assert line == assert_next
+                    assert line == assert_next, "didn't match assert"
                     assert_next = None
                 elif any(v.match(line) for v in mundane): pass
                 elif not line: pass

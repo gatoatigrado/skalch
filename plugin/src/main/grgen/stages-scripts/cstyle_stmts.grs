@@ -2,7 +2,11 @@
 # transformations not requiring EnclosingFcn links
 echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporaries"
 xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
-# xgrs cfgInit
+echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
+xgrs cfgInit
+echo "[REWRITE PRODUCTION] cstyle_stmts -- possibly infinite loop..."
+xgrs cfgSetNextForScalaBlocks*
+
 # xgrs fcnArgsToStmts*
 # xgrs convertFunctionBlocksToReturns*
 

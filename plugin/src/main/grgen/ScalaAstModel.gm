@@ -73,8 +73,13 @@ node class TmpVarRef extends VarRef, BlockifySafe;
 
 // === CFG ===
 // CFG nodes
-node class CfgNode;
-node class CfgNormalNode extends CfgNode;
+abstract node class CfgNode;
+// normal nodes indicate normal control flow.
+// further subtypes indicate how computation is carried out
+// (for example, for functions, in the epilogue node).
+abstract node class CfgNormalNode extends CfgNode;
+node class CfgDummyPrologueNode extends CfgNormalNode;
+node class CfgEvalNormalNode extends CfgNormalNode;
 // don't create next ptrs from return stmts.
 // Only for the epilogue of the return statement.
 node class CfgReturnNode extends CfgNode;
@@ -91,6 +96,8 @@ edge class CfgConditionalNext extends CfgAbstractNext;
 edge class CfgPrologue;
 edge class CfgEpilogue;
 edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
+
+edge class tmpCfgDone;
 
 
 

@@ -6,6 +6,7 @@ xgrs replaceAssertCalls*
 echo "[REWRITE PRODUCTION] detect which classes can be assigned by !! or ??"
 xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)*
 
+# show graph ycomp "--dolayout"
 echo "[REWRITE PRODUCTION] clean calls to !! / ??"
 xgrs replaceConstructCalls*
 # xgrs replaceBangBangCalls* & replaceHoleCalls*

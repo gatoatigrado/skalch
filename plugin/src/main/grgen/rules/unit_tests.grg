@@ -11,3 +11,14 @@ rule markAssignableClassDef {
     cls:ClassDef -:CanBeConstructAssigned-> cls;
     modify { assignable:ConstructAssignableClassDef<cls>; }
 }
+
+test dontDeleteCheckPresent {
+    myif1:If;
+    myif2:If;
+    if {
+        myif1.startLine == 18 &&
+        myif1.startCol == 13 &&
+        myif2.startLine == 19 &&
+        myif2.startCol == 13;
+    }
+}

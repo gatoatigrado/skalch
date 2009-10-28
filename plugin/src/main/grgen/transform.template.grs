@@ -39,7 +39,10 @@ xgrs deleteDangling*
 xgrs (removeNopTypeCast | deleteDangling)*
 
 include "stages-scripts/cstyle_stmts.grs"
+# debug enable
+
+show graph ycomp "--dolayout"
 # 
 # 
 # export "%(output_file)s"
-%(endstr)s
+# %(endstr)s

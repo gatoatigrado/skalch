@@ -76,6 +76,7 @@ rule removeNopTypeCast() {
     typed:Typed -:TypedTypeSymbol-> sym:Symbol;
     typed -:TypedExpression-> expr:ScAstNode --> sym;
     modify {
-        exec(redirect_incoming(typed, expr)*);
+        exec(redirect_incoming(typed, expr)* |
+            redirect_outgoing_subtrees(typed, expr));
     }
 }

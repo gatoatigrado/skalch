@@ -95,9 +95,15 @@ edge class CfgSkipSubtreeNext extends CfgSequentialNext;
 edge class CfgConditionalNext extends CfgAbstractNext;
 
 // edges from the original AST to the CFG
-edge class CfgPrologue;
-edge class CfgEpilogue;
+abstract edge class AstCfgEdge;
+edge class CfgPrologue extends AstCfgEdge;
+edge class CfgEpilogue extends AstCfgEdge;
 edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
+
+// attribute edges on cfg nodes indicating that they will produce blocks.
+abstract edge class CfgAbstractAttachable;
+edge class CfgAttachable extends CfgAbstractAttachable;
+edge class CfgImplicitAttachable extends CfgAbstractAttachable;
 
 edge class tmpCfgDone;
 
@@ -212,22 +218,29 @@ abstract edge class FcnArg;
 abstract edge class BlockStmt;
 
 // these edges convey what the naming conventions already tell us
-abstract edge class Subtree;
+abstract edge class AstSiblingSubtree;
+abstract edge class Sibling extends AstSiblingSubtree;
+abstract edge class Subtree extends AstSiblingSubtree;
 abstract edge class ScTermSymbol;
 abstract edge class ScTypeSymbol;
 
 edge class BlockStmtChain extends BlockStmt, Subtree;
-edge class BlockStmtNext extends BlockStmt, Subtree;
+edge class BlockStmtNext extends BlockStmt, Sibling;
 edge class FcnArgChain extends FcnArg, Subtree;
-edge class FcnArgNext extends FcnArg, Subtree;
+edge class FcnArgNext extends FcnArg, Sibling;
+
+// Sibling edges indicate argument parameters
+edge class AnnotationArgsNext extends Sibling;
+edge class ArrValueNext extends Sibling;
+edge class ClassDefTypeParamsNext extends Sibling;
+edge class FcnDefParamsNext extends Sibling;
+edge class MatchCaseNext extends Sibling;
 
 // Subtree links currently include the Last edges. These
 // should be removed if they become a problem.
 edge class AnnotationArgsChain extends Subtree;
 edge class AnnotationArgsLast extends Subtree;
-edge class AnnotationArgsNext extends Subtree;
 edge class ArrValueChain extends Subtree;
-edge class ArrValueNext extends Subtree;
 edge class AssignLhs extends Subtree;
 edge class AssignRhs extends Subtree;
 edge class BlockExpr extends Subtree;
@@ -237,21 +250,18 @@ edge class CaseGuard extends Subtree;
 edge class CasePattern extends Subtree;
 edge class ClassDefImpl extends Subtree;
 edge class ClassDefTypeParamsChain extends Subtree;
-edge class ClassDefTypeParamsNext extends Subtree;
 edge class ClsMethod extends Subtree;
 edge class FcnArgLast extends Subtree;
 edge class FcnBody extends Subtree;
 edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
 edge class FcnDefParamsLast extends Subtree;
-edge class FcnDefParamsNext extends Subtree;
 edge class FcnTarget extends Subtree;
 edge class FieldAccessObject extends Subtree;
 edge class IfCond extends Subtree;
 edge class IfElse extends Subtree;
 edge class IfThen extends Subtree;
 edge class MatchCaseChain extends Subtree;
-edge class MatchCaseNext extends Subtree;
 edge class MatchTarget extends Subtree;
 edge class PackageDefElement extends Subtree;
 edge class ReturnExpr extends Subtree;

@@ -56,9 +56,9 @@ grgen_compile:
 	plugin/src/main/grgen/sugared_test.sh
 
 ycomp:
-	killall mono; true
-	killall java; true
+	@killall mono java 2>/dev/null; true
 	plugin/src/main/grgen/sugared_test.sh --ycomp
+	@killall mono java 2>/dev/null; true
 
 jython_example:
 	mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=org.python.util.jython" -Dexec.args="base/src/main/jython/print_graph.py base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl"

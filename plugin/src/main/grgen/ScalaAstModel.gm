@@ -89,7 +89,9 @@ edge class CfgBlockifySkip;
 
 // edges from CFG nodes to CFG nodes
 edge class CfgAbstractNext;
-edge class CfgNext extends CfgAbstractNext; // static control flow
+edge class CfgSequentialNext extends CfgAbstractNext;
+edge class CfgNext extends CfgSequentialNext;
+edge class CfgSkipSubtreeNext extends CfgSequentialNext;
 edge class CfgConditionalNext extends CfgAbstractNext;
 
 // edges from the original AST to the CFG
@@ -117,6 +119,7 @@ node class TmpSymbol extends Symbol;
 
 // === Unit test markers ===
 node class ConstructAssignableClassDef extends ClassDef;
+edge class CfgIsConnected;
 
 
 

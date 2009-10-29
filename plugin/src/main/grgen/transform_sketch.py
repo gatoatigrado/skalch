@@ -58,16 +58,25 @@ def main(grs_template=None, output_file=None, gxl_file=None, debug=False, runonl
             return (proc.start(), proc.proc.wait())[-1]
         with proc.kill_on_fail():
             assert_next = None
+            fail_on_next = False
             for line in proc.exec_lines():
+                if line.startswith("[GRG ASSERT FAILURE] "):
+                    print(line)
+                    fail_on_next = True
+                else:
+                    assert not fail_on_next, \
+                        "Stopping now from previous failures (see above)"
                 if not assert_next is None:
                     assert line == assert_next, "didn't match assert"
                     assert_next = None
                 elif any(v.match(line) for v in mundane): pass
                 elif not line: pass
                 elif line.startswith("[REWRITE PRODUCTION] "):
-                    print(line, file=sys.stdout)
+                    print(line)
                 elif line.startswith("[ASSERT NEXT LINE] "):
                     assert_next = line.replace("[ASSERT NEXT LINE] ", "")
+                elif line.startswith("[GRG ASSERT FAILURE] "):
+                    print(line)
                 #elif line.endswith("matches found"): pass
                 #elif line.endswith("rewrites performed"): pass
                 #elif line.endswith("is valid with respect to"): pass

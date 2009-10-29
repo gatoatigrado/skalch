@@ -4,8 +4,10 @@ echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporaries"
 xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
 echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
 xgrs cfgInit
-echo "[REWRITE PRODUCTION] cstyle_stmts -- possibly infinite loop..."
-xgrs cfgSetNextForScalaBlocks*
+xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
+xgrs testCfgConnectedFcnDefsEchoError
+# echo "[REWRITE PRODUCTION] cstyle_stmts -- possibly infinite loop..."
+# xgrs cfgSetNextForScalaBlocks*
 
 # xgrs fcnArgsToStmts*
 # xgrs convertFunctionBlocksToReturns*

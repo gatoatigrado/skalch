@@ -28,7 +28,8 @@ class LinkedListReversalSketch4 extends AngelicSketch {
 			
 			def reverseRec(list : List[T]) : Unit = {
 				var value : T = list.head
-				
+			    skput_and_check(value)
+                
 				if (up && !!())
 					revList = value :: revList
 				

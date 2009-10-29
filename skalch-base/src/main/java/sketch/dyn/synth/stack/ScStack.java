@@ -26,6 +26,7 @@ import sketch.util.wrapper.ScRichString;
  * int y = oracle()
  * assert(x &gt; large_number)
  * </pre>
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -68,9 +69,8 @@ public class ScStack extends ScPrefixSearch {
         String[] rv = new String[stack.size()];
         for (int a = 0; a < stack.size(); a++) {
             ScStackEntry ent = stack.get(a);
-            rv[a] =
-                    "(" + ent.toString() + ", untilv=" + get_untilv(ent) + ", "
-                            + get_stack_ent(ent) + ")";
+            rv[a] = "(" + ent.toString() + ", untilv=" + get_untilv(ent) + ", "
+                    + get_stack_ent(ent) + ")";
         }
         return rv;
     }
@@ -82,18 +82,17 @@ public class ScStack extends ScPrefixSearch {
     }
 
     public String htmlDebugString() {
-        ScRichString sep =
-                new ScRichString(" -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
+        ScRichString sep = new ScRichString(
+                " -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
         return "ScStack[ " + sep.join(getStringArrayRep()) + " ]";
     }
 
     public void initialize_fixed_for_illustration(
-            ScDynamicSketchCall<?> sketch_call)
-    {
+            ScDynamicSketchCall<?> sketch_call) {
         ctrl_conf.generate_value_strings();
         ScFixedInputConf fixed_oracles = oracle_conf.fixed_inputs();
         fixed_oracles.generate_value_strings();
-        sketch_call.initialize_before_all_tests(ctrl_conf, fixed_oracles);
+        sketch_call.initialize_before_all_tests(ctrl_conf, fixed_oracles, null);
     }
 
     public void reset_before_run() {

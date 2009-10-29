@@ -85,6 +85,7 @@ public class QueueUI implements ScUserInterface {
     }
 
     public void addStackSynthesis(ScLocalStackSynthesis localSsr) {
+        localSsr.queue = previousQueues;
         base.addStackSynthesis(localSsr);
     }
 

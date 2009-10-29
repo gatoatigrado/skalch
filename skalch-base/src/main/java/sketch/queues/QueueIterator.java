@@ -1,7 +1,7 @@
 package sketch.queues;
 
 public interface QueueIterator {
-	boolean checkValue(Object value);
+    boolean checkValue(Object value);
 
-	boolean canFinish();
+    boolean canFinish();
 }

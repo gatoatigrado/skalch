@@ -10,6 +10,7 @@ import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.stack.prefix.ScDefaultPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearchManager;
+import sketch.queues.Queue;
 import sketch.ui.ScUserInterface;
 
 /**
@@ -18,6 +19,7 @@ import sketch.ui.ScUserInterface;
  * <li>support for oracle values (!!)</li>
  * <li>backtracking / exploration in multiple regions with multithreading</li>
  * </ul>
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -26,20 +28,21 @@ import sketch.ui.ScUserInterface;
 public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected ScSynthCtrlConf ctrls;
     protected ScSolvingInputConf oracle_inputs;
+    protected Queue queue;
+
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> search_manager;
     protected AtomicBoolean got_first_run;
     protected AtomicReference<ScStack> first_solution;
 
     public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches,
-            BackendOptions be_opts)
-    {
+            BackendOptions be_opts) {
         super(be_opts);
         // initialize backends
         local_synthesis = new ScLocalStackSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
-            local_synthesis[a] =
-                    new ScLocalStackSynthesis(sketches[a], this, be_opts, a);
+            local_synthesis[a] = new ScLocalStackSynthesis(sketches[a], this,
+                    be_opts, a);
         }
     }
 

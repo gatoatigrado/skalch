@@ -9,6 +9,7 @@ import sketch.dyn.main.debug.ScGeneralDebugEntry;
 import sketch.dyn.main.debug.ScLocationDebugEntry;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.queues.QueueIterator;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.sourcecode.ScSourceLocation;
@@ -23,111 +24,118 @@ import sketch.util.sourcecode.ScSourceLocation;
  *          make changes, please consider contributing back!
  */
 public class ScAngelicSketchBase {
-	public ScCtrlConf ctrl_conf;
-	public ScInputConf oracle_conf;
-	public Vector<ScSourceConstruct> construct_src_info = new Vector<ScSourceConstruct>();
-	public Vector<Object> sketch_queue;
-	public Vector<Object> sketch_queue_trace;
-	public boolean debug_print_enable = false;
-	public Vector<ScDebugEntry> debug_out;
-	public ScSourceLocation dysketch_fcn_location;
-	public int solution_cost = 0;
-	public int num_asserts_passed = 0;
-	public StackTraceElement debug_assert_failure_location;
-	protected ScSynthesisAssertFailure assert_inst__ = new ScSynthesisAssertFailure();
-	protected ScDynamicUntilvException untilv_inst__ = new ScDynamicUntilvException();
+    public ScCtrlConf ctrl_conf;
+    public ScInputConf oracle_conf;
+    public Vector<ScSourceConstruct> construct_src_info = new Vector<ScSourceConstruct>();
+    public Vector<Object> sketch_queue;
+    public Vector<Object> sketch_queue_trace;
+    public QueueIterator queue_iterator;
 
-	@Override
-	public String toString() {
-		return "ScAngelicSketchBase [ctrl_conf=" + ctrl_conf + ", oracle_conf="
-				+ oracle_conf + "]";
-	}
+    public boolean debug_print_enable = false;
+    public Vector<ScDebugEntry> debug_out;
+    public ScSourceLocation dysketch_fcn_location;
+    public int solution_cost = 0;
+    public int num_asserts_passed = 0;
+    public StackTraceElement debug_assert_failure_location;
+    protected ScSynthesisAssertFailure assert_inst__ = new ScSynthesisAssertFailure();
+    protected ScDynamicUntilvException untilv_inst__ = new ScDynamicUntilvException();
 
-	public void synthAssertTerminal(boolean truth) {
-		if (!truth) {
-			if (debug_print_enable) {
-				debug_assert_failure_location = (new Exception())
-						.getStackTrace()[1];
-			}
-			throw assert_inst__;
-		}
-		num_asserts_passed += 1;
-	}
+    @Override
+    public String toString() {
+        return "ScAngelicSketchBase [ctrl_conf=" + ctrl_conf + ", oracle_conf="
+                + oracle_conf + "]";
+    }
 
-	public void dynamicUntilvAssert(boolean truth) {
-		if (!truth) {
-			if (debug_print_enable) {
-				debug_assert_failure_location = (new Exception())
-						.getStackTrace()[1];
-			}
-			throw untilv_inst__;
-		}
-	}
+    public void synthAssertTerminal(boolean truth) {
+        if (!truth) {
+            if (debug_print_enable) {
+                debug_assert_failure_location = (new Exception())
+                        .getStackTrace()[1];
+            }
+            throw assert_inst__;
+        }
+        num_asserts_passed += 1;
+    }
 
-	public void enable_debug() {
-		debug_print_enable = true;
-		debug_assert_failure_location = null;
-		debug_out = new Vector<ScDebugEntry>();
-		sketch_queue = new Vector<Object>();
-		sketch_queue_trace = new Vector<Object>();
-	}
+    public void dynamicUntilvAssert(boolean truth) {
+        if (!truth) {
+            if (debug_print_enable) {
+                debug_assert_failure_location = (new Exception())
+                        .getStackTrace()[1];
+            }
+            throw untilv_inst__;
+        }
+    }
 
-	public synchronized void skCompilerAssertInternal(Object... arr) {
-		DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
-				false, "FAILED COMPILER ASSERT");
-		DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
-				false, arr);
-		(new Exception()).printStackTrace();
-		DebugOut.print_colored(DebugOut.BASH_RED,
-				"[critical failure] - oracles:", "\n", false, oracle_conf
-						.toString());
-		DebugOut.print_colored(DebugOut.BASH_RED,
-				"[critical failure] - ctrls:", "\n", false, ctrl_conf
-						.toString());
-		DebugOut.assertFalse("compiler failure");
-	}
+    public void enable_debug() {
+        debug_print_enable = true;
+        debug_assert_failure_location = null;
+        debug_out = new Vector<ScDebugEntry>();
+        sketch_queue = new Vector<Object>();
+        sketch_queue_trace = new Vector<Object>();
+    }
 
-	public void skCompilerAssert(boolean truth, Object... arr) {
-		if (!truth) {
-			skCompilerAssertInternal(arr);
-		}
-	}
+    public synchronized void skCompilerAssertInternal(Object... arr) {
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
+                false, "FAILED COMPILER ASSERT");
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
+                false, arr);
+        (new Exception()).printStackTrace();
+        DebugOut.print_colored(DebugOut.BASH_RED,
+                "[critical failure] - oracles:", "\n", false, oracle_conf
+                        .toString());
+        DebugOut.print_colored(DebugOut.BASH_RED,
+                "[critical failure] - ctrls:", "\n", false, ctrl_conf
+                        .toString());
+        DebugOut.assertFalse("compiler failure");
+    }
 
-	public synchronized void skprint(String... text) {
-		DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
-				(Object[]) text);
-	}
+    public void skCompilerAssert(boolean truth, Object... arr) {
+        if (!truth) {
+            skCompilerAssertInternal(arr);
+        }
+    }
 
-	public void skAddCost(int cost) {
-		solution_cost += cost;
-	}
+    public synchronized void skprint(String... text) {
+        DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
+                (Object[]) text);
+    }
 
-	public void skdprint_backend(String text) {
-		debug_out.add(new ScGeneralDebugEntry(text));
-	}
+    public void skAddCost(int cost) {
+        solution_cost += cost;
+    }
 
-	public void skqueue_put_backend(Object value) {
-		sketch_queue.add(value);
-	}
+    public void skdprint_backend(String text) {
+        debug_out.add(new ScGeneralDebugEntry(text));
+    }
 
-	public void skqueue_check_backend(Object value) {
-		sketch_queue_trace.add(value);
-	}
+    public void skqueue_put_backend(Object value) {
+        sketch_queue.add(value);
+    }
 
-	public void skdprint_location_backend(String location) {
-		debug_out.add(new ScLocationDebugEntry(location));
-	}
+    public void skqueue_check_backend(Object value, boolean ifDebug) {
+        if (queue_iterator != null && !queue_iterator.checkValue(value)) {
+            synthAssertTerminal(false);
+        }
+        if (ifDebug) {
+            sketch_queue_trace.add(value);
+        }
+    }
 
-	/*
-	 * public void skdprint_pairs_backend(Object... arr) { StringBuilder text =
-	 * new StringBuilder(); for (int a = 0; a < arr.length;) { String name_str =
-	 * arr[a].toString(); text.append(name_str); if (a + 1 < arr.length) {
-	 * text.append(": "); String value_str = arr[a + 1].toString();
-	 * text.append(value_str); if (value_str.length() >= 60) {
-	 * text.append("\n"); // extra newline for long values } a += 1; } a += 1;
-	 * text.append("\n"); } debug_out.add(text.toString()); }
-	 */
-	public void addSourceInfo(ScSourceConstruct info) {
-		construct_src_info.add(info);
-	}
+    public void skdprint_location_backend(String location) {
+        debug_out.add(new ScLocationDebugEntry(location));
+    }
+
+    /*
+     * public void skdprint_pairs_backend(Object... arr) { StringBuilder text =
+     * new StringBuilder(); for (int a = 0; a < arr.length;) { String name_str =
+     * arr[a].toString(); text.append(name_str); if (a + 1 < arr.length) {
+     * text.append(": "); String value_str = arr[a + 1].toString();
+     * text.append(value_str); if (value_str.length() >= 60) {
+     * text.append("\n"); // extra newline for long values } a += 1; } a += 1;
+     * text.append("\n"); } debug_out.add(text.toString()); }
+     */
+    public void addSourceInfo(ScSourceConstruct info) {
+        construct_src_info.add(info);
+    }
 }

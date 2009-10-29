@@ -8,6 +8,7 @@ import sketch.dyn.synth.stack.ScStack;
 
 /**
  * static functions b/c I can't put them in ScUserInterface (java annoyance)
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -17,8 +18,7 @@ public class ScDebugStackRun extends ScDefaultDebugRun {
     protected ScStack stack;
 
     public ScDebugStackRun(
-            ScDynamicSketchCall<ScAngelicSketchBase> sketch_call, ScStack stack)
-    {
+            ScDynamicSketchCall<ScAngelicSketchBase> sketch_call, ScStack stack) {
         super(sketch_call);
         this.stack = stack;
     }
@@ -37,4 +37,5 @@ public class ScDebugStackRun extends ScDefaultDebugRun {
     public ScInputConf get_oracle_conf() {
         return stack.oracle_conf;
     }
+
 }

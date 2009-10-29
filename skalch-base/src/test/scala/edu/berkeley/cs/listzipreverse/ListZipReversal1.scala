@@ -21,9 +21,7 @@ class ListZipReversalSketch1 extends AngelicSketch {
         var r:List[String] = Nil
 
         for(i <- 0 to !!(6)) {  // once backtracking is fixed, this should be while(!!())
-            r = !!(x) + !!(y) :: r  // (!!,!!) trace ="d","1",...
-            skput_and_check(x)
-            skput_and_check(y)
+            r = skput_and_check(!!(x)) + skput_and_check(!!(y)) :: r  // (!!,!!) trace ="d","1",...
         }
         synthAssertTerminal(r == List("a1","b2","c3","d4"))
     }

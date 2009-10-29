@@ -112,22 +112,18 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
         if (debug_print_enable) {
             skqueue_put_backend(x)
         }
-	x
+        x
     }
     
     def skcheck[T](x : T) = {
-    	if (debug_print_enable) {
-    		skqueue_check_backend(x)
-    	}
-    x
+        skqueue_check_backend(x, debug_print_enable)
+        x
     }
     
     def skput_and_check[T](x : T) = {
-    	if (debug_print_enable) {
-    		skput(x)
-    		skcheck(x)
-    	}
-    x
+    	skput(x)
+    	skcheck(x)
+    	x
     }
 }
 

@@ -53,9 +53,11 @@ plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
 grgen_compile:
+	buildutil/check_generated_files.py --no_rebuild
 	plugin/src/main/grgen/sugared_test.sh
 
 ycomp:
+	buildutil/check_generated_files.py --no_rebuild
 	@killall mono java 2>/dev/null; true
 	plugin/src/main/grgen/sugared_test.sh --ycomp
 	@killall mono java 2>/dev/null; true

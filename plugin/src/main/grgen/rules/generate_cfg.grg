@@ -96,7 +96,7 @@ rule cfgSetAttachableMemberFcns {
 }
 
 // won't conflict above since member functions won't be in blocks.
-rule cfgSetBlockAttachable {
+rule cfgSetAttachableBlocks {
     . -:BlockStmt-> x:ScAstNode -:CfgPrologue-> prologue:CfgNormalNode;
     negative { prologue -:CfgAbstractAttachable-> prologue; }
     modify { prologue -:CfgAttachable-> prologue; }
@@ -203,14 +203,29 @@ rule deleteTmpEdges {
 }
 
 rule cfgInit {
-    modify { exec(cfgInitReturnNodes* |
+    // NOTE -- check this file with check_generated_files.py
+    modify { exec(
+        // @ generate command, run on this file
+        // grep -oE 'rule cfgInit([a-zA-Z0-9]+)' | sed 's/rule //g' |
+        // awk '{ print $0 "* |"; }'
+        // @ begin generate block
+        cfgInitReturnNodes* |
         cfgInitEnclosingNodes* |
         cfgInitOtherNodes* |
-        cfgSetAttachableMemberFcns* |
-        cfgSetBlockAttachable* |
+        // @ end generate block
 
-        // generate with
-        // grep -oE 'rule cfgSetNext([a-zA-Z0-9]+)' | sed 's/rule //g' | awk '{ print $0 "* | [deleteTmpEdges] |"; }'
+        // @ generate command, run on this file
+        // grep -oE 'rule cfgSetAttachable([a-zA-Z0-9]+)' | sed 's/rule //g' |
+        // awk '{ print $0 "* |"; }'
+        // @ begin generate block
+        cfgSetAttachableMemberFcns* |
+        cfgSetAttachableBlocks* |
+        // @ end generate block
+
+        // @ generate command, run on this file
+        // grep -oE 'rule cfgSetNext([a-zA-Z0-9]+)' | sed 's/rule //g' |
+        // awk '{ print $0 "* | [deleteTmpEdges] |"; }'
+        // @ begin generate block
         cfgSetNextForValDef* | [deleteTmpEdges] |
         cfgSetNextForBlockArgs* | [deleteTmpEdges] |
         cfgSetNextForScalaBlocks* | [deleteTmpEdges] |
@@ -219,6 +234,7 @@ rule cfgInit {
         cfgSetNextIntraFcn* | [deleteTmpEdges] |
         cfgSetNextFcnDef* | [deleteTmpEdges] |
         cfgSetNextIgnoreSubtree* | [deleteTmpEdges] |
+        // @ end generate block
 
         [deleteTmpEdges]); }
 }

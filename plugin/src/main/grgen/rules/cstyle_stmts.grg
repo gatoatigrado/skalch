@@ -53,35 +53,74 @@ rule postsetValDefRhs(x : ValDef, y : ScAstNode) {
     modify { x -:ValDefRhs-> y; }
 }
 
-// redirect the chain from a previous argument to the new reference
-rule redirect_outgoing_fcn_edges(prev_arg : ScAstNode, varref : ScAstNode) {
-    prev_arg -e:FcnArg-> x:ScAstNode;
+// move one sibling edges outgoing from x to be outgoing from y
+rule redirect_outgoing_sibling_edges(x : ScAstNode, y : ScAstNode) {
+    x -e:Sibling-> z:ScAstNode;
     modify {
-        varref -e2:typeof(e)-> x;
+        y -e2:typeof(e)-> z;
         delete(e);
     }
 }
 
-rule createTemporary(from : ScAstNode, cfgnode : CfgNode, expr : ScAstNode) {
+rule redirect_outgoing_cfg_edges(x : ScAstNode, y : ScAstNode) {
+    x -e:AstCfgEdge-> z:CfgNode;
+    modify {
+        y -e2:typeof(e)-> z;
+        delete(e);
+    }
+}
+
+rule createTemporary(expr : ScAstNode, cfgnode : CfgNode) {
     modify {
         tmp_assign:BlockifyValDef -:ValDefSymbol-> tmpsym:TmpSymbol;
         ref:TmpVarRef -:VarRefSymbol-> tmpsym;
-        ref -:BlockifySubtreeInner-> tmp_assign;
+        cfgnode -:BlockifyExpr-> tmp_assign;
         // otherwise, order is not explicit
         exec(redirect_incoming(expr, ref)* &
-            redirect_outgoing_fcn_edges(expr, ref)* &
+            redirect_outgoing_sibling_edges(expr, ref)* &
+            redirect_outgoing_cfg_edges(expr, ref)* &
             postsetValDefRhs(tmp_assign, expr));
     }
 }
 
-// NOTE -- if this is too special-case, then perhaps
-// an edge class could be created to designate
-// nodes which should be transformed to statements.
-rule fcnArgsToStmts {
-    from:ScAstNode -:FcnArg-> expr:ScalaExprStmt;
-    from -:AstCfgEdge-> eval_node:CfgEvalNormalNode;
+rule exprTargetsToNodes {
+    . -:ExprTarget-> expr:ScalaExprStmt
+        -:AstCfgEdge-> eval_node:CfgEvalNormalNode;
     modify {
-        exec(createTemporary(from, eval_node, expr));
+        exec(createTemporary(expr, eval_node));
+    }
+}
+
+/// need to blockify previous arguments so we don't change
+/// the effective CFG order
+rule propagateBlockifyMarkSafe {
+    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode;
+        expr:BlockifySafe -:AstCfgEdge-> next_blockify;
+    existing_blockify -:AbstractBlockify-> .;
+    negative { next_blockify -:AbstractBlockify-> .; }
+    negative { existing_blockify -:CfgAbstractAttachable-> existing_blockify; }
+    negative { next_blockify -:CfgAbstractAttachable-> next_blockify; }
+    modify {
+        next_blockify -:BlockifySkip-> :BlockifySkipNode;
+    }
+}
+
+rule propagateBlockify {
+    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode;
+        expr:ScAstNode -:AstCfgEdge-> next_blockify;
+    existing_blockify -:AbstractBlockify-> .;
+    negative { next_blockify -:AbstractBlockify-> .; }
+    negative { existing_blockify -:CfgAbstractAttachable-> existing_blockify; }
+    negative { next_blockify -:CfgAbstractAttachable-> next_blockify; }
+    modify {
+        exec(createTemporary(expr, next_blockify));
+    }
+}
+
+test testNoBlockifiedSafeNodes {
+    negative {
+        valdef:BlockifyValDef -:ValDefRhs-> safe:BlockifySafe
+            -:AstCfgEdge-> cfgnode:CfgNode -:BlockifyExpr-> valdef;
     }
 }
 

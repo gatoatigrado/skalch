@@ -113,4 +113,12 @@ gatoatigrado-plugin-roman-numeral: gatoatigrado-build-plugin-deps
 gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps
 	@make plugin_dev testfile=RevListTest.scala
 
+gatoatigrado-mv-grgen-files-todirectory:
+	mkdir -p tmp-grgen
+	gxlname=$$(grep import ~/.sketch/tmp/transform.grs | sed -r 's/.+"([^"]+)".+/\1/g'); \
+            dirname="$$(dirname "$$gxlname")"; \
+            cat ~/.sketch/tmp/transform.grs | sed "s/$${dirname//\//\\/}\///g" > tmp-grgen/transform.grs; \
+            cp "$$gxlname" tmp-grgen
+	cp -r plugin/src/main/grgen/{AllRules.grg,ScalaAstModel.gm,rules,stages-scripts} tmp-grgen
+
 g: gatoatigrado-build-plugin-deps plugin_angelic_sketch # whatever gatoatigrado's currently working on

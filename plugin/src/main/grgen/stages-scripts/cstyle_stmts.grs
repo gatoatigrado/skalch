@@ -6,6 +6,11 @@ echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
 xgrs cfgInit
 xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
 xgrs testCfgConnectedFcnDefsEchoError
+xgrs exprTargetsToNodes*
+# debug xgrs exprTargetsToNodes*
+xgrs (propagateBlockifyMarkSafe+ | propagateBlockify)*
+# debug xgrs propagateBlockify*
+validate exitonfailure xgrs testNoBlockifiedSafeNodes
 # echo "[REWRITE PRODUCTION] cstyle_stmts -- possibly infinite loop..."
 # xgrs cfgSetNextForScalaBlocks*
 

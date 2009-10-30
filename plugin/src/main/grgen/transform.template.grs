@@ -22,10 +22,10 @@ dump set node Symbol color blue
 dump set node Annotation color orchid
 dump set node TmpSymbol color LightRed
 dump set node BlockifyValDef color LightBlue
-dump set edge BlockifyLink color LightBlue
 dump set node TmpVarRef color LightCyan
 dump set node CfgNode color LightGreen
 dump set edge CfgAbstractNext color DarkGreen
+dump set edge AbstractBlockify color DarkRed
 
 
 

@@ -65,9 +65,13 @@ node class MemberFcn extends FcnDef;
 node class InsertedReturnSymbol extends Symbol;
 // execute this statement before the given one.
 node class BlockifyValDef extends ValDef;
-abstract edge class BlockifyLink;
-edge class BlockifySubtreeInner extends BlockifyLink;
-edge class BlockifyNext extends BlockifyLink;
+
+// ==== Scala statement-expressions to blocks ====
+abstract edge class AbstractBlockify;
+edge class BlockifyExpr extends AbstractBlockify;
+edge class BlockifySkip extends AbstractBlockify;
+node class BlockifySkipNode;
+node class TmpBlockifySkipNode extends BlockifySkipNode;
 node class TmpVarRef extends VarRef, BlockifySafe;
 
 
@@ -171,7 +175,7 @@ node class Typed extends ScAstNode;
 node class ValDef extends ScAstNode;
 node class VarRef extends ScAstNode;
 
-abstract node class Constant extends ScAstNode, BlockifySafe;
+abstract node class Constant extends BlockifySafe, ScAstNode;
 
 node class BooleanConstant extends Constant {
     value : boolean;
@@ -214,15 +218,19 @@ node class TypeTree extends ScAstNode;
 
 // === Edge classes ===
 
-abstract edge class FcnArg;
-abstract edge class BlockStmt;
-
 // these edges convey what the naming conventions already tell us
 abstract edge class AstSiblingSubtree;
 abstract edge class Sibling extends AstSiblingSubtree;
 abstract edge class Subtree extends AstSiblingSubtree;
+// target of the edge should be transformed into an expression,
+// not Scala expression-statement for C-style compatibility
+abstract edge class ExprTarget;
+abstract edge class VarRefTarget extends ExprTarget;
 abstract edge class ScTermSymbol;
 abstract edge class ScTypeSymbol;
+
+abstract edge class FcnArg extends ExprTarget;
+abstract edge class BlockStmt;
 
 edge class BlockStmtChain extends BlockStmt, Subtree;
 edge class BlockStmtNext extends BlockStmt, Sibling;
@@ -256,7 +264,7 @@ edge class FcnBody extends Subtree;
 edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
 edge class FcnDefParamsLast extends Subtree;
-edge class FcnTarget extends Subtree;
+edge class FcnTarget extends Subtree, ExprTarget;
 edge class FieldAccessObject extends Subtree;
 edge class IfCond extends Subtree;
 edge class IfElse extends Subtree;

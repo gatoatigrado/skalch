@@ -260,3 +260,8 @@ rule testCfgConnectedEchoError {
     modify { emit("[GRG ASSERT FAILURE] unconnected node: ");
         emit(x); emit("\n"); }
 }
+
+rule deleteCfgIsConnected {
+    y:CfgNode -e:CfgIsConnected-> y;
+    modify { delete(e); }
+}

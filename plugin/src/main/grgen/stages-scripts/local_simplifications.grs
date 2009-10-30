@@ -1,0 +1,3 @@
+echo "[REWRITE PRODUCTION] local simplifications"
+xgrs removeFcnTarget*
+xgrs (deleteDangling+ | removeNopTypeCast)*

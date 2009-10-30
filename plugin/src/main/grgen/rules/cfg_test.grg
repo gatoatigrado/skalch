@@ -1,0 +1,58 @@
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// Test that the control flow graph has a sequential path (including
+// links skipping over conditional branches) from the beginning to
+// the end of each function definition.
+
+rule testCfgConnectedInit {
+    fcn:MemberFcn -:CfgEpilogue-> epilogue:CfgNormalNode;
+    modify {
+        epilogue -:CfgIsConnected-> epilogue;
+    }
+}
+
+rule testCfgConnectedPropagate {
+    x:CfgNode -:CfgAbstractNext-> connected:CfgNode;
+    connected -:CfgIsConnected-> connected;
+    negative { x -:CfgIsConnected-> x; }
+    modify {
+        x -:CfgIsConnected-> x;
+    }
+}
+
+rule testCfgConnectedFcnDefsEchoError {
+    fcn:MemberFcn -:CfgPrologue-> prologue:CfgNormalNode;
+    fcn -:ScTermSymbol-> fcnsym:Symbol;
+    negative {
+        prologue -:CfgIsConnected-> prologue;
+    }
+    modify { emit("[GRG ASSERT FAILURE] unconnected function: "
+        + fcnsym.symbolName + "\n"); }
+}
+
+rule testCfgConnectedEchoError {
+    x:ScAstNode --> cfgnode:CfgNormalNode;
+    negative {
+        cfgnode -:CfgAbstractNext-> z:Node;
+        a:Node -:CfgAbstractNext-> cfgnode;
+        hom(a, z);
+    }
+    modify { emit("[GRG ASSERT FAILURE] unconnected node: ");
+        emit(x); emit("\n"); }
+}
+
+rule deleteCfgIsConnected {
+    y:CfgNode -e:CfgIsConnected-> y;
+    modify { delete(e); }
+}
+
+rule testCfgAstConnections {
+    x:CfgNode;
+    negative { x; y:ScAstNode -:AstCfgEdge-> x; }
+    modify { emit("[GRG ASSERT FAILURE] unconnected node\n"); }
+}

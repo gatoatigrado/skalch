@@ -65,6 +65,9 @@ node class MemberFcn extends FcnDef;
 node class InsertedReturnSymbol extends Symbol;
 // execute this statement before the given one.
 node class BlockifyValDef extends ValDef;
+node class ThisVarRef extends VarRef, BlockifySafe;
+node class TmpSymbol extends Symbol;
+node class TargetFcnCall extends FcnCall;
 
 // ==== Scala statement-expressions to blocks ====
 abstract edge class AbstractBlockify;
@@ -123,7 +126,6 @@ edge class SKAssertExpr;
 
 // same edge classes as Block
 node class SKBlock extends ScAstNode;
-node class TmpSymbol extends Symbol;
 
 
 

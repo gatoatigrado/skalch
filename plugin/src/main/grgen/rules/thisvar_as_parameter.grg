@@ -12,7 +12,7 @@ rule transformThisRef(fcn:FcnDef) {
     ths -thssymlink:ThisSymbol-> clssym:Symbol;
     fcn -:FcnDefParamsChain-> :ValDef -:ValDefSymbol-> thssym:Symbol;
     modify {
-        thsref:VarRef<ths> -:VarRefSymbol-> thssym;
+        thsref:ThisVarRef<ths> -:VarRefSymbol-> thssym;
         delete(thssymlink);
     }
 }

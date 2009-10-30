@@ -5,24 +5,11 @@ xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
 echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
 xgrs cfgInit
 xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
-xgrs testCfgConnectedFcnDefsEchoError
+xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
+validate exitonfailure xgrs ! ?testCfgAstConnections
+
+echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporary variables"
 xgrs exprTargetsToNodes*
-# debug xgrs exprTargetsToNodes*
 xgrs (propagateBlockifyMarkSafe+ | propagateBlockify)*
-# debug xgrs propagateBlockify*
 validate exitonfailure xgrs testNoBlockifiedSafeNodes
-# echo "[REWRITE PRODUCTION] cstyle_stmts -- possibly infinite loop..."
-# xgrs cfgSetNextForScalaBlocks*
-
-# xgrs fcnArgsToStmts*
-# xgrs convertFunctionBlocksToReturns*
-
-# xgrs propagateBlockify*
-# xgrs createImplicitBlocks*
-
-# xgrs findBlockifyLinks
-# xgrs insertBlockStmts
-
-# xgrs (createImplicitBlocks | insertBlockifyToBlocks | propagateBlockify)*
-# xgrs (propagate
-# xgrs ifCreateTemporaries
+validate exitonfailure xgrs ! ?testCfgAstConnections

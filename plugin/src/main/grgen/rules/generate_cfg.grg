@@ -102,6 +102,13 @@ rule cfgSetAttachableBlocks {
     modify { prologue -:CfgAttachable-> prologue; }
 }
 
+// won't conflict above since member functions won't be in blocks.
+rule cfgSetAttachableBlockExpr {
+    . -:BlockExpr-> x:ScAstNode -:CfgPrologue-> prologue:CfgNormalNode;
+    negative { prologue -:CfgAbstractAttachable-> prologue; }
+    modify { prologue -:CfgAttachable-> prologue; }
+}
+
 
 
 rule cfgSetNextForValDef {
@@ -220,6 +227,7 @@ rule cfgInit {
         // @ begin generate block
         cfgSetAttachableMemberFcns* |
         cfgSetAttachableBlocks* |
+        cfgSetAttachableBlockExpr* |
         // @ end generate block
 
         // @ generate command, run on this file
@@ -237,47 +245,4 @@ rule cfgInit {
         // @ end generate block
 
         [deleteTmpEdges]); }
-}
-
-// TEST -- member functions are connected from beginning to end
-rule testCfgConnectedInit {
-    fcn:MemberFcn -:CfgEpilogue-> epilogue:CfgNormalNode;
-    modify {
-        epilogue -:CfgIsConnected-> epilogue;
-    }
-}
-
-rule testCfgConnectedPropagate {
-    x:CfgNode -:CfgAbstractNext-> connected:CfgNode;
-    connected -:CfgIsConnected-> connected;
-    negative { x -:CfgIsConnected-> x; }
-    modify {
-        x -:CfgIsConnected-> x;
-    }
-}
-
-rule testCfgConnectedFcnDefsEchoError {
-    fcn:MemberFcn -:CfgPrologue-> prologue:CfgNormalNode;
-    fcn -:ScTermSymbol-> fcnsym:Symbol;
-    negative {
-        prologue -:CfgIsConnected-> prologue;
-    }
-    modify { emit("[GRG ASSERT FAILURE] unconnected function: "
-        + fcnsym.symbolName + "\n"); }
-}
-
-rule testCfgConnectedEchoError {
-    x:ScAstNode --> cfgnode:CfgNormalNode;
-    negative {
-        cfgnode -:CfgAbstractNext-> z:Node;
-        a:Node -:CfgAbstractNext-> cfgnode;
-        hom(a, z);
-    }
-    modify { emit("[GRG ASSERT FAILURE] unconnected node: ");
-        emit(x); emit("\n"); }
-}
-
-rule deleteCfgIsConnected {
-    y:CfgNode -e:CfgIsConnected-> y;
-    modify { delete(e); }
 }

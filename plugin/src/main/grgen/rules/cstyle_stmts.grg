@@ -109,7 +109,6 @@ rule propagateBlockifyMarkSafe {
     expr:BlockifySafe -:AstCfgEdge-> next_blockify;
 
     negative { next_blockify -:AbstractBlockify-> .; }
-    negative { existing_blockify -:CfgAbstractAttachable-> existing_blockify; }
     negative { next_blockify -:CfgAbstractAttachable-> next_blockify; }
     modify { next_blockify -:BlockifySkip-> :BlockifySkipNode; }
 }
@@ -121,7 +120,6 @@ rule propagateBlockify {
     expr:ScAstNode -:AstCfgEdge-> next_blockify;
 
     negative { next_blockify -:AbstractBlockify-> .; }
-    negative { existing_blockify -:CfgAbstractAttachable-> existing_blockify; }
     negative { next_blockify -:CfgAbstractAttachable-> next_blockify; }
     modify { exec(createTemporary(expr, next_blockify)); }
 }

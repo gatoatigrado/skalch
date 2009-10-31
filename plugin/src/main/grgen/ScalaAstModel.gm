@@ -85,7 +85,8 @@ abstract node class CfgNode;
 // further subtypes indicate how computation is carried out
 // (for example, for functions, in the epilogue node).
 abstract node class CfgNormalNode extends CfgNode;
-node class CfgDummyPrologueNode extends CfgNormalNode;
+abstract node class CfgDummyNode extends CfgNormalNode;
+node class CfgDummyPrologueNode extends CfgDummyNode;
 node class CfgEvalNormalNode extends CfgNormalNode;
 // don't create next ptrs from return stmts.
 // Only for the epilogue of the return statement.

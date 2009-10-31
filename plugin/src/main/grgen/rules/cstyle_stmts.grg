@@ -83,7 +83,7 @@ rule createTemporary(expr : ScAstNode, cfgnode : CfgNode) {
     }
 }
 
-rule exprTargetsToNodes {
+rule exprTargetsToTemporaryVariables {
     . -:ExprTarget-> expr:ScalaExprStmt
         -:AstCfgEdge-> eval_node:CfgEvalNormalNode;
     modify {
@@ -91,30 +91,39 @@ rule exprTargetsToNodes {
     }
 }
 
+rule blockifyIncompatibleProloguesAsWell {
+    . -:ExprTarget-> expr:ScalaExprStmt
+        -:AstCfgEdge-> dummy_node:CfgDummyNode;
+    negative { dummy_node -:AbstractBlockify-> .; }
+    modify { dummy_node -:BlockifySkip-> :BlockifySkipNode; }
+}
+
 /// need to blockify previous arguments so we don't change
 /// the effective CFG order
 rule propagateBlockifyMarkSafe {
-    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode;
-        expr:BlockifySafe -:AstCfgEdge-> next_blockify;
-    existing_blockify -:AbstractBlockify-> .;
+    // cfg side
+    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode
+        -:AbstractBlockify-> .;
+
+    // ast to cfg
+    expr:BlockifySafe -:AstCfgEdge-> next_blockify;
+
     negative { next_blockify -:AbstractBlockify-> .; }
     negative { existing_blockify -:CfgAbstractAttachable-> existing_blockify; }
     negative { next_blockify -:CfgAbstractAttachable-> next_blockify; }
-    modify {
-        next_blockify -:BlockifySkip-> :BlockifySkipNode;
-    }
+    modify { next_blockify -:BlockifySkip-> :BlockifySkipNode; }
 }
 
 rule propagateBlockify {
-    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode;
-        expr:ScAstNode -:AstCfgEdge-> next_blockify;
-    existing_blockify -:AbstractBlockify-> .;
+    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode
+        -:AbstractBlockify-> .;
+
+    expr:ScAstNode -:AstCfgEdge-> next_blockify;
+
     negative { next_blockify -:AbstractBlockify-> .; }
     negative { existing_blockify -:CfgAbstractAttachable-> existing_blockify; }
     negative { next_blockify -:CfgAbstractAttachable-> next_blockify; }
-    modify {
-        exec(createTemporary(expr, next_blockify));
-    }
+    modify { exec(createTemporary(expr, next_blockify)); }
 }
 
 test testNoBlockifiedSafeNodes {

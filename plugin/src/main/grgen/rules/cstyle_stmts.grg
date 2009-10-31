@@ -10,44 +10,9 @@
 //      (a) Create assignments to temporary variables
 //      (b) The blocks know how to
 
-rule retypeUnitTypeBlocks {
-    block:Block -e_sym:BlockTypeSymbol-> unitsym:ScalaUnitTypeSymbol;
-    block -e1:BlockStmtLast-> last:ScAstNode;
-    block -e2:BlockExpr-> expr:ScAstNode;
-    replace {
-        next_block:SKBlock<block> -e_sym-> unitsym;
-        last -e3:BlockStmtNext-> expr;
-        block -e4:BlockStmtLast-> expr;
-    }
-}
 
-rule convertFunctionBlocksToReturns {
-    fcndef:FcnDef -:FcnBody-> block:Block
-        -e:BlockExpr-> expr:ScAstNode;
-    block -le:BlockStmtLast-> last:ScAstNode;
-    block -:BlockTypeSymbol-> blk_typ:Symbol;
-    modify {
-        delete(e, le);
-        ret:Return -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
-        last -:BlockStmtNext-> ret -:ReturnExpr-> expr;
-        block -:BlockStmtLast-> ret;
-        next_block:SKBlock<block>;
-    }
-}
 
-// rule createImplicitBlocks {
-//     fcndef:FcnDef -e:FcnBody-> expr:ScAstNode;
-//     expr -:Blockify-> .;
-//     expr --> s1:Symbol -:TypeSymbol-> s2:Symbol;
-//     hom(s1, s2);
-//     modify {
-//         delete(e);
-//         fcndef -:FcnBody-> blk:SKBlock -:BlockStmtChain-> ret:Return -:ReturnExpr-> expr;
-//         blk -:BlockStmtLast-> ret;
-//         ret -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> s2;
-//         ret -:BlockifyNext-> expr;
-//     }
-// }
+// Library functions
 
 rule postsetValDefRhs(x : ValDef, y : ScAstNode) {
     modify { x -:ValDefRhs-> y; }
@@ -83,6 +48,10 @@ rule createTemporary(expr : ScAstNode, cfgnode : CfgAbstractNode) {
     }
 }
 
+
+
+// STEP 1: blockify ScalaExprStmt's that are incompatible with C-style edges
+
 rule exprTargetsToTemporaryVariables {
     . -:CstyleExprTarget-> expr:ScalaExprStmt
         -:AstCfgEdge-> eval_node:CfgEvalNormalNode;
@@ -97,6 +66,10 @@ rule blockifyIncompatibleProloguesAsWell {
     negative { dummy_node -:AbstractBlockify-> .; }
     modify { dummy_node -:BlockifySkip-> :BlockifySkipNode; }
 }
+
+
+
+// STEP 2: propagate blockify
 
 /// need to blockify previous arguments so we don't change
 /// the effective CFG order

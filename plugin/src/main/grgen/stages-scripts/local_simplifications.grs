@@ -1,3 +1,5 @@
 echo "[REWRITE PRODUCTION] local simplifications"
 xgrs removeFcnTarget*
 xgrs (deleteDangling+ | removeNopTypeCast)*
+echo "[REWRITE PRODUCTION] local simplifications -- retype unit blocks"
+xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*

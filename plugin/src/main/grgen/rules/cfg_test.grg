@@ -17,7 +17,7 @@ rule testCfgConnectedInit {
 }
 
 rule testCfgConnectedPropagate {
-    x:CfgNode -:CfgAbstractNext-> connected:CfgNode;
+    x:CfgAbstractNode -:CfgAbstractNext-> connected:CfgAbstractNode;
     connected -:CfgIsConnected-> connected;
     negative { x -:CfgIsConnected-> x; }
     modify {
@@ -47,12 +47,12 @@ rule testCfgConnectedEchoError {
 }
 
 rule deleteCfgIsConnected {
-    y:CfgNode -e:CfgIsConnected-> y;
+    y:CfgAbstractNode -e:CfgIsConnected-> y;
     modify { delete(e); }
 }
 
 rule testCfgAstConnections {
-    x:CfgNode;
+    x:CfgAbstractNode;
     negative { x; y:ScAstNode -:AstCfgEdge-> x; }
     modify { emit("[GRG ASSERT FAILURE] unconnected node\n"); }
 }

@@ -166,11 +166,11 @@ rule cfgSetNextForFcnArgs {
 rule cfgSetNextIntraFcn {
     fcn:FcnCall -:FcnArgChain-> first:ScAstNode;
     fcn -:FcnArgLast-> last:ScAstNode;
-    fcn -:CfgPrologue-> fcn_prologue:CfgNode;
-    fcn -:CfgEpilogue-> fcn_epilogue:CfgNode;
+    fcn -:CfgPrologue-> fcn_prologue:CfgAbstractNode;
+    fcn -:CfgEpilogue-> fcn_epilogue:CfgAbstractNode;
 
-    first -firstcfgedge:CfgPrologue-> firstcfgnode:CfgNode;
-    last -lastcfgedge:CfgEpilogue-> lastcfgnode:CfgNode;
+    first -firstcfgedge:CfgPrologue-> firstcfgnode:CfgAbstractNode;
+    last -lastcfgedge:CfgEpilogue-> lastcfgnode:CfgAbstractNode;
 
     hom(first, last);
     hom(firstcfgedge, lastcfgedge);

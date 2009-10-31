@@ -63,14 +63,14 @@ rule redirect_outgoing_sibling_edges(x : ScAstNode, y : ScAstNode) {
 }
 
 rule redirect_outgoing_cfg_edges(x : ScAstNode, y : ScAstNode) {
-    x -e:AstCfgEdge-> z:CfgNode;
+    x -e:AstCfgEdge-> z:CfgAbstractNode;
     modify {
         y -e2:typeof(e)-> z;
         delete(e);
     }
 }
 
-rule createTemporary(expr : ScAstNode, cfgnode : CfgNode) {
+rule createTemporary(expr : ScAstNode, cfgnode : CfgAbstractNode) {
     modify {
         tmp_assign:BlockifyValDef -:ValDefSymbol-> tmpsym:TmpSymbol;
         ref:TmpVarRef -:VarRefSymbol-> tmpsym;
@@ -84,7 +84,7 @@ rule createTemporary(expr : ScAstNode, cfgnode : CfgNode) {
 }
 
 rule exprTargetsToTemporaryVariables {
-    . -:ExprTarget-> expr:ScalaExprStmt
+    . -:CstyleExprTarget-> expr:ScalaExprStmt
         -:AstCfgEdge-> eval_node:CfgEvalNormalNode;
     modify {
         exec(createTemporary(expr, eval_node));
@@ -92,7 +92,7 @@ rule exprTargetsToTemporaryVariables {
 }
 
 rule blockifyIncompatibleProloguesAsWell {
-    . -:ExprTarget-> expr:ScalaExprStmt
+    . -:CstyleExprTarget-> expr:ScalaExprStmt
         -:AstCfgEdge-> dummy_node:CfgDummyNode;
     negative { dummy_node -:AbstractBlockify-> .; }
     modify { dummy_node -:BlockifySkip-> :BlockifySkipNode; }
@@ -102,7 +102,7 @@ rule blockifyIncompatibleProloguesAsWell {
 /// the effective CFG order
 rule propagateBlockifyMarkSafe {
     // cfg side
-    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode
+    next_blockify:CfgAbstractNode -:CfgSequentialNext-> existing_blockify:CfgAbstractNode
         -:AbstractBlockify-> .;
 
     // ast to cfg
@@ -115,7 +115,7 @@ rule propagateBlockifyMarkSafe {
 }
 
 rule propagateBlockify {
-    next_blockify:CfgNode -:CfgSequentialNext-> existing_blockify:CfgNode
+    next_blockify:CfgAbstractNode -:CfgSequentialNext-> existing_blockify:CfgAbstractNode
         -:AbstractBlockify-> .;
 
     expr:ScAstNode -:AstCfgEdge-> next_blockify;
@@ -129,7 +129,7 @@ rule propagateBlockify {
 test testNoBlockifiedSafeNodes {
     negative {
         valdef:BlockifyValDef -:ValDefRhs-> safe:BlockifySafe
-            -:AstCfgEdge-> cfgnode:CfgNode -:BlockifyExpr-> valdef;
+            -:AstCfgEdge-> cfgnode:CfgAbstractNode -:BlockifyExpr-> valdef;
     }
 }
 

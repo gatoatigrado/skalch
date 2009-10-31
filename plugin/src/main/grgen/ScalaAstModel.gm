@@ -80,17 +80,17 @@ node class TmpVarRef extends VarRef, BlockifySafe;
 
 // === CFG ===
 // CFG nodes
-abstract node class CfgNode;
+abstract node class CfgAbstractNode;
 // normal nodes indicate normal control flow.
 // further subtypes indicate how computation is carried out
 // (for example, for functions, in the epilogue node).
-abstract node class CfgNormalNode extends CfgNode;
+abstract node class CfgNormalNode extends CfgAbstractNode;
 abstract node class CfgDummyNode extends CfgNormalNode;
 node class CfgDummyPrologueNode extends CfgDummyNode;
 node class CfgEvalNormalNode extends CfgNormalNode;
 // don't create next ptrs from return stmts.
 // Only for the epilogue of the return statement.
-node class CfgReturnNode extends CfgNode;
+node class CfgReturnNode extends CfgAbstractNode;
 
 edge class CfgBlockify;
 edge class CfgBlockifySkip;
@@ -227,12 +227,12 @@ abstract edge class Sibling extends AstSiblingSubtree;
 abstract edge class Subtree extends AstSiblingSubtree;
 // target of the edge should be transformed into an expression,
 // not Scala expression-statement for C-style compatibility
-abstract edge class ExprTarget;
-abstract edge class VarRefTarget extends ExprTarget;
+abstract edge class CstyleExprTarget;
+abstract edge class VarRefTarget extends CstyleExprTarget;
 abstract edge class ScTermSymbol;
 abstract edge class ScTypeSymbol;
 
-abstract edge class FcnArg extends ExprTarget;
+abstract edge class FcnArg extends CstyleExprTarget;
 abstract edge class BlockStmt;
 
 edge class BlockStmtChain extends BlockStmt, Subtree;
@@ -267,7 +267,7 @@ edge class FcnBody extends Subtree;
 edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
 edge class FcnDefParamsLast extends Subtree;
-edge class FcnTarget extends Subtree, ExprTarget;
+edge class FcnTarget extends Subtree, CstyleExprTarget;
 edge class FieldAccessObject extends Subtree;
 edge class IfCond extends Subtree;
 edge class IfElse extends Subtree;

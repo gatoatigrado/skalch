@@ -10,3 +10,7 @@ xgrs exprTargetsToTemporaryVariables*
 xgrs (propagateBlockifyMarkSafe+ | propagateBlockify)*
 validate exitonfailure xgrs testNoBlockifiedSafeNodes
 xgrs testCfgAstConnections
+
+echo "[REWRITE PRODUCTION] cstyle_stmts -- attach nodes"
+xgrs initAttachRoutine*
+xgrs deleteCfgNode*

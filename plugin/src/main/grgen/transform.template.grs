@@ -1,6 +1,9 @@
 # grshell script
+# preprocessed with Jinja2
+# http://jinja.pocoo.org/2/documentation/
+# hg clone http://dev.pocoo.org/hg/jinja2-main jinja2
 new graph "AllRules.grg"
-import "%(gxl_file)s" ScalaAstModel.gm
+import "{{ gxl_file }}" ScalaAstModel.gm
 select actions lgsp-AllRulesActions.dll
 
 
@@ -26,6 +29,9 @@ dump set node TmpVarRef color LightCyan
 dump set node CfgAbstractNode color LightGreen
 dump set edge CfgAbstractNext color DarkGreen
 dump set edge AbstractBlockify color DarkRed
+dump set node HighlightValDef color Black
+dump set node PrintNode color DarkBlue
+dump set node DebugBadNode color Red
 
 
 
@@ -37,7 +43,27 @@ xgrs deleteDangling*
 include "stages-scripts/local_simplifications.grs"
 include "stages-scripts/cstyle_stmts.grs"
 
-# debug enable
+xgrs setSymbolNames*
+
+# @ generate command, run in dir of this file
+# grep -oE '^rule print([a-zA-Z0-9]+)' rules/print_graph/create_graph.grg | awk '{ printf("%s+ | ", $2); }' | sed -r 's/^/xgrs \(/g; s/ \| $/\)\*/g'
+# @ begin generate block
+xgrs (printVarRef+ | printBangBangCall+ | printHoleCall+ | printValDef+ | printBooleanConstant+ | printIntConstant+ | printEmptyValDef+ | printFcn+ | printIf+ | printAssign+ | printFcnDef+ | printSKBlock+ | printBlock+ | printFcnArgNext+)*
+# @ end generate block
+
+# xgrs deleteLastRefs*
+xgrs printSetInitialCoalesced*
+# xgrs printRepCoalesce*
+
+# xgrs deletePrinted*
+# xgrs printEverything
+
+{% if output_file %}
+export "{{ output_file }}"
+{% endif %}
+{% if ycomp %}
 # show graph ycomp "--dolayout"
-# export "%(output_file)s"
-%(endstr)s
+debug enable
+{% else %}
+exit
+{% endif %}

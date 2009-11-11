@@ -64,6 +64,12 @@ ycomp:
 jython_example:
 	mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=org.python.util.jython" -Dexec.args="base/src/main/jython/print_graph.py base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl"
 
+ycomp-intermediate:
+	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"
+
+ycomp-unprocessed:
+	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl --grs_template="!/ycomp_intermediate.grs"
+
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)
 	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 

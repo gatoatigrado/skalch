@@ -1,0 +1,13 @@
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// Delete all CFG nodes
+
+rule deleteCfgNode {
+    x:CfgAbstractNode;
+    modify { delete(x); }
+}

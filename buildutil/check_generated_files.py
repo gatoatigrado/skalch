@@ -22,9 +22,15 @@ class FnameMod(object):
     def modify_cmd(self, cmd, fname):
         return "cat '%s' | %s" %(Path(fname), cmd)
 
+class CdMod(object):
+    def modify_cmd(self, cmd, fname):
+        return "cd '%s'; %s" %(Path(fname).parent(), cmd)
+
 def get_modifiers(v):
     result = []
-    if "run on this file" in v:
+    if "run in dir of this file" in v:
+        result.append(CdMod())
+    elif "run on this file" in v:
         result.append(FnameMod())
     return result
 

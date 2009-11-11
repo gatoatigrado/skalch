@@ -5,6 +5,8 @@
 // not use this file except in compliance with the License. You may obtain a
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
+node class HighlightValDef extends ValDef;
+
 node class ScAstNode {
     sourceFile : string;
     scalaSource : string;
@@ -22,7 +24,7 @@ node class Symbol {
 edge class SymbolOwner;
 edge class EnclosingFcn;
 edge class BridgeFcn;
-node class EmptyChain;
+node class EmptyChain extends ScAstNode;
 node class Annotation;
 
 
@@ -134,6 +136,56 @@ node class SKBlock extends ScAstNode;
 node class ConstructAssignableClassDef extends ClassDef;
 edge class CfgIsConnected;
 
+
+
+// === Print nodes ===
+edge class PrintSymName;
+
+node class PrintRenamer { base : string; suffixCtr : int; }
+node class PrintName { name : string; }
+
+node class PrintNoName extends PrintName; // no name
+node class PrintNameFactory;
+
+edge class PrintRep;
+abstract node class PrintNode;
+node class PrintTerminal extends PrintNode { value : string; }
+node class PrintVarname extends PrintTerminal;
+node class PrintKeyword extends PrintTerminal;
+node class PrintConstruct extends PrintTerminal;
+node class PrintConstant extends PrintTerminal;
+node class PrintSyntactic extends PrintTerminal;
+// node class PrintCollapsed extends PrintTerminal;
+node class PrintCoalesced extends PrintTerminal;
+
+node class PrintLparen extends PrintSyntactic { value = "("; }
+node class PrintRparen extends PrintSyntactic { value = ")"; }
+node class PrintLbraceNL extends PrintSyntactic { value = "{\n"; }
+node class PrintRbrace extends PrintSyntactic { value = "}"; }
+
+node class PrintOptionalNewline extends PrintSyntactic;
+
+node class PrintSubtree extends PrintNode;
+node class PrintSubtreeList extends PrintSubtree;
+edge class PrintSep; // edge for separator chain.
+// it's then very easy to, e.g., mutate the separator chain
+// when it has a certain in degree.
+edge class PrintSubtreeStartNext;
+edge class PrintSubtreeStart extends PrintSubtreeStartNext;
+edge class PrintSubtreeNext extends PrintSubtreeStartNext;
+
+node class PrintList extends PrintNode;
+edge class PrintListNext;
+
+// reference to insert another print node.
+node class PrintRef extends PrintNode;
+edge class PrintRefEdge;
+
+
+
+// === Bad nodes for debugging ===
+node class DebugBadNode;
+edge class DebugBadEdge;
 
 
 
@@ -308,6 +360,7 @@ edge class ClassDefTypeSymbol extends ScTypeSymbol;
 edge class ClassRefTypeSymbol extends ScTypeSymbol;
 edge class FcnCallTypeSymbol extends ScTypeSymbol;
 edge class FcnDefTypeSymbol extends ScTypeSymbol;
+edge class FcnDefReturnTypeSymbol extends ScTypeSymbol;
 edge class IfTypeSymbol extends ScTypeSymbol;
 edge class LiteralTypeSymbol extends ScTypeSymbol;
 edge class PackageDefTypeSymbol extends ScTypeSymbol;

@@ -1,0 +1,250 @@
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// create the graph of print nodes
+
+rule printVarRef {
+    x:VarRef -:ScTermSymbol-> sym:Symbol -:PrintSymName-> name:PrintName;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> printrep:PrintVarname;
+        eval {
+            printrep.value = name.name;
+        }
+    }
+}
+
+rule printBangBangCall {
+    x:BangBangCall;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> printrep:PrintConstruct;
+        eval {
+            printrep.value = "!!";
+        }
+    }
+}
+
+rule printHoleCall {
+    x:HoleCall;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> printrep:PrintConstruct;
+        eval {
+            printrep.value = "??";
+        }
+    }
+}
+
+rule printValDef {
+    x:ValDef -:ValDefSymbol-> :Symbol -:PrintSymName-> name:PrintName;
+    x -:ValDefRhs-> :ScAstNode -:PrintRep-> print_rhs:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> print_name:PrintVarname
+            -:PrintListNext-> print_eq:PrintSyntactic
+            -:PrintListNext-> print_rhs_ref:PrintSubtree
+            -:PrintSubtreeStart-> print_rhs;
+        eval {
+            print_name.value = name.name;
+            print_eq.value = " = ";
+        }
+    }
+}
+
+
+
+rule printBooleanConstant {
+    x:BooleanConstant;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> printrep:PrintConstant;
+        eval {
+            printrep.value = x.value;
+        }
+    }
+}
+
+rule printIntConstant {
+    x:IntConstant;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> printrep:PrintConstant;
+        eval {
+            printrep.value = x.value;
+        }
+    }
+}
+
+
+
+rule printEmptyValDef {
+    x:ValDef -:ValDefSymbol-> sym:Symbol -:PrintSymName->
+        name:PrintName;
+    sym -:TypeSymbol-> typesym:Symbol -:PrintSymName->
+        typename:PrintName;
+    x -:ValDefRhs-> :EmptyTree;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> print_typename:PrintVarname
+            -:PrintListNext-> printname:PrintVarname;
+        eval {
+            print_typename.value = typename.name;
+            printname.value = name.name;
+        }
+    }
+}
+
+rule printFcn {
+    x:FcnCall -:FcnCallSymbol-> :Symbol
+        -:PrintSymName-> name:PrintName;
+    x -:FcnArgChain-> first:ScAstNode
+        -:PrintRep-> first_print_rep:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> fcnname:PrintVarname
+            -:PrintListNext-> :PrintLparen
+            -:PrintListNext-> args:PrintSubtreeList
+            -:PrintListNext-> :PrintRparen;
+        args -:PrintSubtreeStart-> first_print_rep
+            -:PrintSubtreeNext-> print_sep:PrintRef
+            -:PrintSep-> args_sep:PrintSyntactic;
+        eval {
+            fcnname.value = name.name;
+            args_sep.value = ", ";
+        }
+    }
+}
+
+rule printIf {
+    x:If -:IfThen-> :ScAstNode -:PrintRep-> print_then:PrintNode;
+    x -:IfElse-> :ScAstNode -:PrintRep-> print_else:PrintNode;
+    x -:IfCond-> :ScAstNode -:PrintRep-> print_cond:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> ifkw:PrintKeyword
+            -:PrintListNext-> :PrintLparen
+            -:PrintListNext-> print_cond_ref:PrintSubtree
+            -:PrintListNext-> :PrintRparen
+            -:PrintListNext-> print_then_ref:PrintSubtree
+            -:PrintListNext-> elsekw:PrintKeyword
+            -:PrintListNext-> print_else_ref:PrintSubtree;
+        print_cond_ref -:PrintSubtreeStart-> print_cond;
+        print_then_ref -:PrintSubtreeStart-> print_then;
+        print_else_ref -:PrintSubtreeStart-> print_else;
+        eval {
+            ifkw.value = "if";
+            elsekw.value = "else";
+        }
+    }
+}
+
+rule printAssign {
+    x:Assign -:AssignLhs-> :ScAstNode -:PrintRep-> print_lhs:PrintNode;
+    x -:AssignRhs-> :ScAstNode -:PrintRep-> print_rhs:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> print_lhs_ref:PrintSubtree
+            -:PrintListNext-> print_eq:PrintSyntactic
+            -:PrintListNext-> print_rhs_ref:PrintSubtree;
+        print_lhs_ref -:PrintSubtreeStart-> print_lhs;
+        print_rhs_ref -:PrintSubtreeStart-> print_rhs;
+        eval {
+            print_eq.value = " = ";
+        }
+    }
+}
+
+rule printFcnDef {
+    x:FcnDef -:FcnDefSymbol-> :Symbol
+        -:PrintSymName-> name:PrintName;
+    x -:FcnDefReturnTypeSymbol-> :Symbol
+        -:PrintSymName-> typename:PrintName;
+    x -:FcnBody-> body:ScAstNode
+        -:PrintRep-> print_body:PrintNode;
+    x -:FcnDefParamsChain-> :ScAstNode
+        -:PrintRep-> first_print_rep:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> print_typename:PrintVarname
+            -:PrintListNext-> print_name:PrintVarname
+            -:PrintListNext-> :PrintLparen
+            -:PrintListNext-> args:PrintSubtreeList
+            -:PrintListNext-> :PrintRparen
+            -:PrintListNext-> print_body_ref:PrintSubtree
+            -:PrintSubtreeStart-> print_body;
+        args -:PrintSubtreeStart-> first_print_rep
+            -:PrintSubtreeNext-> print_sep_ref:PrintRef
+            -:PrintSep -> args_sep:PrintSyntactic;
+        eval {
+            print_typename.value = typename.name;
+            print_name.value = name.name;
+            args_sep.value = ", ";
+        }
+    }
+}
+
+rule printSKBlock {
+    x:SKBlock -:BlockStmtChain-> :ScAstNode
+        -:PrintRep-> first_print_rep:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> :PrintLbraceNL
+            -:PrintListNext-> print_stmts:PrintSubtreeList
+            -:PrintListNext-> :PrintRbrace;
+        print_stmts -:PrintSubtreeStart-> first_print_rep
+            -:PrintSubtreeNext-> print_sep_ref:PrintRef
+            -:PrintSep-> stmts_sep:PrintSyntactic;
+        eval {
+            stmts_sep.value = ";\n";
+        }
+    }
+}
+
+rule printBlock {
+    x:Block -:BlockStmtChain-> :ScAstNode
+        -:PrintRep-> print_first:PrintNode;
+    x -:BlockExpr-> :ScAstNode -:PrintRep-> print_expr:PrintNode;
+    negative { x -:PrintRep-> .; }
+    modify {
+        x -:PrintRep-> :PrintList
+            -:PrintListNext-> :PrintLbraceNL
+            -:PrintListNext-> print_stmts_ref:PrintSubtreeList
+            -:PrintListNext-> expr:PrintSyntactic
+            -:PrintListNext-> print_expr_ref:PrintSubtree
+            -:PrintListNext-> :PrintRbrace;
+        print_stmts_ref -:PrintSubtreeStart-> print_first
+            -:PrintSubtreeNext-> print_sep_ref:PrintRef
+            -:PrintSep-> stmts_sep:PrintSyntactic;
+        print_expr_ref -:PrintSubtreeStart-> print_expr;
+        eval {
+            stmts_sep.value = ";\n";
+            expr.value = "; SCALAEXPR ";
+        }
+    }
+}
+
+rule printFcnArgNext {
+    first:ScAstNode -:PrintRep-> :PrintNode
+        -:PrintSubtreeNext-> print_ref_dummy_node:PrintNode
+        -:PrintSep-> args_sep:PrintNode;
+    first -:Sibling-> second:ScAstNode
+        -:PrintRep-> second_print_rep:PrintNode;
+    negative { print_ref_dummy_node -:PrintSubtreeNext-> .; }
+    modify {
+        print_ref_dummy_node -:PrintSubtreeNext-> second_print_rep
+            -:PrintSubtreeNext-> print_sep_ref:PrintRef
+            -:PrintSep-> args_sep;
+    }
+}

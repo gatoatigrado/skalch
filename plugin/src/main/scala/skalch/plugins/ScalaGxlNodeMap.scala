@@ -145,7 +145,6 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
             // === function and jump related ===
 
             case DefDef(mods, name, tparams, vparamss, tpe, body) =>
-                // info.curr_clazz
                 val params = vparamss match {
                     case Nil => List[ValDef]()
                     case vparams :: Nil => vparams
@@ -155,6 +154,7 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
                 // add the return node
                 subtree("FcnBody", body)
                 subchain("FcnDefParams", params)
+                symlink(clsname + "ReturnType", tree.symbol.info.resultType.typeSymbol)
 
             case Apply(fcn @ Select(Super(_, mix), _), args) =>
                 assert(!tree.symbol.isModuleClass, "not implemented")

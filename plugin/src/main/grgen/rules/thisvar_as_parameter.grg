@@ -17,7 +17,7 @@ rule transformThisRef(fcn:FcnDef) {
     }
 }
 
-rule addThisParam(fcn:FcnDef) {
+rule addThisParam(fcn:FcnDef, clssym:Symbol) {
     fcn -:FcnDefParamsChain-> first:Node;
     replace {
         thsparam:ValDef;
@@ -25,11 +25,14 @@ rule addThisParam(fcn:FcnDef) {
         fcn2:MemberFcn<fcn>;
         eval {
             thsparam.scalaSource = "artificially inserted $this variable";
-            thssym.symbolName = "$this";
+            thssym.symbolName = "this";
+            thssym.fullSymbolName = "artificallyinserted.this";
         }
         fcn2 -:FcnDefParamsChain-> thsparam;
         thsparam -:FcnDefParamsNext-> first;
+        thsparam -:ValDefRhs-> :EmptyTree;
         thsparam -:ValDefSymbol -> thssym;
+        thssym -:TypeSymbol-> clssym;
     }
 }
 
@@ -38,7 +41,7 @@ rule transformThis(fcn:FcnDef) {
     fcnsym -:ClsMethod-> fcnsym;
     :ClassDef -:ClassDefSymbol-> cls;
     modify {
-        exec(addThisParam(fcn) & transformThisRef(fcn)*);
+        exec(addThisParam(fcn, cls) & transformThisRef(fcn)*);
     }
 }
 

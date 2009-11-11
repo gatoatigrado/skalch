@@ -40,6 +40,10 @@ rule createTemporary(expr : ScAstNode, cfgnode : CfgAbstractNode) {
         tmp_assign:BlockifyValDef -:ValDefSymbol-> tmpsym:TmpSymbol;
         ref:TmpVarRef -:VarRefSymbol-> tmpsym;
         cfgnode -:BlockifyExpr-> tmp_assign;
+        eval {
+            tmpsym.symbolName = "tmp";
+            tmpsym.fullSymbolName = "artificiallyinserted.tmp";
+        }
         // otherwise, order is not explicit
         exec(redirect_incoming(expr, ref)* &
             redirect_outgoing_sibling_edges(expr, ref)* &
@@ -101,6 +105,53 @@ test testNoBlockifiedSafeNodes {
     negative {
         valdef:BlockifyValDef -:ValDefRhs-> safe:BlockifySafe
             -:AstCfgEdge-> cfgnode:CfgAbstractNode -:BlockifyExpr-> valdef;
+    }
+}
+
+
+
+// STEP 3: rewrite attachment
+// NOTE -- for now, a bit special case since we only attach to blocks.
+
+rule appendEmptyToChain(last : ScAstNode, append : Node) : (ScAstNode) {
+    if { typeof(append) >= BlockifySkipNode; }
+    modify { delete(append); return (last); }
+}
+
+rule appendAstNodeToChain(last : ScAstNode, append : ScAstNode) : (ScAstNode) {
+//     if { typeof(append) >= ScAstNode; }
+    modify {
+        last -:BlockStmtNext-> append;
+        return (append);
+    }
+}
+
+rule initAttachRoutine {
+    astnode:ScAstNode -:CfgEpilogue-> cfgnode:CfgAbstractNode
+        -:CfgSequentialNext-> cfgNodeWithChain:CfgAbstractNode
+        -:AbstractBlockify-> .;
+    modify {
+        exec(attachChain(astnode, cfgNodeWithChain));
+//         exec((next_last:ScAstNode) = attachChain(astnode, cfgNodeWithChain)
+//             );
+//             setNextPtrForLast(astnode, next_last) &&
+//             setLastPtrForLast(astnode, next_last));
+    }
+}
+
+rule attachChain(attach_to:ScAstNode, cfgnode:CfgAbstractNode) {
+    cfgnode -blockify:AbstractBlockify-> blockify_node:Node;
+    cfgnode -:CfgAbstractNext-> cfg_next:Node;
+    modify {
+        delete(blockify);
+        exec(
+            ((last:ScAstNode) = appendEmptyToChain(attach_to, blockify_node) ||
+                (last) = appendAstNodeToChain(attach_to, blockify_node) ||
+                assertFalse("rule attachChain: unknown node type")) &&
+            (attachChain(last, cfg_next)
+            ));
+//             || (assertFalse("not implemented")))
+//             );
     }
 }
 

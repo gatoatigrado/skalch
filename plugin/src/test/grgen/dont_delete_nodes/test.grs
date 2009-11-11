@@ -1,6 +1,6 @@
 # grshell script
 new graph "AllRules.grg"
-import "%(gxl_file)s" ScalaAstModel.gm
+import "{{ gxl_file }}" ScalaAstModel.gm
 select actions lgsp-AllRulesActions.dll
 
 include "stages-scripts/delete_marked_ignore.grs"

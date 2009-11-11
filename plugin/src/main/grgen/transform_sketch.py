@@ -9,6 +9,7 @@
 from __future__ import division, print_function
 from collections import namedtuple
 import re, sys
+from jinja2 import Environment, FileSystemLoader
 
 try:
     # Path, ExecuteIn, SubProc, sort()
@@ -38,18 +39,20 @@ Graph "DefaultGraph" exported.*
 Warning: Unknown Statement.+
 """.splitlines() if v]
 
-def main(grs_template=None, output_file=None, gxl_file=None, debug=False, runonly=False, ycomp=False):
+def main(grs_template=None, output_file=None, gxl_file=None,
+        debug=False, runonly=False, ycomp=False):
+
     assert grs_template
+    grs_template = Path(grs_template)
     if not gxl_file:
         gxl_file = Path("~/.sketch/tmp/input.gxl")
         gxl_file.write(sys.stdin.read())
-    output_file = Path(output_file or "~/.sketch/tmp/output.gxl")
+    output_file = Path(output_file) if output_file else None
     gxl_file = Path(gxl_file)
-    endstr = "debug enable" if ycomp else "exit"
     grs_file = Path("~/.sketch/tmp/transform.grs")
-    grs_file.write(Path(grs_template).read() %(locals()))
-    # to slow down: substitue e.g. "%(gxl_file)s" in the template file,
-    # which is stored in the same directory as this script.
+    env = Environment(loader=FileSystemLoader(grs_template.dirname()),
+        trim_blocks=True)
+    grs_file.write(env.get_template(grs_template.basename()).render(**locals()))
 
     grshell = Path.resolve("grshell", "GrShell")
     proc = SubProc([grshell, grs_file])

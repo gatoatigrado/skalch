@@ -1,0 +1,28 @@
+# grshell script
+import "%(gxl_file)s"
+
+
+
+# node colors for printing
+# colors:
+# Default Black Blue Green Cyan Red Purple Brown Grey LightGrey LightBlue
+# LightGreen LightCyan LightRed LightPurple Yellow White DarkBlue DarkRed
+# DarkGreen DarkYellow DarkMagenta DarkCyan Gold Lilac
+# Aquamarine Khaki Pink Orange Orchid
+debug set layout Compilergraph
+debug set layout option CREATE_LOOP_TREE false
+dump set node ScalaExprStmt color lilac
+dump set node MemberFcn color green
+dump set node ClassDef color red
+dump set node SketchConstructSymbol color gold
+dump set node SketchConstructCall color orange
+dump set node Symbol color blue
+dump set node Annotation color orchid
+dump set node TmpSymbol color LightRed
+dump set node BlockifyValDef color LightBlue
+dump set node TmpVarRef color LightCyan
+dump set node CfgAbstractNode color LightGreen
+dump set edge CfgAbstractNext color DarkGreen
+dump set edge AbstractBlockify color DarkRed
+
+show graph ycomp "--dolayout"

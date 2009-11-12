@@ -155,6 +155,29 @@ rule attachChain(attach_to:ScAstNode, cfgnode:CfgAbstractNode) {
     }
 }
 
+rule markMainMethod {
+    x:MemberFcn -:FcnDefSymbol-> sym:Symbol;
+    if { sym.symbolName == "main"; }
+    modify {
+        x --> :DebugBadNode;
+    }
+}
+
+rule deleteNonmainMethods {
+    x:MemberFcn;
+    negative { x --> :DebugBadNode; }
+    modify { delete(x); }
+}
+
+rule blockMarkBadNodes {
+    x:ScAstNode -:BlockStmtNext-> y:Node;
+    x -:BlockStmtNext-> z:Node;
+    negative { x --> :DebugBadNode; }
+    modify {
+        x --> :DebugBadNode;
+    }
+}
+
 // NOTE -- this should definitely happen outside of creating temporaries, so
 // all temporaries can be created before blockify links are set.
 // NOTE -- this is not recursive because the blockify source node will

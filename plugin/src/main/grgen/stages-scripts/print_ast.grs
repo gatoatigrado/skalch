@@ -1,0 +1,14 @@
+xgrs setSymbolNames*
+
+# @ generate command, run in dir of this file
+# grep -oE '^rule print([a-zA-Z0-9]+)' rules/print_graph/create_graph.grg | awk '{ printf("%s+ | ", $2); }' | sed -r 's/^/xgrs \(/g; s/ \| $/\)\*/g'
+# @ begin generate block
+xgrs (printVarRef+ | printBangBangCall+ | printHoleCall+ | printValDef+ | printBooleanConstant+ | printIntConstant+ | printEmptyValDef+ | printFcn+ | printIf+ | printAssign+ | printFcnDef+ | printSKBlock+ | printBlock+ | printFcnArgNext+)*
+# @ end generate block
+
+xgrs printMarkBadNodes*
+# xgrs printDeleteLastRefs*
+# xgrs printInsertSpaces*
+# xgrs printSetInitialCoalesced*
+# xgrs printListLastCoalesce*
+# xgrs printRepCoalesce*

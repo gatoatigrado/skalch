@@ -42,21 +42,7 @@ include "stages-scripts/clean_sketch_constructs.grs"
 xgrs deleteDangling*
 include "stages-scripts/local_simplifications.grs"
 include "stages-scripts/cstyle_stmts.grs"
-
-xgrs setSymbolNames*
-
-# @ generate command, run in dir of this file
-# grep -oE '^rule print([a-zA-Z0-9]+)' rules/print_graph/create_graph.grg | awk '{ printf("%s+ | ", $2); }' | sed -r 's/^/xgrs \(/g; s/ \| $/\)\*/g'
-# @ begin generate block
-xgrs (printVarRef+ | printBangBangCall+ | printHoleCall+ | printValDef+ | printBooleanConstant+ | printIntConstant+ | printEmptyValDef+ | printFcn+ | printIf+ | printAssign+ | printFcnDef+ | printSKBlock+ | printBlock+ | printFcnArgNext+)*
-# @ end generate block
-
-# xgrs deleteLastRefs*
-xgrs printSetInitialCoalesced*
-# xgrs printRepCoalesce*
-
-# xgrs deletePrinted*
-# xgrs printEverything
+# include "stages-scripts/print_ast.grs"
 
 {% if output_file %}
 export "{{ output_file }}"

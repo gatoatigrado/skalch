@@ -1,0 +1,84 @@
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// This abstraction was created because it's easier to replace nodes
+// when they have only one incoming edge, ListValue, instead of edges
+// for both "enclosing" lists and their own attributes.
+
+rule listFcnArgsInit {
+    x:FcnCall -e1:FcnArgChain-> first:ScAstNode;
+    x -e2:FcnArgLast-> last:ScAstNode;
+    hom(first, last);
+    modify {
+        delete(e1, e2);
+        x -:FcnArgList-> lst:List
+            -:ListFirst-> lst_first:ListFirstNode
+            -:ListNext-> first_inner:ListNode
+            -:ListValue-> first;
+        lst -:ListElt-> first_inner;
+        lst -:ListLast-> lst_last:ListLastNode;
+        lst -:ListTmpLast-> last;
+    }
+}
+
+rule listFcnArgsNext {
+    lst:List -:ListElt-> lst_x:ListNode -:ListValue-> ast_x:ScAstNode;
+    ast_x -e:FcnArgNext-> ast_y:ScAstNode;
+    modify {
+        delete(e);
+        lst -:ListElt-> list_next:ListNode;
+        lst_x -:ListNext-> list_next;
+        list_next -:ListValue-> ast_y;
+    }
+}
+
+rule listFcnArgsLast {
+    lst:List -e:ListTmpLast-> last_inner_node:ScAstNode;
+    lst -:ListElt-> last_inner:ListNode -:ListValue-> last_inner_node;
+    lst -:ListLast-> list_last:ListLastNode;
+    modify {
+        delete(e);
+        last_inner -:ListNext-> list_last;
+    }
+}
+
+rule listDoInsertAfter(x:ListNode, y:Node) {
+    lst:List -:ListElt-> x -e:ListNext-> next:ListAbstractNode;
+    modify {
+        delete(e);
+        x -:ListNext-> lst_y:ListNode -:ListNext-> next;
+        lst -:ListElt-> lst_y -:ListValue-> y;
+    }
+}
+
+/// first arg: node already part of list; second arg: node to insert
+rule listInsertAfter(x:ListNode, y:Node) {
+    modify { exec(listDoInsertAfter(x, y) || assertFalse("list insert after failed")); }
+}
+
+rule listDoInsertBefore(x:ListNode, y:Node) {
+    lst:List -:ListElt-> x;
+    before:ListAbstractNode -e:ListNext-> x;
+    modify {
+        delete(e);
+        before -:ListNext-> lst_y:ListNode -:ListNext-> x;
+        lst -:ListElt-> lst_y -:ListValue-> y;
+    }
+}
+
+/// first arg: node already part of list; second arg: node to insert
+rule listInsertBefore(x:ListNode, y:Node) {
+    modify { exec(listDoInsertBefore(x, y) || assertFalse("list insert before failed")); }
+}
+
+// rule insertRandomNode {
+//     x:ListNode;
+//     modify {
+//         y:DebugBadNode;
+//         exec(listInsertAfter(x, y));
+//     }
+// }

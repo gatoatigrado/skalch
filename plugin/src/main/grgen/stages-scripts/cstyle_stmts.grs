@@ -1,16 +1,26 @@
-echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
-xgrs cfgInit
-xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
-xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
-xgrs testCfgAstConnections
+xgrs markMainMethod
+xgrs deleteNonmainMethods*
+xgrs deleteDangling*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporary variables"
-xgrs blockifyIncompatibleProloguesAsWell*
-xgrs exprTargetsToTemporaryVariables*
-xgrs (propagateBlockifyMarkSafe+ | propagateBlockify)*
-validate exitonfailure xgrs testNoBlockifiedSafeNodes
-xgrs testCfgAstConnections
+xgrs listFcnArgsInit*
+xgrs listFcnArgsNext*
+xgrs listFcnArgsLast*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- attach nodes"
-xgrs initAttachRoutine*
-xgrs deleteCfgNode*
+# echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
+# xgrs cfgInit
+# xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
+# xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
+# xgrs testCfgAstConnections
+# 
+# echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporary variables"
+# xgrs blockifyIncompatibleProloguesAsWell*
+# xgrs exprTargetsToTemporaryVariables*
+# xgrs (propagateBlockifyMarkSafe+ | propagateBlockify)*
+# validate exitonfailure xgrs testNoBlockifiedSafeNodes
+# xgrs testCfgAstConnections
+# 
+# echo "[REWRITE PRODUCTION] cstyle_stmts -- attach nodes"
+# # xgrs initAttachRoutine*
+# xgrs deleteCfgNode*
+
+# xgrs blockMarkBadNodes*

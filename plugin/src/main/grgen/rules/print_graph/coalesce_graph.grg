@@ -7,6 +7,28 @@
 
 // coalesce graph nodes
 
+rule printDeleteLastRefs {
+    x:PrintRef -:PrintSep-> y:PrintNode;
+    negative { x; y; y --> z:PrintNode; }
+    modify {
+        delete(x);
+    }
+}
+
+rule printInsertSpaces {
+    x:PrintTerminal -e:PrintListNext-> y:PrintTerminal;
+    negative { if { typeof(x) >= PrintSyntactic; } }
+    negative { if { typeof(y) >= PrintSyntactic; } }
+    modify {
+        delete(e);
+        x -:PrintListNext-> whitespace:PrintSyntactic
+            -:PrintListNext-> y;
+        eval {
+            whitespace.value = " ";
+        }
+    }
+}
+
 rule printSetInitialCoalesced {
     first:PrintTerminal;
     negative { if { typeof(first) == PrintCoalesced; } }
@@ -16,15 +38,18 @@ rule printSetInitialCoalesced {
     }
 }
 
-rule deleteLastRefs {
-    x:PrintRef -:PrintSep-> y:PrintNode;
-    negative { x; y; y --> z:PrintNode; }
+rule printListLastCoalesce {
+    x:PrintTerminal -e:PrintListNext-> y:PrintCoalesced;
     modify {
-        delete(x);
+        delete(e);
+        next:PrintCoalesced<x>;
+        eval {
+            next.value = next.value + y.value;
+        }
     }
 }
 
-rule printRepCoalesce {
+rule printRefCoalesce {
     x:PrintRef -e:PrintSep-> sep:PrintCoalesced;
     negative { sep; sep --> :PrintNode; }
     modify {
@@ -36,119 +61,12 @@ rule printRepCoalesce {
     }
 }
 
-rule markBadNodes {
+rule printMarkBadNodes {
     x:PrintNode;
-    negative { x; x --> z:PrintNode; }
+//     negative { x; x --> z:PrintNode; }
     negative { x; z:PrintNode --> x; }
     negative { x --> :DebugBadNode; }
     modify {
         x --> :DebugBadNode;
-    }
-}
-
-/// only do this after all nodes have been given print rep's
-// rule setSubtreeStartEdges {
-//     x:PrintSubtreeList -e:PrintSubtreeStart->
-//         :ScAstNode -:PrintRep-> y:PrintNode;
-//     modify {
-//     }
-// }
-
-
-// rule printNodeTerminal(x:PrintNode) {
-//     if { typeof(x) >= PrintTerminal; }
-//     modify {
-//         emit(x.value);
-//     }
-// }
-// 
-// rule printNodeSubtree(x:PrintNode) {
-//     x -:PrintSubtreeStart-> y:PrintNode;
-//     if { typeof(x) >= PrintSubtree; }
-//     modify { exec(printNode(x)); }
-// }
-// 
-// rule printNodeList(x:PrintNode) {
-//     x -:PrintListNext-> y:PrintNode;
-//     if { typeof(x) >= PrintList; }
-// }
-// 
-// rule printRefSep(x:PrintNode) {
-//     x -:PrintSep-> y:PrintNode;
-//     if { typeof(x) >= PrintRef; }
-//     modify { exec(printNode(y)); }
-// }
-// 
-// rule printNode(x:PrintNode) {
-//     modify { exec(
-//         (
-//             printNodeTerminal(x) ||
-//             printNodeSubtree(x) ||
-//             printRefSep(x) ||
-//             assertFalse("unknown node type")
-//         ) & printNext(x) & printSubtreeNext(x)
-//     ); }
-// }
-// 
-// rule printNext(x:PrintNode) {
-//     x -:PrintListNext-> y:PrintNode;
-//     modify { exec(printNode(y)); }
-// }
-// 
-// rule printFunctions {
-//     x:MemberFcn -:PrintRep-> first:PrintNode;
-//     modify { exec(printNode(first)); }
-// }
-
-
-
-
-
-
-
-// === Node printing ===
-
-rule printNodePackage(x : ScAstNode) {
-    if { typeof(x) >= PackageDef; }
-    modify { exec(assertFalse("not implemented")); }
-}
-
-rule printNodeFcnDef(x : ScAstNode) {
-    if { typeof(x) >= FcnDef; }
-    x -:FcnDefSymbol-> fcndefsym:Symbol
-        -:PrintSymName-> fcnname:PrintName;
-    x -:FcnBody-> body:ScAstNode;
-    modify {
-        emit("def " + fcnname.name + " { \n");
-        exec(printNode(body));
-        emit("}\n\n");
-    }
-}
-
-/*
-// rule printNodeVarRef(x : ScAstNode) {
-    if { typeof(x) >= VarRef; }
-    modify { }
-}*/
-
-rule printNode(x : ScAstNode) {
-    modify { exec(
-        // @ generate command, run on this file
-        // grep -oE '^rule printNode([a-zA-Z0-9]+)' | sed 's/rule //g' |
-        // awk '{ print $0 "(x) ||"; }'
-        // @ begin generate block
-        printNodePackage(x) ||
-        printNodeFcnDef(x) ||
-        // @ end generate block
-        (assertFalseNoNewline("node type '") &&
-            printn(x) &&
-            print("' doesn't have a print statement yet!"))
-    ); }
-}
-
-rule printEverything {
-    x:FcnDef;
-    modify {
-        exec(printNode(x));
     }
 }

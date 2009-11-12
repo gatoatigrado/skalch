@@ -119,6 +119,21 @@ edge class tmpCfgDone;
 
 
 
+// === Intermediate nodes ===
+node class List;
+abstract node class ListAbstractNode;
+node class ListNode extends ListAbstractNode;
+node class ListFirstNode extends ListAbstractNode;
+node class ListLastNode extends ListAbstractNode;
+edge class ListElt;
+edge class ListFirst extends ListElt;
+edge class ListLast extends ListElt;
+edge class ListNext;
+edge class ListValue;
+edge class ListTmpLast;
+
+
+
 // === SKETCH nodes ===
 
 node class SKRoot;
@@ -179,7 +194,7 @@ edge class PrintListNext;
 
 // reference to insert another print node.
 node class PrintRef extends PrintNode;
-edge class PrintRefEdge;
+// edge class PrintRefEdge;
 
 
 
@@ -291,6 +306,7 @@ edge class BlockStmtChain extends BlockStmt, Subtree;
 edge class BlockStmtNext extends BlockStmt, Sibling;
 edge class FcnArgChain extends FcnArg, Subtree;
 edge class FcnArgNext extends FcnArg, Sibling;
+edge class FcnArgList extends Subtree;
 
 // Sibling edges indicate argument parameters
 edge class AnnotationArgsNext extends Sibling;

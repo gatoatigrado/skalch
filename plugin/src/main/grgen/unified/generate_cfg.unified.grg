@@ -1,0 +1,205 @@
+{% block comment %}
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// The control flow graph -- a structure linked to the AST.
+// Currently, the CFG is used to attach additional data, which
+// is moved back to the AST.
+{% endblock %}
+
+{% block gm %}
+abstract node class CfgAbstractNode;
+// normal nodes indicate normal control flow.
+// further subtypes indicate how computation is carried out
+// (for example, for functions, in the epilogue node).
+abstract node class CfgNormalNode extends CfgAbstractNode;
+abstract node class CfgDummyNode extends CfgNormalNode;
+node class CfgDummyPrologueNode extends CfgDummyNode;
+node class CfgEvalNormalNode extends CfgNormalNode;
+// don't create next ptrs from return stmts.
+// Only for the epilogue of the return statement.
+node class CfgReturnNode extends CfgAbstractNode;
+
+edge class CfgSequentialList;
+
+edge class CfgBlockify;
+edge class CfgBlockifySkip;
+
+// edges from CFG nodes to CFG nodes
+edge class CfgAbstractNext;
+edge class CfgSequentialNext extends CfgAbstractNext;
+edge class CfgNext extends CfgSequentialNext;
+edge class CfgSkipSubtreeNext extends CfgSequentialNext;
+edge class CfgConditionalNext extends CfgAbstractNext;
+
+// edges from the original AST to the CFG
+abstract edge class AstCfgEdge;
+edge class CfgPrologue extends AstCfgEdge;
+edge class CfgEpilogue extends AstCfgEdge;
+edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
+
+// attribute edges on cfg nodes indicating that they will produce blocks.
+abstract edge class CfgAbstractAttachable;
+edge class CfgAttachable extends CfgAbstractAttachable;
+edge class CfgImplicitAttachable extends CfgAbstractAttachable;
+{% endblock %}
+
+{% block grg %}
+{% set init_fcns = [] %}
+{% set set_next_fcns = [] %}
+{% macro append_ret(arr, name) %}
+{% do arr.append(name) %}
+{{ name }}{% endmacro %}
+{% macro init_fcn(name) %}{{ append_ret(init_fcns, name) }}{% endmacro %}
+{% macro set_next_fcn(name) %}{{ append_ret(set_next_fcns, name) }}{% endmacro %}
+
+// STEP 1: Links from AST to CFG
+// based on AST node type
+
+rule {{ init_fcn("cfgInitReturnNodes") }} {
+    ret:Return;
+    negative { ret -:CfgPrologue-> .; }
+    modify {
+        ret -:CfgPrologue-> prologue:CfgEvalNormalNode;
+        ret -:CfgEpilogue-> epilogue:CfgReturnNode;
+    }
+}
+
+{% macro exclude_types_not_part_of_cfg() %}
+// don't break function boundaries, and leave the graph
+    // a little prettier. sync with below
+    negative { if { typeof(x) <= ClassDef ||
+        typeof(x) <= PackageDef || typeof(x) <= Template; } }
+{% endmacro %}
+
+/// nodes that have subtrees will have separate prologue and
+/// epilogue nodes. If there is a node whose prologue involves
+/// computation, it may be a good idea to initialize it separately
+/// before this function (without CfgDummyPrologueNode)
+rule {{ init_fcn("cfgInitEnclosingNodes") }} {
+    x:ScAstNode -:Subtree-> :Node;
+    {{ exclude_types_not_part_of_cfg() }}
+    negative { x -:CfgPrologue-> .; }
+    modify {
+        x -:CfgPrologue-> prologue:CfgDummyPrologueNode;
+        x -:CfgEpilogue-> epilogue:CfgEvalNormalNode;
+    }
+}
+
+/// single node representing evaluation for nodes that don't have subtrees
+rule {{ init_fcn("cfgInitOtherNodes") }} {
+    x:ScAstNode;
+    {{ exclude_types_not_part_of_cfg() }}
+    negative { x -:CfgPrologue-> .; }
+    negative { x; x -:Subtree-> y:Node; }
+    modify {
+        x -:CfgPrologueEpilogue-> :CfgEvalNormalNode;
+    }
+}
+
+// STEP 2a: Set a few lists as sequential, for cfgSetNextForLists
+
+rule cfgAnnotateSequentialLists {
+    x:ScAstNode -e:Edge-> lst:List;
+    if { typeof(e) == FcnArgList || typeof(e) == BlockStmtList; }
+    modify { lst -:CfgSequentialList-> lst; }
+}
+
+// STEP 2: Edges from CFG to CFG nodes
+// based on AST edge types
+// Temporary edges are created from AST nodes to other AST nodes
+// These are then rewritten to CFG edges.
+
+rule {{ set_next_fcn("cfgSetNextForLists") }} {
+    lst_x:ListNode -:ListNext-> lst_y:ListNode
+        -:ListValue-> y_value:ScAstNode;
+    lst:List -:CfgSequentialList-> lst;
+    lst -:ListElt-> lst_x -:ListValue-> x_value:ScAstNode;
+    negative { x_value -:CfgNext-> . ; }
+
+    modify {
+        x_value -:CfgNext-> y_value;
+    }
+}
+
+{% macro prologue_epilogue(name="x") %}
+    x -:CfgPrologue-> prologue:CfgAbstractNode;
+    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
+    negative { prologue -:CfgNext-> .; }
+{% endmacro %}
+{% macro simple_inner(ast_type, edge_type, rhs_type) %}
+rule {{ set_next_fcn("cfgSetNextAutoFor" + ast_type) }} {
+    x:{{ ast_type }} -:{{edge_type}}-> y:{{ rhs_type }};
+    {{ prologue_epilogue() }}
+    modify {
+        prologue -:CfgNext-> y -:CfgNext-> epilogue;
+    }
+}
+{% endmacro %}
+
+{{ simple_inner("ValDef", "ValDefRhs", "ScAstNode") }}
+{{ simple_inner("Block", "BlockStmtList", "List") }}
+{{ simple_inner("FcnCall", "FcnArgList", "List") }}
+{{ simple_inner("FcnDef", "FcnBody", "ScAstNode") }}
+
+// STEP 3: set any edges that are pointing to nodes to their respective
+// epilogues / prologues
+
+{% macro redirect_edge(from, to) %}
+modify {
+        delete(e);
+        {{ from }} -:typeof(e)-> {{ to }};
+    }
+{% endmacro %}
+
+rule cfgListIncoming {
+    x:Node -e:CfgAbstractNext-> lst:List -:ListFirst-> :ListFirstNode
+        -:ListNext-> lst_first:ListNode -:ListValue-> first_ast:ScAstNode;
+    {{ redirect_edge("x", "first_ast") }}
+}
+
+rule cfgListOutgoing {
+    lst:List -e:CfgAbstractNext-> y:Node;
+    lst -:ListLast-> last_node:ListLastNode;
+    second_last:ListNode -:ListNext-> last_node;
+    second_last -:ListValue-> last_ast:ScAstNode;
+    {{ redirect_edge("last_ast", "y") }}
+}
+
+rule cfgRedirectIncomingToPrologue {
+    x:Node -e:CfgAbstractNext-> ast_node:ScAstNode
+        -:CfgPrologue-> prologue:CfgAbstractNode;
+    {{ redirect_edge("x", "prologue") }}
+}
+
+rule cfgRedirectOutgoingToEpilogue {
+    ast_node:ScAstNode -e:CfgAbstractNext-> y:Node;
+    ast_node -:CfgEpilogue-> epilogue:CfgAbstractNode;
+    {{ redirect_edge("epilogue", "y") }}
+}
+
+rule cfgInit {
+    // NOTE -- check this file with check_generated_files.py
+    modify { exec(
+{% for name in init_fcns %}
+        {{ name }}* |
+{% endfor %}
+
+        [cfgAnnotateSequentialLists] |
+{% for name in set_next_fcns %}
+        {{name}}* |
+{% endfor %}
+
+        (
+            cfgRedirectIncomingToPrologue+ |
+            cfgRedirectOutgoingToEpilogue+ |
+            cfgListIncoming+ |
+            cfgListOutgoing+
+        )*
+        ); }
+}
+{% endblock grg %}

@@ -81,7 +81,10 @@ node class TmpVarRef extends VarRef, BlockifySafe;
 
 
 // === CFG ===
-// CFG nodes
+//  @ generate command, run in dir of this file
+//  cat nodes/gen/generate_cfg.gm
+//  @ begin generate block
+
 abstract node class CfgAbstractNode;
 // normal nodes indicate normal control flow.
 // further subtypes indicate how computation is carried out
@@ -93,6 +96,8 @@ node class CfgEvalNormalNode extends CfgNormalNode;
 // don't create next ptrs from return stmts.
 // Only for the epilogue of the return statement.
 node class CfgReturnNode extends CfgAbstractNode;
+
+edge class CfgSequentialList;
 
 edge class CfgBlockify;
 edge class CfgBlockifySkip;
@@ -115,7 +120,7 @@ abstract edge class CfgAbstractAttachable;
 edge class CfgAttachable extends CfgAbstractAttachable;
 edge class CfgImplicitAttachable extends CfgAbstractAttachable;
 
-edge class tmpCfgDone;
+//  @ end generate block
 
 
 
@@ -307,6 +312,7 @@ edge class BlockStmtNext extends BlockStmt, Sibling;
 edge class FcnArgChain extends FcnArg, Subtree;
 edge class FcnArgNext extends FcnArg, Sibling;
 edge class FcnArgList extends Subtree;
+edge class BlockStmtList extends Subtree;
 
 // Sibling edges indicate argument parameters
 edge class AnnotationArgsNext extends Sibling;

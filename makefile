@@ -53,13 +53,18 @@ plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
 grgen_compile:
-	buildutil/check_generated_files.py --no_rebuild
+	buildutil/generate_files.py --no_rebuild
 	plugin/src/main/grgen/sugared_test.sh
 
 ycomp:
-	buildutil/check_generated_files.py --no_rebuild
+	buildutil/generate_files.py --no_rebuild
 	@killall mono java 2>/dev/null; true
 	plugin/src/main/grgen/sugared_test.sh --ycomp; killall mono java 2>/dev/null; true
+
+ycomp-runonly:
+	buildutil/generate_files.py --no_rebuild
+	@killall mono java 2>/dev/null; true
+	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; killall mono java 2>/dev/null; true
 
 jython_example:
 	mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=org.python.util.jython" -Dexec.args="base/src/main/jython/print_graph.py base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl"

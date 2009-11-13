@@ -3,11 +3,14 @@ xgrs deleteNonmainMethods*
 xgrs deleteDangling*
 
 xgrs listFcnArgsInit*
-xgrs listFcnArgsNext*
-xgrs listFcnArgsLast*
+xgrs listSKBlockInit*
+xgrs listBlockInit*
+xgrs listSetNext*
+xgrs listCompleteLast*
+xgrs listCompleteBlockLast*
 
-# echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
-# xgrs cfgInit
+echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
+xgrs cfgInit
 # xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
 # xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
 # xgrs testCfgAstConnections

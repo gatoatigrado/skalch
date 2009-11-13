@@ -9,14 +9,10 @@
 // when they have only one incoming edge, ListValue, instead of edges
 // for both "enclosing" lists and their own attributes.
 
-rule listFcnArgsInit {
-    x:FcnCall -e1:FcnArgChain-> first:ScAstNode;
-    x -e2:FcnArgLast-> last:ScAstNode;
+rule listGenericInit (lst:List, first:ScAstNode, last:ScAstNode) {
     hom(first, last);
     modify {
-        delete(e1, e2);
-        x -:FcnArgList-> lst:List
-            -:ListFirst-> lst_first:ListFirstNode
+        lst -:ListFirst-> lst_first:ListFirstNode
             -:ListNext-> first_inner:ListNode
             -:ListValue-> first;
         lst -:ListElt-> first_inner;
@@ -25,9 +21,44 @@ rule listFcnArgsInit {
     }
 }
 
-rule listFcnArgsNext {
+rule listFcnArgsInit {
+    x:FcnCall -e1:FcnArgChain-> first:ScAstNode;
+    x -e2:FcnArgLast-> last:ScAstNode;
+    hom(first, last);
+    modify {
+        delete(e1, e2);
+        x -:FcnArgList-> lst:List;
+        exec(listGenericInit(lst, first, last));
+    }
+}
+
+rule listSKBlockInit {
+    x:SKBlock -e1:BlockStmtChain-> first:ScAstNode;
+    x -e2:BlockStmtLast-> last:ScAstNode;
+    hom(first, last);
+    modify {
+        delete(e1, e2);
+        x -:BlockStmtList-> lst:List;
+        exec(listGenericInit(lst, first, last));
+    }
+}
+
+rule listBlockInit {
+    x:Block -e1:BlockStmtChain-> first:ScAstNode;
+    x -e2:BlockStmtLast-> stmt_last:ScAstNode;
+    x -:BlockExpr-> expr:ScAstNode;
+    hom(first, stmt_last);
+    modify {
+        delete(e1, e2);
+        x -:BlockStmtList-> lst:List;
+        stmt_last -:BlockStmtNext-> expr;
+        exec(listGenericInit(lst, first, expr));
+    }
+}
+
+rule listSetNext {
     lst:List -:ListElt-> lst_x:ListNode -:ListValue-> ast_x:ScAstNode;
-    ast_x -e:FcnArgNext-> ast_y:ScAstNode;
+    ast_x -e:Sibling-> ast_y:ScAstNode;
     modify {
         delete(e);
         lst -:ListElt-> list_next:ListNode;
@@ -36,13 +67,23 @@ rule listFcnArgsNext {
     }
 }
 
-rule listFcnArgsLast {
+rule listCompleteLast {
     lst:List -e:ListTmpLast-> last_inner_node:ScAstNode;
     lst -:ListElt-> last_inner:ListNode -:ListValue-> last_inner_node;
     lst -:ListLast-> list_last:ListLastNode;
     modify {
         delete(e);
         last_inner -:ListNext-> list_last;
+    }
+}
+
+rule listCompleteBlockLast {
+    x:Block -:BlockStmtList-> lst:List -:ListElt-> lst_node:ListNode
+        -:ListValue-> v:ScAstNode;
+    x -e:BlockExpr-> v;
+    modify {
+        delete(e);
+        x -:BlockExpr-> lst_node;
     }
 }
 

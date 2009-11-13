@@ -12,6 +12,37 @@
 
 
 
+
+
+// STEP 2: Mark epilogues of nodes as attachable.
+
+rule cfgSetAttachableMemberFcns {
+    fcndef:MemberFcn -:CfgEpilogue-> epilogue:CfgNormalNode;
+    negative { epilogue -:CfgAbstractAttachable-> epilogue; }
+    modify { epilogue -:CfgImplicitAttachable-> epilogue; }
+}
+
+// won't conflict above since member functions won't be in blocks.
+rule cfgSetAttachableBlocks {
+    . -:BlockStmt-> x:ScAstNode -:CfgEpilogue-> epilogue:CfgNormalNode;
+    negative { epilogue -:CfgAbstractAttachable-> epilogue; }
+    modify { epilogue -:CfgAttachable-> epilogue; }
+}
+
+
+/*
+        // @ generate command, run on this file
+        // grep -oE '^rule cfgSetAttachable([a-zA-Z0-9]+)' | sed 's/rule //g' |
+        // awk '{ print $0 "* |"; }'
+        // @ begin generate block
+        cfgSetAttachableMemberFcns* |
+        cfgSetAttachableBlocks* |
+        // @ end generate block*/
+
+
+
+
+
 // Library functions
 
 rule postsetValDefRhs(x : ValDef, y : ScAstNode) {

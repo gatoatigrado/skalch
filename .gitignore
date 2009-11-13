@@ -1,6 +1,7 @@
 bin/*
 dist/*
 */target/*
+gen/
 *.vcg
 *tmpgrgen*
 *.timestamp

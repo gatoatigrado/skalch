@@ -29,7 +29,7 @@ class LinkedListReversalSketch extends AngelicSketch {
 			
 			while(!!() && i > 0) {
 				val v : T = !!(list)
-				skput_and_check(v.toString())
+				skput_check(v.toString())
 				skdprint(v.toString())
 				revList = v :: revList
 				i = i - 1

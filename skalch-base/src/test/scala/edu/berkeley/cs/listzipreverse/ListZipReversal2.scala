@@ -27,7 +27,7 @@ class ListZipReversalSketch2 extends AngelicSketch {
         for(i <- 0 to !!(5)) {  
             a = if (!!() && a!=Nil && a.tail!=Nil) a.tail else a
             b = if (!!() && b!=Nil && b.tail!=Nil) b.tail else b
-            if (!!()) r = skput_and_check(!!(a)) + skput_and_check(!!(b)) :: r 
+            if (!!()) r = skput_check(!!(a)) + skput_check(!!(b)) :: r 
         }
         synthAssert(r == List("a1","b2","c3","d4"))    
     }

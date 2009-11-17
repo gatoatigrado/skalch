@@ -31,7 +31,7 @@ class ListZipReversalSketch3 extends AngelicSketch {
                 a = if (!!() && a!=Nil && a.tail!=Nil) a.tail else a
                 b = if (!!() && b!=Nil && b.tail!=Nil) b.tail else b
                 if (!!()) {
-                    r = skput_and_check(!!(a)) + skput_and_check(!!(b)) :: r
+                    r = skput_check(!!(a)) + skput_check(!!(b)) :: r
                 } else {
                     done = true
                 }

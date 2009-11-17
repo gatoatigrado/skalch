@@ -128,11 +128,11 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
         x
     }
    
-    def skput_and_check[T](x : T) : T = {
-    	skput_and_check(0, x)
+    def skput_check[T](x : T) : T = {
+    	skput_check(0, x)
     }
     
-    def skput_and_check[T](queueNum : Int, x : T) : T = {
+    def skput_check[T](queueNum : Int, x : T) : T = {
         skput(queueNum, x)
         skcheck(queueNum, x)
         x

@@ -27,9 +27,9 @@ class ListZipReversalSketch4 extends AngelicSketch {
 
         def descent(depth: Int) : Unit = {
             if (!!() && depth < 6) {
-                if (!up) r = skput_and_check(!!(x)) + skput_and_check(!!(y)) :: r
+                if (!up) r = skput_check(!!(x)) + skput_check(!!(y)) :: r
                 descent(depth + 1)
-                if (up)  r = skput_and_check(!!(x)) + skput_and_check(!!(y)) :: r
+                if (up)  r = skput_check(!!(x)) + skput_check(!!(y)) :: r
             }
         }
 

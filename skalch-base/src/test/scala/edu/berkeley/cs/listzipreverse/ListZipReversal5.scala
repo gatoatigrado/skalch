@@ -26,13 +26,13 @@ class ListZipReversalSketch5 extends AngelicSketch {
 
         def descent(a:List[String], b:List[String], depth:Int=0) : (List[String],List[String]) = {
             if (!!() && depth < 4) {
-                if (!up) r = skput_and_check(!!(x)) + skput_and_check(!!(y)) :: r
+                if (!up) r = skput_check(!!(x)) + skput_check(!!(y)) :: r
 
                 val aaa = if (!!()) a else a.tail
                 val bbb = if (!!()) b else b.tail
                 val (aa, bb) = descent(aaa, bbb, depth+1)
 
-                if (up) r = skput_and_check(!!(x)) + skput_and_check(!!(y)) :: r
+                if (up) r = skput_check(!!(x)) + skput_check(!!(y)) :: r
 
                 return (!!(sublists(x)),!!(sublists(y)))
             } else {

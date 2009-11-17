@@ -9,7 +9,7 @@ import sketch.util.DebugOut._ // assertFalse, etc.
 class SugaredSketch() extends DynamicSketch {
 
     def dysketch_main() = {
-        synthAssertTerminal(??(List("a", "b", "c")) == "c")
+        synthAssert(??(List("a", "b", "c")) == "c")
         ??(100) == 63
     }
 

@@ -3,9 +3,10 @@ package sketch.dyn.main.angelic;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.queues.QueueUI;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import sketch.ui.queues.QueueUI;
+import sketch.ui.trace.TraceUI;
 
 /**
  * where it all begins... for angelic sketches (see AngelicSketch.scala)
@@ -36,8 +37,18 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         // start various utilities
         ScUserInterface ui = ScUserInterfaceManager.start_ui(be_opts,
                 synthesis_runtime, ui_sketch);
-        ui = new QueueUI(ui, queue_sketch, be_opts.synth_opts.queue_file_name,
-                be_opts.synth_opts.queue_input_file_name);
+
+        if (be_opts.synth_opts.trace_file_name != "") {
+            ui = new TraceUI(ui, be_opts.synth_opts.trace_file_name);
+        }
+
+        if (be_opts.synth_opts.queue_file_name != ""
+                || be_opts.synth_opts.queue_input_file_name != "") {
+            ui = new QueueUI(ui, queue_sketch,
+                    be_opts.synth_opts.queue_file_name,
+                    be_opts.synth_opts.queue_input_file_name);
+        }
+
         init_stats(ui);
         ScStatsMT.stats_singleton.start_synthesis();
         // actual synthesize call

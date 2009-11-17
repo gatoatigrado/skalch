@@ -11,7 +11,7 @@ import sketch.util._
 
 /** @author Casey Rodarmor */
 class NextPermutationSketch() extends DynamicSketch {
-    val skassert = synthAssertTerminal _
+    val skassert = synthAssert _
 
     def dysketch_main() = {
         val l  = 5

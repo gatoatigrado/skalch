@@ -7,7 +7,7 @@ import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
-import sketch.queues.QueueIterator;
+import sketch.ui.queues.QueueIterator;
 import sketch.util.DebugOut;
 
 /**

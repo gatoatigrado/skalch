@@ -21,11 +21,11 @@ class RevList1(val length : Int) extends DynamicSketch {
         var curNum = len
         var curNode = rev
         while (curNode != null) {
-            synthAssertTerminal(curNode.value == curNum)
+            synthAssert(curNode.value == curNum)
             curNum -= 1
             curNode = curNode.next
         }
-        synthAssertTerminal(curNum == 0)
+        synthAssert(curNum == 0)
     }
 
     def buildList(size: Int): (Node, Array[Node]) = {
@@ -63,7 +63,7 @@ class RevList1(val length : Int) extends DynamicSketch {
             }
         } catch {
             case ex : java.lang.NullPointerException =>
-                synthAssertTerminal(false)
+                synthAssert(false)
         }
         skdprint("all nodes: " + all_nodes)
         return !!(all_nodes)

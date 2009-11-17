@@ -25,7 +25,7 @@ class LinkedListReversalSketchFrame extends AngelicSketch {
 		val l : List[String] = List("1", "2", "3", "4")
 		val rev : List[String] = List("4", "3", "2", "1")
 		val rev_l = reverse(l)
-		synthAssertTerminal(rev_l == rev)
+		synthAssert(rev_l == rev)
 	}
 }
 

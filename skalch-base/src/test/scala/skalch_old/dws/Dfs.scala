@@ -20,10 +20,10 @@ class DfsSketch() extends DynamicSketch {
 
         dfs(g)
 
-        synthAssertTerminal(g.unchanged)
+        synthAssert(g.unchanged)
 
         for(node <- g.nodes) {
-            synthAssertTerminal(node.visited)
+            synthAssert(node.visited)
         }
 
         true
@@ -86,7 +86,7 @@ class DfsSketch() extends DynamicSketch {
         for(child <- newChildren) children += child
 
         def visit() {
-            synthAssertTerminal(visited == false)
+            synthAssert(visited == false)
             this.visited = true
         }
 
@@ -188,7 +188,7 @@ class DfsSketch() extends DynamicSketch {
             val borrowedLoc = to(borrowed(x))
 
             if(have != null) {
-                synthAssertTerminal(borrowedLoc.read == have)
+                synthAssert(borrowedLoc.read == have)
             }
 
             locations.push(borrowedLoc)
@@ -212,15 +212,15 @@ class DfsSketch() extends DynamicSketch {
             borrowedLoc.write(values.remove(pushp1))
             extraLocations(0).write(values.remove(pushp2))
 
-            synthAssertTerminal(x == extraLocations(0).read)
+            synthAssert(x == extraLocations(0).read)
 
             skdprint(extraStorage.mkString("push("+x.toString()+") : (", ", ", ")") + " borrowedVal:[" + borrowedVal.toString() + "]")
         }
 
         def pop(restore: List[A]) = {
-            synthAssertTerminal(reference.size > 0)
+            synthAssert(reference.size > 0)
             val refPoppedVal = reference.pop
-            synthAssertTerminal(borrowed.contains(extraLocations(0).read))
+            synthAssert(borrowed.contains(extraLocations(0).read))
             val borrowedLoc = extraLocations(0).read.locations.apply(borrowed(extraLocations(0).read))
 
             var allLocations = List(borrowedLoc) ++ extraLocations
@@ -233,7 +233,7 @@ class DfsSketch() extends DynamicSketch {
                 if(refPoppedVal == v)
                     found = true
             }
-            synthAssertTerminal(found)
+            synthAssert(found)
 
             skdprint(extraStorage.mkString("pop: (", ", ", ")") + " borrowdVal:[" + borrowedLoc.read.toString() + "] returns:" + refPoppedVal.toString())
 
@@ -265,13 +265,13 @@ class DfsSketch() extends DynamicSketch {
         val stack = new KeyholeStack[Node](1, g.nodes)
         stack.push(origin, root)
 
-        synthAssertTerminal(origin.children(0)==root)
+        synthAssert(origin.children(0)==root)
 
         var current  = root
 
         var step = 0
         while(current != origin) {
-            synthAssertTerminal(step < 10)
+            synthAssert(step < 10)
             step += 1
 
             if(current.visited) {

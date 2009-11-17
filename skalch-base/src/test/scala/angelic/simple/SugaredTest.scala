@@ -8,10 +8,10 @@ import sketch.util._
 class SugaredSketch() extends AngelicSketch {
     val tests = Array( () )
     def main() {
-        synthAssertTerminal(??(List("a", "b", "c")) == "c")
-        synthAssertTerminal(??(100) == 63)
+        synthAssert(??(List("a", "b", "c")) == "c")
+        synthAssert(??(100) == 63)
         for (i <- 0 until 10) {
-            synthAssertTerminal(!!(10) == i);
+            synthAssert(!!(10) == i);
         }
     }
 }

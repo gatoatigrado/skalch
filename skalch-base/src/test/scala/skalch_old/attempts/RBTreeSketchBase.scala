@@ -24,7 +24,7 @@ abstract class RBTreeSketchBase extends DynamicSketch {
         def checkNumBlack() : Int = {
             val num_left = if (leftChild == null) 0 else leftChild.checkNumBlack()
             val num_right = if (rightChild == null) 0 else rightChild.checkNumBlack()
-            synthAssertTerminal(num_left == num_right)
+            synthAssert(num_left == num_right)
             num_left + num_right + (if (isBlack) 1 else 0)
         }
         /** returns isBlack for convenience */
@@ -33,7 +33,7 @@ abstract class RBTreeSketchBase extends DynamicSketch {
                 else leftChild.checkRedChildrenBlack()
             val rightBlack = if (rightChild == null) true
                 else rightChild.checkRedChildrenBlack()
-            synthAssertTerminal(isBlack || (leftBlack && rightBlack))
+            synthAssert(isBlack || (leftBlack && rightBlack))
             isBlack
         }
         /** number of nodes reachable including this one */
@@ -48,11 +48,11 @@ abstract class RBTreeSketchBase extends DynamicSketch {
             RBTreeVisitedList.put(this)
             if (leftChild != null) {
                 val left_child = leftChild.checkIsTreeInner(leftBound, value)
-                synthAssertTerminal(leftBound < left_child && left_child <= value)
+                synthAssert(leftBound < left_child && left_child <= value)
             }
             if (rightChild != null) {
                 val right_child = rightChild.checkIsTreeInner(value, rightBound)
-                synthAssertTerminal(value <= right_child && right_child < rightBound)
+                synthAssert(value <= right_child && right_child < rightBound)
             }
             value
         }
@@ -66,7 +66,7 @@ abstract class RBTreeSketchBase extends DynamicSketch {
         val visitedNodes = new HashSet[RBTreeNode]()
         def reset() { visitedNodes.clear() }
         def put(node : RBTreeNode) {
-            synthAssertTerminal(visitedNodes.add(node))
+            synthAssert(visitedNodes.add(node))
         }
     }
 }

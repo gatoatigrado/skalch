@@ -16,14 +16,14 @@ class ListReverse2() extends AngelicSketch {
     def reverse(a:List[String]) : Unit = {
       if (!!()) {
     	r = !!(a) :: r
-        synthAssertTerminal(!a.isEmpty)
+        synthAssert(!a.isEmpty)
         reverse(a.tail)
       }
       r
     }
     
-    synthAssertTerminal(r == List("1", "2", "3", "4"))
-    //synthAssertTerminal(true)
+    synthAssert(r == List("1", "2", "3", "4"))
+    //synthAssert(true)
   }
 }
 

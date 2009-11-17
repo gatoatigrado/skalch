@@ -34,7 +34,7 @@ class DfInvariantSketch() extends AbstractDfSketch() {
             red_idx += !!(2)
             white_idx += !!(2)
             blue_idx += !!(2)
-            synthAssertTerminal(isCorrect(i + 1))
+            synthAssert(isCorrect(i + 1))
         }
         skdprint(
             ("" /: swap_indices.view(0, num_buckets))(_ + ", " + _.toString)

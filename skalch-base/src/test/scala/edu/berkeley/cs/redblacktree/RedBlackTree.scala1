@@ -70,8 +70,8 @@ class RedBlackTreeSketch extends AngelicSketch {
           }
 	      
           insert(v, root, null)
-          synthAssertTerminal(checkRedBlack())
-	      synthAssertTerminal(checkOrder())
+          synthAssert(checkRedBlack())
+	      synthAssert(checkOrder())
         }
       }
 	  
@@ -223,8 +223,8 @@ class RedBlackTreeSketch extends AngelicSketch {
     if (!!()) {	tree.insert(2)
     if (!!()) { tree.insert(3)
     }}}
-    synthAssertTerminal(tree.checkRedBlack())
-	synthAssertTerminal(tree.checkOrder())
+    synthAssert(tree.checkRedBlack())
+	synthAssert(tree.checkOrder())
 	skdprint(tree.toString())
   }
 }  

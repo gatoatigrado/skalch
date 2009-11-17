@@ -51,7 +51,7 @@ class DfRegisterSketch() extends AbstractDfSketch() {
                 swap(registers(regidx0).value, registers(regidx1).value)
                 skAddCost(1)
             }
-            //synthAssertTerminal(isCorrect(i + 1))
+            //synthAssert(isCorrect(i + 1))
 
             while (color < 3) {
                 registers(color).value += 1

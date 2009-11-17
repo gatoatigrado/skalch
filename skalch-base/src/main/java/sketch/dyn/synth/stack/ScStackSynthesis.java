@@ -10,8 +10,8 @@ import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.stack.prefix.ScDefaultPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearchManager;
-import sketch.queues.Queue;
 import sketch.ui.ScUserInterface;
+import sketch.ui.queues.Queue;
 
 /**
  * cloned Lexin's implementation, then modified for

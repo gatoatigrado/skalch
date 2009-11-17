@@ -75,7 +75,7 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
                 var annotation : String = null
                 for (a <- fcn.symbol.annotations) {
                     a match {
-                        case AnnotationInfo(atp, args, assocs, pos)
+                        case AnnotationInfo(atp, args, assocs)
                             if atp.toString.contains("skalch.Description") =>
                                 for ((name, value) <- assocs) {
                                     (name.toString, value) match {

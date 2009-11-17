@@ -11,7 +11,7 @@ import java.util.Vector;
 import sketch.dyn.constructs.ctrls.ScCtrlConf;
 import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
-import sketch.queues.QueueIterator;
+import sketch.ui.queues.QueueIterator;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.ui.sourcecode.ScSourceConstruct;

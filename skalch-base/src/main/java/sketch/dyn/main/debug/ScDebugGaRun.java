@@ -7,7 +7,6 @@ import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.synth.ga.base.ScGaIndividual;
-import sketch.queues.Queue;
 
 public class ScDebugGaRun extends ScDefaultDebugRun {
     protected ScGaIndividual individual;
@@ -37,10 +36,5 @@ public class ScDebugGaRun extends ScDefaultDebugRun {
     @Override
     public ScInputConf get_oracle_conf() {
         return oracle_conf;
-    }
-
-    @Override
-    public Queue get_previous_queues() {
-        return null;
     }
 }

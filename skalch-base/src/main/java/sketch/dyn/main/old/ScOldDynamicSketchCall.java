@@ -6,13 +6,13 @@ import sketch.dyn.constructs.ctrls.ScCtrlConf;
 import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.ui.queues.QueueIterator;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
 import sketch.ui.sourcecode.ScSourceConstruct;
 
 public class ScOldDynamicSketchCall implements
-        ScDynamicSketchCall<ScOldDynamicSketch>
-{
+        ScDynamicSketchCall<ScOldDynamicSketch> {
     public final ScOldDynamicSketch sketch;
     public ScFixedInputConf counterexamples[];
 
@@ -25,8 +25,7 @@ public class ScOldDynamicSketchCall implements
     }
 
     public void initialize_before_all_tests(ScCtrlConf ctrl_conf,
-            ScInputConf oracle_conf)
-    {
+            ScInputConf oracle_conf, QueueIterator queue_iterator) {
         sketch.solution_cost = 0;
         sketch.num_asserts_passed = 0;
         sketch.ctrl_conf = ctrl_conf;
@@ -51,14 +50,12 @@ public class ScOldDynamicSketchCall implements
     }
 
     public ScConstructValueString getHoleValueString(int uid)
-            throws ScNoValueStringException
-    {
+            throws ScNoValueStringException {
         return sketch.ctrl_conf.getValueString(uid);
     }
 
     public Vector<ScConstructValueString> getOracleValueString(int uid)
-            throws ScNoValueStringException
-    {
+            throws ScNoValueStringException {
         return sketch.oracle_conf.getValueString(uid);
     }
 }

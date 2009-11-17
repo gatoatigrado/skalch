@@ -64,12 +64,12 @@ abstract class AbstractDfSketch() extends DynamicSketch {
     }
 
     def swap_useful(i : Int, j : Int) {
-        synthAssertTerminal(i != j)
+        synthAssert(i != j)
         swap(i, j)
     }
 
     def swap_ordered(i : Int, j : Int) {
-        synthAssertTerminal(i < j)
+        synthAssert(i < j)
         swap(i, j)
     }
 

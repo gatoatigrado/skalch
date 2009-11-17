@@ -8,10 +8,10 @@ import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScLocalSynthesis;
 import sketch.dyn.synth.ScSearchDoneException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
-import sketch.queues.Queue;
-import sketch.queues.QueueIterator;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
+import sketch.ui.queues.Queue;
+import sketch.ui.queues.QueueIterator;
 import sketch.util.DebugOut;
 
 /**

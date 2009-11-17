@@ -1,4 +1,4 @@
-package sketch.queues;
+package sketch.ui.queues;
 
 public class TreeQueueIterator implements QueueIterator {
 

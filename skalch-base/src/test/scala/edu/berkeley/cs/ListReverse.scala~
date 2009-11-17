@@ -27,8 +27,8 @@ class ListReverse() extends AngelicSketch {
     }
     
     descent()
-    //synthAssertTerminal(r == List("1", "2", "3", "4"))
-    synthAssertTerminal(true)
+    //synthAssert(r == List("1", "2", "3", "4"))
+    synthAssert(true)
   }
 }
 

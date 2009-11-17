@@ -29,7 +29,7 @@ class ListZipReversalSketch2 extends AngelicSketch {
             b = if (!!() && b!=Nil && b.tail!=Nil) b.tail else b
             if (!!()) r = skput_and_check(!!(a)) + skput_and_check(!!(b)) :: r 
         }
-        synthAssertTerminal(r == List("a1","b2","c3","d4"))    
+        synthAssert(r == List("a1","b2","c3","d4"))    
     }
 }
 

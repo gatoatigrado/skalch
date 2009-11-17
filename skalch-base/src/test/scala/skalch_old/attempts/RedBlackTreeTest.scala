@@ -84,12 +84,12 @@ class RedBlackTreeSketch(val num_ops : Int,
         for (node <- arr) {
             assert(node != null)
             node.leftChild = next_child()
-            synthAssertTerminal(node.leftChild != node)
+            synthAssert(node.leftChild != node)
             node.rightChild = next_child()
-            synthAssertTerminal(node.rightChild != node)
+            synthAssert(node.rightChild != node)
         }
 
-        synthAssertTerminal(num_added == num_children)
+        synthAssert(num_added == num_children)
     }
 
 
@@ -103,11 +103,11 @@ class RedBlackTreeSketch(val num_ops : Int,
         assert(root != null) // plain assert, this shouldn't happen at all
 
         // asserts that don't rely upon the tree
-        synthAssertTerminal(root.isBlack)
+        synthAssert(root.isBlack)
         root.checkIsTree()
         // skdprint("valid tree: " + root.formatTree(""))
 
-        synthAssertTerminal(root.numNodes() == num_active_nodes)
+        synthAssert(root.numNodes() == num_active_nodes)
         root.checkNumBlack()
         root.checkRedChildrenBlack()
     }

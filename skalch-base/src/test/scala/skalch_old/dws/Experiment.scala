@@ -227,7 +227,7 @@ class FibonacciHeap {
 */
 
 class ExperimentalSketch() extends DynamicSketch {
-    val skassert = synthAssertTerminal _
+    val skassert = synthAssert _
 
     def dysketch_main() = {
         val n = new Necklace[Int](1)

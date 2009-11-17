@@ -1,4 +1,4 @@
-package sketch.queues;
+package sketch.ui.queues;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,6 +28,7 @@ public class QueueUI implements ScUserInterface {
     private Vector<Vector<Object>> listOfQueuesOutput;
     private String queue_output_file_name;
     private Queue previousQueues;
+    private boolean isFinished;
 
     public QueueUI(ScUserInterface base,
             ScDynamicSketchCall<ScAngelicSketchBase> sketch_call,
@@ -35,6 +36,7 @@ public class QueueUI implements ScUserInterface {
         this.queue_output_file_name = queue_output_file_name;
         this.sketch_call = sketch_call;
         this.base = base;
+        isFinished = false;
 
         if (queue_input_file_name != "") {
             QueueFileInput input = new QueueFileInput(queue_input_file_name);
@@ -60,7 +62,7 @@ public class QueueUI implements ScUserInterface {
         debugRun.run();
         boolean isValid = true;
 
-        if (previousQueues != null) {
+        if (previousQueues != null && !isFinished) {
             Vector<Object> queue_trace = debugRun.get_queue_trace();
             QueueIterator iterator = previousQueues.getIterator();
             for (int i = 0; i < queue_trace.size(); i++) {
@@ -73,7 +75,7 @@ public class QueueUI implements ScUserInterface {
             }
         }
         if (isValid) {
-            if (listOfQueuesOutput != null) {
+            if (listOfQueuesOutput != null && !isFinished) {
                 Vector<Object> queue = debugRun.get_queue();
                 listOfQueuesOutput.add(queue);
             }
@@ -123,5 +125,6 @@ public class QueueUI implements ScUserInterface {
             }
             base.synthesisFinished();
         }
+        isFinished = true;
     }
 }

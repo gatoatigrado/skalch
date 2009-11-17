@@ -16,7 +16,7 @@ class QueueTest1() extends AngelicSketch {
     	x = x - 1
     	y = y + 1
     }
-    synthAssertTerminal(y < 5)
+    synthAssert(y < 5)
   }
 }
 

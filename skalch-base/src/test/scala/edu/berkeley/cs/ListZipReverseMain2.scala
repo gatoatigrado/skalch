@@ -19,10 +19,10 @@ class ListZipReverseSketch() extends AngelicSketch {
         // checking angels against a previous trace sped it up from 25s (for recur depth limited to 5) to 0s (for no limit to recursion depth)
         def ct(l:List[String]) : String = {
         	// trace better has one more entry
-            synthAssertTerminal(trace != Nil);
+            synthAssert(trace != Nil);
             val v = !!(l);
             skdprint(v);
-            synthAssertTerminal(v == trace.head);
+            synthAssert(v == trace.head);
             trace = trace.tail;
             v;
         }
@@ -43,7 +43,7 @@ class ListZipReverseSketch() extends AngelicSketch {
             }
         }
         descent();
-        synthAssertTerminal(r == List("a1","b2","c3","d4"));
+        synthAssert(r == List("a1","b2","c3","d4"));
     }
 }
 

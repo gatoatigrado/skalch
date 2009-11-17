@@ -12,7 +12,7 @@ class GaFindMeSketch() extends AngelicSketch {
         skdprint("input: " + value_to_match + ", value: " + guess)
         val difference = Math.abs(guess - value_to_match)
         skAddCost(difference)
-        synthAssertTerminal(difference == 0)
+        synthAssert(difference == 0)
         skAddCost(-1000000) // reward it for getting farther.
     }
 }

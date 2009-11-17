@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.main.angelic.ScAngelicSketchBase;
-import sketch.queues.QueueIterator;
+import sketch.ui.queues.QueueIterator;
 
 /**
  * default actions knowing about the Sketch class (versus just the sketch call,

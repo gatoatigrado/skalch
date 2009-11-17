@@ -20,6 +20,7 @@ import sketch.util.DebugOut;
  * Container for a GA synthesis thread. The actual thread is an inner class
  * because the threads will die between synthesis rounds, whereas the sketch
  * object doesn't need to be deleted.
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
@@ -29,8 +30,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
     protected ScGaSynthesis gasynth;
 
     public ScLocalGaSynthesis(ScDynamicSketchCall<?> sketch,
-            ScGaSynthesis gasynth, BackendOptions be_opts, int uid)
-    {
+            ScGaSynthesis gasynth, BackendOptions be_opts, int uid) {
         super(sketch, be_opts, uid);
         this.gasynth = gasynth;
     }
@@ -52,7 +52,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         /** evaluate $this.current_individual$ */
         protected void evaluate() {
             current_individual.reset(ctrl_conf, oracle_conf);
-            sketch.initialize_before_all_tests(ctrl_conf, oracle_conf);
+            sketch.initialize_before_all_tests(ctrl_conf, oracle_conf, null);
             nruns += 1;
             trycatch: try {
                 for (int a = 0; a < sketch.get_num_counterexamples(); a++) {
@@ -76,8 +76,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
                 // print_colored(BASH_DEFAULT, "\n[ga-synth]", " ", false,
                 // "population " + population.uid);
                 while (population.test_queue_nonempty()) {
-                    current_individual =
-                            population.get_individual_for_testing();
+                    current_individual = population
+                            .get_individual_for_testing();
                     // print("evaluating", "\n"
                     // + current_individual.valuesString());
                     evaluate();
@@ -111,8 +111,8 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
         protected void run_inner() {
             local_populations = new Vector<ScPopulation>();
             for (int a = 0; a < be_opts.ga_opts.num_populations; a++) {
-                ScPopulation population =
-                        new ScPopulation(gasynth.spine_length, be_opts);
+                ScPopulation population = new ScPopulation(
+                        gasynth.spine_length, be_opts);
                 population.perturb_parameters();
                 local_populations.add(population);
             }
@@ -121,9 +121,7 @@ public class ScLocalGaSynthesis extends ScLocalSynthesis {
             if (be_opts.ga_opts.analysis) {
                 analysis = new GaAnalysis(be_opts);
             }
-            for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a +=
-                    nruns)
-            {
+            for (long a = 0; !gasynth.wait_handler.synthesis_complete.get(); a += nruns) {
                 // print_colored(BASH_DEFAULT, "\n\n\n[ga-synth]", " ", false,
                 // "=== generation start ===");
                 update_stats();

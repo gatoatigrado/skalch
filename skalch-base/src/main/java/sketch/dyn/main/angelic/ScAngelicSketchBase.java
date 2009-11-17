@@ -9,7 +9,7 @@ import sketch.dyn.main.debug.ScGeneralDebugEntry;
 import sketch.dyn.main.debug.ScLocationDebugEntry;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
-import sketch.queues.QueueIterator;
+import sketch.ui.queues.QueueIterator;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.sourcecode.ScSourceLocation;
@@ -46,7 +46,7 @@ public class ScAngelicSketchBase {
                 + oracle_conf + "]";
     }
 
-    public void synthAssertTerminal(boolean truth) {
+    public void synthAssert(boolean truth) {
         if (!truth) {
             if (debug_print_enable) {
                 debug_assert_failure_location = (new Exception())
@@ -109,13 +109,14 @@ public class ScAngelicSketchBase {
         debug_out.add(new ScGeneralDebugEntry(text));
     }
 
-    public void skqueue_put_backend(Object value) {
+    public void skqueue_put_backend(int queueNum, Object value) {
         sketch_queue.add(value);
     }
 
-    public void skqueue_check_backend(Object value, boolean ifDebug) {
+    public void skqueue_check_backend(int queueNum, Object value,
+            boolean ifDebug) {
         if (queue_iterator != null && !queue_iterator.checkValue(value)) {
-            synthAssertTerminal(false);
+            synthAssert(false);
         }
         if (ifDebug) {
             sketch_queue_trace.add(value);

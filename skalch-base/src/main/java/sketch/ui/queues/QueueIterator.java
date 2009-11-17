@@ -1,4 +1,4 @@
-package sketch.queues;
+package sketch.ui.queues;
 
 public interface QueueIterator {
     boolean checkValue(Object value);

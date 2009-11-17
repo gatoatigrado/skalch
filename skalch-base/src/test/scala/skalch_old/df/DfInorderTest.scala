@@ -22,7 +22,7 @@ class DfInorderSketch() extends AbstractDfSketch() {
                 swap(i, swap_idx)
                 skdprint(swap_idx + " " + abbrev_str())
             }
-            //synthAssertTerminal(isCorrect(i))
+            //synthAssert(isCorrect(i))
         }
         skdprint(
             ("" /: swap_indices.view(0, num_buckets))(_ + ", " + _.toString)

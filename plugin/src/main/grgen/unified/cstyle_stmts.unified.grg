@@ -1,0 +1,252 @@
+{% block comment %}
+// -*- coding: utf-8 -*-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+// === README ===
+// The current rewrites
+//      (a) Create assignments to temporary variables
+//      (b) The blocks know how to
+{% endblock %}
+{% block gm %}
+// attribute edges on ast nodes indicating that statements can be appended.
+abstract node class CfgAbstractAttachable;
+node class CfgAttachable extends CfgAbstractAttachable;
+node class CfgImplicitAttachable extends CfgAbstractAttachable;
+edge class CfgAttachableAstNode;
+
+abstract edge class AbstractBlockify;
+edge class BlockifyExpr extends AbstractBlockify;
+edge class BlockifySkip extends AbstractBlockify;
+edge class BlockifyNext;
+node class BlockifySkipNode; // dummy node to maintain chain
+node class TmpVarRef extends VarRef, BlockifySafe;
+{% endblock %}
+{% block grs %}
+debug set edge CfgNextForEval color Green;
+xgrs markMainMethod
+xgrs deleteNonmainMethods*
+xgrs deleteDangling*
+
+echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
+xgrs cfgInit
+
+echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable, blockify req, propagate req"
+xgrs setAttachableMemberFcns* & setAttachableBlocks*
+xgrs blockifyDefault* & blockifyLists*
+# xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
+# xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
+# xgrs testCfgAstConnections
+#
+# echo "[REWRITE PRODUCTION] cstyle_stmts -- create temporary variables"
+# xgrs blockifyIncompatibleProloguesAsWell*
+# xgrs exprTargetsToTemporaryVariables*
+# xgrs (propagateBlockifyMarkSafe+ | propagateBlockify)*
+# validate exitonfailure xgrs testNoBlockifiedSafeNodes
+# xgrs testCfgAstConnections
+#
+# echo "[REWRITE PRODUCTION] cstyle_stmts -- attach nodes"
+# # xgrs initAttachRoutine*
+# xgrs deleteCfgNode*
+
+# xgrs blockMarkBadNodes*
+{% endblock %}
+{% block grg %}
+rule connectAttachPt (attach_pt:CfgImplicitAttachable,
+        prologue:CfgAbstractNode, x:ScAstNode)
+{
+    modify {
+        attach_pt -:CfgAttachableAstNode-> x;
+        attach_pt -:CfgNext-> prologue;
+    }
+}
+
+rule redirectThroughAttachPt(attach_pt:CfgImplicitAttachable,
+        prologue:CfgAbstractNode)
+{
+    x:Node -e:CfgAbstractNext-> prologue;
+    modify {
+        delete(e);
+        x -:typeof(e)-> attach_pt; // connected to prologue later (only 1 time also)
+    }
+}
+
+// STEP 1: Mark AST nodes as attachable (statements may be appended)
+rule setAttachableMemberFcns {
+    x:FcnDef -:FcnBody-> body:ScAstNode -:CfgPrologue-> prologue:CfgAbstractNode;
+    negative { :CfgImplicitAttachable -:CfgAbstractNext-> prologue; }
+    modify {
+        attach_pt:CfgImplicitAttachable;
+        exec((redirectThroughAttachPt(attach_pt, prologue)*
+            & connectAttachPt(attach_pt, prologue, x)) ||
+            assertFalse("setAttachableMemberFcns failed"));
+    }
+}
+
+// rule setAttachableBlocks {
+//     x:Block -:BlockStmtList-> lst:List -:ListElt-> :ListNode
+//         -:ListValue-> lst_value:ScAstNode -:CfgPrologue-> prologue:CfgPrologue;
+//     negative { lst_value -:AbstractAttachable-> lst_value; }
+//     modify { lst_value -:Attachable-> lst_value; }
+// }
+
+// STEP 2: request to blockify ScalaExprStmt's that 
+// are incompatible with C-style edges
+rule blockifyDefault {
+    . -:CstyleExprTarget-> expr:ScalaExprStmt;
+    negative { expr; expr -:AbstractBlockify-> expr; }
+    modify { expr -:BlockifyExpr-> expr; }
+}
+
+rule blockifyLists {
+    . -:CstyleExprTarget-> :List -:ListElt-> :ListNode
+        -:ListValue-> expr:ScalaExprStmt;
+    negative { expr; expr -:AbstractBlockify-> expr; }
+    modify { expr -:BlockifyExpr-> expr; }
+}
+
+// STEP 3: propagate blockify. simply won't match blockify nodes in cfg chain
+
+{% macro blockify_graphlet(next_cls) %}
+x:{{ next_cls }} --> :CfgEvalNode -:CfgSequentialNext->
+        blockify_cfg_node:CfgAbstractNode;
+    y:ScAstNode -:AbstractBlockify-> y;
+    y -:CfgPrologue-> blockify_cfg_node;
+    negative { x -:AbstractBlockify-> x; }
+{% endmacro %}
+
+/// need to blockify previous arguments so we don't change
+/// the effective CFG order
+rule propagateBlockifyMarkSafe {
+    {{ blockify_graphlet("BlockifySafe") }}
+    modify { x -:BlockifySkip-> :BlockifySkipNode; }
+}
+
+// rule propagateBlockify {
+//     next_blockify:CfgAbstractNode -:CfgSequentialNext-> existing_blockify:CfgAbstractNode
+//         -:AbstractBlockify-> .;
+// 
+//     expr:ScAstNode -:AstCfgEdge-> next_blockify;
+// 
+//     negative { next_blockify -:AbstractBlockify-> .; }
+//     negative { next_blockify -:AbstractAttachable-> next_blockify; }
+//     modify { exec(createTemporary(expr, next_blockify)); }
+// }
+
+
+
+// STEP 3: rewrite attachment
+// NOTE -- for now, a bit special case since we only attach to blocks.
+
+rule appendEmptyToChain(last : ScAstNode, append : Node) : (ScAstNode) {
+    if { typeof(append) >= BlockifySkipNode; }
+    modify { delete(append); return (last); }
+}
+
+rule appendAstNodeToChain(last : ScAstNode,
+    append : ScAstNode) : (ScAstNode)
+{
+//     if { typeof(append) >= ScAstNode; }
+    modify {
+        last -:BlockStmtNext-> append;
+        return (append);
+    }
+}
+
+rule initAttachRoutine {
+    astnode:ScAstNode -:CfgEpilogue-> cfgnode:CfgAbstractNode
+        -:CfgSequentialNext-> cfgNodeWithChain:CfgAbstractNode
+        -:AbstractBlockify-> .;
+    modify {
+        exec(attachChain(astnode, cfgNodeWithChain));
+//         exec((next_last:ScAstNode) = attachChain(astnode, cfgNodeWithChain)
+//             );
+//             setNextPtrForLast(astnode, next_last) &&
+//             setLastPtrForLast(astnode, next_last));
+    }
+}
+
+rule attachChain(attach_to:ScAstNode, cfgnode:CfgAbstractNode) {
+    cfgnode -blockify:AbstractBlockify-> blockify_node:Node;
+    cfgnode -:CfgAbstractNext-> cfg_next:Node;
+    modify {
+        delete(blockify);
+        exec(
+            ((last:ScAstNode) = appendEmptyToChain(attach_to, blockify_node) ||
+                (last) = appendAstNodeToChain(attach_to, blockify_node) ||
+                assertFalse("rule attachChain: unknown node type")) &&
+            (attachChain(last, cfg_next)
+            ));
+//             || (assertFalse("not implemented")))
+//             );
+    }
+}
+
+rule markMainMethod {
+    x:MemberFcn -:FcnDefSymbol-> sym:Symbol;
+    if { sym.symbolName == "main"; }
+    modify {
+        x --> :DebugBadNode;
+    }
+}
+
+rule deleteNonmainMethods {
+    x:MemberFcn;
+    negative { x --> :DebugBadNode; }
+    modify { delete(x); }
+}
+
+rule blockMarkBadNodes {
+    x:ScAstNode -:BlockStmtNext-> y:Node;
+    x -:BlockStmtNext-> z:Node;
+    negative { x --> :DebugBadNode; }
+    modify {
+        x --> :DebugBadNode;
+    }
+}
+
+// Library functions
+
+rule postsetValDefRhs(x : ValDef, y : ScAstNode) {
+    modify { x -:ValDefRhs-> y; }
+}
+
+// move one sibling edges outgoing from x to be outgoing from y
+rule redirect_outgoing_sibling_edges(x : ScAstNode, y : ScAstNode) {
+    x -e:Sibling-> z:ScAstNode;
+    modify {
+        y -e2:typeof(e)-> z;
+        delete(e);
+    }
+}
+
+rule redirect_outgoing_cfg_edges(x : ScAstNode, y : ScAstNode) {
+    x -e:AstCfgEdge-> z:CfgAbstractNode;
+    modify {
+        y -e2:typeof(e)-> z;
+        delete(e);
+    }
+}
+
+rule createTemporary(expr : ScAstNode, cfgnode : CfgAbstractNode) {
+    modify {
+        tmp_assign:BlockifyValDef -:ValDefSymbol-> tmpsym:TmpSymbol;
+        ref:TmpVarRef -:VarRefSymbol-> tmpsym;
+        cfgnode -:BlockifyExpr-> tmp_assign;
+        eval {
+            tmpsym.symbolName = "tmp";
+            tmpsym.fullSymbolName = "artificiallyinserted.tmp";
+        }
+        // otherwise, order is not explicit
+        exec(redirect_incoming(expr, ref)* &
+            redirect_outgoing_sibling_edges(expr, ref)* &
+            redirect_outgoing_cfg_edges(expr, ref)* &
+            postsetValDefRhs(tmp_assign, expr));
+    }
+}
+
+
+{% endblock %}

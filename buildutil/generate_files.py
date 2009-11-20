@@ -20,6 +20,8 @@ except:
     import sys; print("please install gatoatigrado's utility library from "
         "bitbucket.org/gatoatigrado/gatoatigrado_lib", file=sys.stderr)
 
+from generate_jinja2 import generate_jinja2
+
 class FnameMod(object):
     def modify_cmd(self, cmd, fname):
         return "cat '%s' | %s" %(Path(fname), cmd)
@@ -66,14 +68,16 @@ def check_cmdline_generated(fname, stripped_lines):
 def process_unified():
     grgen = Path("plugin/src/main/grgen")
     unified = grgen.subpath("unified")
-    for unified_file in unified.files():
+    for unified_file in unified.walk_files():
         env = Environment(loader=FileSystemLoader(unified), trim_blocks=True,
             extensions=[jinja2.ext.do])
+        #env.filters["pipetonull"] = lambda a: ""
         def get_output(blockname):
-            other_blocks = [v for v in "gm grg grs comment".split() if not v == blockname]
+            all_names = "gm grg grs comment".split()
+            other_blocks = [v for v in all_names if not v == blockname]
             basename = unified_file.relpath(unified)
             return env.from_string("{% extends '" + basename + "' %}\n" +
-                "\n".join("{%% block %s %%}{%% endblock %%}"
+                 "\n".join("{%% block %s %%}{%% endblock %%}"
                 %(v) for v in other_blocks)).render()
 
         name = unified_file.basename().replace(".unified.grg", "")
@@ -82,22 +86,36 @@ def process_unified():
         contents = [get_output(v) for v in "grg grs gm".split()]
         for d, ext in ( ("rules", "grg"), ("stages-scripts", "grs"), ("nodes", "gm") ):
             path = grgen.subpath(d, "gen").makedirs().subpath(name + "." + ext)
-            contents = get_output(ext)
-            if not path.isfile() or path.read() != contents:
+            if path.write_if_different(get_output(ext)):
                 print("    generating '%s'" %(path))
-                path.write(contents)
+
+def process_jinja2(files):
+    for fname in files:
+        env = Environment(loader=FileSystemLoader(fname.parent()),
+            trim_blocks=True, extensions=[jinja2.ext.do])
+        result = env.get_template(fname.basename()).render()
+        if Path(fname.replace(".jinja2", "")).write_if_different(result):
+            print(" " * 4 + "generating '%s'" %(fname))
+
+@memoize_file(".generate_files.txt")
+def files_with_generate():
+    return list(SubProc(["grep", "-l", "@ generate command", "-R", "."]).exec_lines())
+
+@memoize_file(".jinja2_file_list.txt")
+def jinja2_file_list():
+    return [v for v in Path(".").walk_files() if v.endswith(".jinja2")]
 
 def main(no_rebuild=False,
         no_save_list=False, file_list_name=".generate_files.txt"):
 
     process_unified()
-    file_list_name = Path(file_list_name)
-    if (not no_rebuild) or (not file_list_name.exists()):
-        lines = list(SubProc(["grep", "-l", "@ generate command", "-R", "."]).exec_lines())
-        if not no_save_list:
-            open(file_list_name, "w").write("\n".join(lines))
-    else:
-        lines = [v for v in open(file_list_name).read().split("\n") if v]
+    files_with_generate.filename = file_list_name
+    if not no_rebuild:
+        files_with_generate.delete()
+        jinja2_file_list.delete()
+    lines = files_with_generate()
+    process_jinja2(jinja2_file_list())
+    return
 
     for fname in [Path(v) for v in lines]:
         if fname == Path(__file__):

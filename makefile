@@ -52,6 +52,11 @@ plugin_sugared:
 plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
+### grgen commands
+
+new-unified-module:
+	cd plugin/src/main/grgen; read -p "name? " name; cp unified-template.txt unified/$$name.unified.grg; kate -u unified/$$name.unified.grg
+
 grgen_compile:
 	buildutil/generate_files.py --no_rebuild
 	plugin/src/main/grgen/sugared_test.sh

@@ -1,0 +1,38 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+REMEMBER, you need to
+(1) update AllRules.grg -- add include
+(2) update ScalaAstModel.gm.jinja2 -- add include
+(3) update transform.template.grs -- add include, when rule should be executed
+There are plenty of examples in all of these files.
+
+{% endblock %}
+{% block gm %}
+// edge class MyEdge
+// node class MyNode
+{% endblock %}
+
+
+
+{% block grs %}
+# grs rewrite sequence here
+# xgrs myRule*
+{% endblock %}
+
+
+
+{% block grg %}
+// view other files if you want example rules that do something.
+// rule myRule {
+//      x:MyNode -e:MyEdge-> z:MyNode2;
+//      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
+//      modify { x -:MyEdge-> w:MyNode; delete(e); }
+// }
+{% endblock %}

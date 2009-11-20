@@ -75,52 +75,9 @@ node class TargetFcnCall extends FcnCall;
 
 
 // ==== unified modules ====
+{% include "nodes/gen/generate_cfg.gm" %}
+{% include "nodes/gen/cstyle_stmts.gm" %}
 
-abstract node class CfgAbstractNode;
-abstract node class CfgEvalNode;
-// normal nodes indicate normal control flow.
-// further subtypes indicate how computation is carried out
-// (for example, for functions, in the epilogue node).
-abstract node class CfgNormalNode extends CfgAbstractNode;
-abstract node class CfgDummyNode extends CfgNormalNode;
-node class CfgDummyPrologueNode extends CfgDummyNode;
-node class CfgEvalNormalNode extends CfgNormalNode, CfgEvalNode;
-// don't create next ptrs from return stmts.
-// Only for the epilogue of the return statement.
-node class CfgReturnNode extends CfgAbstractNode;
-
-edge class CfgSequentialList;
-
-// edges from CFG nodes to CFG nodes
-edge class CfgAbstractNext;
-edge class CfgSequentialNext extends CfgAbstractNext;
-edge class CfgNext extends CfgSequentialNext;
-edge class CfgSkipSubtreeNext extends CfgSequentialNext;
-// TODO -- implement more CFG edges.
-// edge class CfgConditionalNext extends CfgAbstractNext;
-edge class CfgNextFromEval extends CfgAbstractNext;
-
-// edges from the original AST to the CFG
-abstract edge class AstCfgEdge;
-edge class CfgPrologue extends AstCfgEdge;
-edge class CfgEpilogue extends AstCfgEdge;
-edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
-
-// a node with [only] one CfgSequentialNext out edge,
-// and only one CfgSequentialNext in edge.
-edge class CfgStrictlySequentialNode;
-// attribute edges on ast nodes indicating that statements can be appended.
-abstract node class CfgAbstractAttachable;
-node class CfgAttachable extends CfgAbstractAttachable;
-node class CfgImplicitAttachable extends CfgAbstractAttachable;
-edge class CfgAttachableAstNode;
-
-abstract edge class AbstractBlockify;
-edge class BlockifyExpr extends AbstractBlockify;
-edge class BlockifySkip extends AbstractBlockify;
-edge class BlockifyNext;
-node class BlockifySkipNode; // dummy node to maintain chain
-node class TmpVarRef extends VarRef, BlockifySafe;
 
 
 // === Intermediate nodes ===

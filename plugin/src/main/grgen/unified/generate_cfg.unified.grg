@@ -13,28 +13,28 @@
 
 {% block gm %}
 abstract node class CfgAbstractNode;
+abstract node class CfgEvalNode;
 // normal nodes indicate normal control flow.
 // further subtypes indicate how computation is carried out
 // (for example, for functions, in the epilogue node).
 abstract node class CfgNormalNode extends CfgAbstractNode;
 abstract node class CfgDummyNode extends CfgNormalNode;
 node class CfgDummyPrologueNode extends CfgDummyNode;
-node class CfgEvalNormalNode extends CfgNormalNode;
+node class CfgEvalNormalNode extends CfgNormalNode, CfgEvalNode;
 // don't create next ptrs from return stmts.
 // Only for the epilogue of the return statement.
 node class CfgReturnNode extends CfgAbstractNode;
 
 edge class CfgSequentialList;
 
-edge class CfgBlockify;
-edge class CfgBlockifySkip;
-
 // edges from CFG nodes to CFG nodes
 edge class CfgAbstractNext;
 edge class CfgSequentialNext extends CfgAbstractNext;
 edge class CfgNext extends CfgSequentialNext;
 edge class CfgSkipSubtreeNext extends CfgSequentialNext;
-edge class CfgConditionalNext extends CfgAbstractNext;
+// TODO -- implement more CFG edges.
+// edge class CfgConditionalNext extends CfgAbstractNext;
+edge class CfgNextFromEval extends CfgAbstractNext;
 
 // edges from the original AST to the CFG
 abstract edge class AstCfgEdge;
@@ -42,10 +42,9 @@ edge class CfgPrologue extends AstCfgEdge;
 edge class CfgEpilogue extends AstCfgEdge;
 edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
 
-// attribute edges on cfg nodes indicating that they will produce blocks.
-abstract edge class CfgAbstractAttachable;
-edge class CfgAttachable extends CfgAbstractAttachable;
-edge class CfgImplicitAttachable extends CfgAbstractAttachable;
+// a node with [only] one CfgSequentialNext out edge,
+// and only one CfgSequentialNext in edge.
+edge class CfgStrictlySequentialNode;
 {% endblock %}
 
 {% block grg %}
@@ -181,6 +180,57 @@ rule cfgRedirectOutgoingToEpilogue {
     ast_node -:CfgEpilogue-> epilogue:CfgAbstractNode;
     {{ redirect_edge("epilogue", "y") }}
 }
+
+// STEP 4 -- optional "skip internal" edges for conditional blocks
+
+rule cfgSkipIf {
+    x:If -:CfgPrologue-> prologue:CfgNormalNode;
+    x -:CfgEpilogue-> epilogue:CfgNormalNode;
+    negative { prologue -:CfgAbstractNext-> .; }
+    modify { prologue -:CfgSkipSubtreeNext-> epilogue; }
+}
+
+// STEP 5 -- forward next ptrs from dummy prologues.
+
+rule forwardIntermediatePrologue {
+    y:Node -:CfgSequentialNext->
+        x:CfgDummyNode -:CfgSequentialNext-> z:Node;
+    modify { exec(forwardIntermediatePrologueInner(x)+
+        && deleteNode(x)); }
+}
+
+rule forwardIntermediatePrologueInner(x:CfgAbstractNode) {
+    y:Node -e:CfgSequentialNext-> x -:CfgSequentialNext-> z:Node;
+    modify { y -:typeof(e)-> z; delete(e); }
+}
+
+/*
+not necessary -- first step in forming extended sequential nodes.
+
+rule cfgMarkStrictlySequential {
+    x:Node -e:CfgSequentialNext-> cfg_node:CfgNormalNode
+        -e2:CfgSequentialNext-> y:Node;
+    negative { x; cfg_node; z:Node -:CfgSequentialNext-> cfg_node; }
+    negative { y; cfg_node; cfg_node -:CfgSequentialNext-> z:Node; }
+    negative { cfg_node -:CfgStrictlySequentialNode-> cfg_node; }
+    modify { cfg_node -:CfgStrictlySequentialNode-> cfg_node; }
+}
+*/
+
+// STEP 4: it is often useful to determine extended sequential references.
+// note -- since this is from the most recent eval node,
+// the resulting graph will not be extremely long.
+// this is to avoid the dummy prologue nodes.
+
+// rule cfgInitNextFromEval {
+//     x:CfgAbstractNode -:CfgSequentialNext-> y:CfgAbstractNode;
+//     negative { x; y; . -:CfgAbstractNext-> y; }
+// }
+
+// rule cfgExtendedSequential {
+//     x:CfgAbstractNode -:CfgSequentialNext-> y
+//         
+// }
 
 rule cfgInit {
     // NOTE -- check this file with check_generated_files.py

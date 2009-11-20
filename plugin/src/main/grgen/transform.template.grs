@@ -33,15 +33,20 @@ dump set node HighlightValDef color Black
 dump set node PrintNode color DarkBlue
 dump set node DebugBadNode color Red
 
-
-
+include "stages-scripts/gen/warn_unsupported.grs"
 include "stages-scripts/delete_marked_ignore.grs"
 include "stages-scripts/decorate.grs"
 include "stages-scripts/convert_this.grs"
 include "stages-scripts/clean_sketch_constructs.grs"
 xgrs deleteDangling*
 include "stages-scripts/local_simplifications.grs"
-include "stages-scripts/cstyle_stmts.grs"
+include "stages-scripts/nice_lists.grs"
+xgrs cfgInit
+xgrs cfgSkipIf*
+xgrs setAttachableMemberFcns*
+# xgrs forwardIntermediatePrologue*
+
+# include "stages-scripts/gen/cstyle_stmts.grs"
 # include "stages-scripts/print_ast.grs"
 
 {% if output_file %}

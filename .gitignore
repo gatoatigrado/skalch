@@ -18,3 +18,4 @@ buildutil/build_info.pickle
 *.dll
 plugin/src/main/grgen/AllRules.grg
 .generate_files.txt
+.jinja2_file_list.txt

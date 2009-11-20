@@ -1,0 +1,42 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+Warn about unsupported functionality.
+
+{% endblock %}
+{% block grg %}
+{% set warn_fcns = [] %}
+{% macro append_ret(arr, name) %}
+{% do arr.append(name) %}
+{{ name }}{% endmacro %}
+{% macro warn_fcn(name) %}{{ append_ret(warn_fcns, name) }}{% endmacro %}
+
+{% macro warnblock() %}
+modify {
+        exec(assertFalse("{{ warn_fcns[-1] }}"));
+    }
+{% endmacro %}
+
+rule {{ warn_fcn("unsupportedAssignToNonvar") }} {
+    x:Assign -:AssignLhs-> lhs:ScAstNode;
+    negative { if { typeof(lhs) >= VarRef; } }
+    {{ warnblock() }}
+}
+
+rule unsupportedWarnAll {
+    modify { exec(
+{% for name in warn_fcns %}
+        {{ name }}*{{ " &" if not loop.last else "" }}
+{% endfor %}
+        ); }
+}
+
+{% endblock %}
+
+{% block grs %}
+xgrs unsupportedWarnAll
+{% endblock %}

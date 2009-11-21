@@ -195,6 +195,8 @@ rule cfgSkipIf {
 rule forwardIntermediatePrologue {
     y:Node -:CfgSequentialNext->
         x:CfgDummyNode -:CfgSequentialNext-> z:Node;
+    // FIXME -- hack to force Blockify to propagate with sub-blocks
+    negative { if { typeof(z) >= CfgAbstractAttachable; } }
     modify { exec(forwardIntermediatePrologueInner(x)+
         && deleteNode(x)); }
 }

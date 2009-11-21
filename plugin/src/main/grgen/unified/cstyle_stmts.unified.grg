@@ -26,17 +26,26 @@ node class BlockifySkipNode; // dummy node to maintain chain
 node class TmpVarRef extends VarRef, BlockifySafe;
 {% endblock %}
 {% block grs %}
-debug set edge CfgNextForEval color Green;
+# dump set edge CfgNextForEval color Green
 xgrs markMainMethod
 xgrs deleteNonmainMethods*
 xgrs deleteDangling*
 
 echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
 xgrs cfgInit
+xgrs cfgSkipIf*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable, blockify req, propagate req"
-xgrs setAttachableMemberFcns* & setAttachableBlocks*
+echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable, forward prologues"
+# these must be executed before the prologues are erased.
+xgrs setAttachableMemberFcns*
+xgrs setAttachableBlocks*
+xgrs forwardIntermediatePrologue*
+
+echo "[REWRITE PRODUCTION] cstyle_stmts -- blockify req, propagate req"
 xgrs blockifyDefault* & blockifyLists*
+xgrs (propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*
+
+
 # xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
 # xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
 # xgrs testCfgAstConnections
@@ -55,8 +64,8 @@ xgrs blockifyDefault* & blockifyLists*
 # xgrs blockMarkBadNodes*
 {% endblock %}
 {% block grg %}
-rule connectAttachPt (attach_pt:CfgImplicitAttachable,
-        prologue:CfgAbstractNode, x:ScAstNode)
+rule connectAttachPt (attach_pt:CfgAbstractAttachable,
+        prologue:CfgAbstractNode, x:Node)
 {
     modify {
         attach_pt -:CfgAttachableAstNode-> x;
@@ -64,7 +73,7 @@ rule connectAttachPt (attach_pt:CfgImplicitAttachable,
     }
 }
 
-rule redirectThroughAttachPt(attach_pt:CfgImplicitAttachable,
+rule redirectThroughAttachPt(attach_pt:CfgAbstractAttachable,
         prologue:CfgAbstractNode)
 {
     x:Node -e:CfgAbstractNext-> prologue;
@@ -86,12 +95,17 @@ rule setAttachableMemberFcns {
     }
 }
 
-// rule setAttachableBlocks {
-//     x:Block -:BlockStmtList-> lst:List -:ListElt-> :ListNode
-//         -:ListValue-> lst_value:ScAstNode -:CfgPrologue-> prologue:CfgPrologue;
-//     negative { lst_value -:AbstractAttachable-> lst_value; }
-//     modify { lst_value -:Attachable-> lst_value; }
-// }
+rule setAttachableBlocks {
+    x:Block -:BlockStmtList-> lst:List -:ListElt-> lst_node:ListNode
+        -:ListValue-> lst_value:ScAstNode -:CfgPrologue-> prologue:CfgAbstractNode;
+    negative { :CfgAbstractAttachable -:CfgAbstractNext-> prologue; }
+    modify {
+        attach_pt:CfgAttachable;
+        exec((redirectThroughAttachPt(attach_pt, prologue)*
+            & connectAttachPt(attach_pt, prologue, lst_node)) ||
+            assertFalse("setAttachableBlocks failed"));
+    }
+}
 
 // STEP 2: request to blockify ScalaExprStmt's that 
 // are incompatible with C-style edges
@@ -113,17 +127,49 @@ rule blockifyLists {
 {% macro blockify_graphlet(next_cls) %}
 x:{{ next_cls }} --> :CfgEvalNode -:CfgSequentialNext->
         blockify_cfg_node:CfgAbstractNode;
-    y:ScAstNode -:AbstractBlockify-> y;
-    y -:CfgPrologue-> blockify_cfg_node;
+    y:ScAstNode -:AbstractBlockify-> y --> blockify_cfg_node;
     negative { x -:AbstractBlockify-> x; }
 {% endmacro %}
 
 /// need to blockify previous arguments so we don't change
 /// the effective CFG order
+rule propagateBlockifyUnsafe {
+    {{ blockify_graphlet("ScAstNode") }}
+    negative { if { typeof(x) >= BlockifySafe; } }
+    modify {
+        x -:BlockifyExpr-> x -:BlockifyNext-> y;
+    }
+}
+
+/// some nodes, like ??, don't have data dependencies, so they don't have to move.
 rule propagateBlockifyMarkSafe {
     {{ blockify_graphlet("BlockifySafe") }}
-    modify { x -:BlockifySkip-> :BlockifySkipNode; }
+    modify {
+        x -:BlockifySkip-> x -:BlockifyNext-> y;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // rule propagateBlockify {
 //     next_blockify:CfgAbstractNode -:CfgSequentialNext-> existing_blockify:CfgAbstractNode

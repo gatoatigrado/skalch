@@ -119,6 +119,7 @@ abstract edge class AbstractBlockify;
 edge class BlockifyExpr extends AbstractBlockify;
 edge class BlockifySkip extends AbstractBlockify;
 edge class BlockifyNext;
+edge class BlockifyAttach extends BlockifyNext; // first edge
 node class BlockifySkipNode; // dummy node to maintain chain
 node class TmpVarRef extends VarRef, BlockifySafe;
 

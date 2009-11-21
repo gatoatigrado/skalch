@@ -22,11 +22,13 @@ abstract edge class AbstractBlockify;
 edge class BlockifyExpr extends AbstractBlockify;
 edge class BlockifySkip extends AbstractBlockify;
 edge class BlockifyNext;
+edge class BlockifyAttach extends BlockifyNext; // first edge
 node class BlockifySkipNode; // dummy node to maintain chain
 node class TmpVarRef extends VarRef, BlockifySafe;
 {% endblock %}
 {% block grs %}
 # dump set edge CfgNextForEval color Green
+dump set edge BlockifyNext color Blue
 xgrs markMainMethod
 xgrs deleteNonmainMethods*
 xgrs deleteDangling*
@@ -35,16 +37,19 @@ echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
 xgrs cfgInit
 xgrs cfgSkipIf*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable, forward prologues"
+echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable"
 # these must be executed before the prologues are erased.
 xgrs setAttachableMemberFcns*
 xgrs setAttachableBlocks*
-xgrs forwardIntermediatePrologue*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- blockify req, propagate req"
+echo "[REWRITE PRODUCTION] cstyle_stmts -- blockify req, forward cfg prologues, propagate req"
 xgrs blockifyDefault* & blockifyLists*
+xgrs forwardNonblockifyIntermediatePrologue*
+xgrs setBlockifyNextForAlreadyBlockified*
 xgrs (propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*
-
+xgrs setBlockifyChain*
+xgrs checkBlockifyLinks
+xgrs forwardBlockifySkip*
 
 # xgrs [testCfgConnectedInit] & testCfgConnectedPropagate*
 # xgrs testCfgConnectedFcnDefsEchoError & [deleteCfgIsConnected]
@@ -107,6 +112,8 @@ rule setAttachableBlocks {
     }
 }
 
+
+
 // STEP 2: request to blockify ScalaExprStmt's that 
 // are incompatible with C-style edges
 rule blockifyDefault {
@@ -122,19 +129,52 @@ rule blockifyLists {
     modify { expr -:BlockifyExpr-> expr; }
 }
 
+rule forwardNonblockifyIntermediatePrologue {
+    y:Node -:CfgSequentialNext->
+        x:CfgDummyNode -:CfgSequentialNext-> z:Node;
+    // FIXME -- hack to force Blockify to propagate with sub-blocks
+    negative { if { typeof(z) >= CfgAbstractAttachable; } }
+    // another hack, such that forwarding works correctly.
+    negative {
+        ast_x:Node -:CfgPrologue-> x;
+        ast_x -:AbstractBlockify-> ast_x;
+    }
+    modify { exec(forwardIntermediatePrologueInner(x)+
+        && deleteNode(x)); }
+}
+
+rule forwardNonblockifyIntermediatePrologueInner(x:CfgAbstractNode) {
+    y:Node -e:CfgSequentialNext-> x -:CfgSequentialNext-> z:Node;
+    modify { y -:typeof(e)-> z; delete(e); }
+}
+
+
+
 // STEP 3: propagate blockify. simply won't match blockify nodes in cfg chain
 
 {% macro blockify_graphlet(next_cls) %}
 x:{{ next_cls }} --> :CfgEvalNode -:CfgSequentialNext->
         blockify_cfg_node:CfgAbstractNode;
-    y:ScAstNode -:AbstractBlockify-> y --> blockify_cfg_node;
+    y:ScAstNode -:AbstractBlockify-> y -:CfgPrologue-> blockify_cfg_node;
+{% endmacro %}
+
+/// need next ptrs for two sequential ScalaExprStmt's
+rule setBlockifyNextForAlreadyBlockified {
+    {{ blockify_graphlet("ScAstNode") }}
+    x -:AbstractBlockify-> x;
+    negative { x -:BlockifyNext-> y; }
+    modify { x -:BlockifyNext-> y; }
+}
+
+{% macro blockify_new_graphlet(next_cls) %}
+{{ blockify_graphlet(next_cls) }}
     negative { x -:AbstractBlockify-> x; }
 {% endmacro %}
 
 /// need to blockify previous arguments so we don't change
 /// the effective CFG order
 rule propagateBlockifyUnsafe {
-    {{ blockify_graphlet("ScAstNode") }}
+    {{ blockify_new_graphlet("ScAstNode") }}
     negative { if { typeof(x) >= BlockifySafe; } }
     modify {
         x -:BlockifyExpr-> x -:BlockifyNext-> y;
@@ -143,9 +183,42 @@ rule propagateBlockifyUnsafe {
 
 /// some nodes, like ??, don't have data dependencies, so they don't have to move.
 rule propagateBlockifyMarkSafe {
-    {{ blockify_graphlet("BlockifySafe") }}
+    {{ blockify_new_graphlet("BlockifySafe") }}
     modify {
         x -:BlockifySkip-> x -:BlockifyNext-> y;
+    }
+}
+
+rule setBlockifyChain {
+    x:CfgAbstractAttachable -:CfgAbstractNext-> y:CfgAbstractNode;
+    z:ScAstNode -:AbstractBlockify-> z --> y;
+    negative { x -:BlockifyAttach-> z; }
+    modify { x -:BlockifyAttach-> z; }
+}
+
+rule checkBlockifyLinks {
+    x:Node -:AbstractBlockify-> x;
+    y:Node -e:Edge-> x;
+    // ignore if...
+    negative {
+        // x is an instance of ScAstNode
+        if { typeof(x) >= ScAstNode; }
+        // and e is an accepted type
+        if { (typeof(e) >= ListValue) ||
+            (typeof(e) >= Subtree) ||
+            (typeof(e) >= BlockifyNext); }
+    }
+    modify { exec(printn(y) & print("\\n") &
+        assertFalse("checkBlockifyLinks")); }
+}
+
+rule forwardBlockifySkip {
+    x:Node -e1:BlockifyNext-> y:ScAstNode -e2:BlockifyNext-> z:ScAstNode;
+    if { typeof(x) >= ScAstNode || typeof(x) >= CfgAttachable; }
+    y -e3:BlockifySkip-> y;
+    modify {
+        delete(e1, e2, e3);
+        x -:typeof(e1)-> z; // e1 because it could be a BlockifyAttach
     }
 }
 

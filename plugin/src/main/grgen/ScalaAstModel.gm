@@ -123,6 +123,8 @@ edge class BlockifyAttach extends BlockifyNext; // first edge
 node class BlockifySkipNode; // dummy node to maintain chain
 node class TmpVarRef extends VarRef, BlockifySafe;
 
+node class DummyBlockifyChainEndNode extends ScAstNode;
+
 
 // === Intermediate nodes ===
 node class List;

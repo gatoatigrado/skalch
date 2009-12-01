@@ -7,7 +7,8 @@ include "stages-scripts/delete_marked_ignore.grs"
 include "stages-scripts/decorate.grs"
 include "stages-scripts/convert_this.grs"
 include "stages-scripts/clean_sketch_constructs.grs"
-include "stages-scripts/cstyle_stmts.grs"
+include "stages-scripts/nice_lists.grs"
+include "stages-scripts/gen/cstyle_stmts.grs"
 
 validate exitonfailure xgrs dontDeleteCheckPresent
 exit

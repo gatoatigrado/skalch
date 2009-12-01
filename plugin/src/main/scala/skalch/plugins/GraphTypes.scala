@@ -90,8 +90,8 @@ abstract class NodeFactory {
     def getsym(sym : Symbol) : GrNode = sym_to_gr_map.get(sym) match {
         case None =>
             val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
-            node.attrs.append("symbolName" -> new GXLString(sym.name.toString().trim()))
-            node.attrs.append("fullSymbolName" -> new GXLString(sym.fullNameString.trim()))
+            node.append_str_attr("symbolName", sym.name.toString().trim())
+            node.append_str_attr("fullSymbolName", sym.fullNameString.trim())
             sym_to_gr_map.put(sym, node)
 
             (new BoundNodeFcns(node, "Symbol")).symlink("Type", sym.tpe.typeSymbol)
@@ -120,6 +120,35 @@ abstract class NodeFactory {
     /** name is currently the unique name of the node; not to
      * be confused with e.g. the name of variables or classes. */
     class GrNode(var typ : String, var name : String) {
+        type NNStr = String with NotNull
+        type NNGxlValue = GXLValue with NotNull
+        type NNTuple = Tuple2[NNStr, NNGxlValue] with NotNull
+
+        /* lots of attribute-handling code */
+
+        def get_nn_tuple(x : String, y : GXLValue) : NNTuple = {
+            if ((x eq null) || (y eq null)) { assert(false,
+                "get_nn_tuple: null inputs (%s, %s)" format (x, y)); }
+            (x.asInstanceOf[NNStr] -> y.asInstanceOf[NNGxlValue]
+                ).asInstanceOf[NNTuple]
+        }
+
+        def append_attr(x : String, y : GXLValue) { attrs.append(get_nn_tuple(x, y)) }
+
+        def append_str_attr(x : String, y : String) {
+            assert (! (y eq null), "y is null")
+            append_attr(x, new GXLString(y))
+        }
+
+        def getattrlist() : ListBuffer[Tuple2[String, GXLValue]] = {
+            val result = ListBuffer[Tuple2[String, GXLValue]]()
+            attrs foreach ( (x : NNTuple) => result.append(
+                x._1.asInstanceOf[String] -> x._2.asInstanceOf[GXLValue]) )
+            return result
+        }
+
+        val attrs = new ListBuffer[NNTuple]()
+
         var use_default_type = true
         def set_type(typ : String, extend_ : String) {
             this.typ = typ
@@ -136,20 +165,18 @@ abstract class NodeFactory {
         val edges = new ListBuffer[GrEdge]()
         /** whether this node has been printed to the grshell script (or gxl) yet */
         var output : GXLNode = null
-        val attrs = new ListBuffer[Tuple2[String, GXLValue]]()
-
-        def validate_attrs() {
-            assert(attrs.length == (Set() ++ attrs map (x => x._1)).size,
-                "duplicate attributes " + attrs.toString())
-        }
 
         def this(typ : String, name : String,
             start : SimplePosition, end : SimplePosition) =
         {
             this(typ, name)
-            attrs ++= ListBuffer("sourceFile" -> new GXLString(sourceFile),
-                "startLine" -> new GXLInt(start.line), "startCol" -> new GXLInt(start.col),
-                "endLine" -> new GXLInt(end.line), "endCol" -> new GXLInt(end.col) )
+            assert(sourceFile != null, "source file for node type %s null" format typ)
+            attrs ++= ListBuffer(
+                get_nn_tuple("sourceFile", new GXLString(sourceFile)),
+                get_nn_tuple("startLine", new GXLInt(start.line)),
+                get_nn_tuple("startCol", new GXLInt(start.col)),
+                get_nn_tuple("endLine", new GXLInt(end.line)),
+                get_nn_tuple("endCol", new GXLInt(end.col)) )
         }
     }
 
@@ -186,8 +213,7 @@ abstract class NodeFactory {
             if (node.output == null) {
                 node.output = new GXLNode(node.name)
                 node.output.setType(new URI("#" + node.typ))
-                node.validate_attrs()
-                for ( (name, value) <- node.attrs ) {
+                for ( (name, value) <- node.getattrlist() ) {
                     node.output.setAttr(name, value)
                 }
                 writtenNodes.append(node)

@@ -113,7 +113,7 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
         val start = pos_to_tuple(tree.pos.focusStart)
         var node = new GrNode(clsname, "line_" + start.line + "_" + id_ctr(),
             start, pos_to_tuple(tree.pos.focusEnd))
-        node.attrs.append("scalaSource" -> new GXLString(tree.toString()))
+        node.append_str_attr("scalaSource", tree.toString())
 
         /** closure functions */
         val node_fcns = new BoundNodeFcns(node, clsname)
@@ -257,25 +257,25 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
                 value match {
                     case v : Boolean =>
                         node.set_type("BooleanConstant", "Constant")
-                        node.attrs.append("value" -> new GXLBool(v))
+                        node.append_attr("value", new GXLBool(v))
                     case v : Char =>
                         node.set_type("CharConstant", "Constant")
-                        node.attrs.append("value" -> new GXLString(v.toString))
+                        node.append_attr("value", new GXLString(v.toString))
                     case v : Float =>
                         node.set_type("FloatConstant", "Constant")
-                        node.attrs.append("value" -> new GXLFloat(v))
+                        node.append_attr("value", new GXLFloat(v))
                     case v : Short =>
                         node.set_type("ShortConstant", "Constant")
-                        node.attrs.append("value" -> new GXLInt(v))
+                        node.append_attr("value", new GXLInt(v))
                     case v : Int =>
                         node.set_type("IntConstant", "Constant")
-                        node.attrs.append("value" -> new GXLInt(v))
+                        node.append_attr("value", new GXLInt(v))
                     case v : Long =>
                         node.set_type("LongConstant", "Constant")
-                        node.attrs.append("value" -> new GXLInt(v.asInstanceOf[Int]))
+                        node.append_attr("value", new GXLInt(v.asInstanceOf[Int]))
                     case v : String =>
                         node.set_type("StringConstant", "Constant")
-                        node.attrs.append("value" -> new GXLString(v))
+                        node.append_attr("value", new GXLString(v))
                     case () =>
                         node.set_type("UnitConstant", "Constant")
                     case null =>

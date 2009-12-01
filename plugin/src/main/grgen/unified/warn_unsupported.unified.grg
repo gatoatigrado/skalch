@@ -24,13 +24,14 @@ modify {
 rule {{ warn_fcn("unsupportedAssignToNonvar") }} {
     x:Assign -:AssignLhs-> lhs:ScAstNode;
     negative { if { typeof(lhs) >= VarRef; } }
+    negative { if { typeof(lhs) >= FieldAccess; } }
     {{ warnblock() }}
 }
 
 rule unsupportedWarnAll {
     modify { exec(
 {% for name in warn_fcns %}
-        {{ name }}*{{ " &" if not loop.last else "" }}
+        [{{ name }}]{{ " &" if not loop.last else "" }}
 {% endfor %}
         ); }
 }

@@ -8,7 +8,7 @@ clean:
 	mvn clean
 	rm -rf bin target */{bin,target} ~/.m2/repository/edu/berkeley/cs/sketch *timestamp */*timestamp
 
-test:
+test: killall
 	echo "TODO -- run mvn test when it works again."
 	(cd plugin/src/test/grgen; make test)
 	@echo "TEST SUCCEEDED"
@@ -40,7 +40,13 @@ set-test-package-decls: # hack to use sed and rename all java package declaratio
 
 ### Compile various tests using the plugin (to test the plugin)
 
-generate_type_graph:
+killall:
+	@killall mono java 2>/dev/null; true
+
+generate_jinja2:
+	buildutil/generate_files.py --no_rebuild
+
+generate_type_graph: generate_jinja2
 	cd plugin/src/main/grgen; grshell generate_typegraph.grs
 
 compile_install_plugin:
@@ -57,27 +63,22 @@ plugin_angelic_sketch:
 new-unified-module:
 	cd plugin/src/main/grgen; read -p "name? " name; cp unified-template.txt unified/$$name.unified.grg; kate -u unified/$$name.unified.grg
 
-grgen_compile:
-	buildutil/generate_files.py --no_rebuild
+grgen_compile: generate_jinja2 killall
 	plugin/src/main/grgen/sugared_test.sh
 
-ycomp:
-	buildutil/generate_files.py --no_rebuild
-	@killall mono java 2>/dev/null; true
+ycomp: generate_jinja2 killall
 	plugin/src/main/grgen/sugared_test.sh --ycomp; killall mono java 2>/dev/null; true
 
-ycomp-runonly:
-	buildutil/generate_files.py --no_rebuild
-	@killall mono java 2>/dev/null; true
+ycomp-runonly: generate_jinja2 killall
 	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; killall mono java 2>/dev/null; true
 
 jython_example:
 	mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=org.python.util.jython" -Dexec.args="base/src/main/jython/print_graph.py base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl"
 
-ycomp-intermediate:
+ycomp-intermediate: killall
 	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"
 
-ycomp-unprocessed:
+ycomp-unprocessed: killall
 	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl --grs_template="!/ycomp_intermediate.grs"
 
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)

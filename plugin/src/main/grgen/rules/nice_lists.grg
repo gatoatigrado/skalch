@@ -9,6 +9,10 @@
 // when they have only one incoming edge, ListValue, instead of edges
 // for both "enclosing" lists and their own attributes.
 
+
+
+// STEP 1: initialize lists.
+
 rule listGenericInit (lst:List, first:ScAstNode, last:ScAstNode) {
     hom(first, last);
     modify {
@@ -55,6 +59,10 @@ rule listBlockInit {
         exec(listGenericInit(lst, first, expr));
     }
 }
+
+
+
+// STEP 2: create list nodes from Sibling edges
 
 rule listSetNext {
     lst:List -:ListElt-> lst_x:ListNode -:ListValue-> ast_x:ScAstNode;

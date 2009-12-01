@@ -28,4 +28,6 @@ object ScalaDebugOut {
         DebugOut.not_implemented(("" /: values)(_ + "\n" + _))
         null
     }
+
+    def nonnull[T <: AnyRef](x : T) : T = { assert (!(x eq null), "value null"); x }
 }

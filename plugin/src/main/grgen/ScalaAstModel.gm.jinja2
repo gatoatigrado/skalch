@@ -313,6 +313,10 @@ edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
 edge class ValDefRhs extends Subtree;
 
+edge class ArrValueLast extends Subtree;
+edge class FcnCallTypeArgsLast extends Subtree;
+edge class MatchCaseLast extends Subtree;
+
 // Term symbols
 edge class AnnotationSymbol extends ScTermSymbol;
 edge class ClassDefFieldSymbol extends ScTermSymbol;
@@ -330,6 +334,7 @@ edge class ThisSymbol extends ScTermSymbol;
 edge class TypeTreeSymbol extends ScTermSymbol;
 edge class ValDefSymbol extends ScTermSymbol;
 edge class VarRefSymbol extends ScTermSymbol;
+edge class ClassRefTermSymbol extends ScTermSymbol;
 
 // Type symbols
 edge class AssignTypeSymbol extends ScTypeSymbol;
@@ -350,3 +355,10 @@ edge class TypeSymbol extends ScTypeSymbol;
 edge class TypeTreeTypeSymbol extends ScTypeSymbol;
 edge class ValDefTypeSymbol extends ScTypeSymbol;
 edge class VarRefTypeSymbol extends ScTypeSymbol;
+
+// symbols...
+edge class CaseDefTypeSymbol extends ScTypeSymbol;
+edge class MatchTypeSymbol extends ScTypeSymbol;
+edge class ReturnTypeSymbol extends ScTypeSymbol;
+edge class LabelDefTypeSymbol extends ScTypeSymbol;
+edge class NewArrayTypeSymbol extends ScTypeSymbol;

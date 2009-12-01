@@ -26,6 +26,15 @@ rule valueConstructAssigned2 {
     modify { val -:CanBeConstructAssigned-> val; }
 }
 
+/// booleans have an implicit @Range({ true, false })
+rule valueConstructAssigned3 {
+    val:ValDef -:ValDefSymbol-> valsym:Symbol
+        -:TypeSymbol-> typesym:Symbol;
+    if { typesym.fullSymbolName == "scala.Boolean"; }
+    negative { val -:CanBeConstructAssigned-> val; }
+    modify { val -:CanBeConstructAssigned-> val; }
+}
+
 /// classes that have only construct assignable variables
 /// and an $outer variable.
 rule classConstructAssigned {

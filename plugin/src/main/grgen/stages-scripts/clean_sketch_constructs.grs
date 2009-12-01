@@ -4,7 +4,7 @@ echo "[REWRITE PRODUCTION] replace assert calls"
 xgrs replaceAssertCalls*
 
 echo "[REWRITE PRODUCTION] detect which classes can be assigned by !! or ??"
-xgrs (valueConstructAssigned | classConstructAssigned | valueConstructAssigned2)*
+xgrs (valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*
 
 # show graph ycomp "--dolayout"
 echo "[REWRITE PRODUCTION] clean calls to !! / ??"

@@ -31,8 +31,8 @@ node class DummyBlockifyChainEndNode extends ScAstNode;
 {% block grs %}
 # dump set edge CfgNextForEval color Green
 dump set edge BlockifyNext color Blue
-xgrs markMainMethod
-xgrs deleteNonmainMethods*
+# xgrs markMainMethod
+# xgrs deleteNonmainMethods*
 xgrs deleteDangling*
 
 echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"

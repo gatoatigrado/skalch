@@ -25,6 +25,23 @@ rule listGenericInit (lst:List, first:ScAstNode, last:ScAstNode) {
     }
 }
 
+rule listEmptyInit(lst:List) {
+    modify {
+        lst -:ListFirst-> lst_first:ListFirstNode
+            -:ListNext-> lst_last:ListLastNode;
+        lst -:ListLast-> lst_last;
+    }
+}
+
+rule listClassDefsInit {
+    x:ClassDef;
+    negative { x -:ClassDefFieldsList-> .; }
+    modify {
+        x -:ClassDefFieldsList-> lst:List;
+        exec(listEmptyInit(lst));
+    }
+}
+
 rule listFcnArgsInit {
     x:FcnCall -e1:FcnArgChain-> first:ScAstNode;
     x -e2:FcnArgLast-> last:ScAstNode;
@@ -57,6 +74,19 @@ rule listBlockInit {
         x -:BlockStmtList-> lst:List;
         stmt_last -:BlockStmtNext-> expr;
         exec(listGenericInit(lst, first, expr));
+    }
+}
+
+
+
+// STEP 2a: create unordered lists
+rule listAddClassField {
+    x:ClassDef -:ClassDefFieldsList-> lst:List
+        -:ListFirst-> lst_first:ListFirstNode;
+    x -e:ClassDefFieldSymbol-> sym:Symbol;
+    modify {
+        delete(e);
+        exec(listInsertAfter(lst_first, sym));
     }
 }
 
@@ -95,7 +125,7 @@ rule listCompleteBlockLast {
     }
 }
 
-rule listDoInsertAfter(x:ListNode, y:Node) {
+rule listDoInsertAfter(x:ListAbstractNode, y:Node) {
     lst:List -:ListElt-> x -e:ListNext-> next:ListAbstractNode;
     modify {
         delete(e);
@@ -105,11 +135,11 @@ rule listDoInsertAfter(x:ListNode, y:Node) {
 }
 
 /// first arg: node already part of list; second arg: node to insert
-rule listInsertAfter(x:ListNode, y:Node) {
+rule listInsertAfter(x:ListAbstractNode, y:Node) {
     modify { exec(listDoInsertAfter(x, y) || assertFalse("list insert after failed")); }
 }
 
-rule listDoInsertBefore(x:ListNode, y:Node) {
+rule listDoInsertBefore(x:ListAbstractNode, y:Node) {
     lst:List -:ListElt-> x;
     before:ListAbstractNode -e:ListNext-> x;
     modify {
@@ -120,7 +150,7 @@ rule listDoInsertBefore(x:ListNode, y:Node) {
 }
 
 /// first arg: node already part of list; second arg: node to insert
-rule listInsertBefore(x:ListNode, y:Node) {
+rule listInsertBefore(x:ListAbstractNode, y:Node) {
     modify { exec(listDoInsertBefore(x, y) || assertFalse("list insert before failed")); }
 }
 

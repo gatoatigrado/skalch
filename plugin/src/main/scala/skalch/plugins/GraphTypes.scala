@@ -94,7 +94,9 @@ abstract class NodeFactory {
             node.append_str_attr("fullSymbolName", sym.fullNameString.trim())
             sym_to_gr_map.put(sym, node)
 
-            (new BoundNodeFcns(node, "Symbol")).symlink("Type", sym.tpe.typeSymbol)
+            val node_fcns = new BoundNodeFcns(node, "Symbol")
+            import node_fcns._
+            symlink("Type", sym.tpe.typeSymbol)
 
             def attr_edge(name : String) = GrEdge(node, name, node)
             if (sym != NoSymbol) {
@@ -102,8 +104,21 @@ abstract class NodeFactory {
 
                 // attribute edges
                 if (sym.hasFlag(Flags.BRIDGE)) attr_edge("BridgeFcn")
+                if (sym.isGetter) attr_edge("GetterFcn")
+                if (sym.isSetter) attr_edge("SetterFcn")
                 if (sym.isStaticMember) attr_edge("StaticMember")
                 else if (sym.isMethod) attr_edge("ClsMethod")
+
+                sym.tpe match {
+                    case ClassInfoType(parents, decls, type_sym) =>
+                        parents foreach ( (x : Type) => symlink("ParentType", x.typeSymbol) )
+
+                    case TypeRef(pre, sym, args) =>
+                        sym.tpe.parents.foreach( (x : Type) =>
+                            symlink("ParentType", x.typeSymbol) )
+
+                    case _ => ()
+                }
 
                 // static symbol annotations
                 val symname = sym.fullNameString.replace("$", ".")

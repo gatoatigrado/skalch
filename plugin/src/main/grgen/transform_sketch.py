@@ -28,16 +28,18 @@ graph size after import: .+
 shell import done after: .+
 shell graph size after import: .+
 Number of (nodes|edges) compatible to type.+
-Executing Graph Rewrite Sequence.+
 .+matches found
 .+rewrites performed
 The graph is valid with respect to the given sequence.
 Building libraries\.\.\.
+Executing Graph Rewrite Sequence\.\.\. .+
 (\> )?Bye\!
  - (Model|Actions) assembly "([^"]+)" generated.*
 Graph "DefaultGraph" exported.*
 Warning: Unknown Statement.+
 """.splitlines() if v]
+
+execute_time = re.compile(r"Executing Graph Rewrite Sequence done after (.+)\:")
 
 def main(grs_template=None, output_file=None, gxl_file=None,
         debug=False, runonly=False, ycomp=False):
@@ -56,6 +58,12 @@ def main(grs_template=None, output_file=None, gxl_file=None,
 
     grshell = Path.resolve("grshell", "GrShell")
     proc = SubProc([grshell, grs_file])
+    time = []
+    def flush_time():
+        if time:
+            print("%stimes: %s" %(" " * 4, ", ".join(time)))
+            time[:] = []
+
     with ExecuteIn(Path("!")):
         if runonly:
             return (proc.start(), proc.proc.wait())[-1]
@@ -73,8 +81,11 @@ def main(grs_template=None, output_file=None, gxl_file=None,
                     assert line == assert_next, "didn't match assert"
                     assert_next = None
                 elif any(v.match(line) for v in mundane): pass
+                elif execute_time.match(line):
+                    time.append(execute_time.match(line).group(1))
                 elif not line: pass
                 elif line.startswith("[REWRITE PRODUCTION] "):
+                    flush_time()
                     print(line)
                 elif line.startswith("[ASSERT NEXT LINE] "):
                     assert_next = line.replace("[ASSERT NEXT LINE] ", "")
@@ -92,6 +103,7 @@ def main(grs_template=None, output_file=None, gxl_file=None,
                         print("""\n\n\nNOTE -- maybe you added an attribute not set in the
 grammar, or forgot to make a new node class inherit ScAstNode?\n\n\n""")
                     raise Exception("unrecognized line %r" %(line))
+    flush_time()
 
 if __name__ == "__main__":
     import optparse

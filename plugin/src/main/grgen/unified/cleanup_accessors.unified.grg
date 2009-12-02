@@ -1,0 +1,63 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+remove clutter functions, i.e.
+    def a() { return this.a }
+
+{% endblock %}
+{% block gm %}
+// created by the plugin
+edge class GetterFcn;
+edge class SetterFcn;
+
+edge class GetterFcnField;
+edge class SetterFcnField;
+
+node class GetterFcnDef extends MemberFcn;
+node class GetterFcnCall extends FcnCall;
+{% endblock %}
+{% block grs %}
+xgrs [markGetterFcns]
+xgrs markGetterCalls*
+xgrs [setGetterFcnField]
+xgrs [replaceGetterCall]
+xgrs deleteUnusedFcnDefs* & deleteDangling*
+{% endblock %}
+{% block grg %}
+{% import "macros.grg" as macros %}
+rule markGetterFcns {
+    x:MemberFcn -:FcnDefSymbol-> sym:Symbol -:GetterFcn-> sym;
+    modify { next:GetterFcnDef<x>; }
+}
+
+rule markGetterCalls {
+    x:FcnCall -:FcnCallSymbol-> sym:Symbol -:GetterFcn-> sym;
+    negative { if { typeof(x) >= GetterFcnCall; } }
+    modify { next:GetterFcnCall<x>; }
+}
+
+{% call macros.inner_rule("setGetterFcnField", "x", "GetterFcnDef") %}
+    x -:FcnDefSymbol-> sym:Symbol;
+    x -:FcnBody-> :FieldAccess
+        -:ClassRefSymbol-> fld_sym:Symbol;
+    modify { sym -:GetterFcnField-> fld_sym; }
+{% endcall %}
+
+{% call macros.inner_rule("replaceGetterCall", "x", "GetterFcnCall") %}
+    x -:FcnCallSymbol-> sym:Symbol -:GetterFcnField-> fld_sym:Symbol;
+    x -:FcnArgChain-> :EmptyChain;
+    x -:FcnTarget-> var_ref:VarRef;
+    x -:FcnCallTypeSymbol-> fcn_typ:Symbol;
+    replace {
+        sym;
+        fld_access:FieldAccess<x>
+            -:FieldAccessObject-> var_ref;
+        fld_access -:ClassRefSymbol-> fld_sym;
+        fld_access -:ClassRefTypeSymbol-> fcn_typ;
+    }
+{% endcall %}
+{% endblock %}

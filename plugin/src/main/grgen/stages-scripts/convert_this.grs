@@ -14,3 +14,4 @@ validate exitonfailure xgrs testNoThisNodes
 
 echo "[REWRITE PRODUCTION] delete dangling nodes, and remove enclosing links"
 xgrs removeEnclosingLinks* & deleteDangling*
+xgrs setSketchMainFcn*

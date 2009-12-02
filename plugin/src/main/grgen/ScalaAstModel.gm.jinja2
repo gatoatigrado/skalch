@@ -32,6 +32,7 @@ node class Annotation;
 // special symbols. Use these!
 abstract node class SketchBaseSymbol extends Symbol;
 node class AngelicSketchSymbol extends SketchBaseSymbol;
+node class SketchClassSymbol extends SketchBaseSymbol;
 node class AssertFcnSymbol extends SketchBaseSymbol;
 abstract node class SketchConstructSymbol extends SketchBaseSymbol;
 node class BangBangSymbol extends SketchConstructSymbol;
@@ -64,6 +65,7 @@ node class ScalaSymbol extends Symbol;
 // === Intermediate nodes ===
 abstract node class BlockifySafe;
 node class MemberFcn extends FcnDef;
+node class SketchMainFcnDef extends MemberFcn;
 node class InsertedReturnSymbol extends Symbol;
 // execute this statement before the given one.
 node class BlockifyValDef extends ValDef;
@@ -77,6 +79,7 @@ node class TargetFcnCall extends FcnCall;
 // ==== unified modules ====
 {% include "nodes/gen/generate_cfg.gm" %}
 {% include "nodes/gen/cstyle_stmts.gm" %}
+{% include "nodes/gen/cleanup_accessors.gm" %}
 
 
 
@@ -320,6 +323,7 @@ edge class MatchCaseLast extends Subtree;
 // Term symbols
 edge class AnnotationSymbol extends ScTermSymbol;
 edge class ClassDefFieldSymbol extends ScTermSymbol;
+edge class ClassDefFieldsList extends ScTermSymbol;
 edge class ClassDefSymbol extends ScTermSymbol;
 edge class ClassRefSymbol extends ScTermSymbol;
 edge class EmptyTreeTypeSymbol extends ScTermSymbol;
@@ -355,6 +359,7 @@ edge class TypeSymbol extends ScTypeSymbol;
 edge class TypeTreeTypeSymbol extends ScTypeSymbol;
 edge class ValDefTypeSymbol extends ScTypeSymbol;
 edge class VarRefTypeSymbol extends ScTypeSymbol;
+edge class ParentTypeSymbol extends ScTypeSymbol;
 
 // symbols...
 edge class CaseDefTypeSymbol extends ScTypeSymbol;

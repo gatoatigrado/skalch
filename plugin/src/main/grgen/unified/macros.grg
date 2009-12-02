@@ -1,0 +1,10 @@
+{% macro inner_rule(name, var, typ) %}
+rule {{ name }} {
+    {{ var }}:{{ typ }};
+    modify { exec({{ name }}Inner({{ var }}) || assertFalse("{{ name }} inner rule failed.")); }
+}
+
+rule {{ name }}Inner({{ var }}:{{ typ }}) {
+    {{ caller() }}
+}
+{% endmacro %}

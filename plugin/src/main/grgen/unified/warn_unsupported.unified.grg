@@ -15,9 +15,9 @@ Warn about unsupported functionality.
 {{ name }}{% endmacro %}
 {% macro warn_fcn(name) %}{{ append_ret(warn_fcns, name) }}{% endmacro %}
 
-{% macro warnblock() %}
+{% macro warnblock(help="") %}
 modify {
-        exec(assertFalse("{{ warn_fcns[-1] }}"));
+        exec(assertFalse("{{ warn_fcns[-1] }}{{ " -- " + help if help else "" }}"));
     }
 {% endmacro %}
 
@@ -26,6 +26,12 @@ rule {{ warn_fcn("unsupportedAssignToNonvar") }} {
     negative { if { typeof(lhs) >= VarRef; } }
     negative { if { typeof(lhs) >= FieldAccess; } }
     {{ warnblock() }}
+}
+
+rule {{ warn_fcn("scalaAssert") }} {
+    x:Symbol;
+    if { x.fullSymbolName == "scala.Predef.assert"; }
+    {{ warnblock("please use synthAssert() instead of assert()") }}
 }
 
 rule unsupportedWarnAll {
@@ -39,5 +45,6 @@ rule unsupportedWarnAll {
 {% endblock %}
 
 {% block grs %}
+echo "[REWRITE PRODUCTION] check for unsupported features"
 xgrs unsupportedWarnAll
 {% endblock %}

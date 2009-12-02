@@ -52,9 +52,6 @@ generate_type_graph: generate_jinja2
 compile_install_plugin:
 	cd plugin; mvn install
 
-plugin_sugared:
-	@make plugin_dev testfile=skalch_old/simple/SugaredTest.scala
-
 plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
@@ -82,7 +79,7 @@ ycomp-unprocessed: killall
 	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl --grs_template="!/ycomp_intermediate.grs"
 
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)
-	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
+	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile) && mvn compile test-compile -Dmaven.scala.displayCmd=true
 
 
 

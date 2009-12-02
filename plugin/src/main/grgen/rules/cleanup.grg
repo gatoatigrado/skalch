@@ -29,6 +29,13 @@ rule deleteDangling {
     }
 }
 
+rule deleteUnusedFcnDefs {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
+    negative { x; sym; z:ScAstNode --> sym; }
+    negative { if { typeof(x) >= SketchMainFcnDef; } }
+    modify { delete(x); }
+}
+
 rule removeEnclosingLinks {
     x:Node -e:EnclosingFcn-> y:Node;
     hom(x, y);

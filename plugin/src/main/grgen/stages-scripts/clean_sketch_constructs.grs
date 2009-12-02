@@ -12,3 +12,4 @@ xgrs replaceConstructCalls*
 # xgrs replaceBangBangCalls* & replaceHoleCalls*
 xgrs unboxConstructCalls*
 xgrs simplifyClassConstruction*
+xgrs deleteDangling*

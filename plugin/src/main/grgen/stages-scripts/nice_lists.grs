@@ -2,6 +2,9 @@ echo "[REWRITE PRODUCTION] convert all lists to nice lists"
 xgrs listFcnArgsInit*
 xgrs listSKBlockInit*
 xgrs listBlockInit*
+xgrs listClassDefsInit*
+
+xgrs listAddClassField*
 xgrs listSetNext*
 xgrs listCompleteLast*
 xgrs listCompleteBlockLast*

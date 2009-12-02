@@ -134,4 +134,21 @@ rule setUnitSymbols {
     replace { next_sym:ScalaUnitTypeSymbol<sym>; }
 }
 
+rule setSketchClasses {
+    sym:Symbol -:ParentTypeSymbol-> :AngelicSketchSymbol;
+    :ClassDef -:ClassDefSymbol-> sym;
+    negative { if { typeof(sym) >= SketchClassSymbol; } }
+    modify { next:SketchClassSymbol<sym>; }
+}
+
+/// NOTE -- run in convert_this.grs, as conversion of $this$ to a
+/// parameter will convert FcnDef's to MemberFcn's.
+rule setSketchMainFcn {
+    x:MemberFcn -:FcnDefSymbol-> fcn_sym:Symbol
+        -:SymbolOwner-> :SketchClassSymbol;
+    if { fcn_sym.symbolName == "main"; }
+    negative { if { typeof(x) >= SketchMainFcnDef; } }
+    modify { next:SketchMainFcnDef<x>; }
+}
+
 test testFail { negative { } }

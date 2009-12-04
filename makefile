@@ -1,12 +1,13 @@
 # @code standards ignore file
 
+SHELL=/bin/bash
+
 help:
 	@echo "NOTE - this makefile is mostly unix aliases. Use 'mvn install' to build."
 	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
-	mvn clean
-	rm -rf bin target */{bin,target} ~/.m2/repository/edu/berkeley/cs/sketch *timestamp */*timestamp
+	zsh -c "setopt -G; rm -r **/(bin|target) **/*timestamp **/*pyc **/*~"
 
 test: killall
 	echo "TODO -- run mvn test when it works again."
@@ -48,6 +49,9 @@ generate_jinja2:
 
 generate_type_graph: generate_jinja2
 	cd plugin/src/main/grgen; grshell generate_typegraph.grs
+
+generate_all: generate_type_graph # generate the GXL import, typegraph, and jinja2 files
+	python base/src/codegen/gxltosketch/get_typegraph.py
 
 compile_install_plugin:
 	cd plugin; mvn install

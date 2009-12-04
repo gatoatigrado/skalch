@@ -41,6 +41,8 @@ Warning: Unknown Statement.+
 
 execute_time = re.compile(r"Executing Graph Rewrite Sequence done after (.+)\:")
 
+modpath = Path(__file__).parent()
+
 def main(grs_template=None, output_file=None, gxl_file=None,
         debug=False, runonly=False, ycomp=False):
 
@@ -64,7 +66,7 @@ def main(grs_template=None, output_file=None, gxl_file=None,
             print("%stimes: %s" %(" " * 4, ", ".join(time)))
             time[:] = []
 
-    with ExecuteIn(Path("!")):
+    with ExecuteIn(modpath):
         if runonly:
             return (proc.start(), proc.proc.wait())[-1]
         with proc.kill_on_fail():

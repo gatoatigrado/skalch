@@ -85,8 +85,10 @@ def generate_graph(elt_classes, extends_edges):
 
 @memoize_file(".gen/python_graph_classes", use_hash=True)
 def get_graph(text):
+    assert text.strip(), "no graph file!"
     doc = xml.parseString(text)
-    type_graph = get_singleton(v for v in doc.getElementsByTagName("graph") if v.getAttribute("id") == "SCE_ScalaAstModel")
+    type_graph = get_singleton(v for v in doc.getElementsByTagName("graph")
+        if v.getAttribute("id") == "SCE_ScalaAstModel")
     gxl_nodes = type_graph.getElementsByTagName("node")
     gxl_edges = type_graph.getElementsByTagName("edge")
     # generate nicer objects and filter decls in the type graph
@@ -95,7 +97,6 @@ def get_graph(text):
     return generate_graph(elt_classes, extends_edges)
 
 modpath = Path(__file__).parent(nmore=4)
-print(modpath)
 
 def main(show_typegraph=False):
     fname = get_singleton(v for v in modpath.subpath("plugin/src/main/resources").walk_files()

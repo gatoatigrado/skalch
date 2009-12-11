@@ -43,6 +43,7 @@ include "stages-scripts/clean_sketch_constructs.grs"
 include "stages-scripts/local_simplifications.grs"
 include "stages-scripts/nice_lists.grs"
 include "stages-scripts/gen/cstyle_stmts.grs"
+include "stages-scripts/gen/sketch_types.grs"
 
 # include "stages-scripts/print_ast.grs"
 

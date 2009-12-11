@@ -110,7 +110,8 @@ grammar, or forgot to make a new node class inherit ScAstNode?\n\n\n""")
 if __name__ == "__main__":
     import optparse
     cmdopts = optparse.OptionParser(usage="%prog [options] args")
-    cmdopts.add_option("--grs_template", default="!/transform.template.grs",
+    cmdopts.add_option("--grs_template",
+        default="%s/transform.template.grs" %(modpath),
         help="location of grs template")
     cmdopts.add_option("--gxl_file",
         help="gxl file, default stdin and saved to ~/.sketch/tmp/input.gxl")

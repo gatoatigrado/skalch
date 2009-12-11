@@ -16,17 +16,19 @@ except:
     raise ImportError("please install gatoatigrado's utility library from "
             "bitbucket.org/gatoatigrado/gatoatigrado_lib")
 
-from parse_tag import *
+from parse_tag import parse_gxl_conversion
 import get_typegraph
 
 # N.B. -- the goal is to write maybe 90% of the conversion code in this.
 # Special cases should be handled by manual Java code.
 GXL_TO_SKETCH = """
-ClassDef(impl, params[], list)
-    -> TypeStruct(<ctx>)
+ClassDef(ClassDefSymbol, ClassDefFieldsList[].symbolName, 
+        ClassDefFieldsList[]:TypeSymbol:SketchType)
+
+    -> TypeStruct(<ctx>, String, List[String], List[Type])
 """
 
-def main():
+def get_node_match_cases():
     rules = { }
     for rule in parse_gxl_conversion(GXL_TO_SKETCH).argv:
         assert not str(rule.gxlname) in rules
@@ -38,13 +40,23 @@ def main():
     node_match_cases = []
     def genMatchCases(node_type):
         [genMatchCases(v) for v in node_type.extending_classes]
-        print("match(%s)" % (typname))
-        if typename in rules:
-            print("    rewrite rule set")
-    print(rules)
+        if node_type.name in rules:
+            node_match_cases.append(rules[node_type.name])
+    genMatchCases(node_types["Node"])
+    return node_match_cases
 
-if __name__ == "__main__":
-    import optparse
-    cmdopts = optparse.OptionParser(usage="%prog [options] args")
-    options, args = cmdopts.parse_args()
-    main(*args, **options.__dict__)
+def ast_inheritance():
+    immediate = {
+#        "Object": "Type Class String",
+#        "Class": "ExprBinary",
+        "Type": "TypeStruct TypePrimitive" }
+
+    immediate = dict( (k, v.split()) for k, v in immediate.items() )
+
+    def get_lowest_arr(v):
+        if v in immediate:
+            return list(set(final_type for sub_type in immediate[v] for final_type in get_lowest_arr(sub_type)))
+        else:
+            return [v]
+
+    return dict( (k, get_lowest_arr(k)) for k in immediate.keys() )

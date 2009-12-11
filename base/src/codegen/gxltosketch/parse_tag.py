@@ -21,13 +21,17 @@ except:
 import spark
 
 def sparktokencmp(self, other):
-        return cmp(self.type, other)
+    return cmp(self.type, other)
 
-def parsertoken(clsname, fields=""):
+def sparktokencmp2(self, other):
+    return 0 if (self.text == other) else cmp(self.type, other)
+
+def parsertoken(clsname, fields="", matchText=False):
     return type(clsname, (namedtuple(clsname, "index text " + fields),),
-        { "type": clsname.upper(), "__cmp__": sparktokencmp })
+        { "type": clsname.upper(), "__cmp__": sparktokencmp2
+            if matchText else sparktokencmp })
 
-Word = parsertoken("Word")
+Word = parsertoken("Word", matchText=True)
 
 class SyntacticToken(object):
     def __init__(self, index, text):
@@ -55,11 +59,7 @@ class Scanner(spark.GenericScanner):
         self.start_index += len(input)
 
     def t_syntactic(self, input):
-        r"[^\w\s,\(\)\{\}]+"
-        self.add(SyntacticToken, input)
-
-    def t_syntactic_singular(self, input):
-        r"[,\(\)\{\}]"
+        r"[^\w\s]"
         self.add(SyntacticToken, input)
 
     def t_word(self, input):
@@ -73,16 +73,17 @@ class Scanner(spark.GenericScanner):
 
 # nodes
 class ASTNode(object):
-    def __repr__(self): return self.__class__.__name__
+    def __init__(self):
+        self.cn = self.__class__.__name__
 
-class TypeOnlyASTNode(ASTNode):
-    def __init__(self, inner): self.inner = inner
     def __repr__(self):
-        caps = "".join(v for v in self.__class__.__name__ if v.isupper())
-        return " %s(%s) " % (caps, repr(self.inner))
+        return self.__class__.__name__
 
 class NameASTNode(ASTNode):
-    def __init__(self, name): self.name = name
+    def __init__(self, name):
+        self.name = name
+        ASTNode.__init__(self)
+
     def __repr__(self):
         caps = "".join(v for v in self.__class__.__name__ if v.isupper())
         return " %s('%s') " % (caps, self.name.text)
@@ -90,14 +91,14 @@ class NameASTNode(ASTNode):
     def __str__(self):
         return self.name.text
 
-class GxlArg(TypeOnlyASTNode): pass
-class JavaArg(TypeOnlyASTNode): pass
-
 class FcnName(NameASTNode): pass
 class GxlSubtree(NameASTNode): pass
-class GxlList(NameASTNode): pass
+class GxlSubtreeList(NameASTNode): pass
+class GxlAttribute(NameASTNode): pass
 class JavaSubtree(NameASTNode): pass
 class JavaImplicitArg(NameASTNode): pass
+class JavaSubtreeList(NameASTNode):
+    def __init__(self, list_string, name): NameASTNode.__init__(self, name)
 
 
 
@@ -105,24 +106,32 @@ class JavaImplicitArg(NameASTNode): pass
 class AstList(ASTNode):
     def __init__(self, *argv):
         self.argv = argv
+        ASTNode.__init__(self)
 
     def __repr__(self):
         args_str = ("\n" + "\n".join(repr(v) for v in self.argv)).replace("\n", "\n    ")
-        return "AstList< %s >%s" % (", ".join(str(v.__class__.__name__) for v in self.argv), args_str)
+        return "%s< %s >%s" % (self.cn, ", ".join(str(v.__class__.__name__) for v in self.argv), args_str)
+
+    def __iter__(self):
+        return self.argv.__iter__()
+    
+    def __getitem__(self, arg):
+        return self.argv.__getitem__(arg)
 
 class GxlArgs(AstList): pass
 class JavaArgs(AstList): pass
 class ConvertElts(AstList): pass
+class GxlSubfieldArgs(AstList): pass
 
 class ConvertElt(ASTNode):
-    def __init__(self, javaname, java_args, gxlname, gxl_args):
-        self.javaname = javaname
-        self.java_args = java_args
+    def __init__(self, gxlname, gxl_args, javaname, java_args):
         self.gxlname = gxlname
         self.gxl_args = gxl_args
+        self.javaname = javaname
+        self.java_args = java_args
 
     def __repr__(self):
-        return " CE( %r (%r) -> %r (%r) ) " % (self.javaname, self.java_args, self.gxlname, self.gxl_args)
+        return " CE( %r (%r) -> %r (%r) ) " % (self.gxlname, self.gxl_args, self.javaname, self.java_args)
 
 class Parser(spark.GenericASTBuilder):
     def __init__(self):
@@ -135,20 +144,28 @@ class Parser(spark.GenericASTBuilder):
         ConvertElts ::= ConvertElt
         ConvertElts ::= ConvertElt ConvertElt
 
-        ConvertElt ::= FcnName ( GxlArgs ) -> FcnName ( JavaArgs )
+        ConvertElt ::= FcnName ( GxlArgs ) - > FcnName ( JavaArgs )
 
         GxlArgs ::= GxlArg
         GxlArgs ::= GxlArg , GxlArgs
-        GxlArg ::= GxlSubtree
-        GxlArg ::= GxlList
+        GxlArg ::= GxlSubfieldArgs
+        GxlSubfieldArgs ::= GxlArgInner : GxlSubfieldArgs
+        GxlSubfieldArgs ::= GxlArgInner
+        GxlSubfieldArgs ::= GxlSubfieldArgs . GxlAttribute
+
+        GxlArgInner ::= GxlSubtree
+        GxlArgInner ::= GxlSubtreeList
         GxlSubtree ::= WORD
-        GxlList ::= WORD []
+        GxlSubtreeList ::= WORD [ ]
+        GxlAttribute ::= WORD
 
         JavaArgs ::= JavaArg
         JavaArgs ::= JavaArg , JavaArgs
         JavaArg ::= JavaSubtree
+        JavaArg ::= JavaSubtreeList
         JavaArg ::= JavaImplicitArg
         JavaSubtree ::= WORD
+        JavaSubtreeList ::= List [ WORD ]
         JavaImplicitArg ::= < WORD >
 
         FcnName ::= WORD
@@ -166,10 +183,13 @@ class Parser(spark.GenericASTBuilder):
                     result.append(arg)
             args = result
 
+        if nt in ["GxlArgInner", "GxlArg", "JavaArg"]:
+            return get_singleton(args)
         if not nt in globals():
             from warnings import warn
             warn("nonterminal %s not found." % (nt))
-            assert len(args) == 1, "args %r" % (args)
+            assert len(args) == 1, "Please provide a nonterminal class " \
+                "for %s\nargs %r" % (nt, args)
             return args[0]
         return globals()[nt](*args)
 
@@ -178,5 +198,9 @@ def parse_gxl_conversion(text):
     try:
         return Parser().parse(tokens)
     except spark.ParseError, e:
-        print("tokenized successfully...")
-        pprint(e.token)
+        print("tokenized successfully; parser error")
+        print(e)
+        a = e.token.index
+        print("code before: %s" % (text[max(0, a - 10):(a + 1)]))
+        print("code after: %s" % (text[(a + 1):min(len(text), a + 10)]))
+        raise

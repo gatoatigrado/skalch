@@ -40,3 +40,10 @@ rule printRandomSymbolName {
     x:Symbol -:PrintSymName-> name:PrintName;
     modify { emit(name.name); }
 }
+
+rule deletePrintRenamer {
+    x:PrintRenamer;
+    modify {
+        delete(x);
+    }
+}

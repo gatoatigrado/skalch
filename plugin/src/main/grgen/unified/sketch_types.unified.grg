@@ -1,0 +1,61 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+{% endblock %}
+{% block gm %}
+abstract node class AbstractSketchNodeType;
+node class TypeArray extends AbstractSketchNodeType;
+node class TypePortal extends AbstractSketchNodeType;
+node class TypePrimitive extends AbstractSketchNodeType { typename : string; }
+node class TypeInt extends TypePrimitive { typename = "TYPE_INT"; }
+node class TypeBoolean extends TypePrimitive { typename = "TYPE_BIT"; }
+node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
+
+edge class SketchType;
+{% endblock %}
+
+
+
+{% block grs %}
+xgrs setSymbolNames* & deletePrintRenamer*
+xgrs setSymbolSketchType*
+xgrs setScalaIntType & setScalaBooleanType
+{% endblock %}
+
+
+
+{% block grg %}
+rule setSymbolSketchType {
+    x:Symbol -:PrintSymName-> name:PrintName;
+    :ClassDef -:ClassDefSymbol-> x;
+    negative { x -:SketchType-> .; }
+    modify {
+        x -:SketchType-> ts:TypeStructRef;
+        eval {
+            ts.typename = name.name;
+        }
+    }
+}
+
+rule setScalaIntType {
+    x:ScalaSymbol;
+    if { x.fullSymbolName == "scala.Int"; }
+    modify {
+        x -:SketchType-> :TypeInt;
+    }
+}
+
+rule setScalaBooleanType {
+    x:ScalaSymbol;
+    if { x.fullSymbolName == "scala.Boolean"; }
+    modify {
+        x -:SketchType-> :TypeBoolean;
+    }
+}
+{% endblock %}

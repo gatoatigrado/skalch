@@ -11,15 +11,15 @@ from collections import namedtuple
 
 try:
     from gatoatigrado_lib import (ExecuteIn, Path, SubProc, dict, get_singleton,
-        list, memoize_file, pprint, set, sort)
+        process_jinja2, list, memoize_file, pprint, set, sort)
 except:
     raise ImportError("please install gatoatigrado's utility library from "
             "bitbucket.org/gatoatigrado/gatoatigrado_lib")
 
 from jinja2 import Environment, FileSystemLoader
 import re, jinja2.ext
-
-from generate_jinja2 import generate_jinja2
+from gxltosketch.gxltosketch import get_node_match_cases, ast_inheritance
+from gxltosketch import get_typegraph
 
 class FnameMod(object):
     def modify_cmd(self, cmd, fname):
@@ -86,24 +86,16 @@ def process_unified():
         result = []
         for d, ext in (("rules", "grg"), ("stages-scripts", "grs"), ("nodes", "gm")):
             path = grgen.subpath(d, "gen").makedirs().subpath(name + "." + ext)
-            result.append( (path, get_output(ext)) )
+            result.append((path, get_output(ext)))
         return result
-    
+
     def process_file(fname):
         for path, output in process_file_inner(fname, hash(str(fname.read()))):
             if path.write_if_different(output):
                 print("    generating '%s'" % (path))
 
-    [process_file(fname) for fname in unified.walk_files() 
+    [process_file(fname) for fname in unified.walk_files()
         if ".unified" in fname]
-
-def process_jinja2(files):
-    for fname in files:
-        env = Environment(loader=FileSystemLoader(fname.parent()),
-            trim_blocks=True, extensions=[jinja2.ext.do])
-        result = env.get_template(fname.basename()).render()
-        if Path(fname.replace(".jinja2", "")).write_if_different(result):
-            print(" " * 4 + "generating '%s'" % (fname))
 
 @memoize_file(".gen/generate_files.txt")
 def files_with_generate():
@@ -118,13 +110,40 @@ if "cProfile" in generate_files_name:
     generate_files_name = get_singleton(v
         for v in Path(".").walk_files() if v.endswith("generate_files.py"))
 
-def main(no_rebuild=False):
+def main(single_file=None, no_rebuild=False):
+    def assert_fcn(a, msg):
+        assert a, msg
+        return ""
+    
+    def print_fcn(*argv):
+        import sys
+        print(*argv, file=sys.stderr)
+        sys.stderr.flush()
+
+    class WrapperVariable(object):
+        def __init__(self, value):
+            self.value = value
+
+        def setValue(self, value):
+            self.value = value
+
+    jinja2_glbls = { "enumerate": enumerate, "len": len, "assert": assert_fcn,
+        "WrapperVariable": WrapperVariable, "print": print_fcn }
+
+    resources_path = get_typegraph.modpath.subpath("plugin/src/main/resources")
+    if any(v.read().strip() for v in resources_path.walk_files() if v.basename() == "type_graph.gxl"):
+            jinja2_glbls["node_match_cases"] = get_node_match_cases()
+            jinja2_glbls["ast_inheritance"] = ast_inheritance()
+
+    # these are necessary for single file mode for the AST, so process it first.
     process_unified()
+    if single_file:
+        return process_jinja2(files=[Path(single_file)], glbls=jinja2_glbls)
     if not no_rebuild:
         files_with_generate.delete()
         jinja2_file_list.delete()
     lines = files_with_generate()
-    process_jinja2(jinja2_file_list())
+    process_jinja2(files=jinja2_file_list(), glbls=jinja2_glbls)
 
     for fname in [Path(v) for v in lines]:
         if fname == generate_files_name:
@@ -135,7 +154,7 @@ def main(no_rebuild=False):
 
 if __name__ == "__main__":
     import optparse
-    cmdopts = optparse.OptionParser(usage="%prog [options] args")
+    cmdopts = optparse.OptionParser(usage="%prog [options] <filename>")
     cmdopts.add_option("--no_rebuild", action="store_true",
         help="don't rebuild the list of files with generate statements")
     options, args = cmdopts.parse_args()

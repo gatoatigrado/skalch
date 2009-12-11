@@ -7,7 +7,8 @@ help:
 	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
-	zsh -c "setopt -G; rm -r **/(bin|target) **/*timestamp **/*pyc **/*~"
+	zsh -c "setopt -G; rm -r **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
+	zsh -c "setopt -G; rm -r **/(bin|target)"
 
 test: killall
 	echo "TODO -- run mvn test when it works again."
@@ -42,16 +43,12 @@ set-test-package-decls: # hack to use sed and rename all java package declaratio
 ### Compile various tests using the plugin (to test the plugin)
 
 killall:
-	@killall mono java 2>/dev/null; true
+	@killall mono 2>/dev/null; true
 
-generate_jinja2:
-	buildutil/generate_files.py --no_rebuild
-
-generate_type_graph: generate_jinja2
+gen:
+	base/src/codegen/generate_files.py plugin/src/main/grgen/ScalaAstModel.gm.jinja2
 	cd plugin/src/main/grgen; grshell generate_typegraph.grs
-
-generate_all: generate_type_graph # generate the GXL import, typegraph, and jinja2 files
-	python base/src/codegen/gxltosketch/get_typegraph.py
+	base/src/codegen/generate_files.py --no_rebuild
 
 compile_install_plugin:
 	cd plugin; mvn install
@@ -64,17 +61,8 @@ plugin_angelic_sketch:
 new-unified-module:
 	cd plugin/src/main/grgen; read -p "name? " name; cp unified-template.txt unified/$$name.unified.grg; kate -u unified/$$name.unified.grg
 
-grgen_compile: generate_jinja2 killall
-	plugin/src/main/grgen/sugared_test.sh
-
-ycomp: generate_jinja2 killall
-	plugin/src/main/grgen/sugared_test.sh --ycomp; killall mono java 2>/dev/null; true
-
-ycomp-runonly: generate_jinja2 killall
-	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; killall mono java 2>/dev/null; true
-
-jython_example:
-	mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=org.python.util.jython" -Dexec.args="base/src/main/jython/print_graph.py base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl"
+ycomp: gen killall
+	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; make killall
 
 ycomp-intermediate: killall
 	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"

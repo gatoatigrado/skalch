@@ -101,7 +101,12 @@ class _State:
 class ParseError(Exception):
     def __init__(self, token):
         self.token = token
-    
+
+    def __repr__(self):
+    	return "ParseError[col=%s, token=%s]" % (self.token.index, self.token)
+
+    __str__ = __repr__
+
 
 class GenericParser:
 	#

@@ -29,55 +29,56 @@ public class GxlImport {
     public Vector<TypeStruct> structs;
     public Vector<StreamSpec> streams;
 
-    protected void init(GXLGraph graph) {
-        structs = new Vector<TypeStruct>();
-        streams = new Vector<StreamSpec>();
-        nodes_by_type = new DefaultHashMap<String, Vector<GXLNode>>();
-        nodes_by_type.defvalue = nodes_by_type.new DefValueGenerator() {
+    protected void init(final GXLGraph graph) {
+        this.structs = new Vector<TypeStruct>();
+        this.streams = new Vector<StreamSpec>();
+        this.nodes_by_type = new DefaultHashMap<String, Vector<GXLNode>>();
+        this.nodes_by_type.defvalue = this.nodes_by_type.new DefValueGenerator() {
+            @Override
             public Vector<GXLNode> get_value() {
                 return new Vector<GXLNode>();
             }
         };
-        nodes_by_id = new HashMap<String, GXLNode>();
-        edges_by_source_id = new DefaultHashMap<String, Vector<GXLEdge>>();
-        edges_by_target_id = new DefaultHashMap<String, Vector<GXLEdge>>();
-        edges_by_source_id.defvalue =
-                edges_by_target_id.defvalue =
-                        edges_by_target_id.new DefValueGenerator() {
-                            public Vector<GXLEdge> get_value() {
-                                return new Vector<GXLEdge>();
-                            }
-                        };
+        this.nodes_by_id = new HashMap<String, GXLNode>();
+        this.edges_by_source_id = new DefaultHashMap<String, Vector<GXLEdge>>();
+        this.edges_by_target_id = new DefaultHashMap<String, Vector<GXLEdge>>();
+        this.edges_by_source_id.defvalue =
+            this.edges_by_target_id.defvalue =
+                this.edges_by_target_id.new DefValueGenerator() {
+            @Override
+            public Vector<GXLEdge> get_value() {
+                return new Vector<GXLEdge>();
+            }
+        };
         for (int a = 0; a < graph.getGraphElementCount(); a++) {
             GXLGraphElement elt = graph.getGraphElementAt(a);
             if (elt instanceof GXLNode) {
                 GXLNode elt2 = (GXLNode) elt;
-                nodes_by_type.get(nodeType(elt2)).add(elt2);
-                nodes_by_id.put(elt2.getID(), elt2);
+                this.nodes_by_type.get(GxlImport.nodeType(elt2)).add(elt2);
+                this.nodes_by_id.put(elt2.getID(), elt2);
             } else if (elt instanceof GXLEdge) {
                 GXLEdge elt2 = (GXLEdge) elt;
-                edges_by_source_id.get(elt2.getSourceID()).add(elt2);
-                edges_by_target_id.get(elt2.getTargetID()).add(elt2);
+                this.edges_by_source_id.get(elt2.getSourceID()).add(elt2);
+                this.edges_by_target_id.get(elt2.getTargetID()).add(elt2);
             }
         }
-        for (GXLNode pkg : nodes_by_type.get("PackageDef")) {
-            handleNode(pkg);
+        for (GXLNode pkg : this.nodes_by_type.get("PackageDef")) {
+            this.handleNode(pkg);
         }
     }
 
-    private void handleNode(GXLNode pkg) {
+    private void handleNode(final GXLNode pkg) {
     }
 
-    public GxlImport(GXLGraph graph) {
-        init(graph);
+    public GxlImport(final GXLGraph graph) {
+        this.init(graph);
     }
 
-    public GxlImport(File graph_file) {
+    public GxlImport(final File graph_file) {
         GXLDocument doc = null;
         try {
             doc = new GXLDocument(graph_file);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.exit(1);
         }
@@ -85,14 +86,14 @@ public class GxlImport {
         for (int i = 0; i < gxl.getGraphCount(); i++) {
             GXLGraph graph = gxl.getGraphAt(i);
             if (graph.getID() == "DefaultGraph") {
-                init(graph);
+                this.init(graph);
                 return;
             }
         }
         assert false : "couldn't find a graph named 'DefaultGraph'";
     }
 
-    public static String nodeType(GXLNode node) {
+    public static String nodeType(final GXLNode node) {
         String uri = node.getType().getURI().toString();
         assert uri.startsWith("#") : "node type not relative " + uri;
         return uri.substring(1);

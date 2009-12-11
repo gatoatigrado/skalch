@@ -7,8 +7,8 @@ help:
 	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
-	zsh -c "setopt -G; rm -r **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
-	zsh -c "setopt -G; rm -r **/(bin|target)"
+	zsh -c "setopt -G; rm **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
+	zsh -c "setopt -G; rm -r **/(bin|target) .gen"
 
 test: killall
 	echo "TODO -- run mvn test when it works again."

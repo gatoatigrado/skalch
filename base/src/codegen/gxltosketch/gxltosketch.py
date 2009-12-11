@@ -10,7 +10,7 @@ from __future__ import division, print_function
 from collections import namedtuple
 
 try:
-    from gatoatigrado_lib import (ExecuteIn, Path, SubProc, get_singleton,
+    from gatoatigrado_lib import (ExecuteIn, Path, SubProc, get_singleton, dict,
         list, memoize_file, pprint, set, sort)
 except:
     raise ImportError("please install gatoatigrado's utility library from "
@@ -22,28 +22,40 @@ import get_typegraph
 # N.B. -- the goal is to write maybe 90% of the conversion code in this.
 # Special cases should be handled by manual Java code.
 GXL_TO_SKETCH = """
-ClassDef(ClassDefSymbol, ClassDefFieldsList[].symbolName, 
-        ClassDefFieldsList[]:TypeSymbol:SketchType)
+PackageDef(<this>, UL[PackageDefElement])
+    -> new Program(<ctxnode>, List[StreamSpec], List[TypeStruct])
 
-    -> TypeStruct(<ctx>, String, List[String], List[Type])
+PackageDef(UL[PackageDefGlobal], UL[PackageDefElement])
+    -> StreamSpec(<ctx>, List[StmtVarDecl], List[Function])
+
+ClassDef(ClassDefSymbol, OL[ClassDefFieldsList].symbolName, 
+        OL[ClassDefFieldsList]:TypeSymbol:SketchType)
+    -> new TypeStruct(<ctx>, String, List[String], List[Type])
 """
 
 def get_node_match_cases():
-    rules = { }
-    for rule in parse_gxl_conversion(GXL_TO_SKETCH).argv:
-        assert not str(rule.gxlname) in rules
-        rules[str(rule.gxlname)] = rule
+    rules = list(parse_gxl_conversion(GXL_TO_SKETCH).argv).equiv_classes(
+        lambda a: a.javaname)
+
     node_types, edge_types = get_typegraph.main(show_typegraph=False)
     node_types = get_typegraph.elt_classes_by_id(node_types)
     edge_types = get_typegraph.elt_classes_by_id(edge_types)
 
-    node_match_cases = []
-    def genMatchCases(node_type):
-        [genMatchCases(v) for v in node_type.extending_classes]
-        if node_type.name in rules:
-            node_match_cases.append(rules[node_type.name])
-    genMatchCases(node_types["Node"])
-    return node_match_cases
+    def sort_types(arr):
+        rules_for_javaname = dict((str(v.gxlname), v) for v in arr)
+        node_match_cases = []
+        def genMatchCases(node_type):
+            [genMatchCases(v) for v in node_type.extending_classes]
+            if node_type.name in rules_for_javaname:
+                node_match_cases.append(rules_for_javaname[node_type.name])
+        genMatchCases(node_types["Node"])
+        return node_match_cases
+
+    return dict(rules).map_values(sort_types)
+
+@memoize_file(".gen/sketch_fe_ast_node_types")
+def get_java_ast_node_types(fe_directory):
+    return ""
 
 def ast_inheritance():
     immediate = {
@@ -51,7 +63,7 @@ def ast_inheritance():
 #        "Class": "ExprBinary",
         "Type": "TypeStruct TypePrimitive" }
 
-    immediate = dict( (k, v.split()) for k, v in immediate.items() )
+    immediate = dict((k, v.split()) for k, v in immediate.items())
 
     def get_lowest_arr(v):
         if v in immediate:
@@ -59,4 +71,4 @@ def ast_inheritance():
         else:
             return [v]
 
-    return dict( (k, get_lowest_arr(k)) for k in immediate.keys() )
+    return dict((k, get_lowest_arr(k)) for k in immediate.keys())

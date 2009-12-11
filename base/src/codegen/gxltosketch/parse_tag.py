@@ -59,11 +59,11 @@ class Scanner(spark.GenericScanner):
         self.start_index += len(input)
 
     def t_syntactic(self, input):
-        r"[^\w\s]"
+        r"[^\w_0-9\s]"
         self.add(SyntacticToken, input)
 
     def t_word(self, input):
-        r"\w+"
+        r"[\w\_0-9]+"
         self.add(Word, input)
 
     def t_whitespace(self, input):
@@ -93,12 +93,32 @@ class NameASTNode(ASTNode):
 
 class FcnName(NameASTNode): pass
 class GxlSubtree(NameASTNode): pass
-class GxlSubtreeList(NameASTNode): pass
 class GxlAttribute(NameASTNode): pass
+class GxlImplicitSubtree(NameASTNode): pass
 class JavaSubtree(NameASTNode): pass
 class JavaImplicitArg(NameASTNode): pass
 class JavaSubtreeList(NameASTNode):
     def __init__(self, list_string, name): NameASTNode.__init__(self, name)
+
+
+
+class OptionalSpecAST(ASTNode):
+    def __init__(self, *argv):
+        [setattr(self, v, None) for v in self.SPEC[-1]]
+        for subspec in self.SPEC:
+            if len(subspec) == len(argv):
+                [setattr(self, subspec[i], argv[i]) for i in range(len(subspec))]
+                return ASTNode.__init__(self)
+        assert False, "wrong number of args to %s" %(self.__class__.__name__)
+
+class NewKw(OptionalSpecAST):
+    SPEC = [ (), ("new",) ]
+class GxlSubtreeOL(OptionalSpecAST):
+    SPEC = [ ("name",), ("unused", "name") ]
+class GxlSubtreeUL(OptionalSpecAST):
+    SPEC = [ ("name",), ("unused", "name") ]
+class JavaType(OptionalSpecAST):
+    SPEC = [ (), ("name",) ]
 
 
 
@@ -114,7 +134,7 @@ class AstList(ASTNode):
 
     def __iter__(self):
         return self.argv.__iter__()
-    
+
     def __getitem__(self, arg):
         return self.argv.__getitem__(arg)
 
@@ -124,27 +144,36 @@ class ConvertElts(AstList): pass
 class GxlSubfieldArgs(AstList): pass
 
 class ConvertElt(ASTNode):
-    def __init__(self, gxlname, gxl_args, javaname, java_args):
+    def __init__(self, gxlname, gxl_args, new_kw, javaname, java_args):
         self.gxlname = gxlname
         self.gxl_args = gxl_args
-        self.javaname = javaname
+        self.new_kw = new_kw
+        self.javaname = javaname# if not java_name_override else java_name_override
         self.java_args = java_args
 
     def __repr__(self):
-        return " CE( %r (%r) -> %r (%r) ) " % (self.gxlname, self.gxl_args, self.javaname, self.java_args)
+        return " CE( %r (%r) -> %r (%r) ) " % (self.gxlname, self.gxl_args,
+            self.javaname, self.java_args)
 
 class Parser(spark.GenericASTBuilder):
     def __init__(self):
         spark.GenericASTBuilder.__init__(self, AST=ASTNode, start="ConvertElts")
+
+# NOTE -- spark doesn't work with this
+# ConvertElt ::= FcnName ( GxlArgs ) - > NewKw FcnName ( JavaArgs ) : JavaType
+# JavaType ::= NAME
 
     def p_scalatosketch(self, args):
         # N.B. -- anything ending with "s" is plural !!! meaning it will be
         # converted to an array (see below).
         r"""
         ConvertElts ::= ConvertElt
-        ConvertElts ::= ConvertElt ConvertElt
+        ConvertElts ::= ConvertElt ConvertElts
 
-        ConvertElt ::= FcnName ( GxlArgs ) - > FcnName ( JavaArgs )
+        ConvertElt ::= FcnName ( GxlArgs ) - > NewKw FcnName ( JavaArgs )
+
+        NewKw ::=
+        NewKw ::= new
 
         GxlArgs ::= GxlArg
         GxlArgs ::= GxlArg , GxlArgs
@@ -154,9 +183,13 @@ class Parser(spark.GenericASTBuilder):
         GxlSubfieldArgs ::= GxlSubfieldArgs . GxlAttribute
 
         GxlArgInner ::= GxlSubtree
-        GxlArgInner ::= GxlSubtreeList
+        GxlArgInner ::= GxlImplicitSubtree
+        GxlArgInner ::= GxlSubtreeOL
+        GxlArgInner ::= GxlSubtreeUL
         GxlSubtree ::= WORD
-        GxlSubtreeList ::= WORD [ ]
+        GxlImplicitSubtree ::= < WORD >
+        GxlSubtreeOL ::= OL [ WORD ]
+        GxlSubtreeUL ::= UL [ WORD ]
         GxlAttribute ::= WORD
 
         JavaArgs ::= JavaArg
@@ -199,6 +232,7 @@ def parse_gxl_conversion(text):
         return Parser().parse(tokens)
     except spark.ParseError, e:
         print("tokenized successfully; parser error")
+        print(tokens)
         print(e)
         a = e.token.index
         print("code before: %s" % (text[max(0, a - 10):(a + 1)]))

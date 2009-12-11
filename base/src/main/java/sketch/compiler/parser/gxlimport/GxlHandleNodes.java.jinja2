@@ -1,5 +1,7 @@
 package sketch.compiler.parser.gxlimport;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import static java.util.Collections.unmodifiableList;
@@ -16,97 +18,90 @@ import sketch.compiler.ast.core.typs.*;
     {%- if gxl_first.cn == "GxlSubtree" %}
         {%- set latest = "followEdge(\"%s\", %s)" %(gxl_first, latest_arg) %}
         {%- if isVector and gxl_is_last %}
-            {{ arg_name }}_vec.add(get{{ java_arg }}({{ latest }}));
+        {{ arg_name }}_vec.add(get{{ java_arg }}({{ latest }}));
         {%- elif gxl_is_last %}
-            {{ java_arg }} {{ arg_name }} = get{{ java_arg }}({{ latest }});
+        {{ java_arg }} {{ arg_name }} = get{{ java_arg }}({{ latest }});
         {%- else %}
-            GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} = {{ latest }};
+        GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} = {{ latest }};
 {{ followChain(java_arg, gxl_arg[1:], arg_name, isVector, tmp_idx + 1) }}
         {%- endif %}
-    {%- elif gxl_first.cn == "GxlSubtreeList" %}
+    {%- elif gxl_first.cn in ["GxlSubtreeOL", "GxlSubtreeUL"] %}
         {%- if assert(not isVector, "recursive subtrees not supported. try rewriting in grgen.") %}{% endif %}
-
-            Vector<{{ java_arg }}> {{ arg_name }}_vec = new Vector<{{ java_arg }}>();
-            for (GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} : followEdgeList("{{ gxl_first }}", {{ latest_arg }})) {
+        Vector<{{ java_arg }}> {{ arg_name }}_vec = new Vector<{{ java_arg }}>();
+        for (GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} : followEdge{{ gxl_first.cn[-2:] }}("{{ gxl_first.name.text }}", {{ latest_arg }})) {
 {% filter indent(4) %}
 {% if gxl_is_last %}
-                {{ arg_name }}_vec.add(get{{ java_arg }}({{ arg_name }}_tmp{{ tmp_idx + 1 }}));
+            {{ arg_name }}_vec.add(get{{ java_arg }}({{ arg_name }}_tmp{{ tmp_idx + 1 }}));
 {% else %}
     {{ followChain(java_arg, gxl_arg[1:], arg_name, True, tmp_idx + 1) }}
 {% endif %}
 {% endfilter %}
 
-            }
-            List<{{ java_arg }}> {{ arg_name }} = unmodifiableList({{ arg_name }}_vec);
+        }
+        List<{{ java_arg }}> {{ arg_name }} = unmodifiableList({{ arg_name }}_vec);
     {%- elif gxl_first.cn == "GxlAttribute" %}
         {{- assert(gxl_is_last, "attributes must be last") }}
         {%- if isVector %}
-            {{ arg_name }}_vec.add(get{{ java_arg }}Attribute("{{ gxl_first }}", {{ latest_arg }}));
+        {{ arg_name }}_vec.add(get{{ java_arg }}Attribute("{{ gxl_first }}", {{ latest_arg }}));
         {%- else %}
-            {{ java_arg }} {{ arg_name }} = get{{ java_arg }}Attribute("{{ gxl_first }}", {{ latest_arg }});
+        {{ java_arg }} {{ arg_name }} = get{{ java_arg }}Attribute("{{ gxl_first }}", {{ latest_arg }});
         {%- endif %}
+    {%- elif gxl_first.cn == "GxlImplicitSubtree" and gxl_first.name.text == "this" %}
+        {{ java_arg }} {{ arg_name }} = get{{ java_arg }}(node);
     {%- else %}
         unknown arg type {{ gxl_first.cn }}
     {%- endif %}
-{% endmacro %}
-
-{% set java_types = [] %}
-{% for node_match in node_match_cases %}
-{% if not node_match.javaname.name.text in java_types %}
-{% do java_types.append(node_match.javaname.name.text) %}
-{% endif %}
-{% endfor %}
+{% endmacro -%}
 
 /**
  * Handle simple node types. THIS IS A GENERATED FILE, modify the .jinja2 version.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @copyright University of California, Berkeley 2009
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you
  *          make changes, please consider contributing back!
  */
-public class GxlHandleNodes {
-    public GxlImport imprt;
-
+public class GxlHandleNodes extends GxlHandleNodesBase {
     public GxlHandleNodes(final GxlImport imprt) {
-        this.imprt = imprt;
+        super(imprt);
     }
 
-    public GXLNode followEdge(final String name, final GXLNode node) {
-        return null;
-    }
 
-    public String getString(final GXLNode node) {
+
+    // === Get a specific java type, branching on the current GXL node type ===
+{% for java_type, matches in node_match_cases.items() %}
+
+    public {{ java_type }} get{{ java_type }}(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        throw new RuntimeException("getString not implemented for " + typ);
-    }
 
-    public Vector<GXLNode> followEdgeList(final String edge_name, final GXLNode node) {
-        GXLNode lst = this.followEdge(edge_name, node);
-        Vector<GXLNode> result = new Vector<GXLNode>();
-        GXLNode lst_node = this.followEdge("ListNext", this.followEdge("ListFirst", lst));
-        while (!GxlImport.nodeType(lst_node).equals("ListLastNode")) {
-            result.add(this.followEdge("ListValue", lst_node));
-            lst_node = this.followEdge("ListNext", lst_node);
-        }
-        return result;
-    }
-
-    public String getStringAttribute(final String name, final GXLNode node) {
-        return ((GXLString) node.getAttr(name).getValue()).getValue();
-    }
-
-{% for java_type in java_types %}
-    public {{ java_type }} get{{ java_type }}(GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-{% for node_match in node_match_cases if node_match.javaname.name.text == java_type %}
+{% for node_match in matches %}
         {{ "else " if not loop.first else "" }}if (typ.equals("{{ node_match.gxlname }}")) {
+            return get{{ java_type }}From{{ node_match.gxlname }}(node);
+        }{{ " " }}
+{%- endfor -%}
+
+        else {
+            throw new RuntimeException("no way to return a {{ java_type }} from a node of type " + typ);
+        }
+    }
+{% endfor %}
+
+
+
+    // === Get a specific java type from a known GXL node type ===
+{% for java_type, matches in node_match_cases.items() %}
+{% for node_match in matches %}
+
+    public {{ java_type }} get{{ java_type }}From{{ node_match.gxlname }}(final GXLNode node) {
 {% set gxl_args = node_match.gxl_args.argv %}
 {% for i, java_arg in enumerate(node_match.java_args) %}
 {% if java_arg.cn == "JavaImplicitArg" %}
 {% if java_arg.name == "ctx" %}
-            FEContext arg{{ i }} = new FEContext();
+        FEContext arg{{ i }} = create_fe_context(node);
+{% elif java_arg.name == "ctxnode" %}
+        FENode arg{{ i }} = new DummyFENode(create_fe_context(node));
 {% else %}
-            unknown implicit arg type {{ java_arg.name }}
+        unknown implicit arg type {{ java_arg.name }}
 {% endif %}
 {% else %}
 {{ assert(gxl_args, "no args left.") }}
@@ -115,21 +110,26 @@ public class GxlHandleNodes {
 {%- endif %}
 {% endfor %}
 
-            return new {{ node_match.javaname }}({% for i in range(len(node_match.java_args.argv)) %}arg{{i}}{{ ", " if not loop.last else "" }}{% endfor %});
-        }{{ " " }} 
-{%- endfor -%}
-        else {
-            throw new RuntimeException("no way to return a {{ java_type }} from a node of type " + typ);
-        }
+        return {% if node_match.new_kw.new %}new {% else %}create{% endif -%}
+            {{ node_match.javaname }}(
+                {%- for i in range(len(node_match.java_args.argv)) -%}
+                    arg{{i}}{{ ", " if not loop.last else "" }}
+                {%- endfor -%}
+            );
     }
 {% endfor %}
+{% endfor %}
 
+
+
+    // === Get by Java superclass ===
 {% for superclass in ast_inheritance.keys() %}
+
 {% set is_first = WrapperVariable(False) %}
-    public {{ superclass }} get{{ superclass }}(GXLNode node) {
+    public {{ superclass }} get{{ superclass }}(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
 {% for subclass in ast_inheritance[superclass] %}
-{% for node_match in node_match_cases if node_match.javaname.name.text == subclass %}
+{% for node_match in node_match_cases[subclass] %}
 {% do is_first.setValue(True) %}
         if (typ.equals("{{ node_match.gxlname }}")) {
             return get{{ node_match.javaname }}(node);
@@ -144,7 +144,6 @@ public class GxlHandleNodes {
         throw new RuntimeException("no gxl nodes corresponding to \"{{ superclass }}\"");
 {% endif %}
     }
-
 {% endfor %}
 }
 

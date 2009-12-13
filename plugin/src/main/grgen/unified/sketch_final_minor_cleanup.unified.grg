@@ -18,19 +18,30 @@ node class TypeBoolean extends TypePrimitive { typename = "TYPE_BIT"; }
 node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
 
 edge class SketchType;
+
+edge class PackageDefFcn;
+
+node class SKAssertCall extends FcnCall;
+edge class SKAssertCallArg extends Subtree;
 {% endblock %}
 
 
 
 {% block grs %}
+dump set node SKAssertCall color LightBlue
+
 xgrs setSymbolNames* & deletePrintRenamer*
 xgrs setSymbolSketchType*
 xgrs setScalaIntType & setScalaBooleanType
+xgrs connectFunctions*
+xgrs removeEmptyChains*
+xgrs setAssertCalls*
 {% endblock %}
 
 
 
 {% block grg %}
+{% import "macros.grg" as macros %}
 rule setSymbolSketchType {
     x:Symbol -:PrintSymName-> name:PrintName;
     :ClassDef -:ClassDefSymbol-> x;
@@ -56,6 +67,31 @@ rule setScalaBooleanType {
     if { x.fullSymbolName == "scala.Boolean"; }
     modify {
         x -:SketchType-> :TypeBoolean;
+    }
+}
+
+rule connectFunctions {
+    x:PackageDef; y:FcnDef;
+    negative { x -:PackageDefFcn-> y; }
+    modify { x -:PackageDefFcn-> y; }
+}
+
+rule removeEmptyChains {
+    x:ListNode -:ListValue-> y:EmptyChain;
+    modify {
+        delete(y);
+        exec(listDelete(x));
+    }
+}
+
+rule setAssertCalls {
+    x:FcnCall -:FcnCallSymbol-> :AssertFcnSymbol;
+    {{ macros.list_graphlet(["ths", "arg"]) }}
+    x -:FcnArgList-> lst;
+    negative { if { typeof(x) >= SKAssertCall; } }
+    modify {
+        next:SKAssertCall<x>;
+        exec(listDelete(ths));
     }
 }
 {% endblock %}

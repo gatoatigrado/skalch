@@ -71,16 +71,16 @@ node class InsertedReturnSymbol extends Symbol;
 node class BlockifyValDef extends ValDef;
 node class ThisVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
-node class TargetFcnCall extends FcnCall;
 
 // ==== Scala statement-expressions to blocks ====
 
 
 // ==== unified modules ====
+{% include "nodes/gen/blockify_fcndefs.gm" %}
 {% include "nodes/gen/generate_cfg.gm" %}
 {% include "nodes/gen/cstyle_stmts.gm" %}
 {% include "nodes/gen/cleanup_accessors.gm" %}
-{% include "nodes/gen/sketch_types.gm" %}
+{% include "nodes/gen/sketch_final_minor_cleanup.gm" %}
 
 
 
@@ -183,14 +183,33 @@ node class ClassDef extends ScAstNode;
 node class EmptyTree extends ScAstNode;
 
 node class FcnCall extends ScAstNode;
+node class FcnCallArrayGet extends FcnCall;
 node class FcnCallArrayLength extends FcnCall;
-node class FcnCallBinaryDivide extends FcnCall;
-node class FcnCallBinaryLessThan extends FcnCall;
-node class FcnCallBinaryPrimitiveEquals extends FcnCall;
-node class FcnCallBinarySameObj extends FcnCall;
-node class FcnCallBinarySubtract extends FcnCall;
+node class FcnCallArraySet extends FcnCall;
+
+node class FcnBinaryCall extends FcnCall { binop : int; }
+{% macro sk_binop(name, n) %}
+node class FcnCallBinary{{ name }} extends FcnBinaryCall { binop = {{ 2 ** n }}; }
+{%- endmacro %}
+{{ sk_binop("Add", 1) }}
+{{ sk_binop("Divide", 4) }}
+{{ sk_binop("GreaterThan", 15) }}
+{{ sk_binop("GreaterThanOrEqual", 16) }}
+{{ sk_binop("LessThan", 13) }}
+{{ sk_binop("LessThanOrEqual", 14) }}
+{{ sk_binop("LogicAnd", 6) }}
+{{ sk_binop("LogicOr", 7) }}
+{{ sk_binop("NotSameObj", 12) }}
+{{ sk_binop("PrimitiveEquals", 11) }}
+{{ sk_binop("PrimitiveNotEquals", 12) }}
+{{ sk_binop("SameObj", 11) }}
+{{ sk_binop("StringConcat", 0) }}
+{{ sk_binop("Subtract", 2) }}
+
 node class FcnCallTypeApply extends FcnCall;
+node class FcnCallUnaryIntCast extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
+node class NewArrayCall extends FcnCall;
 
 node class FcnDef extends ScAstNode;
 node class FcnSuperCall extends FcnCall;
@@ -230,23 +249,10 @@ node class StringConstant extends Constant {
 node class NullTypeConstant extends Constant;
 node class UnitConstant extends Constant;
 
-node class FcnCallBinaryAdd extends FcnCall;
-node class FcnCallBinaryLogicAnd extends FcnCall;
-node class FcnCallArrayGet extends FcnCall;
-node class FcnCallBinaryLogicOr extends FcnCall;
-node class FcnCallUnaryIntCast extends FcnCall;
-node class FcnCallBinaryGreaterThan extends FcnCall;
-node class FcnCallBinaryLessThanOrEqual extends FcnCall;
-node class FcnCallArraySet extends FcnCall;
-node class FcnCallBinaryPrimitiveNotEquals extends FcnCall;
-node class GotoCall extends ScAstNode;
-node class FcnCallBinaryStringConcat extends FcnCall;
-node class FcnCallBinaryNotSameObj extends FcnCall;
 node class Bind extends ScAstNode;
-node class NewArrayCall extends FcnCall;
-node class Match extends ScAstNode;
+node class GotoCall extends ScAstNode;
 node class LabelDef extends ScalaExprStmt;
-node class FcnCallBinaryGreaterThanOrEqual extends FcnCall;
+node class Match extends ScAstNode;
 node class TypeTree extends ScAstNode;
 
 

@@ -8,3 +8,11 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
     {{ caller() }}
 }
 {% endmacro %}
+
+{% macro list_graphlet(names) -%}
+    lst:List -:ListFirst-> lst_first:ListFirstNode -:ListNext->
+{% for name in names %}
+        {{ name }}:ListNode -:ListNext->
+{% endfor %}
+        lst_last:ListLastNode;
+{%- endmacro %}

@@ -9,7 +9,6 @@ rule removeFcnTarget {
     fcncall:FcnCall -e1:FcnTarget-> target:ScAstNode;
     fcncall -e2:FcnArgChain-> first:ScAstNode;
     replace {
-        next_call:TargetFcnCall<fcncall> -:FcnArgChain-> target
-            -:FcnArgNext-> first;
+        fcncall -:FcnArgChain-> target -:FcnArgNext-> first;
     }
 }

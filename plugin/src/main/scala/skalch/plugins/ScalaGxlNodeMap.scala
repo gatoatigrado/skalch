@@ -3,7 +3,6 @@ package skalch.plugins
 import scala.collection.mutable.{ListBuffer, HashMap, HashSet}
 
 import ScalaDebugOut._
-import sketch.compiler.ast.{base, core, scala => scast}
 
 import scala.tools.nsc
 import nsc._

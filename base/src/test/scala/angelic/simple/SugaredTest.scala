@@ -5,11 +5,12 @@ import sketch.util.DebugOut
 import sketch.util._
 
 class MySketch() extends AngelicSketch {
-    class A(val a : Int @ Range(-3 to 1), val b : Boolean)
-    def b2(a : A) = a.a
+//     class A(val a : Int @ Range(-3 to 1), val b : Boolean)
+//     def b2(a : A) = a.a
     def main() {
-        var x : A = ??
-        synthAssert(x.b && b2(x) == -1)
+        synthAssert((?? : Int) == 3)
+//         var x : A = ??
+//         synthAssert(x.b && b2(x) == -1)
     }
 }
 

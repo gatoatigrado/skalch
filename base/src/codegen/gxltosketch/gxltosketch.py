@@ -23,19 +23,25 @@ import get_typegraph
 # Special cases should be handled by manual Java code.
 GXL_TO_SKETCH = """
 PackageDef(<this>, UL[PackageDefElement])
-    -> new Program(<ctxnode>, List[StreamSpec], List[TypeStruct])
+    -> new Program(<ctxnode>, SingletonList[StreamSpec], List[TypeStruct])
 
-PackageDef(UL[PackageDefGlobal], UL[PackageDefElement])
+PackageDef(UL[PackageDefGlobal], UL[PackageDefFunction])
     -> StreamSpec(<ctx>, List[StmtVarDecl], List[Function])
 
 ClassDef(ClassDefSymbol, OL[ClassDefFieldsList].symbolName, 
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
     -> new TypeStruct(<ctx>, String, List[String], List[Type])
+
+ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
+    -> new StmtVarDecl(<ctx>, Type, String, <null>)
+
+SKAssertCall(FcnArgList)
+    -> StmtAssert(<ctx>, Expression)
 """
 
 def get_node_match_cases():
     rules = list(parse_gxl_conversion(GXL_TO_SKETCH).argv).equiv_classes(
-        lambda a: a.javaname)
+        lambda a: str(a.javaname))
 
     node_types, edge_types = get_typegraph.main(show_typegraph=False)
     node_types = get_typegraph.elt_classes_by_id(node_types)
@@ -61,6 +67,8 @@ def ast_inheritance():
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
+        "Expression": "ExprField",
+        "Statement": "StmtVarDecl StmtAssert",
         "Type": "TypeStruct TypePrimitive" }
 
     immediate = dict((k, v.split()) for k, v in immediate.items())

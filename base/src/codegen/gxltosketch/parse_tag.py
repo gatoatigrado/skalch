@@ -95,10 +95,14 @@ class FcnName(NameASTNode): pass
 class GxlSubtree(NameASTNode): pass
 class GxlAttribute(NameASTNode): pass
 class GxlImplicitSubtree(NameASTNode): pass
-class JavaSubtree(NameASTNode): pass
+class JavaSubtree(NameASTNode):
+    def typename(self): return self.name.text
 class JavaImplicitArg(NameASTNode): pass
 class JavaSubtreeList(NameASTNode):
-    def __init__(self, list_string, name): NameASTNode.__init__(self, name)
+    def __init__(self, list_string, name):
+        NameASTNode.__init__(self, name)
+    def typename(self): return "List<%s>" % (self.name.text)
+class JavaSubtreeSingletonList(JavaSubtreeList): pass
 
 
 
@@ -109,7 +113,7 @@ class OptionalSpecAST(ASTNode):
             if len(subspec) == len(argv):
                 [setattr(self, subspec[i], argv[i]) for i in range(len(subspec))]
                 return ASTNode.__init__(self)
-        assert False, "wrong number of args to %s" %(self.__class__.__name__)
+        assert False, "wrong number of args to %s" % (self.__class__.__name__)
 
 class NewKw(OptionalSpecAST):
     SPEC = [ (), ("new",) ]
@@ -196,9 +200,11 @@ class Parser(spark.GenericASTBuilder):
         JavaArgs ::= JavaArg , JavaArgs
         JavaArg ::= JavaSubtree
         JavaArg ::= JavaSubtreeList
+        JavaArg ::= JavaSubtreeSingletonList
         JavaArg ::= JavaImplicitArg
         JavaSubtree ::= WORD
         JavaSubtreeList ::= List [ WORD ]
+        JavaSubtreeSingletonList ::= SingletonList [ WORD ]
         JavaImplicitArg ::= < WORD >
 
         FcnName ::= WORD

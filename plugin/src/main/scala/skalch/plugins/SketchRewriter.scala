@@ -12,8 +12,6 @@ import nsc.io.{AbstractFile, PlainFile}
 import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
 
 import ScalaDebugOut._
-import sketch.util.DebugOut
-import sketch.compiler.ast.{base, core, scala => scast}
 import net.sourceforge.gxl._
 
 /*

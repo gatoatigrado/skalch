@@ -38,7 +38,9 @@ set-test-package-decls: # hack to use sed and rename all java package declaratio
                 set_package_decls base/src/test/scala; \
                 set_package_decls base/src/main/java"
 
-
+compile: gen
+	(cd plugin; mvn install)
+	mvn compile test-compile
 
 ### Compile various tests using the plugin (to test the plugin)
 
@@ -60,6 +62,9 @@ plugin_angelic_sketch:
 
 new-unified-module:
 	cd plugin/src/main/grgen; read -p "name? " name; cp unified-template.txt unified/$$name.unified.grg; kate -u unified/$$name.unified.grg
+
+grgen: gen killall
+	plugin/src/main/grgen/sugared_test.sh; make killall
 
 ycomp: gen killall
 	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; make killall

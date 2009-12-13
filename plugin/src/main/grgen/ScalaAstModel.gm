@@ -71,12 +71,18 @@ node class InsertedReturnSymbol extends Symbol;
 node class BlockifyValDef extends ValDef;
 node class ThisVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
-node class TargetFcnCall extends FcnCall;
 
 // ==== Scala statement-expressions to blocks ====
 
 
 // ==== unified modules ====
+// edge class MyEdge
+// node class MyNode
+
+
+
+
+
 
 abstract node class CfgAbstractNode;
 abstract node class CfgEvalNode;
@@ -142,6 +148,11 @@ node class TypeBoolean extends TypePrimitive { typename = "TYPE_BIT"; }
 node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
 
 edge class SketchType;
+
+edge class PackageDefFcn;
+
+node class SKAssertCall extends FcnCall;
+edge class SKAssertCallArg extends Subtree;
 
 
 
@@ -249,14 +260,30 @@ node class ClassDef extends ScAstNode;
 node class EmptyTree extends ScAstNode;
 
 node class FcnCall extends ScAstNode;
+node class FcnCallArrayGet extends FcnCall;
 node class FcnCallArrayLength extends FcnCall;
-node class FcnCallBinaryDivide extends FcnCall;
-node class FcnCallBinaryLessThan extends FcnCall;
-node class FcnCallBinaryPrimitiveEquals extends FcnCall;
-node class FcnCallBinarySameObj extends FcnCall;
-node class FcnCallBinarySubtract extends FcnCall;
+node class FcnCallArraySet extends FcnCall;
+
+node class FcnBinaryCall extends FcnCall { binop : int; }
+node class FcnCallBinaryAdd extends FcnBinaryCall { binop = 2; }
+node class FcnCallBinaryDivide extends FcnBinaryCall { binop = 16; }
+node class FcnCallBinaryGreaterThan extends FcnBinaryCall { binop = 32768; }
+node class FcnCallBinaryGreaterThanOrEqual extends FcnBinaryCall { binop = 65536; }
+node class FcnCallBinaryLessThan extends FcnBinaryCall { binop = 8192; }
+node class FcnCallBinaryLessThanOrEqual extends FcnBinaryCall { binop = 16384; }
+node class FcnCallBinaryLogicAnd extends FcnBinaryCall { binop = 64; }
+node class FcnCallBinaryLogicOr extends FcnBinaryCall { binop = 128; }
+node class FcnCallBinaryNotSameObj extends FcnBinaryCall { binop = 4096; }
+node class FcnCallBinaryPrimitiveEquals extends FcnBinaryCall { binop = 2048; }
+node class FcnCallBinaryPrimitiveNotEquals extends FcnBinaryCall { binop = 4096; }
+node class FcnCallBinarySameObj extends FcnBinaryCall { binop = 2048; }
+node class FcnCallBinaryStringConcat extends FcnBinaryCall { binop = 1; }
+node class FcnCallBinarySubtract extends FcnBinaryCall { binop = 4; }
+
 node class FcnCallTypeApply extends FcnCall;
+node class FcnCallUnaryIntCast extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
+node class NewArrayCall extends FcnCall;
 
 node class FcnDef extends ScAstNode;
 node class FcnSuperCall extends FcnCall;
@@ -296,23 +323,10 @@ node class StringConstant extends Constant {
 node class NullTypeConstant extends Constant;
 node class UnitConstant extends Constant;
 
-node class FcnCallBinaryAdd extends FcnCall;
-node class FcnCallBinaryLogicAnd extends FcnCall;
-node class FcnCallArrayGet extends FcnCall;
-node class FcnCallBinaryLogicOr extends FcnCall;
-node class FcnCallUnaryIntCast extends FcnCall;
-node class FcnCallBinaryGreaterThan extends FcnCall;
-node class FcnCallBinaryLessThanOrEqual extends FcnCall;
-node class FcnCallArraySet extends FcnCall;
-node class FcnCallBinaryPrimitiveNotEquals extends FcnCall;
-node class GotoCall extends ScAstNode;
-node class FcnCallBinaryStringConcat extends FcnCall;
-node class FcnCallBinaryNotSameObj extends FcnCall;
 node class Bind extends ScAstNode;
-node class NewArrayCall extends FcnCall;
-node class Match extends ScAstNode;
+node class GotoCall extends ScAstNode;
 node class LabelDef extends ScalaExprStmt;
-node class FcnCallBinaryGreaterThanOrEqual extends FcnCall;
+node class Match extends ScAstNode;
 node class TypeTree extends ScAstNode;
 
 

@@ -1,0 +1,78 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+create blocks for all function bodies.
+
+{% endblock %}
+{% block gm %}
+// edge class MyEdge
+// node class MyNode
+{% endblock %}
+
+
+
+{% block grs %}
+echo "[REWRITE PRODUCTION] local simplifications"
+xgrs removeFcnTarget*
+xgrs (deleteDangling+ | removeNopTypeCast)*
+echo "[REWRITE PRODUCTION] local simplifications -- retype unit blocks"
+xgrs createFunctionBlocks*
+xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
+# xgrs checkOnlyFcnBlocks
+{% endblock %}
+
+
+
+{% block grg %}
+rule createFunctionBlocks {
+    x:FcnDef -e:FcnBody-> y:ScAstNode;
+    x -:FcnDefReturnTypeSymbol-> z:Symbol;
+    negative { if { typeof(y) >= Block; } }
+    modify {
+        delete(e);
+        x -:FcnBody-> block:Block -:BlockStmtChain-> empty:EmptyChain;
+        block -:BlockStmtLast-> empty;
+        block -:BlockExpr-> y;
+        block -:BlockTypeSymbol-> z;
+//         eval {
+//             block.sourceFile = y.sourceFile;
+//         }
+    }
+}
+
+rule retypeUnitTypeBlocks {
+    block:Block -e_sym:BlockTypeSymbol-> unitsym:ScalaUnitTypeSymbol;
+    block -e1:BlockStmtLast-> last:ScAstNode;
+    block -e2:BlockExpr-> expr:ScAstNode;
+    replace {
+        next_block:SKBlock<block> -e_sym-> unitsym;
+        last -e3:BlockStmtNext-> expr;
+        block -e4:BlockStmtLast-> expr;
+    }
+}
+
+rule convertFunctionBlocksToReturns {
+    fcndef:FcnDef -:FcnBody-> block:Block
+        -e:BlockExpr-> expr:ScAstNode;
+    block -le:BlockStmtLast-> last:ScAstNode;
+    block -:BlockTypeSymbol-> blk_typ:Symbol;
+    modify {
+        delete(e, le);
+        ret:Return -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
+        last -:BlockStmtNext-> ret -:ReturnExpr-> expr;
+        block -:BlockStmtLast-> ret;
+        next_block:SKBlock<block>;
+    }
+}
+
+rule checkOnlyFcnBlocks {
+    x:FcnDef -:FcnBody-> y:ScAstNode;
+    x -:FcnDefSymbol-> fcn_sym:Symbol;
+    if { typeof(y) >= SKBlock; }
+    modify { exec(printn(x) & printn(y) & assertFalse("not sketch block.")); }
+}
+{% endblock %}

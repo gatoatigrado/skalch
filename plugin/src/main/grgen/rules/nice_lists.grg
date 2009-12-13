@@ -125,6 +125,19 @@ rule listCompleteBlockLast {
     }
 }
 
+rule listDeleteInner(x:ListNode) {
+    lst:List -:ListElt-> x;
+    before:ListAbstractNode -:ListNext-> x -:ListNext-> after:ListAbstractNode;
+    modify {
+        delete(x);
+        before -:ListNext-> after;
+    }
+}
+
+rule listDelete(x:ListNode) {
+    modify { exec(listDeleteInner(x) || assertFalse("list delete failed")); }
+}
+
 rule listDoInsertAfter(x:ListAbstractNode, y:Node) {
     lst:List -:ListElt-> x -e:ListNext-> next:ListAbstractNode;
     modify {

@@ -10,9 +10,12 @@ import net.sourceforge.gxl.GXLInt;
 import net.sourceforge.gxl.GXLNode;
 import net.sourceforge.gxl.GXLString;
 import sketch.compiler.ast.core.FEContext;
+import sketch.compiler.ast.core.FENode;
 import sketch.compiler.ast.core.Function;
+import sketch.compiler.ast.core.Program;
 import sketch.compiler.ast.core.StreamSpec;
 import sketch.compiler.ast.core.stmts.StmtVarDecl;
+import sketch.compiler.ast.core.typs.TypeStruct;
 
 /**
  * Handle simple node types. Non-generated functions; generated functions are added in the
@@ -75,6 +78,12 @@ public class GxlHandleNodesBase {
         return ((GXLInt) node.getAttr(name).getValue()).getIntValue();
     }
 
+    public <V> List<V> createSingleton(final V v) {
+        Vector<V> tmp = new Vector<V>(1);
+        tmp.add(v);
+        return Collections.unmodifiableList(tmp);
+    }
+
     public FEContext create_fe_context(final GXLNode node) {
         String srcfile = this.getStringAttribute("sourceFile", node);
         int line = this.getIntAttribute("startLine", node);
@@ -87,5 +96,12 @@ public class GxlHandleNodesBase {
         // return new StreamSpec(ctx, StreamSpec.STREAM_FILTER, st, name, params, vars,
         // funcs)
         return null;
+    }
+
+    public Program createProgram(final FENode arg0, final StreamSpec arg1,
+            final List<TypeStruct> arg2) {
+        Vector<StreamSpec> v = new Vector<StreamSpec>();
+        v.add(arg1);
+        return new Program(arg0, Collections.unmodifiableList(v), arg2);
     }
 }

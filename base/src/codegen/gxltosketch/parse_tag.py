@@ -32,6 +32,7 @@ def parsertoken(clsname, fields="", matchText=False):
             if matchText else sparktokencmp })
 
 Word = parsertoken("Word", matchText=True)
+String = parsertoken("String")
 
 class SyntacticToken(object):
     def __init__(self, index, text):
@@ -59,7 +60,7 @@ class Scanner(spark.GenericScanner):
         self.start_index += len(input)
 
     def t_syntactic(self, input):
-        r"[^\w_0-9\s]"
+        r"[^\w_0-9\s\"]"
         self.add(SyntacticToken, input)
 
     def t_word(self, input):
@@ -68,6 +69,10 @@ class Scanner(spark.GenericScanner):
 
     def t_whitespace(self, input):
         r"\s+"
+        
+    def t_string(self, input):
+        r"\"(\\\"|[^\"])+\""
+        self.add(String, input.replace("\\\"", "\""))
 
 
 
@@ -98,6 +103,7 @@ class GxlImplicitSubtree(NameASTNode): pass
 class JavaSubtree(NameASTNode):
     def typename(self): return self.name.text
 class JavaImplicitArg(NameASTNode): pass
+class JavaEscapedArg(NameASTNode): pass
 class JavaSubtreeList(NameASTNode):
     def __init__(self, list_string, name):
         NameASTNode.__init__(self, name)
@@ -202,10 +208,12 @@ class Parser(spark.GenericASTBuilder):
         JavaArg ::= JavaSubtreeList
         JavaArg ::= JavaSubtreeSingletonList
         JavaArg ::= JavaImplicitArg
+        JavaArg ::= JavaEscapedArg
         JavaSubtree ::= WORD
         JavaSubtreeList ::= List [ WORD ]
         JavaSubtreeSingletonList ::= SingletonList [ WORD ]
         JavaImplicitArg ::= < WORD >
+        JavaEscapedArg ::= STRING
 
         FcnName ::= WORD
         """

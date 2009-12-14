@@ -42,6 +42,8 @@ abstract node class SketchConstructCall extends ScAstNode, BlockifySafe;
 node class BangBangCall extends SketchConstructCall;
 node class HoleCall extends SketchConstructCall;
 
+edge class PackageDefGlobal extends Subtree;
+
 
 
 // === Symbol type annotations ===
@@ -278,6 +280,7 @@ edge class BlockStmtNext extends BlockStmt, Sibling;
 edge class FcnArgChain extends FcnArg, Subtree;
 edge class FcnArgNext extends FcnArg, Sibling;
 edge class FcnArgList extends Subtree, CstyleExprTarget;
+edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree;
 
 // Sibling edges indicate argument parameters

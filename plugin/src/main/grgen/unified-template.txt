@@ -29,6 +29,7 @@ There are plenty of examples in all of these files.
 
 
 {% block grg %}
+{% import "macros.grg" as macros %}
 // view other files if you want example rules that do something.
 // rule myRule {
 //      x:MyNode -e:MyEdge-> z:MyNode2;

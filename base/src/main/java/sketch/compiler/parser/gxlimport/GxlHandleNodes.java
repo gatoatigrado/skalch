@@ -25,8 +25,27 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     }
 
 
-/*
     // === Get a specific java type, branching on the current GXL node type ===
+
+    public Function getFunction(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+
+        if (typ.equals("FcnDef")) {
+            return getFunctionFromFcnDef(node);
+        } else {
+            throw new RuntimeException("no way to return a Function from a node of type " + typ);
+        }
+    }
+
+    public StmtAssert getStmtAssert(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+
+        if (typ.equals("SKAssertCall")) {
+            return getStmtAssertFromSKAssertCall(node);
+        } else {
+            throw new RuntimeException("no way to return a StmtAssert from a node of type " + typ);
+        }
+    }
 
     public TypeStruct getTypeStruct(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
@@ -48,26 +67,6 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public Program getProgram(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("PackageDef")) {
-            return getProgramFromPackageDef(node);
-        } else {
-            throw new RuntimeException("no way to return a Program from a node of type " + typ);
-        }
-    }
-
-    public StmtAssert getStmtAssert(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("SKAssertCall")) {
-            return getStmtAssertFromSKAssertCall(node);
-        } else {
-            throw new RuntimeException("no way to return a StmtAssert from a node of type " + typ);
-        }
-    }
-
     public StmtVarDecl getStmtVarDecl(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
 
@@ -78,9 +77,60 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
+    public Program getProgram(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+
+        if (typ.equals("PackageDef")) {
+            return getProgramFromPackageDef(node);
+        } else {
+            throw new RuntimeException("no way to return a Program from a node of type " + typ);
+        }
+    }
+
+    public Parameter getParameter(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+
+        if (typ.equals("ValDef")) {
+            return getParameterFromValDef(node);
+        } else {
+            throw new RuntimeException("no way to return a Parameter from a node of type " + typ);
+        }
+    }
+
 
 
     // === Get a specific java type from a known GXL node type ===
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public Function getFunctionFromFcnDef(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        GXLNode arg2_tmp1 = followEdge("FcnDefSymbol", node); // gen marker 3
+        String arg2 = getStringAttribute("symbolName", arg2_tmp1); // gen marker 7
+
+        Type arg3 = getType(followEdge("FcnDefReturnTypeSymbol", node)); // gen marker 2
+
+        Vector<Parameter> arg4_vec = new Vector<Parameter>();
+        for (GXLNode arg4_tmp1 : followEdgeOL("FcnDefParamsList", node)) {
+            arg4_vec.add(getParameter(arg4_tmp1)); // gen marker 4
+        }
+        List<Parameter> arg4 = unmodifiableList(arg4_vec);
+
+        Statement arg5 = getStatement(followEdge("FcnBody", node)); // gen marker 2
+
+        return new Function(arg0, Function.FUNC_WORK, arg2, arg3, arg4, arg5);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public StmtAssert getStmtAssertFromSKAssertCall(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Expression arg1 = getExpression(followEdge("FcnArgList", node)); // gen marker 2
+
+        return new StmtAssert(arg0, arg1, false);
+    }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
@@ -110,45 +160,20 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public StreamSpec getStreamSpecFromPackageDef(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        Vector<StmtVarDecl> arg1_vec = new Vector<StmtVarDecl>();
-        for (GXLNode arg1_tmp1 : followEdgeUL("PackageDefGlobal", node)) {
-            arg1_vec.add(getStmtVarDecl(followEdge("GxlSubtreeUL", arg1_tmp1))); // gen marker 4
+        Vector<StmtVarDecl> arg5_vec = new Vector<StmtVarDecl>();
+        for (GXLNode arg5_tmp1 : followEdgeUL("PackageDefGlobal", node)) {
+            arg5_vec.add(getStmtVarDecl(arg5_tmp1)); // gen marker 4
         }
-        List<StmtVarDecl> arg1 = unmodifiableList(arg1_vec);
+        List<StmtVarDecl> arg5 = unmodifiableList(arg5_vec);
 
-        Vector<Function> arg2_vec = new Vector<Function>();
-        for (GXLNode arg2_tmp1 : followEdgeUL("PackageDefFunction", node)) {
-            arg2_vec.add(getFunction(followEdge("GxlSubtreeUL", arg2_tmp1))); // gen marker 4
+        Vector<Function> arg6_vec = new Vector<Function>();
+        for (GXLNode arg6_tmp1 : followEdgeUL("PackageDefFcn", node)) {
+            arg6_vec.add(getFunction(arg6_tmp1)); // gen marker 4
         }
-        List<Function> arg2 = unmodifiableList(arg2_vec);
+        List<Function> arg6 = unmodifiableList(arg6_vec);
 
-        return createStreamSpec(arg0, arg1, arg2);
-    }
-
-    // NOTE -- some constructors are marked deprecated to avoid later use.
-    @SuppressWarnings("deprecation")
-    public Program getProgramFromPackageDef(final GXLNode node) {
-        FENode arg0 = new DummyFENode(create_fe_context(node));
-
-        List<StreamSpec> arg1 = createSingleton(getStreamSpec(followEdge("this", node))); // gen marker 8
-
-        Vector<TypeStruct> arg2_vec = new Vector<TypeStruct>();
-        for (GXLNode arg2_tmp1 : followEdgeUL("PackageDefElement", node)) {
-            arg2_vec.add(getTypeStruct(followEdge("GxlSubtreeUL", arg2_tmp1))); // gen marker 4
-        }
-        List<TypeStruct> arg2 = unmodifiableList(arg2_vec);
-
-        return new Program(arg0, arg1, arg2);
-    }
-
-    // NOTE -- some constructors are marked deprecated to avoid later use.
-    @SuppressWarnings("deprecation")
-    public StmtAssert getStmtAssertFromSKAssertCall(final GXLNode node) {
-        FEContext arg0 = create_fe_context(node);
-
-        Expression arg1 = getExpression(followEdge("FcnArgList", node)); // gen marker 2
-
-        return createStmtAssert(arg0, arg1);
+        return new StreamSpec(arg0, StreamSpec.STREAM_FILTER, new StreamType((FEContext)null,
+            TypePrimitive.bittype, TypePrimitive.bittype), "MAIN", Collections.EMPTY_LIST, arg5, arg6);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -163,6 +188,35 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         String arg2 = getStringAttribute("symbolName", arg2_tmp1); // gen marker 7
 
         return new StmtVarDecl(arg0, arg1, arg2, null);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public Program getProgramFromPackageDef(final GXLNode node) {
+        FENode arg0 = new DummyFENode(create_fe_context(node));
+
+        List<StreamSpec> arg1 = createSingleton(getStreamSpec(node)); // gen marker 8
+
+        Vector<TypeStruct> arg2_vec = new Vector<TypeStruct>();
+        for (GXLNode arg2_tmp1 : followEdgeUL("PackageDefElement", node)) {
+            arg2_vec.add(getTypeStruct(arg2_tmp1)); // gen marker 4
+        }
+        List<TypeStruct> arg2 = unmodifiableList(arg2_vec);
+
+        return new Program(arg0, arg1, arg2);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public Parameter getParameterFromValDef(final GXLNode node) {
+
+        GXLNode arg0_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
+        Type arg0 = getType(followEdge("TypeSymbol", arg0_tmp1)); // gen marker 2
+
+        GXLNode arg1_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
+        String arg1 = getStringAttribute("symbolName", arg1_tmp1); // gen marker 7
+
+        return new Parameter(arg0, arg1);
     }
 
 
@@ -193,5 +247,4 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             throw new RuntimeException("no way to return a Statement from a node of type " + typ);
         }
     }
-*/
 }

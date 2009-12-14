@@ -8,6 +8,7 @@
 # copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 from __future__ import division, print_function
 from collections import namedtuple
+from warnings import warn
 
 try:
     from gatoatigrado_lib import (ExecuteIn, Path, SubProc, get_singleton, dict,
@@ -16,17 +17,19 @@ except:
     raise ImportError("please install gatoatigrado's utility library from "
             "bitbucket.org/gatoatigrado/gatoatigrado_lib")
 
-from parse_tag import parse_gxl_conversion
+from parse_tag import parse_gxl_conversion, GxlSubtree, GxlSubtreeOL,\
+    GxlSubtreeUL
 import get_typegraph
 
 # N.B. -- the goal is to write maybe 90% of the conversion code in this.
 # Special cases should be handled by manual Java code.
-GXL_TO_SKETCH = """
+GXL_TO_SKETCH = r"""
 PackageDef(<this>, UL[PackageDefElement])
     -> new Program(<ctxnode>, SingletonList[StreamSpec], List[TypeStruct])
 
-PackageDef(UL[PackageDefGlobal], UL[PackageDefFunction])
-    -> StreamSpec(<ctx>, List[StmtVarDecl], List[Function])
+PackageDef(UL[PackageDefGlobal], UL[PackageDefFcn])
+    -> new StreamSpec(<ctx>, "StreamSpec.STREAM_FILTER", "new StreamType((FEContext)null,
+            TypePrimitive.bittype, TypePrimitive.bittype)", "\"MAIN\"", "Collections.EMPTY_LIST", List[StmtVarDecl], List[Function])
 
 ClassDef(ClassDefSymbol, OL[ClassDefFieldsList].symbolName, 
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
@@ -35,9 +38,17 @@ ClassDef(ClassDefSymbol, OL[ClassDefFieldsList].symbolName,
 ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
     -> new StmtVarDecl(<ctx>, Type, String, <null>)
 
+ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
+    -> new Parameter(Type, String)
+
 SKAssertCall(FcnArgList)
-    -> StmtAssert(<ctx>, Expression)
+    -> new StmtAssert(<ctx>, Expression, "false")
+
+FcnDef(FcnDefSymbol.symbolName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
+    -> new Function(<ctx>, "Function.FUNC_WORK", String, Type, List[Parameter], Statement)
 """
+
+# FENode context, int cls, String name, Type returnType, List<Parameter> params, Statement body
 
 def get_node_match_cases():
     rules = list(parse_gxl_conversion(GXL_TO_SKETCH).argv).equiv_classes(
@@ -46,6 +57,14 @@ def get_node_match_cases():
     node_types, edge_types = get_typegraph.main(show_typegraph=False)
     node_types = get_typegraph.elt_classes_by_id(node_types)
     edge_types = get_typegraph.elt_classes_by_id(edge_types)
+
+    for rule in [v for arr in rules.values() for v in arr]:
+        if not unicode(rule.gxlname) in node_types:
+            warn("unknown gxl node '%s' (maybe try updating the type graph?)" %(rule.gxlname))
+        for subfield in [v for arg in rule.gxl_args for v in arg]:
+            if isinstance(subfield, (GxlSubtree, GxlSubtreeOL, GxlSubtreeUL)):
+                if not unicode(subfield.name.text) in edge_types:
+                    warn("unknown edge type '%s'" %(subfield.name.text))
 
     def sort_types(arr):
         rules_for_javaname = dict((str(v.gxlname), v) for v in arr)

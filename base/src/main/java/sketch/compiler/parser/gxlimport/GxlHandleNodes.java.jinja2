@@ -50,7 +50,7 @@ import sketch.compiler.ast.core.typs.*;
         for (GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} : followEdge{{ gxl_first.cn[-2:] }}("{{ gxl_first.name.text }}", {{ latest_arg }})) {
 {% filter indent(4) %}
 {% if gxl_is_last %}
-            {{ arg_name }}_vec.add({{ get_singleton(get_java_fcn("%s_tmp%d" %(arg_name, tmp_idx + 1))) }}); // gen marker 4
+            {{ arg_name }}_vec.add(get{{ java_arg }}({{ arg_name }}_tmp{{ tmp_idx + 1 }})); // gen marker 4
 {% else %}
     {{ followChain(java_arg, gxl_arg[1:], arg_name, True, tmp_idx + 1) }}
 {% endif %}
@@ -66,7 +66,7 @@ import sketch.compiler.ast.core.typs.*;
         {{ java_arg.typename() }} {{ arg_name }} = {{ get_attribute() }}; // gen marker 7
         {%- endif %}
     {%- elif gxl_first.cn == "GxlImplicitSubtree" and gxl_first.name.text == "this" %}
-        {{ java_arg.typename() }} {{ arg_name }} = {{ get_singleton(get_java_fcn("node")) }}; // gen marker 8
+        {{ java_arg.typename() }} {{ arg_name }} = {{ get_singleton("get%s(node)" %(java_arg)) }}; // gen marker 8
     {%- else %}
         unknown arg type {{ gxl_first.cn }}
     {%- endif %}
@@ -86,7 +86,6 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     }
 
 
-/*
     // === Get a specific java type, branching on the current GXL node type ===
 {% for java_type, matches in node_match_cases.items() %}
 
@@ -125,6 +124,7 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 {% else %}
         unknown implicit arg type {{ java_arg.name }}
 {% endif %}
+{% elif java_arg.cn == "JavaEscapedArg" %}
 {% else %}
 {{ assert(gxl_args, "no args left.") }}
 {{ followChain(java_arg, gxl_args[0].argv, "arg%d" %(i)) }}
@@ -135,7 +135,13 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         return {% if node_match.new_kw.new %}new {% else %}create{% endif -%}
             {{ node_match.javaname }}(
                 {%- for i, java_arg in enumerate(node_match.java_args) %}
-                    {%- if java_arg.name == "null" %}null{% else %}arg{{i}}{% endif -%}
+                    {%- if java_arg.name == "null" -%}
+                        null
+                    {%- elif java_arg.cn == "JavaEscapedArg" -%}
+                        {{ java_arg.name.text[1:-1] }}
+                    {%- else -%}
+                        arg{{i}}
+                    {%- endif -%}
                     {{ ", " if not loop.last else "" }}
                 {%- endfor -%}
             );
@@ -169,6 +175,5 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 {% endif %}
     }
 {% endfor %}
-*/
 }
 

@@ -7,8 +7,8 @@ help:
 	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
-	zsh -c "setopt -G; rm **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
-	zsh -c "setopt -G; rm -r **/(bin|target) .gen"
+	zsh -c "setopt -G; rm -f **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
+	zsh -c "setopt -G; rm -rf **/(bin|target) .gen"
 
 test: killall
 	echo "TODO -- run mvn test when it works again."
@@ -77,6 +77,9 @@ ycomp-unprocessed: killall
 
 plugin_dev: compile_install_plugin # build the plugin and compile the a test given by $(testfile)
 	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile) && mvn compile test-compile -Dmaven.scala.displayCmd=true
+
+java_gxlimport:
+	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl")
 
 
 

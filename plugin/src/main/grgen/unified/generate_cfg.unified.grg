@@ -52,7 +52,8 @@ edge class CfgStrictlySequentialNode;
 {% set set_next_fcns = [] %}
 {% macro append_ret(arr, name) %}
 {% do arr.append(name) %}
-{{ name }}{% endmacro %}
+{{ name }}
+{%- endmacro %}
 {% macro init_fcn(name) %}{{ append_ret(init_fcns, name) }}{% endmacro %}
 {% macro set_next_fcn(name) %}{{ append_ret(set_next_fcns, name) }}{% endmacro %}
 

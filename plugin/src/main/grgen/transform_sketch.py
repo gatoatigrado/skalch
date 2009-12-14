@@ -37,6 +37,7 @@ Executing Graph Rewrite Sequence\.\.\. .+
  - (Model|Actions) assembly "([^"]+)" generated.*
 Graph "DefaultGraph" exported.*
 Warning: Unknown Statement.+
+saving to .+
 """.splitlines() if v]
 
 execute_time = re.compile(r"Executing Graph Rewrite Sequence done after (.+)\:")

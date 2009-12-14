@@ -1,15 +1,43 @@
-// -*- coding: utf-8 -*-
-// author: gatoatigrado (nicholas tung) [ntung at ntung]
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
 
-// Licensed under the Apache License, Version 2.0 (the "License"); you may
-// not use this file except in compliance with the License. You may obtain a
-// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
-// This abstraction was created because it's easier to replace nodes
-// when they have only one incoming edge, ListValue, instead of edges
-// for both "enclosing" lists and their own attributes.
+Creates lists which look like
+
+lst -:ListFirst-> :ListFirstNode -:ListNext-> ... --> last:ListLastNode
+lst -:ListLast-> last
+
+This abstraction was created because it's easier to replace nodes
+when they have only one incoming edge, ListValue, instead of edges
+for both "enclosing" lists and their own attributes.
+
+{% endblock %}
+{% block gm %}
+// edge class MyEdge
+// node class MyNode
+{% endblock %}
 
 
+
+{% block grs %}
+echo "[REWRITE PRODUCTION] convert all lists to nice lists"
+xgrs listBlockInit*
+xgrs listClassDefsInit*
+xgrs listInitAllOrdered
+
+xgrs listAddClassField*
+xgrs listSetNext*
+xgrs listCompleteLast*
+xgrs listCompleteBlockLast*
+{% endblock %}
+
+
+
+{% block grg %}
+{% import "macros.grg" as macros %}
 
 // STEP 1: initialize lists.
 
@@ -42,28 +70,45 @@ rule listClassDefsInit {
     }
 }
 
-rule listFcnArgsInit {
-    x:FcnCall -e1:FcnArgChain-> first:ScAstNode;
-    x -e2:FcnArgLast-> last:ScAstNode;
+{% set rules = [] %}
+
+{% macro chain_to_list(ntyp, etyp) %}
+{% do rules.append("list%s%sInit" %(ntyp, etyp)) %}
+rule list{{ ntyp }}{{ etyp }}Init {
+    x:{{ ntyp }} -e1:{{ etyp }}Chain-> first:ScAstNode;
+    x -e2:{{ etyp }}Last-> last:ScAstNode;
     hom(first, last);
     modify {
         delete(e1, e2);
-        x -:FcnArgList-> lst:List;
+        x -:{{ etyp }}List-> lst:List;
         exec(listGenericInit(lst, first, last));
     }
 }
 
-rule listSKBlockInit {
-    x:SKBlock -e1:BlockStmtChain-> first:ScAstNode;
-    x -e2:BlockStmtLast-> last:ScAstNode;
-    hom(first, last);
-    modify {
-        delete(e1, e2);
-        x -:BlockStmtList-> lst:List;
-        exec(listGenericInit(lst, first, last));
+{% do rules.append("list%s%sEmptyInit" %(ntyp, etyp)) %}
+rule list{{ ntyp }}{{ etyp }}EmptyInit {
+    x:{{ ntyp }} -e1:{{ etyp }}Chain-> z:EmptyChain;
+    replace {
+        x -:{{ etyp }}List-> lst:List -:ListFirst-> :ListFirstNode
+            -:ListNext-> last_node:ListLastNode;
+        lst -:ListLast-> last_node;
     }
 }
+{% endmacro %}
 
+{{ chain_to_list("FcnCall", "FcnArg") }}
+{{ chain_to_list("FcnDef", "FcnDefParams") }}
+{{ chain_to_list("SKBlock", "BlockStmt") }}
+
+rule listInitAllOrdered {
+    modify { exec(
+{% for r in rules %}
+        {{ r }}*{{ " |" if not loop.last else "" }}
+{% endfor %}
+    ); }
+}
+
+// TODO -- handle empty and expression-only blocks.
 rule listBlockInit {
     x:Block -e1:BlockStmtChain-> first:ScAstNode;
     x -e2:BlockStmtLast-> stmt_last:ScAstNode;
@@ -167,10 +212,4 @@ rule listInsertBefore(x:ListAbstractNode, y:Node) {
     modify { exec(listDoInsertBefore(x, y) || assertFalse("list insert before failed")); }
 }
 
-// rule insertRandomNode {
-//     x:ListNode;
-//     modify {
-//         y:DebugBadNode;
-//         exec(listInsertAfter(x, y));
-//     }
-// }
+{% endblock %}

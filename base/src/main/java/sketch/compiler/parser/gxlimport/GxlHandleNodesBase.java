@@ -2,6 +2,7 @@ package sketch.compiler.parser.gxlimport;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
@@ -9,18 +10,14 @@ import net.sourceforge.gxl.GXLEdge;
 import net.sourceforge.gxl.GXLInt;
 import net.sourceforge.gxl.GXLNode;
 import net.sourceforge.gxl.GXLString;
+import scala.Tuple2;
 import sketch.compiler.ast.core.FEContext;
-import sketch.compiler.ast.core.FENode;
-import sketch.compiler.ast.core.Function;
-import sketch.compiler.ast.core.Program;
-import sketch.compiler.ast.core.StreamSpec;
-import sketch.compiler.ast.core.stmts.StmtVarDecl;
-import sketch.compiler.ast.core.typs.TypeStruct;
+import sketch.util.DebugOut;
 
 /**
  * Handle simple node types. Non-generated functions; generated functions are added in the
  * subclass GxlHandleNodes.
- * 
+ *
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you make
@@ -28,15 +25,30 @@ import sketch.compiler.ast.core.typs.TypeStruct;
  */
 public class GxlHandleNodesBase {
     public GxlImport imprt;
+    /** use to ensure all nodes are visited; stored in tuples of (GXLNode, java type) */
+    public HashSet<Tuple2<GXLNode, String>> visited_nodes =
+            new HashSet<Tuple2<GXLNode, String>>();
+    public HashSet<GXLNode> visited_simple = new HashSet<GXLNode>();
 
     public GxlHandleNodesBase(final GxlImport imprt) {
         this.imprt = imprt;
     }
 
+    public void visit(final GXLNode node, final String java_name) {
+        this.visited_nodes.add(new Tuple2<GXLNode, String>(node, java_name));
+        this.visited_simple.add(node);
+        DebugOut.assertSlow(this.visited_nodes.contains(new Tuple2<GXLNode, String>(node,
+                java_name)));
+    }
+
     public GXLNode followEdge(final String name, final GXLNode node) {
-        Vector<GXLEdge> edges = this.imprt.edges_by_source_id.get(node);
-        assert edges.size() == 1;
-        return this.imprt.nodes_by_id.get(edges.get(0).getTargetID());
+        final Tuple2<GXLNode, String> srckey = new Tuple2<GXLNode, String>(node, name);
+        Vector<GXLEdge> edges = this.imprt.edges_by_source.get(srckey);
+        if (edges.size() != 1) {
+            DebugOut.assertFalse("expected one edge of type", name, "from node",
+                    GxlImport.nodeType(node));
+        }
+        return (GXLNode) edges.get(0).getTarget();
     }
 
     public String getString(final GXLNode node) {
@@ -52,14 +64,20 @@ public class GxlHandleNodesBase {
             result.add(this.followEdge("ListValue", lst_node));
             lst_node = this.followEdge("ListNext", lst_node);
         }
+        if (result.isEmpty()) {
+            DebugOut.fmt("List from edge '%s' from node of type '%s' is empty.",
+                    edge_name, GxlImport.nodeType(node));
+        }
         return result;
     }
 
     public Vector<GXLNode> followEdgeUL(final String edge_name, final GXLNode node) {
-        Vector<GXLEdge> edges = this.imprt.edges_by_source_id.get(node);
+        final Tuple2<GXLNode, String> srckey =
+                new Tuple2<GXLNode, String>(node, edge_name);
+        Vector<GXLEdge> edges = this.imprt.edges_by_source.get(srckey);
         Vector<GXLNode> nodes = new Vector<GXLNode>();
         for (GXLEdge edge : edges) {
-            nodes.add(this.imprt.nodes_by_id.get(edge.getTargetID()));
+            nodes.add((GXLNode) edge.getTarget());
         }
         // string sorted -- only for consistent order
         Collections.sort(nodes, new Comparator<GXLNode>() {
@@ -67,6 +85,11 @@ public class GxlHandleNodesBase {
                 return o1.getID().compareTo(o2.getID());
             }
         });
+        if (nodes.isEmpty()) {
+            DebugOut.assertSlow(edges.isEmpty(), "edges not empty but nodes empty.");
+            DebugOut.fmt("UL from edge '%s' from node of type '%s' is empty.", edge_name,
+                    GxlImport.nodeType(node));
+        }
         return nodes;
     }
 
@@ -89,19 +112,5 @@ public class GxlHandleNodesBase {
         int line = this.getIntAttribute("startLine", node);
         int col = this.getIntAttribute("startCol", node);
         return new FEContext(srcfile, line, col);
-    }
-
-    public StreamSpec createStreamSpec(final FEContext ctx,
-            final List<StmtVarDecl> glbls, final List<Function> fcns) {
-        // return new StreamSpec(ctx, StreamSpec.STREAM_FILTER, st, name, params, vars,
-        // funcs)
-        return null;
-    }
-
-    public Program createProgram(final FENode arg0, final StreamSpec arg1,
-            final List<TypeStruct> arg2) {
-        Vector<StreamSpec> v = new Vector<StreamSpec>();
-        v.add(arg1);
-        return new Program(arg0, Collections.unmodifiableList(v), arg2);
     }
 }

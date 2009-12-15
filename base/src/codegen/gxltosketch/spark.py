@@ -98,16 +98,6 @@ class _State:
 		self.T, self.complete, self.items = [], [], items
 		self.stateno = stateno
 
-class ParseError(Exception):
-    def __init__(self, token):
-        self.token = token
-
-    def __repr__(self):
-    	return "ParseError[col=%s, token=%s]" % (self.token.index, self.token)
-
-    __str__ = __repr__
-
-
 class GenericParser:
 	#
 	#  An Earley parser, as per J. Earley, "An Efficient Context-Free
@@ -314,8 +304,8 @@ class GenericParser:
 		return None
 
 	def error(self, token):
-		print ("Syntax error at or near %r token" % (repr(token)))
-                raise ParseError(token)
+		print "Syntax error at or near `%s' token" % token
+		raise SystemExit
 
 	def parse(self, tokens):
 		sets = [ [(1,0), (2,0)] ]

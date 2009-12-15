@@ -42,18 +42,19 @@ public class GxlHandleNodesBase {
     }
 
     public GXLNode followEdge(final String name, final GXLNode node) {
-        final Tuple2<GXLNode, String> srckey = new Tuple2<GXLNode, String>(node, name);
+        NodeStringTuple srckey = new NodeStringTuple(node, name);
         Vector<GXLEdge> edges = this.imprt.edges_by_source.get(srckey);
         if (edges.size() != 1) {
+            this.imprt.debugPrintNode("source node", node);
+            for (GXLEdge edge : edges) {
+                this.imprt.debugPrintEdge("edge", edge);
+                DebugOut.print(edge.getSourceID(),
+                        GxlImport.nodeType((GXLNode) edge.getSource()));
+            }
             DebugOut.assertFalse("expected one edge of type", name, "from node",
-                    GxlImport.nodeType(node));
+                    GxlImport.nodeType(node), edges);
         }
         return (GXLNode) edges.get(0).getTarget();
-    }
-
-    public String getString(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        throw new RuntimeException("getString not implemented for " + typ);
     }
 
     public Vector<GXLNode> followEdgeOL(final String edge_name, final GXLNode node) {
@@ -72,8 +73,7 @@ public class GxlHandleNodesBase {
     }
 
     public Vector<GXLNode> followEdgeUL(final String edge_name, final GXLNode node) {
-        final Tuple2<GXLNode, String> srckey =
-                new Tuple2<GXLNode, String>(node, edge_name);
+        NodeStringTuple srckey = new NodeStringTuple(node, edge_name);
         Vector<GXLEdge> edges = this.imprt.edges_by_source.get(srckey);
         Vector<GXLNode> nodes = new Vector<GXLNode>();
         for (GXLEdge edge : edges) {

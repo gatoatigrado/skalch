@@ -1,5 +1,5 @@
 # grshell script
-import "%(gxl_file)s"
+import "{{ gxl_file }}"
 
 
 

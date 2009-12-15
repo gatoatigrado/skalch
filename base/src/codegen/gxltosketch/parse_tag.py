@@ -28,8 +28,8 @@ def sparktokencmp2(self, other):
 
 def parsertoken(clsname, fields="", matchText=False):
     return type(clsname, (namedtuple(clsname, "index text " + fields),),
-        { "type": clsname.upper(), "__cmp__": sparktokencmp2
-            if matchText else sparktokencmp })
+        { "type": clsname.upper(), "__str__": lambda self: self.text,
+            "__cmp__": sparktokencmp2 if matchText else sparktokencmp })
 
 Word = parsertoken("Word", matchText=True)
 String = parsertoken("String")
@@ -69,10 +69,10 @@ class Scanner(spark.GenericScanner):
 
     def t_whitespace(self, input):
         r"\s+"
-        
+
     def t_string(self, input):
         r"\"(\\\"|[^\"])+\""
-        self.add(String, input.replace("\\\"", "\""))
+        self.add(String, input)
 
 
 
@@ -102,8 +102,23 @@ class GxlAttribute(NameASTNode): pass
 class GxlImplicitSubtree(NameASTNode): pass
 class JavaSubtree(NameASTNode):
     def typename(self): return self.name.text
-class JavaImplicitArg(NameASTNode): pass
-class JavaEscapedArg(NameASTNode): pass
+class JavaImplicitArg(NameASTNode):
+    def argdecl(self, argname):
+        if self.name == "ctx":
+            return "FEContext %s = create_fe_context(node)" % (argname)
+        elif self.name == "ctxnode":
+            return "FENode %s = new DummyFENode(create_fe_context(node))" % (argname)
+        else:
+            assert self.name in ["null"]
+
+    def inlinedecl(self):
+        if self.name == "null":
+            return "null"
+
+class JavaEscapedArg(NameASTNode):
+    def inlinedecl(self):
+        return self.name.text[1:-1].replace(r"\"", "\"")
+
 class JavaSubtreeList(NameASTNode):
     def __init__(self, list_string, name):
         NameASTNode.__init__(self, name)
@@ -161,6 +176,13 @@ class ConvertElt(ASTNode):
         self.javaname = javaname# if not java_name_override else java_name_override
         self.java_args = java_args
 
+    def java_type(self):
+        return str(self.javaname)
+
+    def return_rep(self):
+        if isinstance(self.java_args, String):
+            return str(self.java_args)[1:-1].replace(r"\"", "\"")
+
     def __repr__(self):
         return " CE( %r (%r) -> %r (%r) ) " % (self.gxlname, self.gxl_args,
             self.javaname, self.java_args)
@@ -181,16 +203,19 @@ class Parser(spark.GenericASTBuilder):
         ConvertElts ::= ConvertElt ConvertElts
 
         ConvertElt ::= FcnName ( GxlArgs ) - > NewKw FcnName ( JavaArgs )
+        ConvertElt ::= FcnName ( GxlArgs ) - > NewKw FcnName STRING
 
         NewKw ::=
         NewKw ::= new
 
+        GxlArgs ::=
         GxlArgs ::= GxlArg
         GxlArgs ::= GxlArg , GxlArgs
         GxlArg ::= GxlSubfieldArgs
         GxlSubfieldArgs ::= GxlArgInner : GxlSubfieldArgs
         GxlSubfieldArgs ::= GxlArgInner
         GxlSubfieldArgs ::= GxlSubfieldArgs . GxlAttribute
+        GxlSubfieldArgs ::= . GxlAttribute
 
         GxlArgInner ::= GxlSubtree
         GxlArgInner ::= GxlImplicitSubtree
@@ -242,13 +267,13 @@ class Parser(spark.GenericASTBuilder):
 
 def parse_gxl_conversion(text):
     tokens = Scanner().tokenize(text)
-    try:
-        return Parser().parse(tokens)
-    except spark.ParseError, e:
-        print("tokenized successfully; parser error")
-        print(tokens)
-        print(e)
-        a = e.token.index
-        print("code before: %s" % (text[max(0, a - 10):(a + 1)]))
-        print("code after: %s" % (text[(a + 1):min(len(text), a + 10)]))
-        raise
+#    try:
+    return Parser().parse(tokens)
+#    except spark.ParseError, e:
+#        print("tokenized successfully; parser error")
+#        print(tokens)
+#        print(e)
+#        a = e.token.index
+#        print("code before: %s" % (text[max(0, a - 10):(a + 1)]))
+#        print("code after: %s" % (text[(a + 1):min(len(text), a + 10)]))
+#        raise

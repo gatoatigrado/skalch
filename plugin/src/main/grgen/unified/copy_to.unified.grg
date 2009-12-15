@@ -1,0 +1,101 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+Copy all outgoing nodes from a CopyTo request. For example,
+x -e1-> y -e2-> z
+x -:CopyTo-> x'
+will generate nodes y' and z' with edge types of e1 and e2.
+
+Fails for multiedges of the same type.
+Doesn't copy TypeSymbols, linking them instead (see addTypeSymbolEdges).
+See sketch_nospec for more usage.
+
+{% endblock %}
+{% block gm %}
+edge class CopyTo;
+{% endblock %}
+
+{% block grg %}
+{% import "macros.grg" as macros %}
+
+{% macro not_copy_edge(varname) -%}
+    if { typeof({{ varname }}) != CopyTo; }
+{%- endmacro %}
+
+{% macro copy_body() -%}
+    x -e:Edge-> z:Node;
+    {{ not_copy_edge("e") }}
+    negative { z -:CopyTo-> .; }
+    negative { z -:TypeSymbol-> z; }
+    modify {
+        z -:CopyTo-> w:typeof(z);
+        y -:typeof(e)-> w;
+        exec(executeCopiesInternal(z, w)*);
+    }
+{% endmacro %}
+
+/// don't call this, it's just for efficiency
+/// (less matches that need to be done)
+rule executeCopiesInternal(x:Node, y:Node) {
+    {{ copy_body() }}
+}
+
+rule executeCopies {
+    // x --> z in "graph 1"
+    // y --> w in "graph 2" (copy)
+    x:Node -:CopyTo-> y:Node;
+    {{ copy_body() }}
+}
+
+rule addExtraCopyEdges {
+    x:Node -e:Edge-> z:Node;
+    x -:CopyTo-> y:Node;
+    z -:CopyTo-> w:Node;
+    {{ not_copy_edge("e") }}
+    negative { y -:typeof(e)-> w; }
+    modify {
+        y -:typeof(e)-> w;
+    }
+}
+
+rule addTypeSymbolEdges {
+    x:Node -e:Edge-> z:Node -:TypeSymbol-> z;
+    x -:CopyTo-> y:Node;
+    negative { y -:typeof(e)-> z; }
+    modify { y -:typeof(e)-> z; }
+}
+
+
+
+// NOTE -- optional executable functions.
+
+/// set as [setCopySymbolNames]
+rule setCopySymbolNames {
+    x:Symbol -:CopyTo-> y:Symbol;
+    modify {
+        eval {
+            y.symbolName = "copy-" + x.symbolName;
+            y.fullSymbolName = "copy-" + x.fullSymbolName;
+        }
+    }
+}
+
+rule cleanupCopyTo {
+    . -e:CopyTo-> .;
+    modify { delete(e); }
+}
+
+// main copy routine
+// (executeCopies* | assertFalse("copy failed")) &
+rule doCopy {
+    modify { exec(
+        executeCopies* &
+        addExtraCopyEdges* &
+        addTypeSymbolEdges*
+    ); }
+}
+{% endblock %}

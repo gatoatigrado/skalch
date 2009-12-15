@@ -1,0 +1,62 @@
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+generate a nospec() function for the main sketch function
+
+{% endblock %}
+{% block gm %}
+edge class SKImplements;
+{% endblock %}
+
+
+
+{% block grs %}
+xgrs generateNospec*
+xgrs doCopy
+xgrs [setCopySymbolNames]
+xgrs cleanupCopyTo*
+
+{% endblock %}
+
+
+
+{% block grg %}
+{% import "macros.grg" as macros %}
+rule generateNospec {
+    x:SketchMainFcnDef -:FcnDefParamsList-> params:List;
+    x -:FcnDefReturnTypeSymbol-> unitsym:ScalaUnitTypeSymbol;
+    x -:FcnDefSymbol-> :Symbol -:SymbolOwner-> owner:Symbol;
+    modify {
+        next:FcnDef<x> -:SKImplements-> nospec:FcnDef;
+        nospec -:FcnDefParamsList-> nospec_params:List;
+        params -:CopyTo-> nospec_params;
+        nospec -:FcnDefReturnTypeSymbol-> unitsym;
+        nospec -:FcnDefSymbol-> nospec_sym:Symbol;
+        nospec_sym -:ClsMethod-> nospec_sym;
+        nospec_sym -:SymbolOwner-> owner;
+        nospec -:FcnBody-> ret:Return;
+        ret -:ReturnExpr-> :UnitConstant;
+        ret -:ReturnTypeSymbol-> unitsym;
+        ret -:ReturnSymbol-> nospec_sym;
+        eval {
+            nospec_sym.symbolName = "generated_nospec";
+            nospec_sym.fullSymbolName = owner.fullSymbolName + ".generated_nospec";
+        }
+    }
+}
+
+rule checkNoFcns {
+    x:SketchMainFcnDef;
+    modify { exec(assertFalse("didn't erase all main functions")); }
+}
+// view other files if you want example rules that do something.
+// rule myRule {
+//      x:MyNode -e:MyEdge-> z:MyNode2;
+//      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
+//      modify { x -:MyEdge-> w:MyNode; delete(e); }
+// }
+{% endblock %}

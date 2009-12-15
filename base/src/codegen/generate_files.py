@@ -103,7 +103,8 @@ def files_with_generate():
 
 @memoize_file(".gen/jinja2_file_list.txt")
 def jinja2_file_list():
-    return [v for v in Path(".").walk_files() if v.endswith(".jinja2")]
+    return [v for v in Path(".").walk_files() if v.endswith(".jinja2") and
+        not any(parent.basename() == "target" for parent in v.chain())]
 
 generate_files_name = Path(__file__)
 if "cProfile" in generate_files_name:
@@ -114,7 +115,7 @@ def main(single_file=None, no_rebuild=False):
     def assert_fcn(a, msg):
         assert a, msg
         return ""
-    
+
     def print_fcn(*argv):
         import sys
         print(*argv, file=sys.stderr)
@@ -128,12 +129,14 @@ def main(single_file=None, no_rebuild=False):
             self.value = value
 
     jinja2_glbls = { "enumerate": enumerate, "len": len, "assert": assert_fcn,
-        "WrapperVariable": WrapperVariable, "print": print_fcn }
+        "WrapperVariable": WrapperVariable, "print": print_fcn, "hasattr": hasattr,
+        "getattr": getattr }
 
     resources_path = get_typegraph.modpath.subpath("plugin/src/main/resources")
     if any(v.read().strip() for v in resources_path.walk_files() if v.basename() == "type_graph.gxl"):
-            jinja2_glbls["node_match_cases"] = get_node_match_cases()
-            jinja2_glbls["ast_inheritance"] = ast_inheritance()
+        rules = get_node_match_cases()
+        jinja2_glbls["node_match_cases"] = rules
+        jinja2_glbls["ast_inheritance"] = ast_inheritance(rules)
 
     # these are necessary for single file mode for the AST, so process it first.
     process_unified()

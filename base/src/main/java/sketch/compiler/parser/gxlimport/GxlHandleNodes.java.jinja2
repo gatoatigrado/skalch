@@ -10,6 +10,7 @@ import sketch.compiler.ast.core.*;
 import sketch.compiler.ast.core.exprs.*;
 import sketch.compiler.ast.core.stmts.*;
 import sketch.compiler.ast.core.typs.*;
+import sketch.compiler.ast.scala.exprs.*;
 
 {% macro get_singleton1(v, java_arg) -%}
 {% if java_arg.cn == "JavaSubtreeSingletonList" -%}
@@ -30,22 +31,23 @@ import sketch.compiler.ast.core.typs.*;
 {%- endmacro %}
 {%- macro get_singleton(v) %}{{ get_singleton1(v, java_arg) }}{% endmacro %}
 {%- macro get_attribute() -%}
-    get{{ java_arg }}Attribute("{{ gxl_first }}", {{ latest_arg }})
+{% set name = "%s" %(java_arg) -%}
+    get{{ name[0].upper() + name[1:] }}Attribute("{{ gxl_first }}", {{ latest_arg }})
 {%- endmacro %}
 
-
-    {%- if gxl_first.cn == "GxlSubtree" %}
-        {%- set latest = "followEdge(\"%s\", %s)" %(gxl_first, latest_arg) %}
-        {%- if isVector and gxl_is_last %}
+{%- macro handle_subtree() %}
+{% set latest = "followEdge(\"%s\", %s)" %(gxl_first, latest_arg) %}
+{%-if isVector and gxl_is_last -%}
         {{ arg_name }}_vec.add({{ get_singleton(get_java_fcn()) }}); // gen marker 1
-        {%- elif gxl_is_last %}
+{%- elif gxl_is_last -%}
         {{ java_arg.typename() }} {{ arg_name }} = {{ get_singleton(get_java_fcn()) }}; // gen marker 2
-        {%- else %}
+{%- else -%}
         GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} = {{ latest }}; // gen marker 3
 {{ followChain(java_arg, gxl_arg[1:], arg_name, isVector, tmp_idx + 1) }}
-        {%- endif %}
-    {%- elif gxl_first.cn in ["GxlSubtreeOL", "GxlSubtreeUL"] %}
-        {%- if assert(not isVector, "recursive subtrees not supported. try rewriting in grgen.") %}{% endif %}
+{%- endif %}
+{%- endmacro %}
+
+{%- macro handle_vector() -%}
         Vector<{{ java_arg }}> {{ arg_name }}_vec = new Vector<{{ java_arg }}>();
         for (GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} : followEdge{{ gxl_first.cn[-2:] }}("{{ gxl_first.name.text }}", {{ latest_arg }})) {
 {% filter indent(4) %}
@@ -58,19 +60,36 @@ import sketch.compiler.ast.core.typs.*;
 
         }
         {{ java_arg.typename() }} {{ arg_name }} = unmodifiableList({{ arg_name }}_vec);
-    {%- elif gxl_first.cn == "GxlAttribute" %}
-        {{- assert(gxl_is_last, "attributes must be last") }}
-        {%- if isVector %}
-        {{ arg_name }}_vec.add({{ get_attribute() }}); // gen marker 6
-        {%- else %}
-        {{ java_arg.typename() }} {{ arg_name }} = {{ get_attribute() }}; // gen marker 7
-        {%- endif %}
-    {%- elif gxl_first.cn == "GxlImplicitSubtree" and gxl_first.name.text == "this" %}
-        {{ java_arg.typename() }} {{ arg_name }} = {{ get_singleton("get%s(node)" %(java_arg)) }}; // gen marker 8
-    {%- else %}
+{%- endmacro %}
+
+{%- macro handle_attribute() %}
+{{- assert(gxl_is_last, "attributes must be last") }}
+{%- if isVector -%}
+    {{ arg_name }}_vec.add({{ get_attribute() }}); // gen marker 6
+{%- else -%}
+    {{ java_arg.typename() }} {{ arg_name }} = {{ get_attribute() }}; // gen marker 7
+{%- endif %}
+{%- endmacro %}
+
+{%- macro handle_this() -%}
+    {{ java_arg.typename() }} {{ arg_name }} = {{ get_singleton("get%s(node)" %(java_arg)) }}; // gen marker 8
+{%- endmacro %}
+
+
+{%- if gxl_first.cn == "GxlSubtree" %}
+        {{ handle_subtree() }}
+{%- elif gxl_first.cn in ["GxlSubtreeOL", "GxlSubtreeUL"] -%}
+        {%- if assert(not isVector, "recursive subtrees not supported. try rewriting in grgen.") %}{% endif %}
+        {{ handle_vector() }}
+{%- elif gxl_first.cn == "GxlAttribute" %}
+        {{ handle_attribute() }}
+{%- elif gxl_first.cn == "GxlImplicitSubtree" and gxl_first.name.text == "this" %}
+        {{ handle_this() }}
+{%- else %}
         unknown arg type {{ gxl_first.cn }}
-    {%- endif %}
-{% endmacro -%}
+{% endif %}
+
+{%- endmacro -%}
 
 /**
  * Handle simple node types. THIS IS A GENERATED FILE, modify the .jinja2 version.
@@ -86,93 +105,60 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     }
 
 
-    // === Get a specific java type, branching on the current GXL node type ===
-{% for java_type, matches in node_match_cases.items() %}
-
-    public {{ java_type }} get{{ java_type }}(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-{% for node_match in matches %}
-        {{ "else " if not loop.first else "" }}if (typ.equals("{{ node_match.gxlname }}")) {
-            return get{{ java_type }}From{{ node_match.gxlname }}(node);
-        }{{ " " }}
-{%- endfor -%}
-
-        else {
-            throw new RuntimeException("no way to return a {{ java_type }} from a node of type " + typ);
-        }
-    }
-{% endfor %}
-
-
 
     // === Get a specific java type from a known GXL node type ===
-{% for java_type, matches in node_match_cases.items() %}
-{% for node_match in matches %}
+{% for node_match in node_match_cases %}
+{% set special_retval = node_match.return_rep() %}
+{% set java_type = "%s" %(node_match.javaname) %}
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
     public {{ java_type }} get{{ java_type }}From{{ node_match.gxlname }}(final GXLNode node) {
+{% if special_retval %}
+        return {{ special_retval }};
+{% else %}
 {% set gxl_args = node_match.gxl_args.argv %}
 {% for i, java_arg in enumerate(node_match.java_args) %}
-{% if java_arg.cn == "JavaImplicitArg" %}
-{% if java_arg.name == "ctx" %}
-        FEContext arg{{ i }} = create_fe_context(node);
-{% elif java_arg.name == "ctxnode" %}
-        FENode arg{{ i }} = new DummyFENode(create_fe_context(node));
-{% elif java_arg.name == "null" %}
-{% else %}
-        unknown implicit arg type {{ java_arg.name }}
-{% endif %}
-{% elif java_arg.cn == "JavaEscapedArg" %}
-{% else %}
-{{ assert(gxl_args, "no args left.") }}
-{{ followChain(java_arg, gxl_args[0].argv, "arg%d" %(i)) }}
-{% set gxl_args = gxl_args[1:] %}
-{%- endif %}
-{% endfor %}
+{% if hasattr(java_arg, "argdecl") and java_arg.argdecl("arg") %}
+        {{ java_arg.argdecl( "arg%d" %(i) ) }};
 
+{% elif not (hasattr(java_arg, "inlinedecl") and java_arg.inlinedecl()) %}
+{{ followChain(java_arg, gxl_args[0].argv, "arg%d" %(i)) }}
+
+{% set gxl_args = gxl_args[1:] %}
+{% endif %}
+{% endfor %}
         return {% if node_match.new_kw.new %}new {% else %}create{% endif -%}
             {{ node_match.javaname }}(
                 {%- for i, java_arg in enumerate(node_match.java_args) %}
-                    {%- if java_arg.name == "null" -%}
-                        null
-                    {%- elif java_arg.cn == "JavaEscapedArg" -%}
-                        {{ java_arg.name.text[1:-1] }}
+                    {%- if hasattr(java_arg, "inlinedecl") and java_arg.inlinedecl() -%}
+                        {{ java_arg.inlinedecl() }}
                     {%- else -%}
                         arg{{i}}
                     {%- endif -%}
                     {{ ", " if not loop.last else "" }}
                 {%- endfor -%}
             );
+{% endif %}
     }
-{% endfor %}
 {% endfor %}
 
 
 
     // === Get by Java superclass ===
-{% for superclass in ast_inheritance.keys() %}
+{% for typ, checks in ast_inheritance.items() %}
 
-{% set is_first = WrapperVariable(False) %}
-    public {{ superclass }} get{{ superclass }}(final GXLNode node) {
+    public {{ typ }} get{{ typ }}(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        {% for subclass in ast_inheritance[superclass] %}
-{% for node_match in node_match_cases[subclass] %}
-{% do is_first.setValue(True) -%}
+        {% for gxl_typ, java_fcn in checks -%}
         {{ "else " if not loop.first else "" -}}
-        if (typ.equals("{{ node_match.gxlname }}")) {
-            return get{{ node_match.javaname }}(node);
+        if (typ.equals("{{ gxl_typ }}")) {
+            return {{ java_fcn }}(node);
         }{{ " " }}
-{%- endfor %}
-{% endfor %}
-{% if is_first.value -%}
+{%- endfor -%}
         else {
-            throw new RuntimeException("no way to return a {{ superclass }} from a node of type " + typ);
+            throw new RuntimeException("no way to return a '{{ typ }}' from a node of type " + typ);
         }
-{% else -%}
-        throw new RuntimeException("no gxl nodes corresponding to \"{{ superclass }}\"; gxl type " + typ);
-{% endif %}
     }
 {% endfor %}
 }

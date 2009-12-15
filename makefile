@@ -61,7 +61,7 @@ plugin_angelic_sketch:
 ### grgen commands
 
 new-unified-module:
-	cd plugin/src/main/grgen; read -p "name? " name; cp unified-template.txt unified/$$name.unified.grg; kate -u unified/$$name.unified.grg
+	cd plugin/src/main/grgen; zsh "new_unified.zsh"
 
 grgen: gen killall
 	plugin/src/main/grgen/sugared_test.sh; make killall

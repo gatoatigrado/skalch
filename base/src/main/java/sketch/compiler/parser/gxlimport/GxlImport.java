@@ -4,13 +4,14 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Vector;
 
+import net.sourceforge.gxl.GXLAtomicValue;
 import net.sourceforge.gxl.GXLDocument;
 import net.sourceforge.gxl.GXLEdge;
 import net.sourceforge.gxl.GXLGXL;
 import net.sourceforge.gxl.GXLGraph;
 import net.sourceforge.gxl.GXLGraphElement;
 import net.sourceforge.gxl.GXLNode;
-import scala.Tuple2;
+import net.sourceforge.gxl.GXLValue;
 import sketch.compiler.ast.core.Program;
 import sketch.compiler.ast.core.StreamSpec;
 import sketch.compiler.ast.core.typs.TypeStruct;
@@ -28,8 +29,8 @@ import sketch.util.DefaultVectorHashMap;
 public class GxlImport {
     public DefaultVectorHashMap<String, GXLNode> nodes_by_type;
     public HashMap<String, GXLNode> nodes_by_id;
-    public DefaultVectorHashMap<Tuple2<GXLNode, String>, GXLEdge> edges_by_source;
-    public DefaultVectorHashMap<Tuple2<GXLNode, String>, GXLEdge> edges_by_target;
+    public DefaultVectorHashMap<NodeStringTuple, GXLEdge> edges_by_source;
+    public DefaultVectorHashMap<NodeStringTuple, GXLEdge> edges_by_target;
     public Vector<TypeStruct> structs;
     public Vector<StreamSpec> streams;
     public GxlHandleNodes handler;
@@ -41,10 +42,8 @@ public class GxlImport {
         this.streams = new Vector<StreamSpec>();
         this.nodes_by_type = new DefaultVectorHashMap<String, GXLNode>();
         this.nodes_by_id = new HashMap<String, GXLNode>();
-        this.edges_by_source =
-                new DefaultVectorHashMap<Tuple2<GXLNode, String>, GXLEdge>();
-        this.edges_by_target =
-                new DefaultVectorHashMap<Tuple2<GXLNode, String>, GXLEdge>();
+        this.edges_by_source = new DefaultVectorHashMap<NodeStringTuple, GXLEdge>();
+        this.edges_by_target = new DefaultVectorHashMap<NodeStringTuple, GXLEdge>();
         for (int a = 0; a < graph.getGraphElementCount(); a++) {
             GXLGraphElement elt = graph.getGraphElementAt(a);
             if (elt instanceof GXLNode) {
@@ -56,12 +55,14 @@ public class GxlImport {
                 final String etyp = GxlImport.edgeType(elt2);
                 final GXLNode source = (GXLNode) elt2.getSource();
                 final GXLNode target = (GXLNode) elt2.getTarget();
-                final Tuple2<GXLNode, String> srckey =
-                        new Tuple2<GXLNode, String>(source, etyp);
-                final Tuple2<GXLNode, String> tgtkey =
-                        new Tuple2<GXLNode, String>(target, etyp);
+                NodeStringTuple srckey = new NodeStringTuple(source, etyp);
+                NodeStringTuple tgtkey = new NodeStringTuple(target, etyp);
+                DebugOut.fmt("node src %s, target %s", source.getID(), target.getID());
+                DebugOut.fmt("edge type %s", etyp);
+                DebugOut.fmt("src hash %d, target hash %d", srckey.hashCode(),
+                        tgtkey.hashCode());
                 this.edges_by_source.get(srckey).add(elt2);
-                this.edges_by_source.get(tgtkey).add(elt2);
+                this.edges_by_target.get(tgtkey).add(elt2);
             }
         }
         DebugOut.print("done categorizing nodes...");
@@ -124,6 +125,35 @@ public class GxlImport {
         } else {
             System.out.println("creating program from file " + args[0]);
             new GxlImport(new File(args[0]));
+        }
+    }
+
+    public void debugPrintNode(final String msg, final GXLNode node) {
+        DebugOut.fmt("\n=== %s - printing info about node '%s' ===", msg, node.getID());
+        for (int a = 0; a < node.getAttrCount(); a++) {
+            DebugOut.fmt("    attr['%s'] = %s", node.getAttrAt(a).getName(),
+                    this.attrAsString(node.getAttrAt(a).getValue()));
+        }
+    }
+
+    public String attrAsString(final GXLValue value) {
+        if (value instanceof GXLAtomicValue) {
+            return ((GXLAtomicValue) value).getValue();
+        } else {
+            DebugOut.print("don't know what to do with value", value);
+            throw new RuntimeException();
+        }
+    }
+
+    public void debugPrintEdge(final String msg, final GXLEdge edge) {
+        DebugOut.fmt("\n=== %s - printing info about edge '%s' ===", msg, edge.getID());
+        DebugOut.fmt("source: '%s', type", edge.getSourceID(),
+                GxlImport.nodeType((GXLNode) edge.getSource()));
+        DebugOut.fmt("target: '%s', type", edge.getTargetID(),
+                GxlImport.nodeType((GXLNode) edge.getTarget()));
+        for (int a = 0; a < edge.getAttrCount(); a++) {
+            DebugOut.fmt("    attr['%s'] = %s", edge.getAttrAt(a).getName(),
+                    this.attrAsString(edge.getAttrAt(a).getValue()));
         }
     }
 }

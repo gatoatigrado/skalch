@@ -10,6 +10,7 @@ import sketch.compiler.ast.core.*;
 import sketch.compiler.ast.core.exprs.*;
 import sketch.compiler.ast.core.stmts.*;
 import sketch.compiler.ast.core.typs.*;
+import sketch.compiler.ast.scala.exprs.*;
 
 /**
  * Handle simple node types. THIS IS A GENERATED FILE, modify the .jinja2 version.
@@ -25,134 +26,23 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     }
 
 
-    // === Get a specific java type, branching on the current GXL node type ===
-
-    public Function getFunction(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("FcnDef")) {
-            return getFunctionFromFcnDef(node);
-        } else {
-            throw new RuntimeException("no way to return a Function from a node of type " + typ);
-        }
-    }
-
-    public StmtAssert getStmtAssert(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("SKAssertCall")) {
-            return getStmtAssertFromSKAssertCall(node);
-        } else {
-            throw new RuntimeException("no way to return a StmtAssert from a node of type " + typ);
-        }
-    }
-
-    public TypeStruct getTypeStruct(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("ClassDef")) {
-            return getTypeStructFromClassDef(node);
-        } else {
-            throw new RuntimeException("no way to return a TypeStruct from a node of type " + typ);
-        }
-    }
-
-    public StreamSpec getStreamSpec(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("PackageDef")) {
-            return getStreamSpecFromPackageDef(node);
-        } else {
-            throw new RuntimeException("no way to return a StreamSpec from a node of type " + typ);
-        }
-    }
-
-    public StmtVarDecl getStmtVarDecl(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("ValDef")) {
-            return getStmtVarDeclFromValDef(node);
-        } else {
-            throw new RuntimeException("no way to return a StmtVarDecl from a node of type " + typ);
-        }
-    }
-
-    public Program getProgram(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("PackageDef")) {
-            return getProgramFromPackageDef(node);
-        } else {
-            throw new RuntimeException("no way to return a Program from a node of type " + typ);
-        }
-    }
-
-    public Parameter getParameter(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-
-        if (typ.equals("ValDef")) {
-            return getParameterFromValDef(node);
-        } else {
-            throw new RuntimeException("no way to return a Parameter from a node of type " + typ);
-        }
-    }
-
-
 
     // === Get a specific java type from a known GXL node type ===
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
-    public Function getFunctionFromFcnDef(final GXLNode node) {
-        FEContext arg0 = create_fe_context(node);
+    public Program getProgramFromPackageDef(final GXLNode node) {
+        FENode arg0 = new DummyFENode(create_fe_context(node));
 
-        GXLNode arg2_tmp1 = followEdge("FcnDefSymbol", node); // gen marker 3
-        String arg2 = getStringAttribute("symbolName", arg2_tmp1); // gen marker 7
+        List<StreamSpec> arg1 = createSingleton(getStreamSpec(node)); // gen marker 8
 
-        Type arg3 = getType(followEdge("FcnDefReturnTypeSymbol", node)); // gen marker 2
-
-        Vector<Parameter> arg4_vec = new Vector<Parameter>();
-        for (GXLNode arg4_tmp1 : followEdgeOL("FcnDefParamsList", node)) {
-            arg4_vec.add(getParameter(arg4_tmp1)); // gen marker 4
+        Vector<TypeStruct> arg2_vec = new Vector<TypeStruct>();
+        for (GXLNode arg2_tmp1 : followEdgeUL("PackageDefElement", node)) {
+            arg2_vec.add(getTypeStruct(arg2_tmp1)); // gen marker 4
         }
-        List<Parameter> arg4 = unmodifiableList(arg4_vec);
+        List<TypeStruct> arg2 = unmodifiableList(arg2_vec);
 
-        Statement arg5 = getStatement(followEdge("FcnBody", node)); // gen marker 2
-
-        return new Function(arg0, Function.FUNC_WORK, arg2, arg3, arg4, arg5);
-    }
-
-    // NOTE -- some constructors are marked deprecated to avoid later use.
-    @SuppressWarnings("deprecation")
-    public StmtAssert getStmtAssertFromSKAssertCall(final GXLNode node) {
-        FEContext arg0 = create_fe_context(node);
-
-        Expression arg1 = getExpression(followEdge("FcnArgList", node)); // gen marker 2
-
-        return new StmtAssert(arg0, arg1, false);
-    }
-
-    // NOTE -- some constructors are marked deprecated to avoid later use.
-    @SuppressWarnings("deprecation")
-    public TypeStruct getTypeStructFromClassDef(final GXLNode node) {
-        FEContext arg0 = create_fe_context(node);
-
-        String arg1 = getString(followEdge("ClassDefSymbol", node)); // gen marker 2
-
-        Vector<String> arg2_vec = new Vector<String>();
-        for (GXLNode arg2_tmp1 : followEdgeOL("ClassDefFieldsList", node)) {
-            arg2_vec.add(getStringAttribute("symbolName", arg2_tmp1)); // gen marker 6
-        }
-        List<String> arg2 = unmodifiableList(arg2_vec);
-
-        Vector<Type> arg3_vec = new Vector<Type>();
-        for (GXLNode arg3_tmp1 : followEdgeOL("ClassDefFieldsList", node)) {
-            GXLNode arg3_tmp2 = followEdge("TypeSymbol", arg3_tmp1); // gen marker 3
-            arg3_vec.add(getType(followEdge("SketchType", arg3_tmp2))); // gen marker 1
-        }
-        List<Type> arg3 = unmodifiableList(arg3_vec);
-
-        return new TypeStruct(arg0, arg1, arg2, arg3);
+        return new Program(arg0, arg1, arg2);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -178,6 +68,53 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public TypeStruct getTypeStructFromClassDef(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        GXLNode arg1_tmp1 = followEdge("ClassDefSymbol", node); // gen marker 3
+        GXLNode arg1_tmp2 = followEdge("PrintSymName", arg1_tmp1); // gen marker 3
+        String arg1 = getStringAttribute("name", arg1_tmp2); // gen marker 7
+
+        Vector<String> arg2_vec = new Vector<String>();
+        for (GXLNode arg2_tmp1 : followEdgeOL("ClassDefFieldsList", node)) {
+            GXLNode arg2_tmp2 = followEdge("PrintSymName", arg2_tmp1); // gen marker 3
+            arg2_vec.add(getStringAttribute("name", arg2_tmp2)); // gen marker 6
+        }
+        List<String> arg2 = unmodifiableList(arg2_vec);
+
+        Vector<Type> arg3_vec = new Vector<Type>();
+        for (GXLNode arg3_tmp1 : followEdgeOL("ClassDefFieldsList", node)) {
+            GXLNode arg3_tmp2 = followEdge("TypeSymbol", arg3_tmp1); // gen marker 3
+            arg3_vec.add(getType(followEdge("SketchType", arg3_tmp2))); // gen marker 1
+        }
+        List<Type> arg3 = unmodifiableList(arg3_vec);
+
+        return new TypeStruct(arg0, arg1, arg2, arg3);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public Function getFunctionFromFcnDef(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        GXLNode arg2_tmp1 = followEdge("FcnDefSymbol", node); // gen marker 3
+        String arg2 = getStringAttribute("symbolName", arg2_tmp1); // gen marker 7
+
+        Type arg3 = getType(followEdge("FcnDefReturnTypeSymbol", node)); // gen marker 2
+
+        Vector<Parameter> arg4_vec = new Vector<Parameter>();
+        for (GXLNode arg4_tmp1 : followEdgeOL("FcnDefParamsList", node)) {
+            arg4_vec.add(getParameter(arg4_tmp1)); // gen marker 4
+        }
+        List<Parameter> arg4 = unmodifiableList(arg4_vec);
+
+        Statement arg5 = getStatement(followEdge("FcnBody", node)); // gen marker 2
+
+        return new Function(arg0, Function.FUNC_WORK, arg2, arg3, arg4, arg5);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public StmtVarDecl getStmtVarDeclFromValDef(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
@@ -192,24 +129,7 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
-    public Program getProgramFromPackageDef(final GXLNode node) {
-        FENode arg0 = new DummyFENode(create_fe_context(node));
-
-        List<StreamSpec> arg1 = createSingleton(getStreamSpec(node)); // gen marker 8
-
-        Vector<TypeStruct> arg2_vec = new Vector<TypeStruct>();
-        for (GXLNode arg2_tmp1 : followEdgeUL("PackageDefElement", node)) {
-            arg2_vec.add(getTypeStruct(arg2_tmp1)); // gen marker 4
-        }
-        List<TypeStruct> arg2 = unmodifiableList(arg2_vec);
-
-        return new Program(arg0, arg1, arg2);
-    }
-
-    // NOTE -- some constructors are marked deprecated to avoid later use.
-    @SuppressWarnings("deprecation")
     public Parameter getParameterFromValDef(final GXLNode node) {
-
         GXLNode arg0_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
         Type arg0 = getType(followEdge("TypeSymbol", arg0_tmp1)); // gen marker 2
 
@@ -219,32 +139,312 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         return new Parameter(arg0, arg1);
     }
 
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public StmtAssert getStmtAssertFromSKAssertCall(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Expression arg1 = getExpression(followEdge("SKAssertCallArg", node)); // gen marker 2
+
+        return new StmtAssert(arg0, arg1, false);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public StmtBlock getStmtBlockFromSKBlock(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Vector<Statement> arg1_vec = new Vector<Statement>();
+        for (GXLNode arg1_tmp1 : followEdgeOL("BlockStmtList", node)) {
+            arg1_vec.add(getStatement(arg1_tmp1)); // gen marker 4
+        }
+        List<Statement> arg1 = unmodifiableList(arg1_vec);
+
+        return new StmtBlock(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public StmtReturn getStmtReturnFromReturn(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Expression arg1 = getExpression(followEdge("ReturnExpr", node)); // gen marker 2
+
+        return new StmtReturn(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprBinary getExprBinaryFromFcnBinaryCall(final GXLNode node) {
+        FENode arg0 = new DummyFENode(create_fe_context(node));
+
+        Expression arg1 = getExpression(followEdge("FcnBinaryCallLhs", node)); // gen marker 2
+
+        String arg2 = getStringAttribute("strop", node); // gen marker 7
+
+        Expression arg3 = getExpression(followEdge("FcnBinaryCallRhs", node)); // gen marker 2
+
+        return new ExprBinary(arg0, arg1, arg2, arg3);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprStar getExprStarFromHoleCall(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        return new ExprStar(arg0);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprConstInt getExprConstIntFromIntConstant(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        int arg1 = getIntAttribute("value", node); // gen marker 7
+
+        return new ExprConstInt(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprConstUnit getExprConstUnitFromUnitConstant(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        return new ExprConstUnit(arg0);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public TypePrimitive getTypePrimitiveFromTypeBoolean(final GXLNode node) {
+        return TypePrimitive.bittype;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public TypePrimitive getTypePrimitiveFromTypeInt(final GXLNode node) {
+        return TypePrimitive.inttype;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public TypePrimitive getTypePrimitiveFromTypeUnit(final GXLNode node) {
+        return TypePrimitive.voidtype;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public Type getTypeFromSymbol(final GXLNode node) {
+        return getType(followEdge("SketchType", node));
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public TypeStructRef getTypeStructRefFromTypeStructRef(final GXLNode node) {
+        String arg0 = getStringAttribute("typename", node); // gen marker 7
+
+        return new TypeStructRef(arg0);
+    }
+
 
 
     // === Get by Java superclass ===
 
-    public Type getType(final GXLNode node) {
+    public Function getFunction(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("FcnDef")) {
+            return getFunctionFromFcnDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Function' from a node of type " + typ);
+        }
+    }
+
+    public StmtBlock getStmtBlock(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SKBlock")) {
+            return getStmtBlockFromSKBlock(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtBlock' from a node of type " + typ);
+        }
+    }
+
+    public StmtReturn getStmtReturn(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("Return")) {
+            return getStmtReturnFromReturn(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtReturn' from a node of type " + typ);
+        }
+    }
+
+    public TypeStruct getTypeStruct(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("ClassDef")) {
-            return getTypeStruct(node);
+            return getTypeStructFromClassDef(node);
         } else {
-            throw new RuntimeException("no way to return a Type from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'TypeStruct' from a node of type " + typ);
+        }
+    }
+
+    public StmtAssert getStmtAssert(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SKAssertCall")) {
+            return getStmtAssertFromSKAssertCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtAssert' from a node of type " + typ);
+        }
+    }
+
+    public ExprConstUnit getExprConstUnit(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("UnitConstant")) {
+            return getExprConstUnitFromUnitConstant(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprConstUnit' from a node of type " + typ);
+        }
+    }
+
+    public Parameter getParameter(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("ValDef")) {
+            return getParameterFromValDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Parameter' from a node of type " + typ);
+        }
+    }
+
+    public Statement getStatement(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("Return")) {
+            return getStmtReturnFromReturn(node);
+        } else if (typ.equals("SKBlock")) {
+            return getStmtBlockFromSKBlock(node);
+        } else if (typ.equals("SKAssertCall")) {
+            return getStmtAssertFromSKAssertCall(node);
+        } else if (typ.equals("ValDef")) {
+            return getStmtVarDeclFromValDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Statement' from a node of type " + typ);
         }
     }
 
     public Expression getExpression(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        throw new RuntimeException("no gxl nodes corresponding to \"Expression\"; gxl type " + typ);
+        if (typ.equals("UnitConstant")) {
+            return getExprConstUnitFromUnitConstant(node);
+        } else if (typ.equals("IntConstant")) {
+            return getExprConstIntFromIntConstant(node);
+        } else if (typ.equals("HoleCall")) {
+            return getExprStarFromHoleCall(node);
+        } else if (typ.equals("FcnBinaryCall")) {
+            return getExprBinaryFromFcnBinaryCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Expression' from a node of type " + typ);
+        }
     }
 
-    public Statement getStatement(final GXLNode node) {
+    public TypeStructRef getTypeStructRef(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("SKAssertCall")) {
-            return getStmtAssert(node);
-        } if (typ.equals("ValDef")) {
-            return getStmtVarDecl(node);
+        if (typ.equals("TypeStructRef")) {
+            return getTypeStructRefFromTypeStructRef(node);
         } else {
-            throw new RuntimeException("no way to return a Statement from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'TypeStructRef' from a node of type " + typ);
+        }
+    }
+
+    public ExprStar getExprStar(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("HoleCall")) {
+            return getExprStarFromHoleCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprStar' from a node of type " + typ);
+        }
+    }
+
+    public StreamSpec getStreamSpec(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("PackageDef")) {
+            return getStreamSpecFromPackageDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StreamSpec' from a node of type " + typ);
+        }
+    }
+
+    public ExprBinary getExprBinary(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("FcnBinaryCall")) {
+            return getExprBinaryFromFcnBinaryCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprBinary' from a node of type " + typ);
+        }
+    }
+
+    public StmtVarDecl getStmtVarDecl(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("ValDef")) {
+            return getStmtVarDeclFromValDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtVarDecl' from a node of type " + typ);
+        }
+    }
+
+    public Program getProgram(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("PackageDef")) {
+            return getProgramFromPackageDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Program' from a node of type " + typ);
+        }
+    }
+
+    public Type getType(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("TypeStructRef")) {
+            return getTypeStructRefFromTypeStructRef(node);
+        } else if (typ.equals("TypeUnit")) {
+            return getTypePrimitiveFromTypeUnit(node);
+        } else if (typ.equals("TypeInt")) {
+            return getTypePrimitiveFromTypeInt(node);
+        } else if (typ.equals("TypeBoolean")) {
+            return getTypePrimitiveFromTypeBoolean(node);
+        } else if (typ.equals("ClassDef")) {
+            return getTypeStructFromClassDef(node);
+        } else if (typ.equals("Symbol")) {
+            return getTypeFromSymbol(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Type' from a node of type " + typ);
+        }
+    }
+
+    public ExprConstant getExprConstant(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("UnitConstant")) {
+            return getExprConstUnitFromUnitConstant(node);
+        } else if (typ.equals("IntConstant")) {
+            return getExprConstIntFromIntConstant(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprConstant' from a node of type " + typ);
+        }
+    }
+
+    public TypePrimitive getTypePrimitive(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("TypeUnit")) {
+            return getTypePrimitiveFromTypeUnit(node);
+        } else if (typ.equals("TypeInt")) {
+            return getTypePrimitiveFromTypeInt(node);
+        } else if (typ.equals("TypeBoolean")) {
+            return getTypePrimitiveFromTypeBoolean(node);
+        } else {
+            throw new RuntimeException("no way to return a 'TypePrimitive' from a node of type " + typ);
+        }
+    }
+
+    public ExprConstInt getExprConstInt(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("IntConstant")) {
+            return getExprConstIntFromIntConstant(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprConstInt' from a node of type " + typ);
         }
     }
 }

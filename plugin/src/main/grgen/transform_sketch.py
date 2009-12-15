@@ -48,7 +48,8 @@ def main(grs_template=None, output_file=None, gxl_file=None,
         debug=False, runonly=False, ycomp=False):
 
     assert grs_template
-    grs_template = Path(grs_template)
+    grs_template = Path(re.sub("^\!", modpath, grs_template))
+    print(grs_template)
     if not gxl_file:
         gxl_file = Path("~/.sketch/tmp/input.gxl")
         gxl_file.write(sys.stdin.read())

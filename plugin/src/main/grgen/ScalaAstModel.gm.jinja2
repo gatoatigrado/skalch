@@ -83,6 +83,9 @@ node class TmpSymbol extends Symbol;
 {% include "nodes/gen/cstyle_stmts.gm" %}
 {% include "nodes/gen/cleanup_accessors.gm" %}
 {% include "nodes/gen/sketch_final_minor_cleanup.gm" %}
+{% include "nodes/gen/sketch_nospec.gm" %}
+{% include "nodes/gen/copy_to.gm" %}
+// add unified here
 
 
 
@@ -189,24 +192,24 @@ node class FcnCallArrayGet extends FcnCall;
 node class FcnCallArrayLength extends FcnCall;
 node class FcnCallArraySet extends FcnCall;
 
-node class FcnBinaryCall extends FcnCall { binop : int; }
-{% macro sk_binop(name, n) %}
-node class FcnCallBinary{{ name }} extends FcnBinaryCall { binop = {{ 2 ** n }}; }
+node class FcnBinaryCall extends FcnCall { strop : string; }
+{% macro sk_binop(name, strop) %}
+node class FcnCallBinary{{ name }} extends FcnBinaryCall { strop = "{{ strop }}"; }
 {%- endmacro %}
-{{ sk_binop("Add", 1) }}
-{{ sk_binop("Divide", 4) }}
-{{ sk_binop("GreaterThan", 15) }}
-{{ sk_binop("GreaterThanOrEqual", 16) }}
-{{ sk_binop("LessThan", 13) }}
-{{ sk_binop("LessThanOrEqual", 14) }}
-{{ sk_binop("LogicAnd", 6) }}
-{{ sk_binop("LogicOr", 7) }}
-{{ sk_binop("NotSameObj", 12) }}
-{{ sk_binop("PrimitiveEquals", 11) }}
-{{ sk_binop("PrimitiveNotEquals", 12) }}
-{{ sk_binop("SameObj", 11) }}
-{{ sk_binop("StringConcat", 0) }}
-{{ sk_binop("Subtract", 2) }}
+{{ sk_binop("Add", "+") }}
+{{ sk_binop("Divide", "/") }}
+{{ sk_binop("GreaterThan", ">") }}
+{{ sk_binop("GreaterThanOrEqual", ">=") }}
+{{ sk_binop("LessThan", "<") }}
+{{ sk_binop("LessThanOrEqual", "<=") }}
+{{ sk_binop("LogicAnd", "&") }}
+{{ sk_binop("LogicOr", "|") }}
+{{ sk_binop("NotSameObj", "!=") }}
+{{ sk_binop("PrimitiveEquals", "==") }}
+{{ sk_binop("PrimitiveNotEquals", "!=") }}
+{{ sk_binop("SameObj", "==") }}
+{{ sk_binop("StringConcat", "cat") }}
+{{ sk_binop("Subtract", "-") }}
 
 node class FcnCallTypeApply extends FcnCall;
 node class FcnCallUnaryIntCast extends FcnCall;

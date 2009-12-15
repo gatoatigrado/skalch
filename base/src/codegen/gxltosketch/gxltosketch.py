@@ -17,13 +17,13 @@ except:
     raise ImportError("please install gatoatigrado's utility library from "
             "bitbucket.org/gatoatigrado/gatoatigrado_lib")
 
-from parse_tag import parse_gxl_conversion, GxlSubtree, GxlSubtreeOL,\
+from parse_tag import parse_gxl_conversion, GxlSubtree, GxlSubtreeOL, \
     GxlSubtreeUL
 import get_typegraph
 
 # N.B. -- the goal is to write maybe 90% of the conversion code in this.
 # Special cases should be handled by manual Java code.
-GXL_TO_SKETCH = r"""
+STRUCTURE = r"""
 PackageDef(<this>, UL[PackageDefElement])
     -> new Program(<ctxnode>, SingletonList[StreamSpec], List[TypeStruct])
 
@@ -31,71 +31,111 @@ PackageDef(UL[PackageDefGlobal], UL[PackageDefFcn])
     -> new StreamSpec(<ctx>, "StreamSpec.STREAM_FILTER", "new StreamType((FEContext)null,
             TypePrimitive.bittype, TypePrimitive.bittype)", "\"MAIN\"", "Collections.EMPTY_LIST", List[StmtVarDecl], List[Function])
 
-ClassDef(ClassDefSymbol, OL[ClassDefFieldsList].symbolName, 
+ClassDef(ClassDefSymbol:PrintSymName.name, OL[ClassDefFieldsList]:PrintSymName.name, 
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
     -> new TypeStruct(<ctx>, String, List[String], List[Type])
 
+FcnDef(FcnDefSymbol.symbolName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
+    -> new Function(<ctx>, "Function.FUNC_WORK", String, Type, List[Parameter], Statement)
+"""
+
+
+
+STMTS = r"""
 ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
     -> new StmtVarDecl(<ctx>, Type, String, <null>)
 
 ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
     -> new Parameter(Type, String)
 
-SKAssertCall(FcnArgList)
+SKAssertCall(SKAssertCallArg)
     -> new StmtAssert(<ctx>, Expression, "false")
-
-FcnDef(FcnDefSymbol.symbolName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
-    -> new Function(<ctx>, "Function.FUNC_WORK", String, Type, List[Parameter], Statement)
+    
+SKBlock(OL[BlockStmtList])
+    -> new StmtBlock(<ctx>, List[Statement])
+    
+Return(ReturnExpr)
+    -> new StmtReturn(<ctx>, Expression)
 """
+
+
+
+EXPRS = r"""
+FcnBinaryCall(FcnBinaryCallLhs, .strop, FcnBinaryCallRhs)
+    -> new ExprBinary(<ctxnode>, Expression, String, Expression)
+    
+HoleCall() -> new ExprStar(<ctx>)
+
+IntConstant(.value) -> new ExprConstInt(<ctx>, int)
+
+UnitConstant() -> new ExprConstUnit(<ctx>)
+"""
+
+
+
+TYPES = r"""
+TypeBoolean() -> TypePrimitive "TypePrimitive.bittype"
+TypeInt() -> TypePrimitive "TypePrimitive.inttype"
+TypeUnit() -> TypePrimitive "TypePrimitive.voidtype"
+
+Symbol() -> Type "getType(followEdge(\"SketchType\", node))"
+
+TypeStructRef(.typename) -> new TypeStructRef(String)
+"""
+
+GXL_TO_SKETCH = STRUCTURE + STMTS + EXPRS + TYPES
 
 # FENode context, int cls, String name, Type returnType, List<Parameter> params, Statement body
 
 def get_node_match_cases():
-    rules = list(parse_gxl_conversion(GXL_TO_SKETCH).argv).equiv_classes(
-        lambda a: str(a.javaname))
+    rules = parse_gxl_conversion(GXL_TO_SKETCH).argv
 
     node_types, edge_types = get_typegraph.main(show_typegraph=False)
     node_types = get_typegraph.elt_classes_by_id(node_types)
     edge_types = get_typegraph.elt_classes_by_id(edge_types)
 
-    for rule in [v for arr in rules.values() for v in arr]:
+    for rule in rules:
         if not unicode(rule.gxlname) in node_types:
-            warn("unknown gxl node '%s' (maybe try updating the type graph?)" %(rule.gxlname))
+            warn("unknown gxl node '%s' (maybe try updating the type graph?)" % (rule.gxlname))
         for subfield in [v for arg in rule.gxl_args for v in arg]:
             if isinstance(subfield, (GxlSubtree, GxlSubtreeOL, GxlSubtreeUL)):
                 if not unicode(subfield.name.text) in edge_types:
-                    warn("unknown edge type '%s'" %(subfield.name.text))
+                    warn("unknown edge type '%s'" % (subfield.name.text))
 
-    def sort_types(arr):
-        rules_for_javaname = dict((str(v.gxlname), v) for v in arr)
-        node_match_cases = []
-        def genMatchCases(node_type):
-            [genMatchCases(v) for v in node_type.extending_classes]
-            if node_type.name in rules_for_javaname:
-                node_match_cases.append(rules_for_javaname[node_type.name])
-        genMatchCases(node_types["Node"])
-        return node_match_cases
-
-    return dict(rules).map_values(sort_types)
+    return rules
 
 @memoize_file(".gen/sketch_fe_ast_node_types")
 def get_java_ast_node_types(fe_directory):
     return ""
 
-def ast_inheritance():
+def ast_inheritance(rules):
+    # the immediate inheritance are objects directly below a given object
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprField",
-        "Statement": "StmtVarDecl StmtAssert",
-        "Type": "TypeStruct TypePrimitive" }
-
+        "Expression": "ExprBinary ExprStar ExprConstant",
+        "ExprConstant": "ExprConstInt ExprConstUnit",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn",
+        "Type": "TypeStruct TypePrimitive TypeStructRef" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
+    for rule in rules:
+        name = str(rule.javaname)
+        if not name in immediate:
+            immediate[name] = ""
+    assert all(type(v) == str for v in immediate.keys())
 
-    def get_lowest_arr(v):
-        if v in immediate:
-            return list(set(final_type for sub_type in immediate[v] for final_type in get_lowest_arr(sub_type)))
-        else:
-            return [v]
+    exact_typ_rules = dict((k, [rule for rule in rules if str(rule.javaname) == k]) for k in immediate.keys())
+    assert all(all(v in immediate for v in arr) for arr in immediate.values()), \
+        "some types in the RHS of immediate { } aren't defined."
 
-    return dict((k, get_lowest_arr(k)) for k in immediate.keys())
+    def buildchain(result_typ):
+        # build up in reverse -- last items will be most specific, first will be most generic
+        checks = exact_typ_rules[result_typ] # start out with most generic
+        expand_queue = immediate[result_typ]
+        while expand_queue:
+            checks += [v for to_expand in expand_queue for v in exact_typ_rules[to_expand]]
+            expand_queue = [v for to_expand in expand_queue for v in immediate[to_expand]]
+        checks = [ (str(v.gxlname), "get%sFrom%s" % (v.javaname, v.gxlname)) for v in checks ]
+        return checks[::-1]
+
+    return dict((k, buildchain(k)) for k in immediate.keys())

@@ -12,6 +12,10 @@ import net.sourceforge.gxl.GXLNode;
 import net.sourceforge.gxl.GXLString;
 import scala.Tuple2;
 import sketch.compiler.ast.core.FEContext;
+import sketch.compiler.ast.core.Function;
+import sketch.compiler.ast.core.Parameter;
+import sketch.compiler.ast.core.stmts.Statement;
+import sketch.compiler.ast.core.typs.Type;
 import sketch.util.DebugOut;
 
 /**
@@ -39,6 +43,11 @@ public class GxlHandleNodesBase {
         this.visited_simple.add(node);
         DebugOut.assertSlow(this.visited_nodes.contains(new Tuple2<GXLNode, String>(node,
                 java_name)));
+    }
+
+    public boolean hasEdge(final String name, final GXLNode node) {
+        NodeStringTuple srckey = new NodeStringTuple(node, name);
+        return !(this.imprt.edges_by_source.get(srckey).isEmpty());
     }
 
     public GXLNode followEdge(final String name, final GXLNode node) {
@@ -112,5 +121,21 @@ public class GxlHandleNodesBase {
         int line = this.getIntAttribute("startLine", node);
         int col = this.getIntAttribute("startCol", node);
         return new FEContext(srcfile, line, col);
+    }
+
+    public String getImplements(final GXLNode node) {
+        if (this.hasEdge("SKImplements", node)) {
+            GXLNode fcndef = this.followEdge("SKImplements", node);
+            GXLNode sym = this.followEdge("FcnDefSymbol", fcndef);
+            return this.getStringAttribute("name", this.followEdge("PrintSymName", sym));
+        }
+        return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    public Function createFunction(final FEContext arg0, final String arg1,
+            final Type arg2, final List<Parameter> arg3, final String arg4,
+            final Statement arg5) {
+        return Function.newStatic(arg0, arg1, arg2, arg3, arg4, arg5);
     }
 }

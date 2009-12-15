@@ -36,7 +36,7 @@ ClassDef(ClassDefSymbol:PrintSymName.name, OL[ClassDefFieldsList]:PrintSymName.n
     -> new TypeStruct(<ctx>, String, List[String], List[Type])
 
 FcnDef(FcnDefSymbol.symbolName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
-    -> new Function(<ctx>, "Function.FUNC_WORK", String, Type, List[Parameter], Statement)
+    -> Function(<ctx>, String, Type, List[Parameter], "getImplements(node)", Statement)
 """
 
 

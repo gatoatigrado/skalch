@@ -78,8 +78,8 @@ rule setCopySymbolNames {
     x:Symbol -:CopyTo-> y:Symbol;
     modify {
         eval {
-            y.symbolName = "copy-" + x.symbolName;
-            y.fullSymbolName = "copy-" + x.fullSymbolName;
+            y.symbolName = "copy_" + x.symbolName;
+            y.fullSymbolName = "copy_" + x.fullSymbolName;
         }
     }
 }

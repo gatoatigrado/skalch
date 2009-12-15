@@ -57,10 +57,6 @@ public class GxlImport {
                 final GXLNode target = (GXLNode) elt2.getTarget();
                 NodeStringTuple srckey = new NodeStringTuple(source, etyp);
                 NodeStringTuple tgtkey = new NodeStringTuple(target, etyp);
-                DebugOut.fmt("node src %s, target %s", source.getID(), target.getID());
-                DebugOut.fmt("edge type %s", etyp);
-                DebugOut.fmt("src hash %d, target hash %d", srckey.hashCode(),
-                        tgtkey.hashCode());
                 this.edges_by_source.get(srckey).add(elt2);
                 this.edges_by_target.get(tgtkey).add(elt2);
             }
@@ -71,7 +67,9 @@ public class GxlImport {
         }
         for (GXLNode pkg : this.nodes_by_type.get("PackageDef")) {
             Program prog = this.handler.getProgram(pkg);
-            System.out.println("got program " + prog);
+            // (new SimpleCodePrinter()).visitProgram(prog);
+            String[] args = { "--keeptmpfiles", "__from_gxl__" };
+            (new SequentialSketchGxlMain(args, prog)).run();
         }
     }
 

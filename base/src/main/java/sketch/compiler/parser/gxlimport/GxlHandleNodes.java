@@ -97,20 +97,20 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public Function getFunctionFromFcnDef(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        GXLNode arg2_tmp1 = followEdge("FcnDefSymbol", node); // gen marker 3
-        String arg2 = getStringAttribute("symbolName", arg2_tmp1); // gen marker 7
+        GXLNode arg1_tmp1 = followEdge("FcnDefSymbol", node); // gen marker 3
+        String arg1 = getStringAttribute("symbolName", arg1_tmp1); // gen marker 7
 
-        Type arg3 = getType(followEdge("FcnDefReturnTypeSymbol", node)); // gen marker 2
+        Type arg2 = getType(followEdge("FcnDefReturnTypeSymbol", node)); // gen marker 2
 
-        Vector<Parameter> arg4_vec = new Vector<Parameter>();
-        for (GXLNode arg4_tmp1 : followEdgeOL("FcnDefParamsList", node)) {
-            arg4_vec.add(getParameter(arg4_tmp1)); // gen marker 4
+        Vector<Parameter> arg3_vec = new Vector<Parameter>();
+        for (GXLNode arg3_tmp1 : followEdgeOL("FcnDefParamsList", node)) {
+            arg3_vec.add(getParameter(arg3_tmp1)); // gen marker 4
         }
-        List<Parameter> arg4 = unmodifiableList(arg4_vec);
+        List<Parameter> arg3 = unmodifiableList(arg3_vec);
 
         Statement arg5 = getStatement(followEdge("FcnBody", node)); // gen marker 2
 
-        return new Function(arg0, Function.FUNC_WORK, arg2, arg3, arg4, arg5);
+        return createFunction(arg0, arg1, arg2, arg3, getImplements(node), arg5);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.

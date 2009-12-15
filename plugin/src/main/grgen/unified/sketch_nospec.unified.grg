@@ -38,10 +38,12 @@ rule generateNospec {
         nospec -:FcnDefSymbol-> nospec_sym:Symbol;
         nospec_sym -:ClsMethod-> nospec_sym;
         nospec_sym -:SymbolOwner-> owner;
-        nospec -:FcnBody-> ret:Return;
-        ret -:ReturnExpr-> :UnitConstant;
-        ret -:ReturnTypeSymbol-> unitsym;
-        ret -:ReturnSymbol-> nospec_sym;
+        nospec -:FcnBody-> empty_block:SKBlock;
+        empty_block -:BlockStmtList-> stmt_lst:List
+            -:ListFirst-> :ListFirstNode
+            -:ListNext-> last:ListLastNode;
+        stmt_lst -:ListLast-> last;
+        empty_block -:BlockTypeSymbol-> unitsym;
         eval {
             nospec_sym.symbolName = "generated_nospec";
             nospec_sym.fullSymbolName = owner.fullSymbolName + ".generated_nospec";

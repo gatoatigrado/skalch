@@ -19,7 +19,7 @@ xgrs generateNospec*
 xgrs doCopy
 xgrs [setCopySymbolNames]
 xgrs cleanupCopyTo*
-
+xgrs checkNoMainFcns
 {% endblock %}
 
 
@@ -51,14 +51,8 @@ rule generateNospec {
     }
 }
 
-rule checkNoFcns {
+rule checkNoMainFcns {
     x:SketchMainFcnDef;
     modify { exec(assertFalse("didn't erase all main functions")); }
 }
-// view other files if you want example rules that do something.
-// rule myRule {
-//      x:MyNode -e:MyEdge-> z:MyNode2;
-//      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
-//      modify { x -:MyEdge-> w:MyNode; delete(e); }
-// }
 {% endblock %}

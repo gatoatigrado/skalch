@@ -67,7 +67,7 @@ Update dependency versions
     </distributionManagement>
 
     <properties>
-        <sketchfrontend.version>1.5.0-SNAPSHOT</sketchfrontend.version>
+        <sketchfrontend.version>1.4.0</sketchfrontend.version>
         <scala.version>2.8.0-SNAPSHOT</scala.version>
         <maven.scala.version>2.13</maven.scala.version>
     </properties>

@@ -1,5 +1,3 @@
-bin/*
-dist/*
 */target/*
 gen/
 *.vcg
@@ -8,13 +6,6 @@ gen/
 *.pyc
 *.hints.xml
 *.ast.gxl
-# compile and symlink it yourself...
-lib/scala-library.jar
-lib/sketchrewriter.jar
-.scala_dependencies
-buildutil/*.build-args
-buildutil/sketchrewriter.jar
-buildutil/build_info.pickle
 *.dll
-plugin/src/main/grgen/AllRules.grg
 .gen
+plugin/src/main/resources/skalch/plugins/type_graph.gxl

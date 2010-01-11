@@ -19,10 +19,10 @@ abstract class AngelicSketch {
     var stopOptimization : Boolean = false
 
     implicit def _resolve[T <: AnyRef](x : ??.type) : T =
-        { assert(false); if (stopOptimization) null else "".asInstanceOf[T] }
+        { assert(stopOptimization); "".asInstanceOf[T] }
 
     implicit def _resolve[T <: AnyRef](x : !!.type) : T =
-        { assert(false); if (stopOptimization) null else "".asInstanceOf[T] }
+        { assert(stopOptimization); "".asInstanceOf[T] }
 
     def synthAssert(v : Boolean) { scala.Predef.assert(false); }
     def skdprint(x : => String) { assert(false); }

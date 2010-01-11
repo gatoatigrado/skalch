@@ -1,3 +1,5 @@
+{% import "macros.grg" as macros with context %}
+
 {% block comment %}
 author: gatoatigrado (nicholas tung) [ntung at ntung]
 
@@ -7,11 +9,8 @@ copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
 DESCRIPTION OF FILE HERE
 
-REMEMBER, you need to
-(1) update AllRules.grg -- add include
-(2) update ScalaAstModel.gm.jinja2 -- add include
-(3) update transform.template.grs -- add include, when rule should be executed
-There are plenty of examples in all of these files.
+update transform.template.grs -- add include, when rule should be executed
+There are plenty of examples.
 
 {% endblock %}
 {% block gm %}
@@ -29,7 +28,6 @@ There are plenty of examples in all of these files.
 
 
 {% block grg %}
-{% import "macros.grg" as macros %}
 // view other files if you want example rules that do something.
 // rule myRule {
 //      x:MyNode -e:MyEdge-> z:MyNode2;

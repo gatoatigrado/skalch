@@ -1,0 +1,49 @@
+using ScalaAstModel;
+
+#include "rules/gen/warn_unsupported.grg"
+#include "rules/decorate_nodes.grg"
+#include "rules/delete_bridge_functions.grg"
+#include "rules/construct_assignable_classes.grg"
+#include "rules/simplify_sketch_constructs.grg"
+#include "rules/thisvar_as_parameter.grg"
+#include "rules/remove_fcn_target.grg"
+#include "rules/gen/blockify_fcndefs.grg"
+#include "rules/cleanup.grg"
+#include "rules/unit_tests.grg"
+#include "rules/gen/cstyle_stmts.grg"
+#include "rules/gen/generate_cfg.grg"
+#include "rules/cfg_test.grg"
+#include "rules/destroy_cfg.grg"
+#include "rules/redirect_edge.grg"
+#include "rules/print_graph/coalesce_graph.grg"
+#include "rules/print_graph/create_graph.grg"
+#include "rules/print_graph/sym_names.grg"
+#include "rules/gen/nice_lists.grg"
+#include "rules/misc_debug.grg"
+#include "rules/gen/cleanup_accessors.grg"
+#include "rules/gen/sketch_final_minor_cleanup.grg"
+#include "rules/gen/sketch_nospec.grg"
+#include "rules/gen/copy_to.grg"
+#include "rules/gen/ycomp_remove_indirect_symbols.grg"
+// add unified here
+
+rule assertFalse(var msg : string) {
+    modify { emit("[GRG ASSERT FAILURE] " + msg + "\n"); }
+}
+
+rule assertFalseNoNewline(var msg : string) {
+    modify { emit("[GRG ASSERT FAILURE] " + msg); }
+}
+
+rule highlightValDef {
+    vd:ValDef;
+    if { vd.startLine == 10 && vd.startCol == 20; }
+    modify { next:HighlightValDef<vd>; }
+}
+
+/// use in xgrs rules
+rule print(var x : string) { modify { emit(x); } }
+
+rule printn(x : Node) { modify { emit(x); } }
+
+rule deleteNode(x : Node) { modify { delete(x); } }

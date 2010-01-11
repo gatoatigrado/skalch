@@ -17,7 +17,7 @@ select actions lgsp-AllRulesActions.dll
 debug set layout Compilergraph
 debug set layout option CREATE_LOOP_TREE false
 dump set node ScalaExprStmt color lilac
-dump set node MemberFcn color green
+dump set node FcnDef color green
 dump set node ClassDef color red
 dump set node SketchConstructSymbol color gold
 dump set node SketchConstructCall color orange
@@ -32,6 +32,11 @@ dump set edge AbstractBlockify color DarkRed
 dump set node HighlightValDef color Black
 dump set node PrintNode color DarkBlue
 dump set node DebugBadNode color Red
+
+dump set node List color Grey
+dump set node ListNode color Grey
+dump set node ListFirstNode color LightGrey
+dump set node ListLastNode color LightGrey
 
 include "stages-scripts/gen/warn_unsupported.grs"
 include "stages-scripts/delete_marked_ignore.grs"
@@ -53,6 +58,9 @@ echo "saving to {{ output_file }}"
 export "{{ output_file }}"
 {% endif %}
 {% if ycomp %}
+include "stages-scripts/gen/ycomp_remove_indirect_symbols.grs"
+
+# atm. search works in this mode but other things don't
 # show graph ycomp "--dolayout"
 debug enable
 {% else %}

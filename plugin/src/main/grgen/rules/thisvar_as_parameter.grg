@@ -20,7 +20,7 @@ rule transformThisRef(fcn:FcnDef) {
 rule addThisParamToEmpty(fcn:FcnDef, clssym:Symbol) {
     fcn -:FcnDefParamsChain-> first:EmptyChain; // NOTE -- different than below
     replace {
-        thsparam:ValDef;
+        thsparam:ThisValDef;
         thssym:Symbol;
         fcn2:MemberFcn<fcn>;
         eval {
@@ -39,7 +39,7 @@ rule addThisParamToEmpty(fcn:FcnDef, clssym:Symbol) {
 rule addThisParam(fcn:FcnDef, clssym:Symbol) {
     fcn -:FcnDefParamsChain-> first:ScAstNode;
     replace {
-        thsparam:ValDef;
+        thsparam:ThisValDef;
         thssym:Symbol;
         fcn2:MemberFcn<fcn>;
         eval {

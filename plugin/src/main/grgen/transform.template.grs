@@ -51,8 +51,6 @@ include "stages-scripts/gen/nice_lists.grs"
 include "stages-scripts/gen/sketch_nospec.grs"
 include "stages-scripts/gen/sketch_final_minor_cleanup.grs"
 
-# include "stages-scripts/print_ast.grs"
-
 {% if output_file %}
 echo "saving to {{ output_file }}"
 export "{{ output_file }}"

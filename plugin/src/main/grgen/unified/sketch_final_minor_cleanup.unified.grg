@@ -43,8 +43,7 @@ xgrs setAssertCalls* & deleteDangling*
 xgrs setFcnBinaryCallBaseType*
 xgrs setFcnBinaryCallArgs*
 xgrs setSymbolBaseType*
-
-
+xgrs setValDefBaseType*
 {% endblock %}
 
 
@@ -133,4 +132,5 @@ rule setFcnBinaryCallArgs {
 }
 
 {{ set_base_type("Symbol") }}
+{{ set_base_type("ValDef") }}
 {% endblock %}

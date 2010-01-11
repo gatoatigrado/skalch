@@ -15,6 +15,7 @@ edge class SKImplements;
 
 
 {% block grs %}
+xgrs removeThisVarFromMain*
 xgrs generateNospec*
 xgrs doCopy
 xgrs [setCopySymbolNames]
@@ -26,6 +27,20 @@ xgrs checkNoMainFcns
 
 {% block grg %}
 {% import "macros.grg" as macros %}
+rule removeThisVarFromMain {
+    x:SketchMainFcnDef -:FcnDefParamsList-> :List
+        -:ListFirst-> :ListFirstNode
+        -:ListNext-> ths_lst_node:ListNode
+        -:ListValue-> ths_valdef:ThisValDef;
+    x -:FcnBody-> :SKBlock -:BlockStmtList-> :List
+        -:ListFirst-> body_first:ListFirstNode;
+    modify {
+        exec((listInsertAfter(body_first, ths_valdef) &
+            listDelete(ths_lst_node)) ||
+            assertFalse("removeThisVarFromMain failed"));
+    }
+}
+
 rule generateNospec {
     x:SketchMainFcnDef -:FcnDefParamsList-> params:List;
     x -:FcnDefReturnTypeSymbol-> unitsym:ScalaUnitTypeSymbol;

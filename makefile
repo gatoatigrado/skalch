@@ -27,8 +27,10 @@ remove-whitespace: # trim trailing whitespace on all files
 	bash -c "source build_util/bash_functions.sh; cd plugin; trim_whitespace src"
 	bash -c "source build_util/bash_functions.sh; cd base; trim_whitespace src"
 
-compile: gen
+install-plugin: gen
 	(cd plugin; mvn install)
+
+compile: install-plugin
 	mvn compile test-compile
 
 ### Compile various tests using the plugin (to test the plugin)
@@ -41,7 +43,7 @@ gen:
 	cd plugin/src/main/grgen; grshell generate_typegraph.grs
 	base/src/codegen/generate_files.py --no_rebuild
 
-sugared_plugin_gxl:
+sugared_plugin_gxl: install-plugin
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
 ### grgen commands

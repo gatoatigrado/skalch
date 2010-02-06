@@ -43,7 +43,7 @@ public class ScPopulation implements ScCloneable<ScPopulation> {
         prob_clone_mutate = be_opts.ga_opts.prob_clone_mutate.clone();
         prob_reselect = be_opts.ga_opts.prob_reselect.clone();
         population_sz = be_opts.ga_opts.population_sz;
-        print_pareto_optimal = be_opts.ga_opts.print_pareto_optimal;
+        print_pareto_optimal = be_opts.ga_opts.print_pareto_opt;
         for (int a = 0; a < population_sz; a++) {
             add(new ScGaIndividual(this, new ScGenotype(), phenotype));
         }

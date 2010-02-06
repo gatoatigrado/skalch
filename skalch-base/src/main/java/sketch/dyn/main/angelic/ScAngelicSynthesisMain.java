@@ -5,6 +5,7 @@ import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import sketch.ui.entanglement.RecordTraceUI;
 import sketch.ui.queues.QueueUI;
 import sketch.ui.trace.TraceUI;
 
@@ -38,15 +39,19 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         ScUserInterface ui = ScUserInterfaceManager.start_ui(be_opts,
                 synthesis_runtime, ui_sketch);
 
-        if (be_opts.synth_opts.trace_file_name != "") {
-            ui = new TraceUI(ui, be_opts.synth_opts.trace_file_name);
+        if (be_opts.synth_opts.trace_filename != "") {
+            ui = new TraceUI(ui, be_opts.synth_opts.trace_filename);
         }
 
-        if (be_opts.synth_opts.queue_file_name != ""
-                || be_opts.synth_opts.queue_input_file_name != "") {
+        if (be_opts.synth_opts.entanglement) {
+            ui = new RecordTraceUI(ui);
+        }
+
+        if (be_opts.synth_opts.queue_filename != ""
+                || be_opts.synth_opts.queuein_filename != "") {
             ui = new QueueUI(ui, queue_sketch,
-                    be_opts.synth_opts.queue_file_name,
-                    be_opts.synth_opts.queue_input_file_name);
+                    be_opts.synth_opts.queue_filename,
+                    be_opts.synth_opts.queuein_filename);
         }
 
         init_stats(ui);

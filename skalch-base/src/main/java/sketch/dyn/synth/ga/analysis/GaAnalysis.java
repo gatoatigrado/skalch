@@ -51,7 +51,7 @@ public class GaAnalysis {
         print("GA Analysis created (this should only be for debugging)");
         recent_evaluations =
                 new ScGaSolutionId[be_opts.ga_opts.analysis_recent];
-        print_pareto_optimal = be_opts.ga_opts.print_pareto_optimal;
+        print_pareto_optimal = be_opts.ga_opts.print_pareto_opt;
     }
 
     public void update_stats() {

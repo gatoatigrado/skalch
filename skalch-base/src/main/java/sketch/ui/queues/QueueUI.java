@@ -123,8 +123,8 @@ public class QueueUI implements ScUserInterface {
             } catch (IOException e) {
                 DebugOut.print_exception("Problem opening file for queues", e);
             }
-            base.synthesisFinished();
         }
+        base.synthesisFinished();
         isFinished = true;
     }
 }

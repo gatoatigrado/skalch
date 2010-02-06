@@ -32,11 +32,13 @@ public class ScSynthesisOptions extends CliAnnotatedOptionGroup {
             + " have been accessed.")
     public int max_stack_depth = 1 << 30L;
     @CliParameter(help = "filename to dump output of queues.")
-    public String queue_file_name = "";
+    public String queue_filename = "";
     @CliParameter(help = "filename to retrieve the queues from the last program refinement.")
-    public String queue_input_file_name = "";
+    public String queuein_filename = "";
     @CliParameter(help = "filename to dump output of traces.")
-    public String trace_file_name = "";
+    public String trace_filename = "";
+    @CliParameter(help = "turn on entanglement analysis.")
+    public boolean entanglement = false;
 
     public final class ScSynthSolver implements CliOptionType<ScSynthSolver> {
         public final String type;

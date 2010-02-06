@@ -35,12 +35,12 @@ public class ScGaOptions extends CliAnnotatedOptionGroup {
     @CliParameter(help = "probability of tournament selection searching for a better individual.")
     public ScGaParameter prob_reselect = new ScGaParameter(0.1f, 0.7f, 0.9f);
     @CliParameter(help = "print choices made by pareto optimality (requires ga_analysis)")
-    public boolean print_pareto_optimal;
+    public boolean print_pareto_opt;
 
     @Override
     public void post_set_values() {
         DebugOut.print("post set value");
-        if (print_pareto_optimal && !analysis) {
+        if (print_pareto_opt && !analysis) {
             assertFalse("must enable ga_analysis to use ga_print_pareto_optimal");
         }
     }

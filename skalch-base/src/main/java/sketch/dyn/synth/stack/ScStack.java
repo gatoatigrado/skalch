@@ -11,6 +11,7 @@ import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.dyn.synth.stack.prefix.ScLocalPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearch;
+import sketch.ui.entanglement.ExecutionTrace;
 import sketch.util.DebugOut;
 import sketch.util.datastructures.FactoryStack;
 import sketch.util.wrapper.ScRichString;
@@ -204,5 +205,15 @@ public class ScStack extends ScPrefixSearch {
 
     public void setCost(int solution_cost) {
         this.solution_cost = solution_cost;
+    }
+
+    public ExecutionTrace getExecutionTrace() {
+        ExecutionTrace curExec = new ExecutionTrace();
+        for (int a = 0; a < stack.size(); a++) {
+            ScStackEntry ent = stack.get(a);
+            curExec.addAngelicCall(ent.uid, ent.subuid, get_untilv(ent),
+                    get_stack_ent(ent));
+        }
+        return curExec;
     }
 }

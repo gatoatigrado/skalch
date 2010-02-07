@@ -22,6 +22,12 @@ set_version: # args: current=<version> next=<version>
 kate: # open various config files in Kate
 	kate -u Makefile pom.xml */pom.xml
 
+install-plugin:
+	(cd skalch-plugin; mvn install)
+
+compile: install-plugin
+	mvn compile test-compile
+
 remove-whitespace: # trim trailing whitespace on all files
 	bash -c "source build_util/bash_functions.sh; cd skalch-plugin; trim_whitespace src"
 	bash -c "source build_util/bash_functions.sh; cd skalch-base; trim_whitespace src"

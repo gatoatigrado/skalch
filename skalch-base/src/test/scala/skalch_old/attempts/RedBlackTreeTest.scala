@@ -239,9 +239,9 @@ object RedBlackTreeTest {
 
     object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
-        add("--num_ops", 3 : Integer, "operations to process")
-        add("--num_tests", 1 : Integer, "number of tests")
-        add("--rand_input", "use random inputs (otherwise, debug inputs)")
+        addOption("num_ops", 3 : Integer, "operations to process")
+        addOption("num_tests", 1 : Integer, "number of tests")
+        addOption("rand_input", false, "use random inputs (otherwise, debug inputs)")
     }
 
     def main(args : Array[String])  = {

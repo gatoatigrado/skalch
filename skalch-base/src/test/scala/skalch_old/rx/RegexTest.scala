@@ -88,9 +88,9 @@ class RegexSketch(input_rx : String, input_length : Int, num_inputs : Int)
 object RegexTest {
     object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
-        add("--input_rx", "", "operations to process")
-        add("--input_length", 10 : Integer, "number of tests")
-        add("--num_inputs", 1 : Integer,
+        addOption("input_rx", "", "operations to process")
+        addOption("input_length", 10 : Integer, "number of tests")
+        addOption("num_inputs", 1 : Integer,
             "number of inputs to test regex with")
     }
 

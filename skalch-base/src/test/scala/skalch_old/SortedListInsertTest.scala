@@ -108,8 +108,8 @@ object SortedListInsertTest {
 
     object TestOptions extends cli.CliOptionGroup {
         import java.lang.Integer
-        add("--list_length", 10 : Integer, "length of list")
-        add("--num_tests", 10 : Integer, "number of tests")
+        addOption("list-length", 10 : Integer, "length of list")
+        addOption("num-tests", 10 : Integer, "number of tests")
     }
 
     def main(args : Array[String]) = {
@@ -117,7 +117,7 @@ object SortedListInsertTest {
         val opts = TestOptions.parse(cmdopts)
         BackendOptions.add_opts(cmdopts)
         skalch.synthesize(() => new SortedListInsertSketch(
-            opts.long_("list_length").intValue,
-            opts.long_("num_tests").intValue))
+            opts.long_("list-length").intValue,
+            opts.long_("num-tests").intValue))
     }
 }

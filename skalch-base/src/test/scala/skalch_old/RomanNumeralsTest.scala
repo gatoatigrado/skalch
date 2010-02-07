@@ -38,7 +38,7 @@ class RomanNumerals1(val decimal_number : Int) extends DynamicSketch {
 
 object RomanNumeralsTest {
     object TestOptions extends cli.CliOptionGroup {
-        add("--decimal_number", 1 : java.lang.Integer)
+        addOption("decimal_number", 1 : java.lang.Integer, "which roman numeral to generate")
     }
 
     def main(args : Array[String])  = {

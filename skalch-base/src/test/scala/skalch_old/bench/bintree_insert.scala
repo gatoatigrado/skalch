@@ -137,6 +137,6 @@ object BintreeInsertTest {
 object BintreeOptions extends cli.CliOptionGroup {
     var result : cli.CliOptionResult = null
     import java.lang.Integer
-    add("--num_nodes", 8 : Integer, "number of nodes to insert")
+    addOption("num_nodes", 8 : Integer, "number of nodes to insert")
     def apply(x : String) : Int = result.long_(x).intValue
 }

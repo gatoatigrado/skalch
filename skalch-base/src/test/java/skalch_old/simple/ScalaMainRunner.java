@@ -7,19 +7,18 @@ import org.junit.Assert;
 
 /**
  * run Scala main classes
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScalaMainRunner {
     public static void run(String classname, ArgsOption args) throws Throwable {
         try {
-            args = new ArgsOption(args, "--ui_no_gui");
-            Class<?> cls =
-                    ClassLoader.getSystemClassLoader().loadClass(classname);
-            cls.getMethod("main", String[].class).invoke(null,
-                    (Object) args.asArray());
+            args = new ArgsOption(args, "--ui-no-gui");
+            Class<?> cls = ClassLoader.getSystemClassLoader().loadClass(classname);
+            cls.getMethod("main", String[].class).invoke(null, (Object) args.asArray());
         } catch (ClassNotFoundException e) {
             Assert.fail(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -54,8 +53,7 @@ public class ScalaMainRunner {
         }
     }
 
-    public static ArgsOption one_soln =
-            new ArgsOption("--sy_num_solutions", "1");
-    public static ArgsOption ga = new ArgsOption("--sy_solver", "ga");
+    public static ArgsOption one_soln = new ArgsOption("--sy-num-solutions", "1");
+    public static ArgsOption ga = new ArgsOption("--sy-solver", "ga");
     public static ArgsOption ga_one_soln = new ArgsOption(ga, one_soln);
 }

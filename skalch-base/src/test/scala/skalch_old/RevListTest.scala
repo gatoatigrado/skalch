@@ -82,7 +82,7 @@ class RevList1(val length : Int) extends DynamicSketch {
 
 object RevListTest {
     object TestOptions extends cli.CliOptionGroup {
-        add("--list_length", 4 : java.lang.Integer, "length of list")
+        addOption("list_length", 4 : java.lang.Integer, "length of list")
     }
 
     def main(args : Array[String])  = {

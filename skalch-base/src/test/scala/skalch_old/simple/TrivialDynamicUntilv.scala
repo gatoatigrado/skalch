@@ -31,8 +31,8 @@ object TrivialDynamicUntilvTest {
     val mt = new ThreadLocalMT()
 
     object TestOptions extends cli.CliOptionGroup {
-        add("--max_value", 100 : java.lang.Integer, "value for !! to guess")
-        add("--num_tests", 10 : java.lang.Integer,
+        addOption("max_value", 100 : java.lang.Integer, "value for !! to guess")
+        addOption("num_tests", 10 : java.lang.Integer,
             "number of randomly generated input sequences to test")
     }
 

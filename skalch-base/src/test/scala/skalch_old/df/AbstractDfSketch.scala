@@ -125,8 +125,8 @@ abstract class AbstractDfSketch() extends DynamicSketch {
 object AbstractDfOptions extends cli.CliOptionGroup("df", "Dutch flag options") {
     var result : cli.CliOptionResult = null
     import java.lang.Integer
-    add("--num_buckets", 8 : Integer, "number of buckets for random tests")
-    add("--num_random_tests", 10 : Integer, "number of random tests")
-    add("--example_idx", -1 : Integer, "select an example, overriding the num_buckets")
+    addOption("num_buckets", 8 : Integer, "number of buckets for random tests")
+    addOption("num_random_tests", 10 : Integer, "number of random tests")
+    addOption("example_idx", -1 : Integer, "select an example, overriding the num_buckets")
     def apply(x : String) : Int = result.long_(x).intValue
 }

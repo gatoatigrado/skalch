@@ -12,10 +12,15 @@ from gatoatigrado_lib import (ExecuteIn, Path, SubProc, dict, get_singleton,
     list, memoize_file, pprint, process_jinja2, set, sort_asc, sort_desc)
 import pygtk; pygtk.require("2.0")
 import gtk
+import sys
 
 modpath = Path(__file__).parent()
 proj_path = modpath.parent().parent()
 state_path = Path("~/.config/rulegen.pickle")
+
+sys.path.append(proj_path.subpath("plugin/src/main/grgen"))
+from transform_sketch import main as transform_gxl_main
+from transform_sketch import GrgenException
 
 class ObjFromDict(object):
     def __init__(self, dict):
@@ -25,14 +30,28 @@ class State(object):
     def __init__(self):
         self.filepath = proj_path.subpath("base/src/test/scala/angelic/simple/SugaredTest.scala")
 
+    def onload(self):
+        self.gxlpath = Path(self.filepath + ".ast.gxl")
+
+    def check_bounds(self, left, right):
+        lines = open(self.filepath).readlines()
+        selection = "".join([c for line_idx, line in enumerate(lines) for char_idx, c in enumerate(line)
+            if left <= (line_idx, char_idx) < right])
+        print("you selected", selection)
+        return True
+
     @classmethod
     def load(cls):
         default = cls()
+        default.onload()
         if state_path.isfile():
-            state = state_path.unpickle()
-            if isinstance(state, cls):
-                state.__dict__.update(dict(k, v) for k, v in default.__dict__.items() if not k in state.__dict__)
-                return state
+            try:
+                state = state_path.unpickle()
+                if isinstance(state, cls):
+                    state.__dict__.update(dict((k, v) for k, v in default.__dict__.items() if not k in state.__dict__))
+                    state.onload()
+                    return state
+            except: pass
         return default
 
 class GuiBase(object):
@@ -44,6 +63,23 @@ class GuiBase(object):
         self.window.connect("delete_event", self.delete_event)
         self.window.connect("destroy", self.destroy)
         self.initialize_widgets()
+
+    def assertwrapper(fcn):
+        def assertwrapper_inner(self, *argv, **kwargs):
+            try:
+                return fcn(self, *argv, **kwargs)
+            except AssertionError, e:
+                self.gtk_err(str(e))
+            except GrgenException, e:
+                self.gtk_err("=== GrGen Exception ===\n%s" %(e))
+        return assertwrapper_inner
+
+    def gtk_err(self, text):
+        dialog = gtk.MessageDialog(self.window,
+            type=gtk.MESSAGE_ERROR,
+            message_format=text, buttons=gtk.BUTTONS_OK)
+        dialog.run()
+        dialog.destroy()
 
     def initialize_widgets(self):
         window = self.window
@@ -128,12 +164,35 @@ class GuiBase(object):
         gxltosketch.add_accelerator("activate", agr, key, mod, gtk.ACCEL_VISIBLE)
         generatemenu.append(gxltosketch)
 
+        ycomp = gtk.MenuItem("display selection in _ycomp")
+        ycomp.connect("activate", self.get_ycomp)
+        key, mod = gtk.accelerator_parse("Y")
+        ycomp.add_accelerator("activate", agr, key, mod, gtk.ACCEL_VISIBLE)
+        generatemenu.append(ycomp)
+
         mb.append(genm)
 
         return mb
 
+    @assertwrapper
     def get_graphlet(self, widget):
-        print("get graphlet...")
+        self.run_gxl_inner(get_graphlet=True)
+
+    @assertwrapper
+    def get_ycomp(self, widget):
+        self.run_gxl_inner(ycomp_selection=True)
+
+    def run_gxl_inner(self, **kwargs):
+        buf = self.widgets.src_view.get_buffer()
+        bounds = buf.get_selection_bounds()
+        assert len(bounds) == 2, "select some text first."
+        left, right = tuple((v.get_line(), v.get_line_offset()) for v in bounds)
+        assert self.state.check_bounds(left, right)
+
+        assert self.state.gxlpath.isfile(), "run the scala compiler [with the plugin]\n" \
+            "on the source first to generate the GXL file."
+        transform_gxl_main(gxl_file=self.state.gxlpath,
+            left_sel=left, right_sel=right, **kwargs)
 
     def get_gxltosketch(self, widget):
         print("get gxltosketch...")

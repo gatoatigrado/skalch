@@ -48,6 +48,12 @@ include "stages-scripts/clean_sketch_constructs.grs"
 include "stages-scripts/gen/blockify_fcndefs.grs"
 include "stages-scripts/gen/nice_lists.grs"
 # include "stages-scripts/gen/cstyle_stmts.grs"
+
+{% if ycomp_selection %}
+echo "todo -- ycomp selection {{ left_sel }}, {{ right_sel }}"
+exit
+{% endif %}
+
 include "stages-scripts/gen/sketch_nospec.grs"
 include "stages-scripts/gen/sketch_final_minor_cleanup.grs"
 

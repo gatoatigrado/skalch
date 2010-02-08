@@ -43,13 +43,16 @@ saving to .+
 execute_time = re.compile(r"Executing Graph Rewrite Sequence done after (.+)\:")
 
 modpath = Path(__file__).parent()
+defaultgrs = modpath.subpath("transform.template.grs")
 
-def main(grs_template=None, output_file=None, gxl_file=None,
+class GrgenException(Exception): pass
+
+def main(grs_template=defaultgrs, output_file=None, gxl_file=None,
+        left_sel=None, right_sel=None, ycomp_selection=False,
         debug=False, runonly=False, ycomp=False):
 
     assert grs_template
     grs_template = Path(re.sub("^\!", modpath, grs_template))
-    print(grs_template)
     if not gxl_file:
         gxl_file = Path("~/.sketch/tmp/input.gxl")
         gxl_file.write(sys.stdin.read())
@@ -73,14 +76,13 @@ def main(grs_template=None, output_file=None, gxl_file=None,
             return (proc.start(), proc.proc.wait())[-1]
         with proc.kill_on_fail():
             assert_next = None
-            fail_on_next = False
+            assert_failures = ""
             for line in proc.exec_lines():
                 if line.startswith("[GRG ASSERT FAILURE] "):
                     print(line)
-                    fail_on_next = True
-                else:
-                    assert not fail_on_next, \
-                        "Stopping now from previous failures (see above)"
+                    assert_failures += line + "\n"
+                elif assert_failures:
+                    raise GrgenException(assert_failures)
                 if not assert_next is None:
                     assert line == assert_next, "didn't match assert"
                     assert_next = None
@@ -106,7 +108,7 @@ def main(grs_template=None, output_file=None, gxl_file=None,
                     if line == "Unable to import graph: Object reference not set to an instance of an object":
                         print("""\n\n\nNOTE -- maybe you added an attribute not set in the
 grammar, or forgot to make a new node class inherit ScAstNode?\n\n\n""")
-                    raise Exception("unrecognized line %r" %(line))
+                    raise GrgenException("unrecognized line %r" %(line))
     flush_time()
 
 if __name__ == "__main__":

@@ -62,6 +62,9 @@ Return(ReturnExpr)
 
 Assign(AssignLhs, AssignRhs)
     -> new StmtAssign(<ctxnode>, Expression, Expression, "0")
+
+If(IfCond, IfThen, IfElse)
+    -> new StmtIfThen(<ctx>, Expression, Statement, Statement)
 """
 
 
@@ -69,7 +72,10 @@ Assign(AssignLhs, AssignRhs)
 EXPRS = r"""
 FcnBinaryCall(FcnBinaryCallLhs, .strop, FcnBinaryCallRhs)
     -> new ExprBinary(<ctxnode>, Expression, String, Expression)
-    
+
+FcnCallUnaryNegative(FcnArgChain)
+    -> new ExprUnary(<ctx>, "ExprUnary.UNOP_NEG", Expression)
+
 HoleCall() -> new ExprStar(<ctx>)
 
 IntConstant(.value) -> new ExprConstInt(<ctx>, int)
@@ -119,9 +125,9 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary",
         "ExprConstant": "ExprConstInt ExprConstUnit",
-        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen",
         "Type": "TypeStruct TypePrimitive TypeStructRef" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:

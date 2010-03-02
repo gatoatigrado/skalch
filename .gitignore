@@ -9,3 +9,4 @@ gen/
 *.dll
 .gen
 plugin/src/main/resources/skalch/plugins/type_graph.gxl
+get-class-names

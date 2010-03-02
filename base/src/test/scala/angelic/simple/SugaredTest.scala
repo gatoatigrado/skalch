@@ -12,9 +12,8 @@ class MySketch() extends AngelicSketch {
 //         var y : Int = 0;
 //         y = 3;
 //         var z = 4;
-//         var x : Int = if (??) { -(?? : Int) } else { val v = ?? : Int; v / 13 }
-        val x = ?? : Int5
-        synthAssert(x + 2 == 3)
+        var x : Int = if (??) { -(?? : Int) } else ??
+        synthAssert(x + 4 == 3)
     }
 }
 

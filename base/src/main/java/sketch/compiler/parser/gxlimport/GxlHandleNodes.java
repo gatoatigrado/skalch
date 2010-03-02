@@ -198,6 +198,20 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public StmtIfThen getStmtIfThenFromIf(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Expression arg1 = getExpression(followEdge("IfCond", node)); // gen marker 2
+
+        Statement arg2 = getStatement(followEdge("IfThen", node)); // gen marker 2
+
+        Statement arg3 = getStatement(followEdge("IfElse", node)); // gen marker 2
+
+        return new StmtIfThen(arg0, arg1, arg2, arg3);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public ExprBinary getExprBinaryFromFcnBinaryCall(final GXLNode node) {
         FENode arg0 = new DummyFENode(create_fe_context(node));
 
@@ -208,6 +222,16 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         Expression arg3 = getExpression(followEdge("FcnBinaryCallRhs", node)); // gen marker 2
 
         return new ExprBinary(arg0, arg1, arg2, arg3);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprUnary getExprUnaryFromFcnCallUnaryNegative(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Expression arg2 = getExpression(followEdge("FcnArgChain", node)); // gen marker 2
+
+        return new ExprUnary(arg0, ExprUnary.UNOP_NEG, arg2);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -272,24 +296,6 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // === Get by Java superclass ===
 
-    public Function getFunction(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("FcnDef")) {
-            return getFunctionFromFcnDef(node);
-        } else {
-            throw new RuntimeException("no way to return a 'Function' from a node of type " + typ);
-        }
-    }
-
-    public StmtBlock getStmtBlock(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("SKBlock")) {
-            return getStmtBlockFromSKBlock(node);
-        } else {
-            throw new RuntimeException("no way to return a 'StmtBlock' from a node of type " + typ);
-        }
-    }
-
     public StmtReturn getStmtReturn(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("Return")) {
@@ -299,12 +305,58 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public ExprVar getExprVar(final GXLNode node) {
+    public Statement getStatement(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("VarRef")) {
-            return getExprVarFromVarRef(node);
+        if (typ.equals("If")) {
+            return getStmtIfThenFromIf(node);
+        } else if (typ.equals("Assign")) {
+            return getStmtAssignFromAssign(node);
+        } else if (typ.equals("Return")) {
+            return getStmtReturnFromReturn(node);
+        } else if (typ.equals("SKBlock")) {
+            return getStmtBlockFromSKBlock(node);
+        } else if (typ.equals("SKAssertCall")) {
+            return getStmtAssertFromSKAssertCall(node);
+        } else if (typ.equals("ValDef")) {
+            return getStmtVarDeclFromValDef(node);
         } else {
-            throw new RuntimeException("no way to return a 'ExprVar' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'Statement' from a node of type " + typ);
+        }
+    }
+
+    public ExprUnary getExprUnary(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("FcnCallUnaryNegative")) {
+            return getExprUnaryFromFcnCallUnaryNegative(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprUnary' from a node of type " + typ);
+        }
+    }
+
+    public ExprConstUnit getExprConstUnit(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("UnitConstant")) {
+            return getExprConstUnitFromUnitConstant(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprConstUnit' from a node of type " + typ);
+        }
+    }
+
+    public Program getProgram(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("PackageDef")) {
+            return getProgramFromPackageDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Program' from a node of type " + typ);
+        }
+    }
+
+    public ExprBinary getExprBinary(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("FcnBinaryCall")) {
+            return getExprBinaryFromFcnBinaryCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprBinary' from a node of type " + typ);
         }
     }
 
@@ -314,15 +366,6 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getStmtAssertFromSKAssertCall(node);
         } else {
             throw new RuntimeException("no way to return a 'StmtAssert' from a node of type " + typ);
-        }
-    }
-
-    public StmtAssign getStmtAssign(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("Assign")) {
-            return getStmtAssignFromAssign(node);
-        } else {
-            throw new RuntimeException("no way to return a 'StmtAssign' from a node of type " + typ);
         }
     }
 
@@ -345,76 +388,6 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public Statement getStatement(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("Assign")) {
-            return getStmtAssignFromAssign(node);
-        } else if (typ.equals("Return")) {
-            return getStmtReturnFromReturn(node);
-        } else if (typ.equals("SKBlock")) {
-            return getStmtBlockFromSKBlock(node);
-        } else if (typ.equals("SKAssertCall")) {
-            return getStmtAssertFromSKAssertCall(node);
-        } else if (typ.equals("ValDef")) {
-            return getStmtVarDeclFromValDef(node);
-        } else {
-            throw new RuntimeException("no way to return a 'Statement' from a node of type " + typ);
-        }
-    }
-
-    public Expression getExpression(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("UnitConstant")) {
-            return getExprConstUnitFromUnitConstant(node);
-        } else if (typ.equals("IntConstant")) {
-            return getExprConstIntFromIntConstant(node);
-        } else if (typ.equals("VarRef")) {
-            return getExprVarFromVarRef(node);
-        } else if (typ.equals("HoleCall")) {
-            return getExprStarFromHoleCall(node);
-        } else if (typ.equals("FcnBinaryCall")) {
-            return getExprBinaryFromFcnBinaryCall(node);
-        } else {
-            throw new RuntimeException("no way to return a 'Expression' from a node of type " + typ);
-        }
-    }
-
-    public TypeStructRef getTypeStructRef(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("TypeStructRef")) {
-            return getTypeStructRefFromTypeStructRef(node);
-        } else {
-            throw new RuntimeException("no way to return a 'TypeStructRef' from a node of type " + typ);
-        }
-    }
-
-    public ExprConstUnit getExprConstUnit(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("UnitConstant")) {
-            return getExprConstUnitFromUnitConstant(node);
-        } else {
-            throw new RuntimeException("no way to return a 'ExprConstUnit' from a node of type " + typ);
-        }
-    }
-
-    public StreamSpec getStreamSpec(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("PackageDef")) {
-            return getStreamSpecFromPackageDef(node);
-        } else {
-            throw new RuntimeException("no way to return a 'StreamSpec' from a node of type " + typ);
-        }
-    }
-
-    public ExprBinary getExprBinary(final GXLNode node) {
-        String typ = GxlImport.nodeType(node);
-        if (typ.equals("FcnBinaryCall")) {
-            return getExprBinaryFromFcnBinaryCall(node);
-        } else {
-            throw new RuntimeException("no way to return a 'ExprBinary' from a node of type " + typ);
-        }
-    }
-
     public TypePrimitive getTypePrimitive(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("TypeUnit")) {
@@ -428,30 +401,39 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public StmtVarDecl getStmtVarDecl(final GXLNode node) {
+    public Function getFunction(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("ValDef")) {
-            return getStmtVarDeclFromValDef(node);
+        if (typ.equals("FcnDef")) {
+            return getFunctionFromFcnDef(node);
         } else {
-            throw new RuntimeException("no way to return a 'StmtVarDecl' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'Function' from a node of type " + typ);
         }
     }
 
-    public Program getProgram(final GXLNode node) {
+    public ExprVar getExprVar(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("PackageDef")) {
-            return getProgramFromPackageDef(node);
+        if (typ.equals("VarRef")) {
+            return getExprVarFromVarRef(node);
         } else {
-            throw new RuntimeException("no way to return a 'Program' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'ExprVar' from a node of type " + typ);
         }
     }
 
-    public ExprStar getExprStar(final GXLNode node) {
+    public ExprConstInt getExprConstInt(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("HoleCall")) {
-            return getExprStarFromHoleCall(node);
+        if (typ.equals("IntConstant")) {
+            return getExprConstIntFromIntConstant(node);
         } else {
-            throw new RuntimeException("no way to return a 'ExprStar' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'ExprConstInt' from a node of type " + typ);
+        }
+    }
+
+    public StmtAssign getStmtAssign(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("Assign")) {
+            return getStmtAssignFromAssign(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtAssign' from a node of type " + typ);
         }
     }
 
@@ -461,6 +443,24 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getParameterFromValDef(node);
         } else {
             throw new RuntimeException("no way to return a 'Parameter' from a node of type " + typ);
+        }
+    }
+
+    public StreamSpec getStreamSpec(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("PackageDef")) {
+            return getStreamSpecFromPackageDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StreamSpec' from a node of type " + typ);
+        }
+    }
+
+    public StmtVarDecl getStmtVarDecl(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("ValDef")) {
+            return getStmtVarDeclFromValDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtVarDecl' from a node of type " + typ);
         }
     }
 
@@ -484,12 +484,62 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public ExprConstInt getExprConstInt(final GXLNode node) {
+    public StmtBlock getStmtBlock(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("IntConstant")) {
-            return getExprConstIntFromIntConstant(node);
+        if (typ.equals("SKBlock")) {
+            return getStmtBlockFromSKBlock(node);
         } else {
-            throw new RuntimeException("no way to return a 'ExprConstInt' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'StmtBlock' from a node of type " + typ);
+        }
+    }
+
+    public TypeStructRef getTypeStructRef(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("TypeStructRef")) {
+            return getTypeStructRefFromTypeStructRef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'TypeStructRef' from a node of type " + typ);
+        }
+    }
+
+    public Expression getExpression(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("UnitConstant")) {
+            return getExprConstUnitFromUnitConstant(node);
+        } else if (typ.equals("IntConstant")) {
+            return getExprConstIntFromIntConstant(node);
+        } else if (typ.equals("FcnCallUnaryNegative")) {
+            return getExprUnaryFromFcnCallUnaryNegative(node);
+        } else if (typ.equals("VarRef")) {
+            return getExprVarFromVarRef(node);
+        } else if (typ.equals("UnitConstant")) {
+            return getExprConstUnitFromUnitConstant(node);
+        } else if (typ.equals("IntConstant")) {
+            return getExprConstIntFromIntConstant(node);
+        } else if (typ.equals("HoleCall")) {
+            return getExprStarFromHoleCall(node);
+        } else if (typ.equals("FcnBinaryCall")) {
+            return getExprBinaryFromFcnBinaryCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'Expression' from a node of type " + typ);
+        }
+    }
+
+    public StmtIfThen getStmtIfThen(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("If")) {
+            return getStmtIfThenFromIf(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtIfThen' from a node of type " + typ);
+        }
+    }
+
+    public ExprStar getExprStar(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("HoleCall")) {
+            return getExprStarFromHoleCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprStar' from a node of type " + typ);
         }
     }
 }

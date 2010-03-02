@@ -48,6 +48,9 @@ ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
 ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
     -> new Parameter(Type, String)
 
+VarRef(VarRefSymbol.symbolName)
+    -> new ExprVar(<ctx>, String)
+
 SKAssertCall(SKAssertCallArg)
     -> new StmtAssert(<ctx>, Expression, "false")
     
@@ -56,6 +59,9 @@ SKBlock(OL[BlockStmtList])
     
 Return(ReturnExpr)
     -> new StmtReturn(<ctx>, Expression)
+
+Assign(AssignLhs, AssignRhs)
+    -> new StmtAssign(<ctxnode>, Expression, Expression, "0")
 """
 
 
@@ -113,9 +119,9 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar",
         "ExprConstant": "ExprConstInt ExprConstUnit",
-        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign",
         "Type": "TypeStruct TypePrimitive TypeStructRef" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:

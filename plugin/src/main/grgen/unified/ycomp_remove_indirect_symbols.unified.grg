@@ -17,7 +17,7 @@ copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
 {% block grs %}
 xgrs removeIndirectSymbols*
-xgrs deleteDangling*
+# delete dangling or YcS delete dangling; see transform.template.grs after if ycomp
 {% endblock %}
 
 

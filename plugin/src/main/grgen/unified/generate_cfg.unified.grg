@@ -232,7 +232,7 @@ rule cfgMarkStrictlySequential {
 
 // rule cfgExtendedSequential {
 //     x:CfgAbstractNode -:CfgSequentialNext-> y
-//         
+//    
 // }
 
 rule cfgInit {

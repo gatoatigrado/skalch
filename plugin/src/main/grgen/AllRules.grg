@@ -25,6 +25,9 @@ using ScalaAstModel;
 #include "rules/gen/sketch_nospec.grg"
 #include "rules/gen/copy_to.grg"
 #include "rules/gen/ycomp_remove_indirect_symbols.grg"
+#include "rules/gen/ycomp_selection.grg"
+#include "rules/gen/get_selection_info.grg"
+#include "rules/gen/cstyle_assns.grg"
 // add unified here
 
 rule assertFalse(var msg : string) {

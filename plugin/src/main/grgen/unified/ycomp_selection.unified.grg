@@ -1,0 +1,89 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+Delete AST nodes which don't match the given line numbers and aren't subtrees of objects matching the given line numbers.
+
+N.B. -- no grs sequence here, because it depends on context variables in transform.template.grs.
+
+{% endblock %}
+{% block gm %}
+edge class YcSSelected {
+    print_index : int = -1;
+}
+{% endblock %}
+
+
+
+{% block grs %}
+dump set edge YcSSelected color Red
+{% endblock %}
+
+
+
+{% block grg %}
+rule YcSdeleteDangling {
+    x:Node;
+    // due to non-homomorphic matching, should delete nodes with self-edges
+    negative {
+        x;
+        . --> x;
+    }
+    negative {
+        if { typeof(x) >= ScAstNode; }
+    }
+    modify {
+        delete(x);
+    }
+}
+
+/** run this with [rule], not rule* */
+rule YcSinitPrintNodes {
+    x:ScAstNode -e:YcSSelected-> x;
+    negative { x; . --> x; }
+    modify { eval { e.print_index = 0; } }
+}
+
+rule YcSextendPrintNodes {
+    x:ScAstNode -e:YcSSelected-> x;
+    y:ScAstNode -:Subtree-> x;
+    y -e2:YcSSelected-> y;
+    if { e2.print_index >= 0; }
+    modify { eval { e.print_index = e2.print_index + 1; } }
+}
+
+rule YcSsetDebug {
+    x:ScAstNode -:YcSSelected-> x;
+    replace { next:DebugBadNode<x>; }
+}
+
+rule YcSdeleteUnselected {
+    x:ScAstNode;
+    negative { x -:YcSSelected-> x; }
+    modify { delete(x); }
+}
+
+rule YcSextendSelectionToSubtrees {
+    x:ScAstNode -:YcSSelected-> x;
+    x -:Subtree-> y:ScAstNode;
+    negative { y -:YcSSelected-> y; }
+    modify { y -:YcSSelected-> y; }
+}
+
+rule YcSmarkSelection(var startLine : int, var startCol : int, var endLine : int, var endCol : int) {
+    x:ScAstNode;
+    if {
+        ((100000 * startLine + startCol <= 100000 * x.startLine + x.startCol)) &&
+        ((100000 * x.endLine + x.endCol < 100000 * endLine + endCol));
+    }
+    negative { x -:YcSSelected-> x; }
+    modify {
+        x -:YcSSelected-> x;
+    }
+}
+{% endblock %}

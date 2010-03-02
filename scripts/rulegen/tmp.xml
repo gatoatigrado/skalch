@@ -1,0 +1,32 @@
+<infos>
+    <toplevel>
+        <node type="FcnCall">
+            <list edgetype="FcnArgList">
+                <listnode>
+                    <node type="ThisVarRef"></node>
+                </listnode>
+                <listnode>
+                    <node type="FcnCallBinaryPrimitiveEquals">
+                        <list edgetype="FcnArgList">
+                            <listnode>
+                                <node type="FcnCallBinaryAdd">
+                                    <list edgetype="FcnArgList">
+                                        <listnode>
+                                            <node type="VarRef"></node>
+                                        </listnode>
+                                        <listnode>
+                                            <node type="IntConstant"></node>
+                                        </listnode>
+                                    </list>
+                                </node>
+                            </listnode>
+                            <listnode>
+                                <node type="IntConstant"></node>
+                            </listnode>
+                        </list>
+                    </node>
+                </listnode>
+            </list>
+        </node>
+    </toplevel>
+</infos>

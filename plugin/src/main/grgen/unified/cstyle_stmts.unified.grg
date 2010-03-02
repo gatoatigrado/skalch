@@ -59,6 +59,7 @@ xgrs deleteCfgNode*
 xgrs createTemporaryAssign*
 xgrs attachNodesToBlockList*
 xgrs deleteLastAttachables* & deleteLastAttachables2*
+echo "[REWRITE PRODUCTION] cstyle_stmts done"
 {% endblock %}
 {% block grg %}
 rule connectAttachPt (attach_pt:CfgAbstractAttachable,
@@ -108,7 +109,7 @@ rule setAttachableBlocks {
 
 
 
-// STEP 2: request to blockify ScalaExprStmt's that 
+// STEP 2: request to blockify ScalaExprStmt's that    
 // are incompatible with C-style edges
 
 rule blockifyDefault {

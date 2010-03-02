@@ -1,0 +1,95 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+update transform.template.grs -- add include, when rule should be executed
+There are plenty of examples.
+
+{% endblock %}
+{% block gm %}
+edge class NodePrinted;
+{% endblock %}
+
+
+
+{% block grs %}
+echo "[REWRITE PRODUCTION] get_selection_info"
+xgrs [printSelectionToplevel]
+{% endblock %}
+
+
+
+{% block grg %}
+rule printSelectionToplevel {
+    x:ScAstNode -e:YcSSelected-> x;
+    negative { x; . --> x; }
+    modify {
+        emit("[INFO] <toplevel>\n");
+        exec(printNodeEntireBody(x));
+        emit("[INFO] </toplevel>\n");
+    }
+}
+
+rule setPrinted(x:Node) {
+    modify { x -:NodePrinted-> x; }
+}
+
+/// everything "under" the node
+rule printNodeEntireBody(x:ScAstNode) {
+    modify {
+        emit("[INFO]     <node type=\""); emit(x); emit("\">\n");
+        exec(setPrinted(x) & printTree(x)* & printTreeSymbol(x)* & printList(x)*);
+        emit("[INFO]     </node>\n");
+    }
+}
+
+rule printTree(x:ScAstNode) {
+    x -e:Edge-> y:ScAstNode;
+    negative { y -:NodePrinted-> y; }
+    modify {
+        emit("[INFO] <subtree edgetype=\""); emit(e); emit("\">\n");
+        exec(printNodeEntireBody(y));
+        emit("[INFO] </subtree>\n");
+    }
+}
+
+rule printTreeSymbol(x:ScAstNode) {
+    x -e:Edge-> y:Symbol;
+    negative { y -:NodePrinted-> y; }
+    modify {
+        exec(setPrinted(y));
+        emit("[INFO] <subtree edgetype=\""); emit(e); emit("\">\n");
+        emit("[INFO]     <node type=\""); emit(y); emit("\">\n");
+        emit("[INFO]     </node>\n");
+        emit("[INFO] </subtree>\n");
+    }
+}
+
+rule printList(x:ScAstNode) {
+    x -e:Edge-> lst:List -:ListFirst-> y:ListFirstNode;
+    negative { lst -:NodePrinted-> lst; }
+    modify {
+        emit("[INFO] <list edgetype=\""); emit(e); emit("\">\n");
+        exec(setPrinted(lst) && printListNext(y));
+        emit("[INFO] </list>\n");
+    }
+}
+
+rule printListNext(x:ListAbstractNode) {
+    x -:ListNext-> lst_y:ListNode -:ListValue-> y:ScAstNode;
+    modify {
+        emit("[INFO] <listnode>\n");
+        exec(printNodeEntireBody(y));
+        emit("[INFO] </listnode>\n");
+        exec(printListNext(lst_y));
+    }
+}
+
+{% endblock %}

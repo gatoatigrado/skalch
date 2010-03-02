@@ -68,7 +68,7 @@ public class GxlImport {
         for (GXLNode pkg : this.nodes_by_type.get("PackageDef")) {
             Program prog = this.handler.getProgram(pkg);
             // (new SimpleCodePrinter()).visitProgram(prog);
-            String[] args = { "--keeptmpfiles", "__from_gxl__" };
+            String[] args = { "--fe-keep-tmp", "__from_gxl__" };
             (new SequentialSketchGxlMain(args, prog)).run();
         }
     }

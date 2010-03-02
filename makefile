@@ -28,19 +28,23 @@ remove-whitespace: # trim trailing whitespace on all files
 	bash -c "source build_util/bash_functions.sh; cd base; trim_whitespace src"
 
 install-plugin: gen
-	(cd plugin; mvn install)
+	(cd plugin; mvn assembly:assembly install)
 
 compile: install-plugin
 	mvn compile test-compile
 
 ### Compile various tests using the plugin (to test the plugin)
 
+grgen-devel:
+	python scripts/compile_all.py
+	python scripts/rulegen/rulegen.py
+
 killall:
 	@killall mono 2>/dev/null; true
 
 gen:
 	base/src/codegen/generate_files.py plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-	cd plugin/src/main/grgen; grshell generate_typegraph.grs
+	cd plugin/src/main/grgen; grshell -N generate_typegraph.grs
 	base/src/codegen/generate_files.py --no_rebuild
 
 sugared_plugin_gxl: install-plugin
@@ -66,7 +70,7 @@ ycomp-unprocessed: killall
 plugin_dev: # build the plugin and compile the a test given by $(testfile)
 	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile) && mvn compile test-compile -Dmaven.scala.displayCmd=true
 
-java_gxlimport:
+java_gxlimport: gen
 	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl")
 
 

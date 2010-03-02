@@ -9,6 +9,10 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
 }
 {% endmacro %}
 
+
+
+{# list macros #}
+
 {% macro list_graphlet(names) -%}
     lst:List -:ListFirst-> lst_first:ListFirstNode -:ListNext->
 {% for name in names %}
@@ -16,3 +20,27 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
 {% endfor %}
         lst_last:ListLastNode;
 {%- endmacro %}
+
+{% macro finiteList(names) -%}
+    lst:List -:ListFirst-> lst_first:ListFirstNode -:ListNext->
+{% for name in names %}
+        lstnode_{{ name.split(":")[0] }}:ListNode -:ListNext->
+{% endfor %}
+        lst_last:ListLastNode;
+{% for name in names %}
+        lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
+{% endfor %}
+{%- endmacro %}
+
+
+
+{# various utility things #}
+{# place this in an eval block #}
+{% macro copySrcPosition(from_, to_arr) %}
+{% for to_ in to_arr %}
+    {{ to_ }}.startLine = {{ from_ }}.startLine;
+    {{ to_ }}.startCol = {{ from_ }}.startCol;
+    {{ to_ }}.endLine = {{ from_ }}.endLine;
+    {{ to_ }}.endCol = {{ from_ }}.endCol;
+{% endfor %}
+{% endmacro %}

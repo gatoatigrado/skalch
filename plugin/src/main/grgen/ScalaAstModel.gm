@@ -178,6 +178,30 @@ edge class CopyTo;
 
 
 
+
+edge class YcSSelected {
+    print_index : int = -1;
+}
+
+
+
+
+
+
+edge class NodePrinted;
+
+
+
+
+
+
+// edge class MyEdge
+// node class MyNode
+
+
+
+
+
 // add unified here
 
 
@@ -192,7 +216,7 @@ edge class ListElt;
 edge class ListFirst extends ListElt;
 edge class ListLast extends ListElt;
 edge class ListNext;
-edge class ListValue;
+edge class ListValue extends Replaceable;
 edge class ListTmpLast;
 
 
@@ -287,6 +311,7 @@ node class FcnCallArraySet extends FcnCall;
 
 node class FcnBinaryCall extends FcnCall { strop : string; }
 node class FcnCallBinaryAdd extends FcnBinaryCall { strop = "+"; }
+node class FcnCallBinaryMultiply extends FcnBinaryCall { strop = "*"; }
 node class FcnCallBinaryDivide extends FcnBinaryCall { strop = "/"; }
 node class FcnCallBinaryGreaterThan extends FcnBinaryCall { strop = ">"; }
 node class FcnCallBinaryGreaterThanOrEqual extends FcnBinaryCall { strop = ">="; }
@@ -304,6 +329,7 @@ node class FcnCallBinarySubtract extends FcnBinaryCall { strop = "-"; }
 node class FcnCallTypeApply extends FcnCall;
 node class FcnCallUnaryIntCast extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
+node class FcnCallUnaryNegative extends FcnCall;
 node class NewArrayCall extends FcnCall;
 
 node class FcnDef extends ScAstNode;
@@ -355,9 +381,10 @@ node class TypeTree extends ScAstNode;
 // === Edge classes ===
 
 // these edges convey what the naming conventions already tell us
+abstract edge class Replaceable;
 abstract edge class AstSiblingSubtree;
 abstract edge class Sibling extends AstSiblingSubtree;
-abstract edge class Subtree extends AstSiblingSubtree;
+abstract edge class Subtree extends AstSiblingSubtree, Replaceable;
 // target of the edge should be transformed into an expression,
 // not Scala expression-statement for C-style compatibility
 abstract edge class CstyleExprTarget;

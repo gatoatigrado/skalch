@@ -1,0 +1,132 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+update transform.template.grs -- add include, when rule should be executed
+There are plenty of examples.
+
+{% endblock %}
+{% block gm %}
+// edge class MyEdge
+// node class MyNode
+{% endblock %}
+
+
+
+{% block grs %}
+# grs rewrite sequence here
+# xgrs myRule*
+echo "[REWRITE PRODUCTION] cstyle_assns"
+xgrs makeValDefsEmpty*
+xgrs cstyleAssignToIfs+ | cstyleAssignToBlocks+
+echo "[REWRITE PRODUCTION] cstyle_assns done"
+{% endblock %}
+
+
+
+{% block grg %}
+
+/**
+ * var x = 3
+ *    to
+ * var x = _
+ * x = 3
+ * This allows future steps to match assignments without special cases.
+ */
+rule makeValDefsEmpty {
+    skblock:SKBlock -block_stmt_list:BlockStmtList->
+    stmt_lst:List -:ListElt-> vd_listnode:ListNode -:ListValue-> val_def:ValDef;
+
+    val_def -val_def_rhs:ValDefRhs-> rhs:ScAstNode;
+    val_def -val_def_symbol:ValDefSymbol-> symbol:Symbol;
+
+    negative { if { typeof(rhs) >= EmptyTree; } }
+
+    modify {
+        delete(val_def_rhs);
+        val_def -:ValDefRhs-> :EmptyTree;
+        assign:Assign -assign_rhs:AssignRhs-> rhs;
+        assign -assign_lhs:AssignLhs-> var_ref:VarRef
+            -var_ref_symbol:VarRefSymbol-> symbol;
+        exec(listInsertAfter(vd_listnode, assign));
+        eval {
+            {{ macros.copySrcPosition("val_def", ["assign", "var_ref"]) }}
+        }
+    }
+}
+
+/**
+ * we rewrite "x = if(a) b else { c; d } into,
+ * if (a) x = b else x = { c; d }, where the second assignment will be rewritten later.
+ *
+ * NOTE that the assignment must, at the moment, reside in a block.
+*/
+rule cstyleAssignToIfs {
+    lstnode:ListNode -:ListValue-> assign:Assign
+        -assign_rhs:AssignRhs-> if_:If -if_else_e:IfElse-> if_else:ScAstNode;
+    if_ -if_then_e:IfThen-> if_then:ScAstNode;
+    assign -assign_lhs:AssignLhs-> lhs:ScAstNode;
+
+    modify {
+        delete(assign, if_else_e, if_then_e);
+
+        // new assignments "x = b" and "x = { c; d }" from example above
+        assign_else:Assign -:AssignRhs-> if_else;
+            assign_else -:AssignLhs-> lhs;
+        assign_then:Assign -:AssignRhs-> if_then;
+            assign_then -:AssignLhs-> lhs;
+
+        // attach everything (if is now top-level)
+        lstnode -:ListValue-> if_ -:IfElse-> assign_else;
+        if_ -:IfThen-> assign_then;
+
+        eval {
+            {{ macros.copySrcPosition("if_then", ["assign_then"]) }}
+            {{ macros.copySrcPosition("if_else", ["assign_else"]) }}
+        }
+    }
+}
+
+/// rewrite x = { a; b; c } to { a; b; x = c; }
+rule cstyleAssignToBlocks {
+    // TODO -- replaceable
+    x:Node -supertree_edge:Replaceable-> assign:Assign -assign_rhs:AssignRhs-> block:Block;
+    block -:BlockTypeSymbol-> block_typ:Symbol;
+    block -:BlockStmtList-> stmts:List;
+    block -:BlockExpr-> block_expr_node:ListNode -block_expr_edge:ListValue-> expr:ScAstNode;
+    assign -assign_lhs:AssignLhs-> lhs:ScAstNode;
+    modify {
+        block2:SKBlock -:BlockStmtList-> stmts;
+        block2 -:BlockTypeSymbol-> block_typ;
+        x -:typeof(supertree_edge)-> block2;
+        assign2:Assign -:AssignRhs-> expr;
+        assign2 -:AssignLhs-> lhs;
+        block_expr_node -:ListValue-> assign2;
+        eval {
+            {{ macros.copySrcPosition("block", ["block2"]) }}
+            {{ macros.copySrcPosition("assign", ["assign2"]) }}
+        }
+        delete(assign, block_expr_edge, block);
+    }
+}
+
+/*
+rule transformIf {
+    val_def:ValDef -val_def_rhs:ValDefRhs-> rhs:ScAstNode;
+}
+*/
+
+// view other files if you want example rules that do something.
+// rule myRule {
+//      x:MyNode -e:MyEdge-> z:MyNode2;
+//      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
+//      modify { x -:MyEdge-> w:MyNode; delete(e); }
+// }
+{% endblock %}

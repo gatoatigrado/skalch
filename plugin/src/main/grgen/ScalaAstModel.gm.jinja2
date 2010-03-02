@@ -87,6 +87,9 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/sketch_nospec.gm" %}
 {% include "nodes/gen/copy_to.gm" %}
 {% include "nodes/gen/ycomp_remove_indirect_symbols.gm" %}
+{% include "nodes/gen/ycomp_selection.gm" %}
+{% include "nodes/gen/get_selection_info.gm" %}
+{% include "nodes/gen/cstyle_assns.gm" %}
 // add unified here
 
 
@@ -101,7 +104,7 @@ edge class ListElt;
 edge class ListFirst extends ListElt;
 edge class ListLast extends ListElt;
 edge class ListNext;
-edge class ListValue;
+edge class ListValue extends Replaceable;
 edge class ListTmpLast;
 
 
@@ -199,6 +202,7 @@ node class FcnBinaryCall extends FcnCall { strop : string; }
 node class FcnCallBinary{{ name }} extends FcnBinaryCall { strop = "{{ strop }}"; }
 {%- endmacro %}
 {{ sk_binop("Add", "+") }}
+{{ sk_binop("Multiply", "*") }}
 {{ sk_binop("Divide", "/") }}
 {{ sk_binop("GreaterThan", ">") }}
 {{ sk_binop("GreaterThanOrEqual", ">=") }}
@@ -216,6 +220,7 @@ node class FcnCallBinary{{ name }} extends FcnBinaryCall { strop = "{{ strop }}"
 node class FcnCallTypeApply extends FcnCall;
 node class FcnCallUnaryIntCast extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
+node class FcnCallUnaryNegative extends FcnCall;
 node class NewArrayCall extends FcnCall;
 
 node class FcnDef extends ScAstNode;
@@ -267,9 +272,10 @@ node class TypeTree extends ScAstNode;
 // === Edge classes ===
 
 // these edges convey what the naming conventions already tell us
+abstract edge class Replaceable;
 abstract edge class AstSiblingSubtree;
 abstract edge class Sibling extends AstSiblingSubtree;
-abstract edge class Subtree extends AstSiblingSubtree;
+abstract edge class Subtree extends AstSiblingSubtree, Replaceable;
 // target of the edge should be transformed into an expression,
 // not Scala expression-statement for C-style compatibility
 abstract edge class CstyleExprTarget;

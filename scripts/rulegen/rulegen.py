@@ -12,7 +12,13 @@ from gatoatigrado_lib import (ExecuteIn, Path, SubProc, dict, get_singleton,
     list, memoize_file, pprint, process_jinja2, set, sort_asc, sort_desc)
 import pygtk; pygtk.require("2.0")
 import gtk
-import sys
+import re, sys
+from multiprocessing import Process
+from amara import bindery
+import resource
+
+mbyte = 1 << 20
+resource.setrlimit(resource.RLIMIT_AS, (1600 * mbyte, 1600 * mbyte))
 
 modpath = Path(__file__).parent()
 proj_path = modpath.parent().parent()
@@ -40,6 +46,9 @@ class State(object):
         print("you selected", selection)
         return True
 
+    def save(self):
+        state_path.pickle(self)
+
     @classmethod
     def load(cls):
         default = cls()
@@ -54,15 +63,165 @@ class State(object):
             except: pass
         return default
 
+class VarnameGen(object):
+    CC_RE = re.compile("([a-z])([A-Z])")
+    TYPMAP = {
+        "FcnArgList": "args",
+        "ThisVarRef": "ths",
+        "IntConstant": "int_const",
+        "If": "if_"
+        }
+    def __init__(self):
+        self.names = set()
+
+    def new_varname(self, typ):
+        # TODO -- typical names
+        if typ in self.TYPMAP:
+            typname = self.TYPMAP[typ]
+        else:
+            def replace(m): return m.group(1) + "_" + m.group(2)
+            typname = self.CC_RE.sub(replace, typ).lower()
+        names = (typname + (str(v) if v else "") for v in range(100))
+        next_name = (v for v in names if not v in self.names).next()
+        self.names.add(next_name)
+        return next_name
+
+class NewNodeToken(namedtuple("NewNodeToken", "name type")):
+    def __str__(self): return "%s:%s" % (self.name, self.type)
+
+class ExistingNodeToken(namedtuple("ExistingNodeToken", "name")):
+    def __str__(self): return self.name
+
+class NewEdgeToken(namedtuple("NewEdgeToken", "name type")):
+    def __str__(self): return "-%s:%s->" % (self.name, self.type)
+
+class SyntacticToken(object):
+    def __init__(self, symbol): self.symbol = symbol
+    def __str__(self): return self.symbol
+    def __repr__(self): return "S[%r]" % (self.symbol)
+
+EndChainToken = SyntacticToken(";\n")
+ListStartToken = SyntacticToken(' {{ macros.finiteList([')
+ListEndToken = SyntacticToken(']) }}')
+ListEltQuote = SyntacticToken('"')
+
+def edge_property_iterator(arr, *fcns):
+    for i, elt in enumerate(arr):
+        left_edges, right_edges = [], []
+        if i > 0:
+            left_edges = [v for v in fcns if v(arr[i - 1], elt)]
+        if i < len(arr) - 1:
+            right_edges = [v for v in fcns if v(elt, arr[i + 1])]
+        yield left_edges, elt, right_edges
+
+def elementChildren(node):
+    return (v for v in node.xml_children if v.xml_type == "element")
+
+class MatchStringBuilder(object):
+    def __init__(self, varnamegen=None):
+        self.varnamegen = varnamegen if varnamegen is not None else VarnameGen()
+        self.nodeNameMap = { }
+        self.edgeNameMap = { }
+        self.matchString = []
+        self.chainLast = None
+
+    def __str__(self):
+        indent = ""
+        result = ""
+
+        # "properties" of sequential elements
+        istoken = lambda a: isinstance(a, (NewNodeToken, ExistingNodeToken, NewEdgeToken))
+        def true_for_both(fcn):
+            return lambda a, b: fcn(a) and fcn(b)
+        tokentoken = true_for_both(istoken)
+        endend = true_for_both(lambda a: a == EndChainToken)
+        quotequote = true_for_both(lambda a: a == ListEltQuote)
+
+        for left_edges, elt, right_edges in edge_property_iterator(self.matchString,
+                tokentoken, endend, quotequote):
+
+            if tokentoken in left_edges:
+                result += " "
+            if endend in left_edges:
+                continue
+            elif quotequote in left_edges:
+                result += ", "
+            result += str(elt)
+        return result
+
+    def addNodeToken(self, node):
+        self.chainLast = node
+        if node in self.nodeNameMap:
+            self.matchString.append(ExistingNodeToken(self.nodeNameMap[node]))
+        else:
+            varname = self.varnamegen.new_varname(node.type)
+            self.nodeNameMap[node] = varname
+            self.matchString.append(NewNodeToken(varname, node.type))
+
+    def addEdgeToken(self, edge):
+        assert edge not in self.edgeNameMap, "edges shouldn't be used twice."
+        varname = self.varnamegen.new_varname(edge.edgetype)
+        self.edgeNameMap[edge] = varname
+        self.matchString.append(NewEdgeToken(varname, edge.edgetype))
+
+    def addNode(self, node):
+        assert node.xml_name[-1] == u"node" # must be a node type
+
+        self.addNodeToken(node)
+        for child in elementChildren(node):
+            if self.chainLast != node:
+                self.matchString.append(EndChainToken)
+                self.addNodeToken(node)
+            self.addEdgeToken(child)
+            if child.xml_name[-1] == u"subtree":
+                self.addNode(child.node)
+            elif child.xml_name[-1] == u"list":
+                self.addList(child)
+            else:
+                assert False, "unknown node type %s" % (child.xml_name[-1])
+        self.matchString.append(EndChainToken)
+
+    def addList(self, lst):
+        assert lst.xml_name[-1] == u"list"
+        lst.type = "List"
+        self.matchString.append(ListStartToken)
+        for child in elementChildren(lst):
+            self.matchString.append(ListEltQuote)
+            self.addNodeToken(child.node)
+            self.matchString.append(ListEltQuote)
+        self.matchString.extend([ListEndToken, EndChainToken])
+        for child in elementChildren(lst):
+            children = list(elementChildren(child.node))
+            if any(children):
+                self.addNode(child.node)
+
+#def tmpdebug():
+#    xmlText = modpath.subpath("tmp.xml").read()
+#    print(xmlText)
+#    xml = bindery.parse(xmlText).infos
+#    toplevel_elts = elementChildren(xml)
+#
+#    matchString = MatchStringBuilder()
+#    [matchString.addNode(v.node) for v in toplevel_elts]
+#    print(str(matchString))
+#
+#tmpdebug()
+#exit()
+
 class GuiBase(object):
     def __init__(self, state):
         self.state = state
 
+        self.subprocs = []
+
+        gtk.gdk.threads_init()
+        gtk.gdk.threads_enter()
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title("Skalch compiler rulegen (developer tool)")
         self.window.connect("delete_event", self.delete_event)
         self.window.connect("destroy", self.destroy)
         self.initialize_widgets()
+        gtk.gdk.threads_leave()
 
     def assertwrapper(fcn):
         def assertwrapper_inner(self, *argv, **kwargs):
@@ -71,7 +230,7 @@ class GuiBase(object):
             except AssertionError, e:
                 self.gtk_err(str(e))
             except GrgenException, e:
-                self.gtk_err("=== GrGen Exception ===\n%s" %(e))
+                self.gtk_err("=== GrGen Exception ===\n%s" % (e))
         return assertwrapper_inner
 
     def gtk_err(self, text):
@@ -97,6 +256,8 @@ class GuiBase(object):
         src_view = w(gtk.TextView())
         buf = src_view.get_buffer()
         src_view.set_editable(False)
+#        import ipdb; ipdb.set_trace()
+        src_view.connect("button-release-event", self.get_selection_info)
         buf.set_text(self.state.filepath.read())
         main_box.add(src_view)
         menubox.add(main_box)
@@ -104,13 +265,9 @@ class GuiBase(object):
 
         # for the right box...
         right_box = w(gtk.VBox(False, 0))
-        graphlet = w(gtk.Button("graphlet"))
-        graphlet.connect("clicked", self.get_graphlet)
-        right_box.pack_start(graphlet, False, False, 0)
-
-        gxltosketch = w(gtk.Button("gxltosketch"))
-        gxltosketch.connect("clicked", self.get_gxltosketch)
-        right_box.pack_start(gxltosketch, False, False, 0)
+        info_label = w(gtk.Label("select some text..."))
+        right_box.pack_start(info_label, False, False, 0)
+        gxltosketch_view = w(gtk.TextView())
         main_box.add(right_box)
 
 
@@ -175,24 +332,58 @@ class GuiBase(object):
         return mb
 
     @assertwrapper
+    def get_selection_info(self, widget, event):
+        bounds = self.try_get_bounds()
+        if bounds:
+            left, right = bounds
+#            self.widgets.info_label.set_text("getting selection info")
+            toplevel_elts = []
+            infos = self.run_gxl_inner(get_sel_info=True)
+            xmlText = "<infos>" + "".join(v.lstrip("[INFO] ").strip() for v in infos) + "</infos>"
+            xml = bindery.parse(xmlText).infos
+            toplevel_elts = [v for v in xml.xml_children]
+
+            self.widgets.info_label.set_text("selection %r - %r\ntoplevel elt(s):\n%s" % (
+                left, right, ", ".join(v.node.type for v in toplevel_elts)))
+
+            matchString = MatchStringBuilder()
+            [matchString.addNode(v.node) for v in toplevel_elts]
+
+            print("\n\n\n%s" % (matchString))
+
+            #import ipdb; ipdb.set_trace()
+
+    @assertwrapper
     def get_graphlet(self, widget):
         self.run_gxl_inner(get_graphlet=True)
 
     @assertwrapper
     def get_ycomp(self, widget):
-        self.run_gxl_inner(ycomp_selection=True)
+        # NOTE -- ycomp cannot be synchronous at the time...
+        proc = Process(target=self.run_gxl_inner,
+            kwargs={"ycomp_selection": True, "ycomp": True})
+        proc.start()
+        self.subprocs.append(proc)
 
     def run_gxl_inner(self, **kwargs):
-        buf = self.widgets.src_view.get_buffer()
-        bounds = buf.get_selection_bounds()
-        assert len(bounds) == 2, "select some text first."
-        left, right = tuple((v.get_line(), v.get_line_offset()) for v in bounds)
-        assert self.state.check_bounds(left, right)
+        with ExecuteIn(proj_path):
+            SubProc(["make", "gen"]).start_wait()
+
+        bounds = self.try_get_bounds()
+        assert bounds, "select some text first."
+        left, right = bounds
 
         assert self.state.gxlpath.isfile(), "run the scala compiler [with the plugin]\n" \
             "on the source first to generate the GXL file."
-        transform_gxl_main(gxl_file=self.state.gxlpath,
-            left_sel=left, right_sel=right, **kwargs)
+        return transform_gxl_main(gxl_file=self.state.gxlpath,
+            left_sel=left, right_sel=right, silent=True, **kwargs)
+
+    def try_get_bounds(self):
+        buf = self.widgets.src_view.get_buffer()
+        bounds = buf.get_selection_bounds()
+        if len(bounds) != 2:
+            return None
+        return tuple((v.get_line() + 1, v.get_line_offset()) for v in bounds)
 
     def get_gxltosketch(self, widget):
         print("get gxltosketch...")
@@ -203,6 +394,8 @@ class GuiBase(object):
         # Another callback
     def destroy(self, widget, data=None):
         gtk.main_quit()
+        [v.terminate() for v in self.subprocs]
+        SubProc(["killall", "mono"]).start()
 
     def main(self):
         gtk.main()
@@ -211,7 +404,7 @@ def main():
     state = State.load()
     base = GuiBase(state)
     base.main()
-    state_path.pickle(state)
+    state.save()
 
 if __name__ == "__main__":
     import optparse

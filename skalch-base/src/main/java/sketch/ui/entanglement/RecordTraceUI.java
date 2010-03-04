@@ -15,14 +15,14 @@ public class RecordTraceUI implements ScUserInterface {
 
     public final ScUserInterface base;
 
-    private Vector<ExecutionTrace> listOfTraces;
+    private Vector<Trace> traces;
     private boolean isFinished;
 
     public RecordTraceUI(ScUserInterface base) {
         this.base = base;
         isFinished = false;
 
-        listOfTraces = new Vector<ExecutionTrace>();
+        traces = new Vector<Trace>();
     }
 
     public void addGaSolution(ScGaIndividual individual) {
@@ -34,8 +34,8 @@ public class RecordTraceUI implements ScUserInterface {
     }
 
     public void addStackSolution(ScStack stack) {
-        if (listOfTraces != null && !isFinished) {
-            listOfTraces.add(stack.getExecutionTrace());
+        if (traces != null && !isFinished) {
+            traces.add(stack.getExecutionTrace());
         }
         base.addStackSolution(stack);
     }
@@ -65,8 +65,8 @@ public class RecordTraceUI implements ScUserInterface {
     }
 
     public void synthesisFinished() {
-        EntanglementAnalysis ea = new EntanglementAnalysis(listOfTraces);
-        ea.findConstantElements();
+        EntanglementConsole con = new EntanglementConsole(traces);
+        con.startConsole();
         base.synthesisFinished();
         isFinished = true;
     }

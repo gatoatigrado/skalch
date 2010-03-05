@@ -1,0 +1,153 @@
+P0.
+
+out = {|  ,  |}
+assert listequals(out, rev(in_0))
+
+Notes:
+1. A trivial non-deterministic program, which is essentially the
+specification. in_0 refers to a snapshot of the input heap.
+2. Recall the notation v:{|  pre,  post |} means angelic
+non-deterministic assignment to v, that immediately satisfies post, but
+also is aware of the rest of the program. In general, I'm skipping
+writing pre and post, but post can be trivially true for angelic
+non-determinism.
+3. P0 is equivalent to Morgan-style specification statement: out [   ,
+listequals(out, rev(in_0))], where the pre is skipped (recall that v:[ ,
+] means a demonic non-deterministic assignment to v.)
+
+--------
+
+P1.
+
+c = {|  ,  |}
+while (c) {
+   x = {|  ,  |}
+   y = {|  ,  |}
+   x.next = y
+  c = {|  , |}
+}
+out = l
+assert listequals(out, rev(in_0))
+
+Notes:
+1. The programmer put in the insight that achieving P0 will require a
+loop in which next fields of the cells will need to be updated.
+2. We did not use proven laws of refinement to get to this program.
+Instead, we tested this partial program out and found that it works.
+3. Could we back this up by proven laws if we wanted to? What are the
+proof obligations to perform this program transformation? What would
+Celiku and Wright do, for example?
+
+-------
+
+P2.
+
+hist = emptylist
+c = {|   ,  |}
+while (c) {
+   x = {|  ,  |}
+   y = {|  ,  |}
+   x.next = y
+   hist.add(x)
+   c = {|  ,  |}
+}
+out = l
+assert listequals(out, rev(in_0)) && correctorder(hist, in_0)
+
+Notes:
+1. Somehow (how?) we realized that P1 may not do things in the correct
+order, so we added extra conditions. Adding extra post-conditions is
+always OK as per laws of refinement, as far as the entire program goes.
+2. To support the extra condition in the post condition, we had to do
+some bookkeeping in the code. This bookkeeping can be sliced away from
+the final program.
+3. We test that the partial program to 'verify' that it works.
+4. If we wanted to use proven laws or manual proof, what are the proof
+obligations to this partial developed program upon adding the extra
+post-condition?
+5. Is this the same kind of work as proving P1 from afresh, or do we
+gain anything by having proven P1 already.
+
+-------
+
+Clearly, the task ahead is to eliminate occurrences of angelic
+statements in P2.  We know that it is not going to be a refinement, but
+nevertheless a valid program transformation.
+
+At this point, we have two ways to make progress.
+
+1. We try to follow Celiku and Wright and somehow find sufficiently
+strong post-conditions for all our angelic assignments, so that they can
+be made into demonic assignments.  I think that for specifications that
+are simple to express in logic, this may be feasible.  But one of our
+strengths is that it is often a lot easier to expression a specification
+in terms of code.  
+
+2. A programmer tries to flesh out a bit more what happens in one
+iteration of the loop.
+
+Let's carry on with the second approach.
+
+--------
+
+P3a.
+
+hist = emptylist
+c = {|   ,  |}
+cur = in
+while (c) {
+   x = {|  , x == cur || x == cur.next |}
+   y = {|  , y == cur || y == cur.next |}
+   x.next = y
+   hist.add(x)
+   c = {|  ,  |}
+   cur = cur.next
+}
+out = l
+assert listequals(out, rev(in_0)) && correctorder(hist, in_0)
+
+Notes:
+1. The programmer tries to see if he can put in a cursor on the loop,
+and take x and y to be either the cursor or the next.
+2. This should fail.
+
+-------
+
+P3b.
+
+hist = emptylist
+c = {|   ,  |}
+cur = in
+prev = {| || prev == in || prev == in.next || prev == null |}
+while (c) {
+   x = {|  , x == cur || x == cur.next || x == prev || x == prev.next |}
+   y = {|  , y == cur || y == cur.next || y == prev || y == prev.next |}
+   x.next = y
+   hist.add(x)
+   c = {|  ,  |}
+   prev = {|  , |}
+   cur = cur.next
+}
+out = l
+assert listequals(out, rev(in_0)) && correctorder(hist, in_0)
+
+Notes:
+1. The programmer, realizing that one cursor is not enough, could decide
+to have another cursor, called prev.
+2. This should pass.
+3. Note that at this point, the assignments to prev, x, and y look a lot
+like they can be handled by using ??-sketching.
+4. Note also that it is not correct to convert these statements to
+demonic assignments, as we have not yet confirmed with one of the
+alternatives work.
+5. Again, how could we prove that these program transformations are correct?
+
+--------
+
+At this point, the programmer could try to spell out the invariant that
+the assignment x.next = y maintains in terms of cur and prev. Then he
+can find sufficient post-conditions for assignments to x and y.
+
+One way of looking at this methodology then is that we are synthesizing
+these intermediate post-conditions modulo finite testing.
+

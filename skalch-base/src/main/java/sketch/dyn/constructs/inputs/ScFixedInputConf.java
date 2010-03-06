@@ -2,7 +2,6 @@ package sketch.dyn.constructs.inputs;
 
 import java.util.Vector;
 
-import sketch.dyn.main.old.ScOldDynamicSketch;
 import sketch.ui.sourcecode.ScConstructValue;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScHighlightValues;
@@ -11,12 +10,13 @@ import sketch.util.DebugOut;
 import sketch.util.wrapper.ScRichString;
 
 /**
- * Static inputs that may have slightly faster access. This is also used for
- * formatting values according to their access frequency.
+ * Static inputs that may have slightly faster access. This is also used for formatting
+ * values according to their access frequency.
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScFixedInputConf extends ScInputConf {
     protected int[][] values;
@@ -25,9 +25,7 @@ public class ScFixedInputConf extends ScInputConf {
     protected int[] next;
     public Vector<ScConstructValueString>[] value_string;
 
-    public ScFixedInputConf(int[][] values, int[][] set_cnt, int[] untilv,
-            int[] next)
-    {
+    public ScFixedInputConf(int[][] values, int[][] set_cnt, int[] untilv, int[] next) {
         this.values = values;
         this.set_cnt = set_cnt;
         this.untilv = untilv;
@@ -56,8 +54,7 @@ public class ScFixedInputConf extends ScInputConf {
                 values_str[a] += (c == 0 ? "" : ", ") + values[a][c];
             }
         }
-        return "ScFixedInputConf[ " + (new ScRichString(", ")).join(values_str)
-                + " ]";
+        return "ScFixedInputConf[ " + (new ScRichString(", ")).join(values_str) + " ]";
     }
 
     @Override
@@ -72,8 +69,8 @@ public class ScFixedInputConf extends ScInputConf {
     public int nextValue(int uid) {
         final int uid_next = next[uid];
         if (uid_next >= values[uid].length) {
-            DebugOut.assertFalse("fixed input generator exceeding length", uid,
-                    uid_next, values[uid].length);
+            DebugOut.assertFalse("fixed input generator exceeding length", uid, uid_next,
+                    values[uid].length);
             return 0;
         } else {
             int rv = values[uid][uid_next];
@@ -96,25 +93,17 @@ public class ScFixedInputConf extends ScInputConf {
         }
     }
 
-    public void set_input_for_sketch(ScOldDynamicSketch sketch) {
-        sketch.input_conf = this;
-        reset_index();
-    }
-
     /** NOTE - a bit of messy (uid, subuid) -> index mapping */
     @SuppressWarnings("unchecked")
     public void generate_value_strings() {
-        Vector<ScHighlightValues.Value> value_arr =
-                new Vector<ScHighlightValues.Value>();
+        Vector<ScHighlightValues.Value> value_arr = new Vector<ScHighlightValues.Value>();
         for (int uid_idx = 0; uid_idx < values.length; uid_idx++) {
-            for (int subuid_idx = 0; subuid_idx < values[uid_idx].length; subuid_idx++)
-            {
+            for (int subuid_idx = 0; subuid_idx < values[uid_idx].length; subuid_idx++) {
                 ScConstructValue value =
                         new ScConstructValue(values[uid_idx][subuid_idx]);
                 int color_v = set_cnt[uid_idx][subuid_idx];
                 int[] id_arr = { uid_idx, subuid_idx };
-                value_arr.add(new ScHighlightValues.Value(value, color_v,
-                        id_arr));
+                value_arr.add(new ScHighlightValues.Value(value, color_v, id_arr));
             }
         }
         ScHighlightValues.gen_value_strings(value_arr);

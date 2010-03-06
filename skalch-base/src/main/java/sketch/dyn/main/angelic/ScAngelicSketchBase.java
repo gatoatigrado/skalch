@@ -15,13 +15,13 @@ import sketch.util.DebugOut;
 import sketch.util.sourcecode.ScSourceLocation;
 
 /**
- * New base Java class for angelic sketches, i.e. sketches that provide test
- * cases and can use the oracle.
+ * New base Java class for angelic sketches, i.e. sketches that provide test cases and can
+ * use the oracle.
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScAngelicSketchBase {
     public ScCtrlConf ctrl_conf;
@@ -42,15 +42,14 @@ public class ScAngelicSketchBase {
 
     @Override
     public String toString() {
-        return "ScAngelicSketchBase [ctrl_conf=" + ctrl_conf + ", oracle_conf="
-                + oracle_conf + "]";
+        return "ScAngelicSketchBase [ctrl_conf=" + ctrl_conf + ", oracle_conf=" +
+                oracle_conf + "]";
     }
 
     public void synthAssert(boolean truth) {
         if (!truth) {
             if (debug_print_enable) {
-                debug_assert_failure_location = (new Exception())
-                        .getStackTrace()[1];
+                debug_assert_failure_location = (new Exception()).getStackTrace()[1];
             }
             throw assert_inst__;
         }
@@ -60,8 +59,7 @@ public class ScAngelicSketchBase {
     public void dynamicUntilvAssert(boolean truth) {
         if (!truth) {
             if (debug_print_enable) {
-                debug_assert_failure_location = (new Exception())
-                        .getStackTrace()[1];
+                debug_assert_failure_location = (new Exception()).getStackTrace()[1];
             }
             throw untilv_inst__;
         }
@@ -76,17 +74,14 @@ public class ScAngelicSketchBase {
     }
 
     public synchronized void skCompilerAssertInternal(Object... arr) {
-        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
-                false, "FAILED COMPILER ASSERT");
-        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n",
-                false, arr);
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n", false,
+                "FAILED COMPILER ASSERT");
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n", false, arr);
         (new Exception()).printStackTrace();
-        DebugOut.print_colored(DebugOut.BASH_RED,
-                "[critical failure] - oracles:", "\n", false, oracle_conf
-                        .toString());
-        DebugOut.print_colored(DebugOut.BASH_RED,
-                "[critical failure] - ctrls:", "\n", false, ctrl_conf
-                        .toString());
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure] - oracles:", "\n",
+                false, oracle_conf.toString());
+        DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure] - ctrls:", "\n",
+                false, ctrl_conf.toString());
         DebugOut.assertFalse("compiler failure");
     }
 
@@ -113,8 +108,7 @@ public class ScAngelicSketchBase {
         sketch_queue.add(value);
     }
 
-    public void skqueue_check_backend(int queueNum, Object value,
-            boolean ifDebug) {
+    public void skqueue_check_backend(int queueNum, Object value, boolean ifDebug) {
         if (queue_iterator != null && !queue_iterator.checkValue(value)) {
             synthAssert(false);
         }
@@ -127,15 +121,6 @@ public class ScAngelicSketchBase {
         debug_out.add(new ScLocationDebugEntry(location));
     }
 
-    /*
-     * public void skdprint_pairs_backend(Object... arr) { StringBuilder text =
-     * new StringBuilder(); for (int a = 0; a < arr.length;) { String name_str =
-     * arr[a].toString(); text.append(name_str); if (a + 1 < arr.length) {
-     * text.append(": "); String value_str = arr[a + 1].toString();
-     * text.append(value_str); if (value_str.length() >= 60) {
-     * text.append("\n"); // extra newline for long values } a += 1; } a += 1;
-     * text.append("\n"); } debug_out.add(text.toString()); }
-     */
     public void addSourceInfo(ScSourceConstruct info) {
         construct_src_info.add(info);
     }

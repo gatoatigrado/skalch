@@ -46,8 +46,8 @@ public class ScSynthesisMainBase {
         String info_rc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(info_rc);
         if (rc == null) {
-            DebugOut.print_mt("no info file found", info_rc);
-            return;
+            DebugOut.print_mt("No source info file found.", info_rc);
+
         }
         try {
             String text = EntireFileReader.load_file(rc.openStream());
@@ -58,7 +58,7 @@ public class ScSynthesisMainBase {
                 ScSourceConstruct info =
                         ScSourceConstruct.from_node(srcinfo.get(a), names[1],
                                 ui_sketch_call);
-                ui_sketch_call.addSourceInfo(info);
+
             }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);
@@ -67,6 +67,8 @@ public class ScSynthesisMainBase {
         } catch (ParsingException e) {
             DebugOut.print_exception("reading source annotation info ", e);
         }
+        DebugOut.print_mt("Exception while reading source info file.", info_rc);
+
     }
 
     public void init_stats(ScUserInterface ui) {

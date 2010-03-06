@@ -11,16 +11,15 @@ import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.dyn.synth.stack.prefix.ScLocalPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearch;
-import sketch.ui.entanglement.Trace;
 import sketch.util.DebugOut;
 import sketch.util.datastructures.FactoryStack;
 import sketch.util.wrapper.ScRichString;
 
 /**
- * an instance of a backtracking stack search. each instance essentially
- * searches a "connected" subspace of the input. this implies a new stack search
- * can be created to search "halfway" through the search space, to avoid getting
- * stuck with simple examples like:
+ * an instance of a backtracking stack search. each instance essentially searches a
+ * "connected" subspace of the input. this implies a new stack search can be created to
+ * search "halfway" through the search space, to avoid getting stuck with simple examples
+ * like:
  * 
  * <pre>
  * int x = oracle()
@@ -30,8 +29,8 @@ import sketch.util.wrapper.ScRichString;
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScStack extends ScPrefixSearch {
     public ScSynthCtrlConf ctrl_conf;
@@ -70,26 +69,24 @@ public class ScStack extends ScPrefixSearch {
         String[] rv = new String[stack.size()];
         for (int a = 0; a < stack.size(); a++) {
             ScStackEntry ent = stack.get(a);
-            rv[a] = "(" + ent.toString() + ", untilv=" + get_untilv(ent) + ", "
-                    + get_stack_ent(ent) + ")";
+            rv[a] =
+                    "(" + ent.toString() + ", untilv=" + get_untilv(ent) + ", " +
+                            get_stack_ent(ent) + ")";
         }
         return rv;
     }
 
     @Override
     public String toString() {
-        return "ScStack[ "
-                + (new ScRichString(" -> ")).join(getStringArrayRep()) + " ]";
+        return "ScStack[ " + (new ScRichString(" -> ")).join(getStringArrayRep()) + " ]";
     }
 
     public String htmlDebugString() {
-        ScRichString sep = new ScRichString(
-                " -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
+        ScRichString sep = new ScRichString(" -> <br />&nbsp;&nbsp;&nbsp;&nbsp;");
         return "ScStack[ " + sep.join(getStringArrayRep()) + " ]";
     }
 
-    public void initialize_fixed_for_illustration(
-            ScDynamicSketchCall<?> sketch_call) {
+    public void initialize_fixed_for_illustration(ScDynamicSketchCall<?> sketch_call) {
         ctrl_conf.generate_value_strings();
         ScFixedInputConf fixed_oracles = oracle_conf.fixed_inputs();
         fixed_oracles.generate_value_strings();
@@ -205,15 +202,5 @@ public class ScStack extends ScPrefixSearch {
 
     public void setCost(int solution_cost) {
         this.solution_cost = solution_cost;
-    }
-
-    public Trace getExecutionTrace() {
-        Trace curExec = new Trace();
-        for (int a = 0; a < stack.size(); a++) {
-            ScStackEntry ent = stack.get(a);
-            curExec.addEvent(ent.uid, ent.subuid, get_untilv(ent),
-                    get_stack_ent(ent));
-        }
-        return curExec;
     }
 }

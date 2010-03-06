@@ -12,10 +12,12 @@ bin.timestamp
 # compile and symlink it yourself...
 lib/scala-library.jar
 lib/sketchrewriter.jar
-.scala_dependencies
 buildutil/*.build-args
 buildutil/sketchrewriter.jar
 buildutil/build_info.pickle
-*/.manager/*
+skalch-base/.classpath
+skalch-base/.settings/*
+.scala_dependencies
+*.manager*
 *.log
 *.diff

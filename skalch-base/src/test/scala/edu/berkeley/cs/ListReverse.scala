@@ -27,7 +27,7 @@ class ListReverse2() extends AngelicSketch {
   }
 }
 
-object ListReverseMain {
+object ListReverse {
   def main(args: Array[String]) = {
 	  for (arg <- args)
 		  Console.println(arg)

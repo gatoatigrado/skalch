@@ -48,8 +48,8 @@ plugin_angelic_sketch:
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
 
 plugin_dev: # build the plugin and compile the a test given by $(testfile)
-	cd skalch-plugin; mvn -o install
-	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn -o test-compile -Dmaven.scala.displayCmd=true
+	cd skalch-plugin; mvn install
+	cd skalch-base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile); mvn test-compile -Dmaven.scala.displayCmd=true
 
 
 

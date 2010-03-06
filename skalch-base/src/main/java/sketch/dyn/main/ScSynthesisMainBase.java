@@ -14,7 +14,6 @@ import nu.xom.ValidityException;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.dyn.synth.ga.ScGaSynthesis;
 import sketch.dyn.synth.stack.ScStackSynthesis;
 import sketch.ui.ScUserInterface;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -32,12 +31,8 @@ public class ScSynthesisMainBase {
         nthreads = be_opts.synth_opts.num_threads;
     }
 
-    protected ScSynthesis<?> get_synthesis_runtime(
-            ScDynamicSketchCall<?>[] sketches)
-    {
-        if (be_opts.synth_opts.solver.isGa) {
-            return new ScGaSynthesis(sketches, be_opts);
-        } else if (be_opts.synth_opts.solver.isStack) {
+    protected ScSynthesis<?> get_synthesis_runtime(ScDynamicSketchCall<?>[] sketches) {
+        if (be_opts.synth_opts.solver.isStack) {
             return new ScStackSynthesis(sketches, be_opts);
         } else {
             not_implemented("ScSynthesisMainBase -- create unknown solver",

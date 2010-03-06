@@ -4,8 +4,6 @@ import java.util.Vector;
 
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStatsModifier;
-import sketch.dyn.synth.ga.ScGaSynthesis;
-import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.ui.ScUserInterface;
@@ -25,14 +23,6 @@ public class RecordTraceUI implements ScUserInterface {
         traces = new Vector<Trace>();
     }
 
-    public void addGaSolution(ScGaIndividual individual) {
-        base.addGaSolution(individual);
-    }
-
-    public void addGaSynthesis(ScGaSynthesis scGaSynthesis) {
-        base.addGaSynthesis(scGaSynthesis);
-    }
-
     public void addStackSolution(ScStack stack) {
         if (traces != null && !isFinished) {
             traces.add(stack.getExecutionTrace());
@@ -42,10 +32,6 @@ public class RecordTraceUI implements ScUserInterface {
 
     public void addStackSynthesis(ScLocalStackSynthesis localSsr) {
         base.addStackSynthesis(localSsr);
-    }
-
-    public void displayAnimated(ScGaIndividual individual) {
-        base.displayAnimated(individual);
     }
 
     public void modifierComplete(ScUiModifier m) {

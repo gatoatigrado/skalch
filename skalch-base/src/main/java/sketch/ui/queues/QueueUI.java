@@ -12,8 +12,6 @@ import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.main.debug.ScDebugRun;
 import sketch.dyn.main.debug.ScDebugStackRun;
 import sketch.dyn.stats.ScStatsModifier;
-import sketch.dyn.synth.ga.ScGaSynthesis;
-import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.ui.ScUserInterface;
@@ -32,7 +30,8 @@ public class QueueUI implements ScUserInterface {
 
     public QueueUI(ScUserInterface base,
             ScDynamicSketchCall<ScAngelicSketchBase> sketch_call,
-            String queue_output_file_name, String queue_input_file_name) {
+            String queue_output_file_name, String queue_input_file_name)
+    {
         this.queue_output_file_name = queue_output_file_name;
         this.sketch_call = sketch_call;
         this.base = base;
@@ -46,14 +45,6 @@ public class QueueUI implements ScUserInterface {
         if (queue_output_file_name != "") {
             listOfQueuesOutput = new Vector<Vector<Object>>();
         }
-    }
-
-    public void addGaSolution(ScGaIndividual individual) {
-        base.addGaSolution(individual);
-    }
-
-    public void addGaSynthesis(ScGaSynthesis scGaSynthesis) {
-        base.addGaSynthesis(scGaSynthesis);
     }
 
     public void addStackSolution(ScStack stack) {
@@ -91,10 +82,6 @@ public class QueueUI implements ScUserInterface {
         base.addStackSynthesis(localSsr);
     }
 
-    public void displayAnimated(ScGaIndividual individual) {
-        base.displayAnimated(individual);
-    }
-
     public void modifierComplete(ScUiModifier m) {
         base.modifierComplete(m);
     }
@@ -114,8 +101,9 @@ public class QueueUI implements ScUserInterface {
     public void synthesisFinished() {
         if (listOfQueuesOutput != null) {
             try {
-                ObjectOutputStream out = new ObjectOutputStream(
-                        new FileOutputStream(queue_output_file_name));
+                ObjectOutputStream out =
+                        new ObjectOutputStream(new FileOutputStream(
+                                queue_output_file_name));
                 out.writeObject(listOfQueuesOutput);
                 out.close();
             } catch (FileNotFoundException e) {

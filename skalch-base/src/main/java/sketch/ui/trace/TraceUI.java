@@ -8,8 +8,6 @@ import java.util.Vector;
 
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStatsModifier;
-import sketch.dyn.synth.ga.ScGaSynthesis;
-import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.ui.ScUserInterface;
@@ -34,14 +32,6 @@ public class TraceUI implements ScUserInterface {
         }
     }
 
-    public void addGaSolution(ScGaIndividual individual) {
-        base.addGaSolution(individual);
-    }
-
-    public void addGaSynthesis(ScGaSynthesis scGaSynthesis) {
-        base.addGaSynthesis(scGaSynthesis);
-    }
-
     public void addStackSolution(ScStack stack) {
         ScStack _stack = stack.clone();
 
@@ -54,10 +44,6 @@ public class TraceUI implements ScUserInterface {
 
     public void addStackSynthesis(ScLocalStackSynthesis localSsr) {
         base.addStackSynthesis(localSsr);
-    }
-
-    public void displayAnimated(ScGaIndividual individual) {
-        base.displayAnimated(individual);
     }
 
     public void modifierComplete(ScUiModifier m) {
@@ -79,8 +65,8 @@ public class TraceUI implements ScUserInterface {
     public void synthesisFinished() {
         if (listOfTracesOutput != null) {
             try {
-                PrintStream out = new PrintStream(new FileOutputStream(
-                        trace_output_file_name));
+                PrintStream out =
+                        new PrintStream(new FileOutputStream(trace_output_file_name));
                 for (String[] trace : listOfTracesOutput) {
                     for (int i = 0; i < trace.length; i++) {
                         out.print(trace[i]);

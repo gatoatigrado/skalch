@@ -6,23 +6,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingUtilities;
 
 import sketch.dyn.BackendOptions;
-import sketch.dyn.constructs.ctrls.ScGaCtrlConf;
 import sketch.dyn.constructs.inputs.ScFixedInputConf;
-import sketch.dyn.constructs.inputs.ScGaInputConf;
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.stats.ScStatsModifier;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.dyn.synth.ga.ScGaSynthesis;
-import sketch.dyn.synth.ga.base.ScGaIndividual;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
-import sketch.ui.modifiers.ScActiveGaDispatcher;
 import sketch.ui.modifiers.ScActiveStack;
-import sketch.ui.modifiers.ScGaSolutionDispatcher;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
@@ -31,38 +25,35 @@ import sketch.util.DebugOut;
 import sketch.util.thread.InteractiveThread;
 
 /**
- * Thread which launches the user interface and shuts it down when requested.
- * Perhaps slightly unnecessary but nice for code organization.
+ * Thread which launches the user interface and shuts it down when requested. Perhaps
+ * slightly unnecessary but nice for code organization.
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public ScSynthesis<?> synth_runtime;
     public ScDynamicSketchCall<?> sketch_call;
-    public ScGaCtrlConf ga_ctrl_conf;
-    public ScGaInputConf ga_oracle_conf;
     public ScUiGui gui;
     public ScFixedInputConf[] all_counterexamples;
     public AtomicInteger modifier_timestamp = new AtomicInteger(0);
-    static ConcurrentLinkedQueue<ScUiThread> gui_list = new ConcurrentLinkedQueue<ScUiThread>();
-    static ConcurrentLinkedQueue<ScUiModifier> modifier_list = new ConcurrentLinkedQueue<ScUiModifier>();
+    static ConcurrentLinkedQueue<ScUiThread> gui_list =
+            new ConcurrentLinkedQueue<ScUiThread>();
+    static ConcurrentLinkedQueue<ScUiModifier> modifier_list =
+            new ConcurrentLinkedQueue<ScUiModifier>();
     public boolean auto_display_first_solution = true;
     public BackendOptions be_opts;
     public ScModifierDispatcher lastDisplayDispatcher;
 
-    public ScUiThread(ScSynthesis<?> synth_runtime,
-            ScDynamicSketchCall<?> sketch_call, BackendOptions be_opts) {
+    public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketchCall<?> sketch_call,
+            BackendOptions be_opts)
+    {
         super(0.05f);
         this.synth_runtime = synth_runtime;
         this.sketch_call = sketch_call;
         this.be_opts = be_opts;
-        if (be_opts.synth_opts.solver.isGa) {
-            ga_ctrl_conf = new ScGaCtrlConf();
-            ga_oracle_conf = new ScGaInputConf();
-        }
         auto_display_first_solution = !be_opts.ui_opts.no_auto_soln_disp;
         gui_list.add(this);
     }
@@ -110,8 +101,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
             public void apply() {
                 ScUiGui gui = target.gui;
                 gui.num_synth_active += 1;
-                new ScActiveStack(target, gui.synthCompletions, local_ssr)
-                        .add();
+                new ScActiveStack(target, gui.synthCompletions, local_ssr).add();
             }
         };
     }
@@ -121,50 +111,11 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         new AddedModifier() {
             @Override
             public void apply() {
-                ScSolutionStack solution = new ScSolutionStack(ScUiThread.this,
-                        gui.synthCompletions, stack_to_add);
+                ScSolutionStack solution =
+                        new ScSolutionStack(ScUiThread.this, gui.synthCompletions,
+                                stack_to_add);
                 solution.add();
                 autoDisplaySolution(solution);
-            }
-        };
-    }
-
-    public void addGaSynthesis(final ScGaSynthesis sc_ga_synthesis) {
-        new AddedModifier() {
-            @Override
-            public void apply() {
-                gui.num_synth_active += 1;
-                new ScActiveGaDispatcher(ScUiThread.this, gui.synthCompletions,
-                        sc_ga_synthesis).add();
-            }
-        };
-    }
-
-    public void addGaSolution(ScGaIndividual individual__) {
-        final ScGaIndividual individual = individual__.clone();
-        new AddedModifier() {
-            @Override
-            public void apply() {
-                ScGaSolutionDispatcher solution_individual = new ScGaSolutionDispatcher(
-                        individual, ScUiThread.this, gui.synthCompletions);
-                solution_individual.add();
-                autoDisplaySolution(solution_individual);
-            }
-        };
-    }
-
-    /**
-     * Show the GA evolution progress by repeatedly displaying the current
-     * individual. For debugging only.
-     */
-    public void displayAnimated(ScGaIndividual individual__) {
-        final ScGaIndividual individual = individual__.clone();
-        new AddedModifier() {
-            @Override
-            public void apply() {
-                ScGaSolutionDispatcher solution_individual = new ScGaSolutionDispatcher(
-                        individual, ScUiThread.this, gui.synthCompletions);
-                solution_individual.dispatch();
             }
         };
     }
@@ -175,15 +126,15 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public void set_counterexamples(ScSolvingInputConf[] inputs) {
         if (be_opts.ui_opts.print_counterex) {
             Object[] text = { "counterexamples", inputs };
-            DebugOut.print_colored(DebugOut.BASH_GREEN,
-                    "[user requested print]", "\n", true, text);
+            DebugOut.print_colored(DebugOut.BASH_GREEN, "[user requested print]", "\n",
+                    true, text);
         }
         all_counterexamples = ScFixedInputConf.from_inputs(inputs);
     }
 
     /**
-     * a.t.m. more of a demonstration of how this can be flexible; the code
-     * doesn't need to be this verbose.
+     * a.t.m. more of a demonstration of how this can be flexible; the code doesn't need
+     * to be this verbose.
      */
     public void setStats(final ScStatsModifier modifier) {
         ScGuiStatsWarningsPrinter wp = new ScGuiStatsWarningsPrinter();

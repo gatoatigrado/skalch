@@ -1,17 +1,18 @@
 package sketch.dyn.synth;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import sketch.dyn.BackendOptions;
-import sketch.ui.ScUserInterface;
+import sketch.result.ScSynthesisResults;
 import sketch.util.DebugOut;
-import sketch.util.thread.AsyncMTEvent;
 
 /**
  * Base for stack and GA synthesis backends.
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
     // command line options
@@ -19,13 +20,13 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
     public long debug_stop_after;
     public int max_num_random;
     protected LocalSynthType[] local_synthesis;
-    public ScUserInterface ui;
     public ScExhaustedWaitHandler wait_handler;
-    protected long nsolutions_found = 0;
-    public AsyncMTEvent done_events = new AsyncMTEvent();
+    protected AtomicLong nsolutions_found;
     public final BackendOptions be_opts;
+    protected ScSynthesisResults resultsStore;
 
     public ScSynthesis(BackendOptions be_opts) {
+        nsolutions_found = new AtomicLong(0);
         this.be_opts = be_opts;
         // command line options
         nsolutions_to_find = be_opts.synth_opts.num_solutions;
@@ -33,23 +34,20 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         max_num_random = be_opts.ui_opts.max_random_stacks;
     }
 
-    public final void synthesize(ScUserInterface ui) {
-        this.ui = ui;
+    public final void synthesize(ScSynthesisResults resultsStore) {
+        this.resultsStore = resultsStore;
         wait_handler = new ScExhaustedWaitHandler(local_synthesis.length);
-        done_events.reset();
-        done_events.enqueue(ui, "synthesisFinished");
-        synthesize_inner(ui);
+        synthesize_inner(resultsStore);
         for (ScLocalSynthesis local_synth : local_synthesis) {
             local_synth.thread_wait();
         }
-        done_events.set_done();
     }
 
-    protected abstract void synthesize_inner(ScUserInterface ui);
+    protected abstract void synthesize_inner(ScSynthesisResults resultsStore);
 
     protected final void increment_num_solutions() {
-        nsolutions_found += 1;
-        if (nsolutions_found == nsolutions_to_find) {
+        nsolutions_found.incrementAndGet();
+        if (nsolutions_found.longValue() == nsolutions_to_find) {
             DebugOut.print_mt("synthesis complete");
             wait_handler.set_synthesis_complete();
         }

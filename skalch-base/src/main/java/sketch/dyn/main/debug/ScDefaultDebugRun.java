@@ -23,7 +23,7 @@ public abstract class ScDefaultDebugRun extends ScDebugRun {
     public ScDefaultDebugRun(
             ScDynamicSketchCall<ScAngelicSketchBase> sketch_call) {
         super(sketch_call);
-        sketch = sketch_call.get_sketch();
+        sketch = sketch_call.getSketch();
     }
 
     @Override

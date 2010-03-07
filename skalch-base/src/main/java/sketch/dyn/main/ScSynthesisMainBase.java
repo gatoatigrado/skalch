@@ -41,13 +41,13 @@ public class ScSynthesisMainBase {
         }
     }
 
-    protected void load_ui_sketch_info(ScDynamicSketchCall<?> ui_sketch_call) {
-        Class<?> cls = ui_sketch_call.get_sketch().getClass();
+    protected ScSourceConstruct getSourceCodeInfo(ScDynamicSketchCall<?> ui_sketch_call) {
+        Class<?> cls = ui_sketch_call.getSketch().getClass();
         String info_rc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(info_rc);
         if (rc == null) {
             DebugOut.print_mt("No source info file found.", info_rc);
-
+            return null;
         }
         try {
             String text = EntireFileReader.load_file(rc.openStream());
@@ -58,7 +58,7 @@ public class ScSynthesisMainBase {
                 ScSourceConstruct info =
                         ScSourceConstruct.from_node(srcinfo.get(a), names[1],
                                 ui_sketch_call);
-
+                return info;
             }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);
@@ -68,7 +68,7 @@ public class ScSynthesisMainBase {
             DebugOut.print_exception("reading source annotation info ", e);
         }
         DebugOut.print_mt("Exception while reading source info file.", info_rc);
-
+        return null;
     }
 
     public void init_stats(ScUserInterface ui) {

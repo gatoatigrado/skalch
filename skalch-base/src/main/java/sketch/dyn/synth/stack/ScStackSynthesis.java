@@ -10,7 +10,7 @@ import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.stack.prefix.ScDefaultPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearchManager;
-import sketch.ui.ScUserInterface;
+import sketch.result.ScSynthesisResults;
 import sketch.ui.queues.Queue;
 
 /**
@@ -22,8 +22,8 @@ import sketch.ui.queues.Queue;
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected ScSynthCtrlConf ctrls;
@@ -35,19 +35,17 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected AtomicBoolean got_first_run;
     protected AtomicReference<ScStack> first_solution;
 
-    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches,
-            BackendOptions be_opts) {
+    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches, BackendOptions be_opts) {
         super(be_opts);
         // initialize backends
         local_synthesis = new ScLocalStackSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
-            local_synthesis[a] = new ScLocalStackSynthesis(sketches[a], this,
-                    be_opts, a);
+            local_synthesis[a] = new ScLocalStackSynthesis(sketches[a], this, be_opts, a);
         }
     }
 
     @Override
-    public void synthesize_inner(ScUserInterface ui) {
+    public void synthesize_inner(ScSynthesisResults resultsStore) {
         ScDefaultPrefix prefix = new ScDefaultPrefix();
         ScStack stack = new ScStack(prefix, be_opts.synth_opts.max_stack_depth);
         // shared classes to synchronize / manage search
@@ -55,7 +53,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         got_first_run = new AtomicBoolean(false);
         first_solution = new AtomicReference<ScStack>(null);
         for (ScLocalStackSynthesis local_synth : local_synthesis) {
-            ui.addStackSynthesis(local_synth);
+            resultsStore.addStackSynthesis(local_synth);
             local_synth.run();
         }
     }
@@ -67,7 +65,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         if (first_solution.get() == null) {
             first_solution.compareAndSet(null, stack.clone());
         }
-        ui.addStackSolution(stack);
+        resultsStore.addStackSolution(stack);
         increment_num_solutions();
         return true;
     }
@@ -79,8 +77,8 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         } else {
             ScStack stack = first_solution.get();
             stack.reset_before_run(); // let the solution just dequeue entries
-            return new scala.Tuple2<ScSynthCtrlConf, ScSolvingInputConf>(
-                    stack.ctrl_conf, stack.oracle_conf);
+            return new scala.Tuple2<ScSynthCtrlConf, ScSolvingInputConf>(stack.ctrl_conf,
+                    stack.oracle_conf);
         }
     }
 }

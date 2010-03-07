@@ -63,16 +63,16 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                     if (queue != null) {
                         queue_iterator = queue.getIterator();
                     }
-                    sketch.initialize_before_all_tests(stack.ctrl_conf,
+                    sketch.initializeBeforeAllTests(stack.ctrl_conf,
                             stack.oracle_conf, queue_iterator);
                     nruns += 1;
-                    for (int c = 0; c < sketch.get_num_counterexamples(); c++) {
+                    for (int c = 0; c < sketch.getNumCounterexamples(); c++) {
                         ncounterexamples += 1;
-                        if (!sketch.run_test(c)) {
+                        if (!sketch.runTest(c)) {
                             break trycatch;
                         }
                     }
-                    stack.setCost(sketch.get_solution_cost());
+                    stack.setCost(sketch.getSolutionCost());
                     if (ssr.add_solution(stack)) {
                         nsolutions += 1;
                     }

@@ -6,6 +6,7 @@ import sketch.dyn.synth.ScSynthesis;
 import sketch.result.ScSynthesisResults;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import sketch.ui.sourcecode.ScSourceConstruct;
 
 /**
  * where it all begins... for angelic sketches (see AngelicSketch.scala)
@@ -19,6 +20,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     public final ScAngelicSketchCall ui_sketch;
     protected final ScAngelicSketchCall[] sketches;
     protected final ScSynthesis<?> synthesis_runtime;
+    private ScSourceConstruct sourceInfo;
 
     public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
         sketches = new ScAngelicSketchCall[nthreads];
@@ -26,14 +28,16 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
             sketches[a] = new ScAngelicSketchCall(f.apply());
         }
         ui_sketch = new ScAngelicSketchCall(f.apply());
-        load_ui_sketch_info(ui_sketch);
+        sourceInfo = getSourceCodeInfo(ui_sketch);
+        ui_sketch.addSourceInfo(sourceInfo);
         synthesis_runtime = get_synthesis_runtime(sketches);
     }
 
     public Object synthesize() throws Exception {
         // start various utilities
         ScUserInterface ui =
-                ScUserInterfaceManager.start_ui(be_opts, synthesis_runtime, ui_sketch);
+                ScUserInterfaceManager.start_ui(be_opts, synthesis_runtime, ui_sketch,
+                        sourceInfo);
 
         // if (be_opts.synth_opts.trace_filename != "") {
         // ui = new TraceUI(ui, be_opts.synth_opts.trace_filename);
@@ -55,7 +59,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         init_stats(ui);
         ScStatsMT.stats_singleton.start_synthesis();
         // actual synthesize call
-        synthesis_runtime.synthesize(ui);
+        synthesis_runtime.synthesize(results);
         // stop utilities
         ScStatsMT.stats_singleton.showStatsWithUi();
         return synthesis_runtime.get_solution_tuple();

@@ -37,13 +37,13 @@ public abstract class ScDebugRun {
     public final void run() {
         enable_debug();
         run_init();
-        sketch_call.initialize_before_all_tests(get_ctrl_conf(),
+        sketch_call.initializeBeforeAllTests(get_ctrl_conf(),
                 get_oracle_conf(), get_queue_iterator());
         assert_info = null;
         succeeded = false;
         trycatch: try {
-            for (int a = 0; a < sketch_call.get_num_counterexamples(); a++) {
-                if (!sketch_call.run_test(a)) {
+            for (int a = 0; a < sketch_call.getNumCounterexamples(); a++) {
+                if (!sketch_call.runTest(a)) {
                     break trycatch;
                 }
             }

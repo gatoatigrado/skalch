@@ -21,6 +21,7 @@ import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.modifiers.ScSolutionStack;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.ui.modifiers.ScUiModifierInner;
+import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.thread.InteractiveThread;
 
@@ -46,14 +47,16 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public boolean auto_display_first_solution = true;
     public BackendOptions be_opts;
     public ScModifierDispatcher lastDisplayDispatcher;
+    private ScSourceConstruct sourceInfo;
 
     public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketchCall<?> sketch_call,
-            BackendOptions be_opts)
+            BackendOptions be_opts, ScSourceConstruct sourceInfo)
     {
         super(0.05f);
         this.synth_runtime = synth_runtime;
         this.sketch_call = sketch_call;
         this.be_opts = be_opts;
+        this.sourceInfo = sourceInfo;
         auto_display_first_solution = !be_opts.ui_opts.no_auto_soln_disp;
         gui_list.add(this);
     }

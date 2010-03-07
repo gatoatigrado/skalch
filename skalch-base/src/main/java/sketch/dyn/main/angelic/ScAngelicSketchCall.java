@@ -208,12 +208,12 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
         return elts;
     }
 
-    public int get_num_counterexamples() {
+    public int getNumCounterexamples() {
         return test_cases.length;
     }
 
-    public void initialize_before_all_tests(ScCtrlConf ctrl_conf,
-            ScInputConf oracle_conf, QueueIterator queueIterator)
+    public void initializeBeforeAllTests(ScCtrlConf ctrl_conf, ScInputConf oracle_conf,
+            QueueIterator queueIterator)
     {
         sketch.solution_cost = 0;
         sketch.num_asserts_passed = 0;
@@ -222,7 +222,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
         sketch.queue_iterator = queueIterator;
     }
 
-    public boolean run_test(int idx) {
+    public boolean runTest(int idx) {
         try {
             main_method.invoke(sketch, test_cases[idx]);
         } catch (IllegalArgumentException e) {
@@ -244,16 +244,12 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
         return true;
     }
 
-    public int get_solution_cost() {
+    public int getSolutionCost() {
         return sketch.solution_cost;
     }
 
-    public ScAngelicSketchBase get_sketch() {
+    public ScAngelicSketchBase getSketch() {
         return sketch;
-    }
-
-    public void addSourceInfo(ScSourceConstruct info) {
-        sketch.addSourceInfo(info);
     }
 
     public ScConstructValueString getHoleValueString(int uid)
@@ -266,5 +262,10 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
             throws ScNoValueStringException
     {
         return sketch.oracle_conf.getValueString(uid);
+    }
+
+    public void addSourceInfo(ScSourceConstruct info) {
+        sketch.addSourceInfo(info);
+
     }
 }

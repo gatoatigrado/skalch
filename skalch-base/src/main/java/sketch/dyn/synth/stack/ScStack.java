@@ -90,7 +90,7 @@ public class ScStack extends ScPrefixSearch {
         ctrl_conf.generate_value_strings();
         ScFixedInputConf fixed_oracles = oracle_conf.fixed_inputs();
         fixed_oracles.generate_value_strings();
-        sketch_call.initialize_before_all_tests(ctrl_conf, fixed_oracles, null);
+        sketch_call.initializeBeforeAllTests(ctrl_conf, fixed_oracles, null);
     }
 
     public void reset_before_run() {

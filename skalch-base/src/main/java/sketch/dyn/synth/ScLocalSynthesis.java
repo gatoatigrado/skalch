@@ -75,7 +75,7 @@ public abstract class ScLocalSynthesis implements ScUiQueueable {
     public abstract class AbstractSynthesisThread extends Thread {
         protected MersenneTwisterFast mt_local;
         protected int nruns = 0, ncounterexamples = 0, nsolutions = 0;
-        protected int num_counterexamples = sketch.get_num_counterexamples();
+        protected int num_counterexamples = sketch.getNumCounterexamples();
 
         public AbstractSynthesisThread() {
             if (num_counterexamples <= 0) {

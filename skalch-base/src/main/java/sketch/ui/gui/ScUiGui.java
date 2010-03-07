@@ -182,7 +182,7 @@ public class ScUiGui extends gui_0_1 {
         HashMap<String, Vector<ScSourceConstruct>> info_by_filename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
         ScAngelicSketchBase sketch =
-                (ScAngelicSketchBase) ui_thread.sketch_call.get_sketch();
+                (ScAngelicSketchBase) ui_thread.sketch_call.getSketch();
         for (ScSourceConstruct hole_info : sketch.construct_src_info) {
             String f = hole_info.entire_location.filename;
             if (!info_by_filename.containsKey(f)) {

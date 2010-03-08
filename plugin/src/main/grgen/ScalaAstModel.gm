@@ -121,6 +121,13 @@ edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
 // a node with [only] one CfgSequentialNext out edge,
 // and only one CfgSequentialNext in edge.
 edge class CfgStrictlySequentialNode;
+// edge class MyEdge
+// node class MyNode
+
+
+
+
+
 // attribute edges on ast nodes indicating that statements can be appended.
 abstract node class CfgAbstractAttachable;
 node class CfgAttachable extends CfgAbstractAttachable;

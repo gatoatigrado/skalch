@@ -14,6 +14,12 @@ rule transformThisRef(fcn:FcnDef) {
     modify {
         thsref:ThisVarRef<ths> -:VarRefSymbol-> thssym;
         delete(thssymlink);
+        eval {
+            thsref.startLine = fcn.startLine;
+            thsref.startCol = fcn.startCol;
+            thsref.endLine = fcn.endLine;
+            thsref.endCol = fcn.endCol;
+        }
     }
 }
 
@@ -27,6 +33,11 @@ rule addThisParamToEmpty(fcn:FcnDef, clssym:Symbol) {
             thsparam.scalaSource = "artificially inserted $this variable";
             thssym.symbolName = "this";
             thssym.fullSymbolName = "artificallyinserted.this";
+
+            thsparam.startLine = fcn.startLine;
+            thsparam.startCol = fcn.startCol;
+            thsparam.endLine = fcn.endLine;
+            thsparam.endCol = fcn.endCol;
         }
         fcn2 -:FcnDefParamsChain-> thsparam;
         fcn2 -:FcnDefParamsLast-> thsparam; // NOTE -- different than below
@@ -46,6 +57,11 @@ rule addThisParam(fcn:FcnDef, clssym:Symbol) {
             thsparam.scalaSource = "artificially inserted $this variable";
             thssym.symbolName = "this";
             thssym.fullSymbolName = "artificallyinserted.this";
+
+            thsparam.startLine = fcn.startLine;
+            thsparam.startCol = fcn.startCol;
+            thsparam.endLine = fcn.endLine;
+            thsparam.endCol = fcn.endCol;
         }
         fcn2 -:FcnDefParamsChain-> thsparam;
         thsparam -:FcnDefParamsNext-> first;

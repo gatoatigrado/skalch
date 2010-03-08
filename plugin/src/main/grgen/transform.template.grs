@@ -10,7 +10,7 @@ select actions lgsp-AllRulesActions.dll
 {% if ycomp_selection or get_sel_info %}
 {% macro getSelCode() %}
     xgrs YcSmarkSelection({{ left_sel[0] }}, {{ left_sel[1] }}, {{ right_sel[0] }}, {{ right_sel[1] }})*
-    xgrs YcSextendSelectionToSubtrees*
+    xgrs (YcSextendSelectionToSubtrees+ | YcSextendSelectionToListSubtrees+)+
     xgrs YcSdeleteUnselected*
     {% if get_sel_info %}
         xgrs YcSdeleteDangling*
@@ -59,7 +59,6 @@ include "stages-scripts/gen/cleanup_accessors.grs"
 include "stages-scripts/clean_sketch_constructs.grs"
 include "stages-scripts/gen/blockify_fcndefs.grs"
 include "stages-scripts/gen/nice_lists.grs"
-
 include "stages-scripts/gen/cstyle_stmts.grs"
 include "stages-scripts/gen/cstyle_assns.grs" # final part of cstyle lowering
 

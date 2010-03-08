@@ -394,17 +394,21 @@ class GuiBase(object):
         # Another callback
     def destroy(self, widget, data=None):
         gtk.main_quit()
-        [v.terminate() for v in self.subprocs]
-        SubProc(["killall", "mono"]).start()
 
     def main(self):
         gtk.main()
 
 def main():
-    state = State.load()
-    base = GuiBase(state)
-    base.main()
-    state.save()
+    try:
+        state = State.load()
+        base = GuiBase(state)
+        base.main()
+        state.save()
+
+    finally:
+        # kill mono on exit
+        [v.terminate() for v in self.subprocs]
+        SubProc(["killall", "mono"]).start()
 
 if __name__ == "__main__":
     import optparse

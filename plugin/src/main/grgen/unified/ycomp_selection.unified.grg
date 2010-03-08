@@ -75,6 +75,13 @@ rule YcSextendSelectionToSubtrees {
     modify { y -:YcSSelected-> y; }
 }
 
+rule YcSextendSelectionToListSubtrees {
+    x:ScAstNode -:YcSSelected-> x;
+    x -:Subtree-> lst:List -:ListElt-> :ListNode -:ListValue-> y:ScAstNode;
+    negative { y -:YcSSelected-> y; }
+    modify { y -:YcSSelected-> y; }
+}
+
 rule YcSmarkSelection(var startLine : int, var startCol : int, var endLine : int, var endCol : int) {
     x:ScAstNode;
     if {

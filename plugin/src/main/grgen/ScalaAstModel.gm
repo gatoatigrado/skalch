@@ -79,6 +79,7 @@ node class ThisValDef extends ValDef;
 
 
 // ==== unified modules ====
+
 // edge class MyEdge
 // node class MyNode
 
@@ -142,7 +143,11 @@ edge class GetterFcnField;
 edge class SetterFcnField;
 
 node class GetterFcnDef extends MemberFcn;
-node class GetterFcnCall extends FcnCall;abstract node class AbstractSketchNodeType;
+node class GetterFcnCall extends FcnCall;
+
+
+
+abstract node class AbstractSketchNodeType;
 node class TypeArray extends AbstractSketchNodeType;
 node class TypePortal extends AbstractSketchNodeType;
 node class TypePrimitive extends AbstractSketchNodeType;

@@ -20,6 +20,8 @@ edge class SetterFcnField;
 node class GetterFcnDef extends MemberFcn;
 node class GetterFcnCall extends FcnCall;
 {% endblock %}
+
+
 {% block grs %}
 xgrs [markGetterFcns]
 xgrs markGetterCalls*
@@ -27,6 +29,8 @@ xgrs [setGetterFcnField]
 xgrs [replaceGetterCall]
 xgrs deleteUnusedFcnDefs* & deleteDangling*
 {% endblock %}
+
+
 {% block grg %}
 {% import "macros.grg" as macros %}
 rule markGetterFcns {

@@ -1,3 +1,5 @@
+{% import "macros.grg" as macros with context %}
+
 {% block comment %}
 author: gatoatigrado (nicholas tung) [ntung at ntung]
 
@@ -22,6 +24,8 @@ xgrs (deleteDangling+ | removeNopTypeCast)*
 echo "[REWRITE PRODUCTION] local simplifications -- retype unit blocks"
 xgrs createFunctionBlocks*
 xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
+
+
 # xgrs checkOnlyFcnBlocks
 {% endblock %}
 
@@ -29,18 +33,22 @@ xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
 
 {% block grg %}
 rule createFunctionBlocks {
-    x:FcnDef -e:FcnBody-> y:ScAstNode;
+    x:FcnDef -fcn_body:FcnBody-> y:ScAstNode;
     x -:FcnDefReturnTypeSymbol-> z:Symbol;
     negative { if { typeof(y) >= Block; } }
     modify {
-        delete(e);
-        x -:FcnBody-> block:Block -:BlockStmtChain-> empty:EmptyChain;
-        block -:BlockStmtLast-> empty;
-        block -:BlockExpr-> y;
+        delete(fcn_body);
+
+        ret:Return -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> z;
+        ret -:ReturnExpr-> y;
+
+        x -:FcnBody-> block:SKBlock -:BlockStmtChain-> ret;
+        block -:BlockStmtLast-> ret;
         block -:BlockTypeSymbol-> z;
-//         eval {
-//             block.sourceFile = y.sourceFile;
-//         }
+
+        eval {
+            {{ macros.copySrcPosition("y", ["block", "ret"]) }}
+        }
     }
 }
 

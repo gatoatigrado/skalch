@@ -17,6 +17,10 @@ try:
 except ImportError, e:
     import sys; print("please install gatoatigrado's utility library from "
         "bitbucket.org/gatoatigrado/gatoatigrado_lib", file=sys.stderr)
+import resource
+
+mbyte = 1 << 20
+resource.setrlimit(resource.RLIMIT_AS, (1600 * mbyte, 1600 * mbyte))
 
 mundane = [re.compile("^%s$" % (v)) for v in r"""
 Model assembly "" generated.
@@ -57,6 +61,7 @@ def main(grs_template=defaultgrs, output_file=None, gxl_file=None,
         get_sel_info=False, silent=False,
         debug=False, runonly=False, ycomp=False):
 
+    assert ycomp if ycomp_selection else True
     assert grs_template
     grs_template = Path(re.sub("^\!", modpath, grs_template))
     if not gxl_file:
@@ -78,7 +83,7 @@ python %s "$@"
     tmppath.subpath("launcher.sh").chmod(0755)
 
     grshell = Path.resolve("grshell", "GrShell")
-    proc = SubProc([grshell] + ([] if runonly else ["-N"]) + [grs_file])
+    proc = SubProc([grshell] + ([] if (runonly or ycomp) else ["-N"]) + [grs_file])
     time = []
     def flush_time():
         if time and not silent:

@@ -6,15 +6,12 @@ import sketch.util._
 
 class MySketch() extends AngelicSketch {
     type Int5 = Int @ Range(-32 to 32)
-//     class A(val a : Int @ Range(-3 to 1), val b : Boolean)
-//     def b2(a : A) = a.a
     def main(y : Int) {
-//         var y : Int = 0;
-//         y = 3;
-//         var z = 4;
-        var x : Int = if (??) { -(?? : Int) } else ??
-        synthAssert(x + 4 == 3)
+        var x : Int5 = if (??) { -(?? : Int5) } else ??
+        synthAssert(myfcn(x) + 4 == 3)
     }
+
+    def myfcn(x : Int) = x + 1
 }
 
 @SkalchIgnoreClass

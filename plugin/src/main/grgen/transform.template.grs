@@ -59,6 +59,7 @@ include "stages-scripts/gen/cleanup_accessors.grs"
 include "stages-scripts/clean_sketch_constructs.grs"
 include "stages-scripts/gen/blockify_fcndefs.grs"
 include "stages-scripts/gen/nice_lists.grs"
+
 include "stages-scripts/gen/cstyle_stmts.grs"
 include "stages-scripts/gen/cstyle_assns.grs" # final part of cstyle lowering
 

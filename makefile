@@ -65,7 +65,7 @@ ycomp-intermediate: killall
 	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"
 
 ycomp-unprocessed: killall
-	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl --grs_template="!/ycomp_intermediate.grs"
+	python plugin/src/main/grgen/transform_sketch.py --ycomp "--gxl_file=base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl" --grs_template='!/ycomp_intermediate.grs'
 
 plugin_dev: # build the plugin and compile the a test given by $(testfile)
 	cd base; export TRANSLATE_SKETCH=true; touch src/test/scala/$(testfile) && mvn compile test-compile -Dmaven.scala.displayCmd=true

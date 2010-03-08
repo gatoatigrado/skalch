@@ -16,79 +16,77 @@ import sketch.util.DebugOut;
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public abstract class ScDebugRun {
-    protected ScDynamicSketchCall<?> sketch_call;
+    protected ScDynamicSketchCall<?> sketchCall;
     public boolean succeeded;
-    public StackTraceElement assert_info;
-    public Vector<ScDebugEntry> debug_out;
+    public StackTraceElement assertInfo;
+    public Vector<ScDebugEntry> debugOut;
     public Vector<Object> queue;
-    public Vector<Object> queue_trace;
+    public Vector<Object> queueTrace;
 
     public ScDebugRun(ScDynamicSketchCall<?> sketch) {
-        sketch_call = sketch;
+        sketchCall = sketch;
     }
 
-    public abstract void run_init();
+    public abstract void runInit();
 
     /** feel free to change this method if you need more hooks */
     public final void run() {
-        enable_debug();
-        run_init();
-        sketch_call.initializeBeforeAllTests(get_ctrl_conf(),
-                get_oracle_conf(), get_queue_iterator());
-        assert_info = null;
+        enableDebug();
+        runInit();
+        sketchCall.initializeBeforeAllTests(getCtrlConf(), getOracleConf(),
+                getQueueIterator());
+        assertInfo = null;
         succeeded = false;
         trycatch: try {
-            for (int a = 0; a < sketch_call.getNumCounterexamples(); a++) {
-                if (!sketch_call.runTest(a)) {
+            for (int a = 0; a < sketchCall.getNumCounterexamples(); a++) {
+                if (!sketchCall.runTest(a)) {
                     break trycatch;
                 }
             }
             succeeded = true;
         } catch (ScSynthesisAssertFailure e) {
-            set_assert_info(get_assert_failure_location(), e);
+            setAssertInfo(getAssertFailureLocation(), e);
         } catch (ScDynamicUntilvException e) {
-            set_assert_info(get_assert_failure_location(), e);
+            setAssertInfo(getAssertFailureLocation(), e);
         } catch (Exception e) {
             DebugOut.print_exception("should not have any other failures", e);
             DebugOut.assertFalse("exiting");
         }
-        debug_out = get_debug_out();
-        queue = get_queue();
-        queue_trace = get_queue_trace();
+        debugOut = getDebugOut();
+        queue = getQueue();
+        queueTrace = getQueueTrace();
     }
 
-    protected final void set_assert_info(StackTraceElement assert_info,
-            Exception e) {
-        if (assert_info == null) {
+    protected final void setAssertInfo(StackTraceElement assertInfo, Exception e) {
+        if (assertInfo == null) {
             DebugOut.assertFalse("assert info null after failure", e);
         }
-        this.assert_info = assert_info;
+        this.assertInfo = assertInfo;
     }
 
-    public boolean assert_failed() {
-        return assert_info != null;
+    public boolean assertFailed() {
+        return assertInfo != null;
     }
 
-    public void trial_init() {
-    }
+    public void trialInit() {}
 
-    public abstract ScCtrlConf get_ctrl_conf();
+    public abstract ScCtrlConf getCtrlConf();
 
-    public abstract ScInputConf get_oracle_conf();
+    public abstract ScInputConf getOracleConf();
 
-    protected abstract void enable_debug();
+    protected abstract void enableDebug();
 
-    public abstract StackTraceElement get_assert_failure_location();
+    public abstract StackTraceElement getAssertFailureLocation();
 
-    public abstract Vector<ScDebugEntry> get_debug_out();
+    public abstract Vector<ScDebugEntry> getDebugOut();
 
-    public abstract Vector<Object> get_queue();
+    public abstract Vector<Object> getQueue();
 
-    public abstract Vector<Object> get_queue_trace();
+    public abstract Vector<Object> getQueueTrace();
 
-    public abstract QueueIterator get_queue_iterator();
+    public abstract QueueIterator getQueueIterator();
 }

@@ -35,30 +35,30 @@ import sketch.util.thread.InteractiveThread;
  *          changes, please consider contributing back!
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
-    public ScSynthesis<?> synth_runtime;
-    public ScDynamicSketchCall<?> sketch_call;
+    public ScSynthesis<?> synthRuntime;
+    public ScDynamicSketchCall<?> sketchCall;
     public ScUiGui gui;
-    public ScFixedInputConf[] all_counterexamples;
-    public AtomicInteger modifier_timestamp = new AtomicInteger(0);
-    static ConcurrentLinkedQueue<ScUiThread> gui_list =
+    public ScFixedInputConf[] allCounterexamples;
+    public AtomicInteger modifierTimestamp = new AtomicInteger(0);
+    static ConcurrentLinkedQueue<ScUiThread> guiList =
             new ConcurrentLinkedQueue<ScUiThread>();
-    static ConcurrentLinkedQueue<ScUiModifier> modifier_list =
+    static ConcurrentLinkedQueue<ScUiModifier> modifierList =
             new ConcurrentLinkedQueue<ScUiModifier>();
-    public boolean auto_display_first_solution = true;
-    public BackendOptions be_opts;
+    public boolean autoDisplayFirstSolution = true;
+    public BackendOptions beOpts;
     public ScModifierDispatcher lastDisplayDispatcher;
     private ScSourceConstruct sourceInfo;
 
-    public ScUiThread(ScSynthesis<?> synth_runtime, ScDynamicSketchCall<?> sketch_call,
-            BackendOptions be_opts, ScSourceConstruct sourceInfo)
+    public ScUiThread(ScSynthesis<?> synthRuntime, ScDynamicSketchCall<?> sketchCall,
+            BackendOptions beOpts, ScSourceConstruct sourceInfo)
     {
         super(0.05f);
-        this.synth_runtime = synth_runtime;
-        this.sketch_call = sketch_call;
-        this.be_opts = be_opts;
+        this.synthRuntime = synthRuntime;
+        this.sketchCall = sketchCall;
+        this.beOpts = beOpts;
         this.sourceInfo = sourceInfo;
-        auto_display_first_solution = !be_opts.ui_opts.no_auto_soln_disp;
-        gui_list.add(this);
+        autoDisplayFirstSolution = !beOpts.uiOpts.noAutoSolnDisp;
+        guiList.add(this);
     }
 
     @Override
@@ -68,18 +68,18 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         new AnimatedRunnableModifier(1.f) {
             @Override
             public void run() {
-                ScStatsMT.stats_singleton.showStatsWithUi();
+                ScStatsMT.statsSingleton.showStatsWithUi();
             }
         };
     }
 
     @Override
     public void run_inner() {
-        int num_modifiers = modifier_list.size();
-        for (int a = 0; a < num_modifiers; a++) {
-            ScUiModifier m = modifier_list.remove();
-            GuiThreadTask run_modifier = new GuiThreadTask(m);
-            SwingUtilities.invokeLater(run_modifier);
+        int numModifiers = modifierList.size();
+        for (int a = 0; a < numModifiers; a++) {
+            ScUiModifier m = modifierList.remove();
+            GuiThreadTask runModifier = new GuiThreadTask(m);
+            SwingUtilities.invokeLater(runModifier);
         }
     }
 
@@ -90,33 +90,33 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     }
 
     public void modifierComplete(ScUiModifier m) {
-        modifier_list.add(m);
+        modifierList.add(m);
     }
 
     public int nextModifierTimestamp() {
-        return modifier_timestamp.incrementAndGet();
+        return modifierTimestamp.incrementAndGet();
     }
 
-    public void addStackSynthesis(final ScLocalStackSynthesis local_ssr) {
+    public void addStackSynthesis(final ScLocalStackSynthesis localSsr) {
         final ScUiThread target = this;
         new AddedModifier() {
             @Override
             public void apply() {
                 ScUiGui gui = target.gui;
-                gui.num_synth_active += 1;
-                new ScActiveStack(target, gui.synthCompletions, local_ssr).add();
+                gui.numSynthActive += 1;
+                new ScActiveStack(target, gui.synthCompletions, localSsr).add();
             }
         };
     }
 
     public void addStackSolution(ScStack stack__) {
-        final ScStack stack_to_add = stack__.clone();
+        final ScStack stackToAdd = stack__.clone();
         new AddedModifier() {
             @Override
             public void apply() {
                 ScSolutionStack solution =
                         new ScSolutionStack(ScUiThread.this, gui.synthCompletions,
-                                stack_to_add);
+                                stackToAdd);
                 solution.add();
                 autoDisplaySolution(solution);
             }
@@ -126,13 +126,13 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     /**
      * Currently usused, as we don't do much with counterexamples.
      */
-    public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (be_opts.ui_opts.print_counterex) {
+    public void setCounterexamples(ScSolvingInputConf[] inputs) {
+        if (beOpts.uiOpts.printCounterex) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[user requested print]", "\n",
                     true, text);
         }
-        all_counterexamples = ScFixedInputConf.from_inputs(inputs);
+        allCounterexamples = ScFixedInputConf.fromInputs(inputs);
     }
 
     /**
@@ -149,9 +149,9 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     /** dispatch a solution modifier if nothing has been displayed already. */
     protected void autoDisplaySolution(ScModifierDispatcher solution) {
-        if (auto_display_first_solution) {
-            auto_display_first_solution = false;
-            gui.synthCompletions.set_selected(solution);
+        if (autoDisplayFirstSolution) {
+            autoDisplayFirstSolution = false;
+            gui.synthCompletions.setSelected(solution);
             solution.dispatch();
         }
     }
@@ -184,21 +184,21 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     }
 
     public abstract class AnimatedRunnableModifier extends AddedModifier {
-        public float timeout_secs;
-        public float last_time = 0.f;
+        public float timeoutSecs;
+        public float lastTime = 0.f;
 
-        public AnimatedRunnableModifier(float timeout_secs) {
-            this.timeout_secs = timeout_secs;
+        public AnimatedRunnableModifier(float timeoutSecs) {
+            this.timeoutSecs = timeoutSecs;
         }
 
         @Override
         public void apply() {
-            if (!synth_runtime.wait_handler.synthesis_complete.get()) {
+            if (!synthRuntime.waitHandler.synthesisComplete.get()) {
                 add(); // re-enqueue;
             }
-            if (thread_time - last_time > timeout_secs) {
+            if (thread_time - lastTime > timeoutSecs) {
                 run();
-                last_time = thread_time;
+                lastTime = thread_time;
             }
         }
 

@@ -263,7 +263,7 @@ object SearchCliOptions extends cli.CliOptionGroup {
 object Search {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
-        BackendOptions.add_opts(cmdopts)
+        BackendOptions.addOpts(cmdopts)
         SearchCliOptions.result = SearchCliOptions.parse(cmdopts)
         skalch.AngelicSketchSynthesize(() => new SearchSketch())
     }

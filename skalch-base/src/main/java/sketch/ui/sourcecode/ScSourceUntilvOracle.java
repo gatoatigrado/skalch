@@ -14,11 +14,11 @@ import sketch.util.wrapper.ScRichString;
  */
 public class ScSourceUntilvOracle implements ScSourceConstructInfo {
     int uid;
-    ScDynamicSketchCall<?> sketch_call;
+    ScDynamicSketchCall<?> sketchCall;
 
-    public ScSourceUntilvOracle(int uid, ScDynamicSketchCall<?> sketch_call) {
+    public ScSourceUntilvOracle(int uid, ScDynamicSketchCall<?> sketchCall) {
         this.uid = uid;
-        this.sketch_call = sketch_call;
+        this.sketchCall = sketchCall;
     }
 
     public boolean hasMultipleValues() {
@@ -29,12 +29,12 @@ public class ScSourceUntilvOracle implements ScSourceConstructInfo {
     public String valueString(String srcArgs) {
         try {
             Vector<ScConstructValueString> values =
-                    sketch_call.getOracleValueString(uid);
-            Vector<String> result_arr = new Vector<String>();
-            for (ScConstructValueString value_string : values) {
-                result_arr.add(value_string.formatString());
+                    sketchCall.getOracleValueString(uid);
+            Vector<String> resultArr = new Vector<String>();
+            for (ScConstructValueString valueString : values) {
+                resultArr.add(valueString.formatString());
             }
-            return (new ScRichString(", ")).join(result_arr
+            return (new ScRichString(", ")).join(resultArr
                     .toArray(new String[0]));
         } catch (ScNoValueStringException e) {
             return "not encountered";

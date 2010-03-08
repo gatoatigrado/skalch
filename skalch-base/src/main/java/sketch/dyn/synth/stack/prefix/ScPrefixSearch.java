@@ -9,7 +9,7 @@ package sketch.dyn.synth.stack.prefix;
  *          make changes, please consider contributing back!
  */
 public abstract class ScPrefixSearch implements Cloneable {
-    public ScPrefix current_prefix;
+    public ScPrefix currentPrefix;
 
     public abstract ScPrefixSearch clone();
 }

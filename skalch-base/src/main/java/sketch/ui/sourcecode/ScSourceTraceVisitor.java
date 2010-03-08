@@ -16,14 +16,14 @@ import sketch.util.sourcecode.ScSourceLocation;
  */
 public class ScSourceTraceVisitor extends ScSourceHighlightVisitor {
     @Override
-    public String visitHoleInfo(ScSourceConstruct ctrl_src_info) {
-        ScSourceLocation argloc = ctrl_src_info.argument_location;
+    public String visitHoleInfo(ScSourceConstruct ctrlSrcInfo) {
+        ScSourceLocation argloc = ctrlSrcInfo.argumentLocation;
         String arg = ScSourceCache.singleton().getSourceString(argloc);
-        if (ctrl_src_info.entire_location.start_eq_to_end()) {
+        if (ctrlSrcInfo.entireLocation.startEqToEnd()) {
             String line =
                     ScSourceCache.singleton().getLine(
-                            ctrl_src_info.entire_location.filename,
-                            ctrl_src_info.entire_location.start.line);
+                            ctrlSrcInfo.entireLocation.filename,
+                            ctrlSrcInfo.entireLocation.start.line);
             Pattern whitespace = Pattern.compile("(\\s*).*");
             Matcher m = whitespace.matcher(line);
             String indent = "";
@@ -34,11 +34,11 @@ public class ScSourceTraceVisitor extends ScSourceHighlightVisitor {
             }
             return indent
                     + "<span style=\"color: #0000ff;\">// construct info for "
-                    + ctrl_src_info.getName() + ": "
-                    + ctrl_src_info.construct_info.valueString(arg)
+                    + ctrlSrcInfo.getName() + ": "
+                    + ctrlSrcInfo.constructInfo.valueString(arg)
                     + "</span>\n";
         } else {
-            return "<b>" + ctrl_src_info.construct_info.valueString(arg)
+            return "<b>" + ctrlSrcInfo.constructInfo.valueString(arg)
                     + "</b>";
         }
     }

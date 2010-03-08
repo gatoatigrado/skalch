@@ -33,22 +33,22 @@ import sketch.util.wrapper.ScRichString;
  *          changes, please consider contributing back!
  */
 public class ScStack extends ScPrefixSearch {
-    public ScSynthCtrlConf ctrl_conf;
-    public ScSolvingInputConf oracle_conf;
+    public ScSynthCtrlConf ctrlConf;
+    public ScSolvingInputConf oracleConf;
     protected FactoryStack<ScStackEntry> stack;
-    protected int added_entries = 0;
-    protected boolean first_run = true;
-    public int solution_cost = -1;
-    public final int max_stack_depth;
+    protected int addedEntries = 0;
+    protected boolean firstRun = true;
+    public int solutionCost = -1;
+    public final int maxStackDepth;
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
-    public ScStack(ScPrefix default_prefix, int max_stack_depth) {
-        this.max_stack_depth = max_stack_depth;
+    public ScStack(ScPrefix defaultPrefix, int maxStackDepth) {
+        this.maxStackDepth = maxStackDepth;
         stack = new FactoryStack<ScStackEntry>(16, new ScStackEntry.Factory());
-        ctrl_conf = new ScSynthCtrlConf(this, SYNTH_HOLE_LOG_TYPE);
-        oracle_conf = new ScSolvingInputConf(this, SYNTH_ORACLE_LOG_TYPE);
-        current_prefix = default_prefix;
+        ctrlConf = new ScSynthCtrlConf(this, SYNTH_HOLE_LOG_TYPE);
+        oracleConf = new ScSolvingInputConf(this, SYNTH_ORACLE_LOG_TYPE);
+        currentPrefix = defaultPrefix;
     }
 
     @Override
@@ -59,9 +59,9 @@ public class ScStack extends ScPrefixSearch {
             result += ent.hashCode();
         }
         result *= 171;
-        result += ctrl_conf.hashCode();
+        result += ctrlConf.hashCode();
         result *= 723;
-        result += oracle_conf.hashCode();
+        result += oracleConf.hashCode();
         return result;
     }
 
@@ -70,8 +70,8 @@ public class ScStack extends ScPrefixSearch {
         for (int a = 0; a < stack.size(); a++) {
             ScStackEntry ent = stack.get(a);
             rv[a] =
-                    "(" + ent.toString() + ", untilv=" + get_untilv(ent) + ", " +
-                            get_stack_ent(ent) + ")";
+                    "(" + ent.toString() + ", untilv=" + getUntilv(ent) + ", " +
+                            getStackEnt(ent) + ")";
         }
         return rv;
     }
@@ -86,66 +86,66 @@ public class ScStack extends ScPrefixSearch {
         return "ScStack[ " + sep.join(getStringArrayRep()) + " ]";
     }
 
-    public void initialize_fixed_for_illustration(ScDynamicSketchCall<?> sketch_call) {
-        ctrl_conf.generate_value_strings();
-        ScFixedInputConf fixed_oracles = oracle_conf.fixed_inputs();
-        fixed_oracles.generate_value_strings();
-        sketch_call.initializeBeforeAllTests(ctrl_conf, fixed_oracles, null);
+    public void initializeFixedForIllustration(ScDynamicSketchCall<?> sketchCall) {
+        ctrlConf.generateValueStrings();
+        ScFixedInputConf fixedOracles = oracleConf.fixedInputs();
+        fixedOracles.generateValueStrings();
+        sketchCall.initializeBeforeAllTests(ctrlConf, fixedOracles, null);
     }
 
-    public void reset_before_run() {
-        added_entries = 0;
-        oracle_conf.reset_index();
+    public void resetBeforeRun() {
+        addedEntries = 0;
+        oracleConf.resetIndex();
     }
 
-    protected boolean set_stack_ent(ScStackEntry ent, int v) {
+    protected boolean setStackEnt(ScStackEntry ent, int v) {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
-            return ctrl_conf.set(ent.uid, v);
+            return ctrlConf.set(ent.uid, v);
         } else {
             if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
                 DebugOut.assertFalse("uknown stack entry type", ent.type);
             }
-            return oracle_conf.set(ent.uid, ent.subuid, v);
+            return oracleConf.set(ent.uid, ent.subuid, v);
         }
     }
 
-    protected int get_stack_ent(ScStackEntry ent) {
+    protected int getStackEnt(ScStackEntry ent) {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
-            return ctrl_conf.getValue(ent.uid);
+            return ctrlConf.getValue(ent.uid);
         } else {
             if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
                 DebugOut.assertFalse("uknown stack entry type", ent.type);
             }
-            return oracle_conf.get(ent.uid, ent.subuid);
+            return oracleConf.get(ent.uid, ent.subuid);
         }
     }
 
-    protected int get_untilv(ScStackEntry ent) {
+    protected int getUntilv(ScStackEntry ent) {
         if (ent.type == SYNTH_HOLE_LOG_TYPE) {
-            return ctrl_conf.untilv[ent.uid];
+            return ctrlConf.untilv[ent.uid];
         } else {
             if (ent.type != SYNTH_ORACLE_LOG_TYPE) {
                 DebugOut.assertFalse("uknown stack entry type", ent.type);
             }
-            return oracle_conf.untilv[ent.uid].get(ent.subuid);
+            return oracleConf.untilv[ent.uid].get(ent.subuid);
         }
     }
 
-    protected void next_inner(boolean force_pop) {
-        if (!force_pop && !current_prefix.get_all_searched()) {
+    protected void nextInner(boolean forcePop) {
+        if (!forcePop && !currentPrefix.getAllSearched()) {
             try {
                 ScStackEntry last = stack.peek();
                 // get the stack exception first
-                int next_value;
-                if (current_prefix instanceof ScLocalPrefix) {
-                    next_value = get_stack_ent(last) + 1;
+                int nextValue;
+                if (currentPrefix instanceof ScLocalPrefix) {
+                    nextValue = getStackEnt(last) + 1;
                 } else {
-                    next_value = current_prefix.next_value();
-                    DebugOut.print_mt("got value", next_value, "from prefix",
-                            current_prefix, "uid", last.uid);
+                    nextValue = currentPrefix.nextValue();
+                    DebugOut.print_mt("got value", nextValue, "from prefix",
+                            currentPrefix, "uid", last.uid);
                 }
-                if (!set_stack_ent(last, next_value)) {
-                    current_prefix.set_all_searched();
+                if (!setStackEnt(last, nextValue)) {
+                    currentPrefix.setAllSearched();
                 } else {
                     return;
                 }
@@ -154,53 +154,53 @@ public class ScStack extends ScPrefixSearch {
             }
         }
         // recurse if this subtree is searched.
-        reset_accessed(stack.pop());
-        current_prefix = current_prefix.get_parent(this);
-        next_inner(false);
+        resetAccessed(stack.pop());
+        currentPrefix = currentPrefix.getParent(this);
+        nextInner(false);
     }
 
-    protected void reset_accessed(ScStackEntry prev) {
+    protected void resetAccessed(ScStackEntry prev) {
         if (prev.type == SYNTH_HOLE_LOG_TYPE) {
-            ctrl_conf.reset_accessed(prev.uid);
+            ctrlConf.resetAccessed(prev.uid);
         } else {
-            oracle_conf.reset_accessed(prev.uid, prev.subuid);
+            oracleConf.resetAccessed(prev.uid, prev.subuid);
         }
     }
 
-    public void next(boolean force_pop) {
+    public void next(boolean forcePop) {
         // DebugOut.print_mt("   next -", this, first_run, added_entries);
-        if (first_run) {
+        if (firstRun) {
             // now at DefaultPrefix
-            first_run = false;
-        } else if (added_entries > 0) {
+            firstRun = false;
+        } else if (addedEntries > 0) {
             // need to create a LocalPrefix
-            current_prefix = current_prefix.add_entries(added_entries);
+            currentPrefix = currentPrefix.addEntries(addedEntries);
         }
-        next_inner(force_pop);
+        nextInner(forcePop);
     }
 
-    public void add_entry(int type, int uid, int subuid) {
-        if (stack.size() >= max_stack_depth) {
+    public void addEntry(int type, int uid, int subuid) {
+        if (stack.size() >= maxStackDepth) {
             throw new ScSynthesisAssertFailure();
         }
         stack.push().set(type, uid, subuid);
-        added_entries += 1;
+        addedEntries += 1;
     }
 
     @Override
     public ScStack clone() {
-        ScStack result = new ScStack(current_prefix, max_stack_depth);
-        result.added_entries = added_entries;
-        result.ctrl_conf.copy_values_from(ctrl_conf);
-        result.oracle_conf.copy_values_from(oracle_conf);
+        ScStack result = new ScStack(currentPrefix, maxStackDepth);
+        result.addedEntries = addedEntries;
+        result.ctrlConf.copyValuesFrom(ctrlConf);
+        result.oracleConf.copyValuesFrom(oracleConf);
         // ScStackEntry types don't explicitly link to holes or oracles.
         result.stack = stack.clone();
-        result.first_run = first_run;
-        result.solution_cost = solution_cost;
+        result.firstRun = firstRun;
+        result.solutionCost = solutionCost;
         return result;
     }
 
-    public void setCost(int solution_cost) {
-        this.solution_cost = solution_cost;
+    public void setCost(int solutionCost) {
+        this.solutionCost = solutionCost;
     }
 }

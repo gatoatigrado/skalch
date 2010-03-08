@@ -17,9 +17,9 @@ import sketch.ui.sourcecode.ScSourceConstruct;
  *          changes, please consider contributing back!
  */
 public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
-    public final ScAngelicSketchCall ui_sketch;
+    public final ScAngelicSketchCall uiSketch;
     protected final ScAngelicSketchCall[] sketches;
-    protected final ScSynthesis<?> synthesis_runtime;
+    protected final ScSynthesis<?> synthesisRuntime;
     private ScSourceConstruct sourceInfo;
 
     public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
@@ -27,16 +27,16 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         for (int a = 0; a < nthreads; a++) {
             sketches[a] = new ScAngelicSketchCall(f.apply());
         }
-        ui_sketch = new ScAngelicSketchCall(f.apply());
-        sourceInfo = getSourceCodeInfo(ui_sketch);
-        ui_sketch.addSourceInfo(sourceInfo);
-        synthesis_runtime = get_synthesis_runtime(sketches);
+        uiSketch = new ScAngelicSketchCall(f.apply());
+        sourceInfo = getSourceCodeInfo(uiSketch);
+        uiSketch.addSourceInfo(sourceInfo);
+        synthesisRuntime = getSynthesisRuntime(sketches);
     }
 
     public Object synthesize() throws Exception {
         // start various utilities
         ScUserInterface ui =
-                ScUserInterfaceManager.start_ui(be_opts, synthesis_runtime, ui_sketch,
+                ScUserInterfaceManager.startUi(beOpts, synthesisRuntime, uiSketch,
                         sourceInfo);
 
         // if (be_opts.synth_opts.trace_filename != "") {
@@ -56,12 +56,12 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
 
         ScSynthesisResults results = new ScSynthesisResults();
 
-        init_stats(ui);
-        ScStatsMT.stats_singleton.start_synthesis();
+        initStats(ui);
+        ScStatsMT.statsSingleton.startSynthesis();
         // actual synthesize call
-        synthesis_runtime.synthesize(results);
+        synthesisRuntime.synthesize(results);
         // stop utilities
-        ScStatsMT.stats_singleton.showStatsWithUi();
-        return synthesis_runtime.get_solution_tuple();
+        ScStatsMT.statsSingleton.showStatsWithUi();
+        return synthesisRuntime.getSolutionTuple();
     }
 }

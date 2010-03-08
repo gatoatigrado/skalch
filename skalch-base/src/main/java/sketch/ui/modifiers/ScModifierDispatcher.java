@@ -17,13 +17,13 @@ import sketch.ui.gui.ScUiThread;
 public abstract class ScModifierDispatcher implements
         Comparable<ScModifierDispatcher>
 {
-    public ScUiThread ui_thread;
+    public ScUiThread uiThread;
     public ScUiList<ScModifierDispatcher> list;
 
-    public ScModifierDispatcher(ScUiThread ui_thread,
+    public ScModifierDispatcher(ScUiThread uiThread,
             ScUiList<ScModifierDispatcher> list)
     {
-        this.ui_thread = ui_thread;
+        this.uiThread = uiThread;
         this.list = list;
     }
 
@@ -36,12 +36,12 @@ public abstract class ScModifierDispatcher implements
 
     public void dispatch() {
         try {
-            ScUiModifierInner modifier_inner = get_modifier();
-            if (modifier_inner == null) {
+            ScUiModifierInner modifierInner = getModifier();
+            if (modifierInner == null) {
                 assertFalse("class", this.getClass().getName(),
                         "returned null modifier");
             }
-            enqueue(new ScUiModifier(ui_thread, modifier_inner));
+            enqueue(new ScUiModifier(uiThread, modifierInner));
         } catch (ScUiQueueableInactive e) {
             e.printStackTrace();
             if (list != null) {
@@ -55,18 +55,18 @@ public abstract class ScModifierDispatcher implements
     }
 
     public int compareTo(ScModifierDispatcher other) {
-        int my_cost = getCost();
-        int other_cost = other.getCost();
-        if (my_cost < other_cost) {
+        int myCost = getCost();
+        int otherCost = other.getCost();
+        if (myCost < otherCost) {
             return -1;
-        } else if (my_cost == other_cost) {
+        } else if (myCost == otherCost) {
             return 0;
         } else {
             return 1;
         }
     }
 
-    public abstract ScUiModifierInner get_modifier();
+    public abstract ScUiModifierInner getModifier();
 
     @Override
     public abstract String toString();

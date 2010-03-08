@@ -27,58 +27,58 @@ import sketch.ui.queues.Queue;
  */
 public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected ScSynthCtrlConf ctrls;
-    protected ScSolvingInputConf oracle_inputs;
+    protected ScSolvingInputConf oracleInputs;
     protected Queue queue;
 
     // variables for ScLocalStackSynthesis
-    public ScPrefixSearchManager<ScStack> search_manager;
-    protected AtomicBoolean got_first_run;
-    protected AtomicReference<ScStack> first_solution;
+    public ScPrefixSearchManager<ScStack> searchManager;
+    protected AtomicBoolean gotFirstRun;
+    protected AtomicReference<ScStack> firstSolution;
 
-    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches, BackendOptions be_opts) {
-        super(be_opts);
+    public ScStackSynthesis(ScDynamicSketchCall<?>[] sketches, BackendOptions beOpts) {
+        super(beOpts);
         // initialize backends
-        local_synthesis = new ScLocalStackSynthesis[sketches.length];
+        localSynthesis = new ScLocalStackSynthesis[sketches.length];
         for (int a = 0; a < sketches.length; a++) {
-            local_synthesis[a] = new ScLocalStackSynthesis(sketches[a], this, be_opts, a);
+            localSynthesis[a] = new ScLocalStackSynthesis(sketches[a], this, beOpts, a);
         }
     }
 
     @Override
-    public void synthesize_inner(ScSynthesisResults resultsStore) {
+    public void synthesizeInner(ScSynthesisResults resultsStore) {
         ScDefaultPrefix prefix = new ScDefaultPrefix();
-        ScStack stack = new ScStack(prefix, be_opts.synth_opts.max_stack_depth);
+        ScStack stack = new ScStack(prefix, beOpts.synthOpts.maxStackDepth);
         // shared classes to synchronize / manage search
-        search_manager = new ScPrefixSearchManager<ScStack>(stack, prefix);
-        got_first_run = new AtomicBoolean(false);
-        first_solution = new AtomicReference<ScStack>(null);
-        for (ScLocalStackSynthesis local_synth : local_synthesis) {
-            resultsStore.addStackSynthesis(local_synth);
-            local_synth.run();
+        searchManager = new ScPrefixSearchManager<ScStack>(stack, prefix);
+        gotFirstRun = new AtomicBoolean(false);
+        firstSolution = new AtomicReference<ScStack>(null);
+        for (ScLocalStackSynthesis localSynth : localSynthesis) {
+            resultsStore.addStackSynthesis(localSynth);
+            localSynth.run();
         }
     }
 
-    public boolean add_solution(ScStack stack) {
-        if (stack.first_run && got_first_run.getAndSet(true)) {
+    public boolean addSolution(ScStack stack) {
+        if (stack.firstRun && gotFirstRun.getAndSet(true)) {
             return false;
         }
-        if (first_solution.get() == null) {
-            first_solution.compareAndSet(null, stack.clone());
+        if (firstSolution.get() == null) {
+            firstSolution.compareAndSet(null, stack.clone());
         }
         resultsStore.addStackSolution(stack);
-        increment_num_solutions();
+        incrementNumSolutions();
         return true;
     }
 
     @Override
-    public Object get_solution_tuple() {
-        if (first_solution.get() == null) {
+    public Object getSolutionTuple() {
+        if (firstSolution.get() == null) {
             return null;
         } else {
-            ScStack stack = first_solution.get();
-            stack.reset_before_run(); // let the solution just dequeue entries
-            return new scala.Tuple2<ScSynthCtrlConf, ScSolvingInputConf>(stack.ctrl_conf,
-                    stack.oracle_conf);
+            ScStack stack = firstSolution.get();
+            stack.resetBeforeRun(); // let the solution just dequeue entries
+            return new scala.Tuple2<ScSynthCtrlConf, ScSolvingInputConf>(stack.ctrlConf,
+                    stack.oracleConf);
         }
     }
 }

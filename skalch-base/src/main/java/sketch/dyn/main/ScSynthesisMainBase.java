@@ -22,31 +22,31 @@ import sketch.util.wrapper.EntireFileReader;
 
 public class ScSynthesisMainBase {
     protected int nthreads;
-    public BackendOptions be_opts;
+    public BackendOptions beOpts;
 
     public ScSynthesisMainBase() {
-        BackendOptions.initialize_defaults();
-        be_opts = BackendOptions.backend_opts.get();
-        be_opts.initialize_annotated();
-        nthreads = be_opts.synth_opts.num_threads;
+        BackendOptions.initializeDefaults();
+        beOpts = BackendOptions.backendOpts.get();
+        beOpts.initializeAnnotated();
+        nthreads = beOpts.synthOpts.numThreads;
     }
 
-    protected ScSynthesis<?> get_synthesis_runtime(ScDynamicSketchCall<?>[] sketches) {
-        if (be_opts.synth_opts.solver.isStack) {
-            return new ScStackSynthesis(sketches, be_opts);
+    protected ScSynthesis<?> getSynthesisRuntime(ScDynamicSketchCall<?>[] sketches) {
+        if (beOpts.synthOpts.solver.isStack) {
+            return new ScStackSynthesis(sketches, beOpts);
         } else {
             not_implemented("ScSynthesisMainBase -- create unknown solver",
-                    be_opts.synth_opts.solver);
+                    beOpts.synthOpts.solver);
             return null;
         }
     }
 
-    protected ScSourceConstruct getSourceCodeInfo(ScDynamicSketchCall<?> ui_sketch_call) {
-        Class<?> cls = ui_sketch_call.getSketch().getClass();
-        String info_rc = cls.getName().replace(".", File.separator) + ".info";
-        URL rc = cls.getClassLoader().getResource(info_rc);
+    protected ScSourceConstruct getSourceCodeInfo(ScDynamicSketchCall<?> uiSketchCall) {
+        Class<?> cls = uiSketchCall.getSketch().getClass();
+        String infoRc = cls.getName().replace(".", File.separator) + ".info";
+        URL rc = cls.getClassLoader().getResource(infoRc);
         if (rc == null) {
-            DebugOut.print_mt("No source info file found.", info_rc);
+            DebugOut.print_mt("No source info file found.", infoRc);
             return null;
         }
         try {
@@ -56,8 +56,8 @@ public class ScSynthesisMainBase {
             Elements srcinfo = doc.getRootElement().getChildElements();
             for (int a = 0; a < srcinfo.size(); a++) {
                 ScSourceConstruct info =
-                        ScSourceConstruct.from_node(srcinfo.get(a), names[1],
-                                ui_sketch_call);
+                        ScSourceConstruct.fromNode(srcinfo.get(a), names[1],
+                                uiSketchCall);
                 return info;
             }
         } catch (IOException e) {
@@ -67,11 +67,11 @@ public class ScSynthesisMainBase {
         } catch (ParsingException e) {
             DebugOut.print_exception("reading source annotation info ", e);
         }
-        DebugOut.print_mt("Exception while reading source info file.", info_rc);
+        DebugOut.print_mt("Exception while reading source info file.", infoRc);
         return null;
     }
 
-    public void init_stats(ScUserInterface ui) {
-        new ScStatsMT(ui, be_opts);
+    public void initStats(ScUserInterface ui) {
+        new ScStatsMT(ui, beOpts);
     }
 }

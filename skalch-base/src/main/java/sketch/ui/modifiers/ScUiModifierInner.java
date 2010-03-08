@@ -18,8 +18,8 @@ public abstract class ScUiModifierInner {
     public abstract void apply();
 
     /** make sure to make this method threadsafe! */
-    public void setInfo(ScLocalStackSynthesis local_synth,
-            ScLocalStackSynthesis.ScStackSynthesisThread synth_thread, ScStack stack)
+    public void setInfo(ScLocalStackSynthesis localSynth,
+            ScLocalStackSynthesis.ScStackSynthesisThread synthThread, ScStack stack)
     {
         DebugOut.assertFalse("don't append UIModifiersInner to objects "
                 + "it don't have a setInfo() for");

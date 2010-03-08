@@ -10,17 +10,17 @@ import sketch.dyn.main.ScDynamicSketchCall;
  *          make changes, please consider contributing back!
  */
 public class ScSourceApplyHole extends ScSourceUntilvHole {
-    public ScSourceApplyHole(int uid, ScDynamicSketchCall<?> sketch_call) {
-        super(uid, sketch_call);
+    public ScSourceApplyHole(int uid, ScDynamicSketchCall<?> sketchCall) {
+        super(uid, sketchCall);
     }
 
     @Override
-    public String valueString(String src_args) {
+    public String valueString(String srcArgs) {
         try {
-            return "(" + src_args + ")("
-                    + sketch_call.getHoleValueString(uid).formatString() + ")";
+            return "(" + srcArgs + ")("
+                    + sketchCall.getHoleValueString(uid).formatString() + ")";
         } catch (ScNoValueStringException e) {
-            return "/* not reached */ ??(" + src_args + ")";
+            return "/* not reached */ ??(" + srcArgs + ")";
         }
     }
 

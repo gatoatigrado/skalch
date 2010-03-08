@@ -11,25 +11,26 @@ import sketch.util.wrapper.ScRichString;
 
 /**
  * Wrapper for an array of holes.
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScSynthCtrlConf extends ScCtrlConf {
     public ScStack stack;
-    public int log_type;
+    public int logType;
     public int[] values; // -1 for not accessed
     public int[] untilv;
-    public int[] set_cnt;
-    public ScConstructValueString[] value_string;
+    public int[] setCnt;
+    public ScConstructValueString[] valueString;
 
-    public ScSynthCtrlConf(ScStack stack, int log_type) {
+    public ScSynthCtrlConf(ScStack stack, int logType) {
         this.stack = stack;
-        this.log_type = log_type;
+        this.logType = logType;
         values = new int[0];
         untilv = new int[0];
-        set_cnt = new int[0];
+        setCnt = new int[0];
     }
 
     @Override
@@ -44,33 +45,32 @@ public class ScSynthCtrlConf extends ScCtrlConf {
 
     @Override
     public String toString() {
-        String[] values_str = new String[values.length];
+        String[] valuesStr = new String[values.length];
         for (int a = 0; a < values.length; a++) {
-            values_str[a] = String.valueOf(values[a]);
+            valuesStr[a] = String.valueOf(values[a]);
         }
-        return "ScSynthCtrlConf[" + (new ScRichString(", ")).join(values_str)
-                + "]";
+        return "ScSynthCtrlConf[" + (new ScRichString(", ")).join(valuesStr) + "]";
     }
 
-    public void realloc(int min_length) {
-        int next_length = Math.max(min_length, values.length * 2);
-        int[] next_values = new int[next_length];
-        int[] next_untilv = new int[next_length];
-        int[] next_set_cnt = new int[next_length];
-        System.arraycopy(values, 0, next_values, 0, values.length);
-        System.arraycopy(untilv, 0, next_untilv, 0, untilv.length);
-        System.arraycopy(set_cnt, 0, next_set_cnt, 0, set_cnt.length);
-        for (int a = values.length; a < next_length; a++) {
-            next_values[a] = -1;
-            next_untilv[a] = -1;
+    public void realloc(int minLength) {
+        int nextLength = Math.max(minLength, values.length * 2);
+        int[] nextValues = new int[nextLength];
+        int[] nextUntilv = new int[nextLength];
+        int[] nextSetCnt = new int[nextLength];
+        System.arraycopy(values, 0, nextValues, 0, values.length);
+        System.arraycopy(untilv, 0, nextUntilv, 0, untilv.length);
+        System.arraycopy(setCnt, 0, nextSetCnt, 0, setCnt.length);
+        for (int a = values.length; a < nextLength; a++) {
+            nextValues[a] = -1;
+            nextUntilv[a] = -1;
         }
-        values = next_values;
-        untilv = next_untilv;
-        set_cnt = next_set_cnt;
+        values = nextValues;
+        untilv = nextUntilv;
+        setCnt = nextSetCnt;
     }
 
     public boolean set(int uid, int v) {
-        set_cnt[uid] += 1;
+        setCnt[uid] += 1;
         if (v < untilv[uid]) {
             values[uid] = v;
             return true;
@@ -79,48 +79,45 @@ public class ScSynthCtrlConf extends ScCtrlConf {
         }
     }
 
-    public void reset_accessed(int uid) {
+    public void resetAccessed(int uid) {
         values[uid] = -1;
     }
 
-    public void copy_values_from(ScSynthCtrlConf prev) {
+    public void copyValuesFrom(ScSynthCtrlConf prev) {
         values = prev.values.clone();
         untilv = prev.untilv.clone();
-        set_cnt = prev.set_cnt.clone();
+        setCnt = prev.setCnt.clone();
     }
 
     @Override
     public int getValue(int uid) {
         if (values[uid] == -1) {
             values[uid] = 0;
-            stack.add_entry(log_type, uid, 0);
+            stack.addEntry(logType, uid, 0);
         }
         return values[uid];
     }
 
-    public void generate_value_strings() {
-        Vector<ScHighlightValues.Value> value_arr =
-                new Vector<ScHighlightValues.Value>();
+    public void generateValueStrings() {
+        Vector<ScHighlightValues.Value> valueArr = new Vector<ScHighlightValues.Value>();
         for (int a = 0; a < values.length; a++) {
-            ScConstructValue value =
-                    new ScConstructValue(Math.max(0, values[a]));
-            value_arr.add(new ScHighlightValues.Value(value, set_cnt[a], null));
+            ScConstructValue value = new ScConstructValue(Math.max(0, values[a]));
+            valueArr.add(new ScHighlightValues.Value(value, setCnt[a], null));
         }
-        value_string = new ScConstructValueString[values.length];
-        ScHighlightValues.gen_value_strings(value_arr);
+        valueString = new ScConstructValueString[values.length];
+        ScHighlightValues.genValueStrings(valueArr);
         for (int a = 0; a < values.length; a++) {
-            value_string[a] = value_arr.get(a).result;
+            valueString[a] = valueArr.get(a).result;
         }
     }
 
     @Override
-    public ScConstructValueString getValueString(int uid)
-            throws ScNoValueStringException
+    public ScConstructValueString getValueString(int uid) throws ScNoValueStringException
     {
-        if (uid >= value_string.length) {
+        if (uid >= valueString.length) {
             throw new ScNoValueStringException();
         }
-        return value_string[uid];
+        return valueString[uid];
     }
 
     @Override

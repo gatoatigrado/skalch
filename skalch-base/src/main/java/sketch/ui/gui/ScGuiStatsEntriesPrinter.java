@@ -9,29 +9,28 @@ import sketch.ui.modifiers.ScUiModifierInner;
 public class ScGuiStatsEntriesPrinter extends ScModifierDispatcher implements
         ScStatsPrinter
 {
-    public String stats_text;
+    public String statsText;
 
     public ScGuiStatsEntriesPrinter(ScGuiStatsWarningsPrinter warnings,
-            ScUiThread ui_thread)
+            ScUiThread uiThread)
     {
-        super(ui_thread, null);
-        stats_text = "<p><b>statistics</b></p><ul>";
-        if (warnings.any_warnings) {
-            stats_text = warnings.warnings + stats_text;
+        super(uiThread, null);
+        statsText = "<p><b>statistics</b></p><ul>";
+        if (warnings.anyWarnings) {
+            statsText = warnings.warnings + statsText;
         }
     }
 
     @Override
     public String toString() {
-        return "ScStatsEntriesPrinter [stats_text=" + stats_text + "]";
+        return "ScStatsEntriesPrinter [statsText=" + statsText + "]";
     }
 
-    public void print_stat_line(String line) {
-        stats_text += "<li>" + line + "</li>";
+    public void printStatLine(String line) {
+        statsText += "<li>" + line + "</li>";
     }
 
-    public void print_stat_warning(String line) {
-    }
+    public void printStatWarning(String line) {}
 
     @Override
     public void enqueue(ScUiModifier m) throws ScUiQueueableInactive {
@@ -41,13 +40,13 @@ public class ScGuiStatsEntriesPrinter extends ScModifierDispatcher implements
     private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.statsEditor.setText("<html><body>" + stats_text
-                    + "</ul></body></html>");
+            uiThread.gui.statsEditor.setText("<html><body>" + statsText +
+                    "</ul></body></html>");
         }
     }
 
     @Override
-    public ScUiModifierInner get_modifier() {
+    public ScUiModifierInner getModifier() {
         return new Modifier();
     }
 }

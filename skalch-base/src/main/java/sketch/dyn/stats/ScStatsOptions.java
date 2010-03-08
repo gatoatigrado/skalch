@@ -9,5 +9,5 @@ public class ScStatsOptions extends CliAnnotatedOptionGroup {
     }
 
     @CliParameter(help = "show entries with zero hits")
-    public boolean show_zero;
+    public boolean showZero;
 }

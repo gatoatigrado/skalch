@@ -61,18 +61,18 @@ public class XmlEltWrapper extends Element {
         for (int a = 0; a < nchildren; a++) {
             Node node = getChild(a);
             if (node instanceof CDATASection) {
-                CDATASection cdata_node = (CDATASection) node;
-                result.add(cdata_node.getData());
+                CDATASection cdataNode = (CDATASection) node;
+                result.add(cdataNode.getData());
             }
         }
         return result;
     }
 
-    public int int_attr(String name) {
+    public int intAttr(String name) {
         return Integer.parseInt(getAttributeValue(name));
     }
 
-    public float float_attr(String name) {
+    public float floatAttr(String name) {
         return Float.parseFloat(getAttributeValue(name));
     }
 }

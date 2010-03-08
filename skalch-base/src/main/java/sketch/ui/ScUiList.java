@@ -15,60 +15,60 @@ import javax.swing.JList;
  */
 public class ScUiList<T> {
     private static final long serialVersionUID = -21488839374096350L;
-    protected DefaultListModel list_model = new DefaultListModel();
+    protected DefaultListModel listModel = new DefaultListModel();
     protected JList list;
-    protected Class<T[]> array_cls;
-    protected int max_entries;
-    protected HashSet<T> remove_queue = new HashSet<T>();
+    protected Class<T[]> arrayCls;
+    protected int maxEntries;
+    protected HashSet<T> removeQueue = new HashSet<T>();
 
-    public ScUiList(JList list, Class<T[]> array_cls, int max_entries) {
+    public ScUiList(JList list, Class<T[]> arrayCls, int maxEntries) {
         this.list = list;
-        list.setModel(list_model);
-        this.array_cls = array_cls;
-        this.max_entries = max_entries;
+        list.setModel(listModel);
+        this.arrayCls = arrayCls;
+        this.maxEntries = maxEntries;
     }
 
     public void add(T element) {
-        if (remove_queue.contains(element)) {
-            remove_queue.remove(element);
+        if (removeQueue.contains(element)) {
+            removeQueue.remove(element);
         } else {
-            if (list_model.getSize() < max_entries) {
-                list_model.addElement(element);
+            if (listModel.getSize() < maxEntries) {
+                listModel.addElement(element);
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     public T[] getSelected() {
-        if (array_cls == null) {
+        if (arrayCls == null) {
             return (T[]) new Object[0];
         }
-        Object[] as_obj = list.getSelectedValues();
-        return arrayCopy(as_obj, as_obj.length, array_cls);
+        Object[] asObj = list.getSelectedValues();
+        return arrayCopy(asObj, asObj.length, arrayCls);
     }
 
     public void remove(T elt) {
-        if (!list_model.removeElement(elt)) {
-            remove_queue.add(elt);
+        if (!listModel.removeElement(elt)) {
+            removeQueue.add(elt);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public T select_next(T elt) {
-        int idx = Math.min(list_model.indexOf(elt) + 1, list_model.size() - 1);
+    public T selectNext(T elt) {
+        int idx = Math.min(listModel.indexOf(elt) + 1, listModel.size() - 1);
         list.setSelectedIndex(idx);
-        return (T) list_model.elementAt(idx);
+        return (T) listModel.elementAt(idx);
     }
 
     @SuppressWarnings("unchecked")
-    public T select_prev(T elt) {
-        int idx = Math.max(0, list_model.indexOf(elt) - 1);
+    public T selectPrev(T elt) {
+        int idx = Math.max(0, listModel.indexOf(elt) - 1);
         list.setSelectedIndex(idx);
-        return (T) list_model.elementAt(idx);
+        return (T) listModel.elementAt(idx);
     }
 
-    public void set_selected(T elt) {
-        list.setSelectedIndex(list_model.indexOf(elt));
+    public void setSelected(T elt) {
+        list.setSelectedIndex(listModel.indexOf(elt));
     }
 
     // 1.5 compatibility

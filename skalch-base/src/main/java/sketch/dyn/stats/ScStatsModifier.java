@@ -21,23 +21,23 @@ public class ScStatsModifier {
         this.showZero = showZero;
     }
 
-    public void print_entry(int align, ScStatEntry entry) {
+    public void printEntry(int align, ScStatEntry entry) {
         if (showZero || entry.value > 0) {
             lines.add(entry.formatString(align));
         }
     }
 
-    public void print_entries(ScStatEntry... entries) {
+    public void printEntries(ScStatEntry... entries) {
         int align = 0;
         for (ScStatEntry entry : entries) {
-            print_entry(align, entry);
+            printEntry(align, entry);
             align = 30;
         }
     }
 
-    public void print_rate(String indent, ScStatEntry entry, ScStatEntry base) {
+    public void printRate(String indent, ScStatEntry entry, ScStatEntry base) {
         if (showZero || entry.value > 0) {
-            lines.add(indent + entry.rate_string(base));
+            lines.add(indent + entry.rateString(base));
         }
     }
 
@@ -47,25 +47,25 @@ public class ScStatsModifier {
             assertFalse("ScStatsModifier -- argument $printer$ null");
         }
         for (String warning : warnings) {
-            printer.print_stat_warning(warning);
+            printer.printStatWarning(warning);
         }
         for (String line : lines) {
-            printer.print_stat_line(line);
+            printer.printStatLine(line);
         }
     }
 
-    public void rate_warn_gt(ScStatEntry numer, ScStatEntry base,
+    public void rateWarnGt(ScStatEntry numer, ScStatEntry base,
             float trigger, String message)
     {
-        if ((numer.get_value() != 0) && (numer.rate(base) > trigger)) {
+        if ((numer.getValue() != 0) && (numer.rate(base) > trigger)) {
             warnings.add(message);
         }
     }
 
-    public void rate_warn_lt(ScStatEntry numer, ScStatEntry base,
+    public void rateWarnLt(ScStatEntry numer, ScStatEntry base,
             float trigger, String message)
     {
-        if ((numer.get_value() != 0) && (numer.rate(base) < trigger)) {
+        if ((numer.getValue() != 0) && (numer.rate(base) < trigger)) {
             warnings.add(message);
         }
     }

@@ -15,8 +15,8 @@ public abstract class ScSourceLocationVisitor {
         return ScSourceCache.singleton().getSourceString(location);
     }
 
-    public String visitHoleInfo(ScSourceConstruct ctrl_src_info) {
+    public String visitHoleInfo(ScSourceConstruct ctrlSrcInfo) {
         return ScSourceCache.singleton().getSourceString(
-                ctrl_src_info.argument_location);
+                ctrlSrcInfo.argumentLocation);
     }
 }

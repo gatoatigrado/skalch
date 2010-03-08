@@ -26,45 +26,45 @@ import sketch.util.DebugOut;
  */
 public class ScLocalStackSynthesis extends ScLocalSynthesis {
     protected ScStackSynthesis ssr;
-    public int longest_stack_size;
-    public ScStack longest_stack;
-    public Vector<ScStack> random_stacks;
+    public int longestStackSize;
+    public ScStack longestStack;
+    public Vector<ScStack> randomStacks;
     public Queue queue;
 
     public ScLocalStackSynthesis(ScDynamicSketchCall<?> sketch,
-            ScStackSynthesis ssr, BackendOptions be_opts, int uid) {
-        super(sketch, be_opts, uid);
+            ScStackSynthesis ssr, BackendOptions beOpts, int uid) {
+        super(sketch, beOpts, uid);
         this.ssr = ssr;
     }
 
     @Override
-    public ScStackSynthesisThread create_synth_thread() {
-        random_stacks = new Vector<ScStack>();
+    public ScStackSynthesisThread createSynthThread() {
+        randomStacks = new Vector<ScStack>();
         return new ScStackSynthesisThread();
     }
 
     public class ScStackSynthesisThread extends AbstractSynthesisThread {
         ScStack stack;
-        int num_counterexamples = 0;
+        int numCounterexamples = 0;
         boolean exhausted = false;
-        public float replacement_probability = 1.f;
+        public float replacementProbability = 1.f;
 
         /**
          * NOTE - keep this in sync with ScDebugSketchRun
          * 
          * @returns true if exhausted (need to wait)
          */
-        protected boolean blind_fast_routine() {
+        protected boolean blindFastRoutine() {
             for (int a = 0; a < NUM_BLIND_FAST; a++) {
-                boolean force_pop = false;
+                boolean forcePop = false;
                 trycatch: try {
-                    stack.reset_before_run();
-                    QueueIterator queue_iterator = null;
+                    stack.resetBeforeRun();
+                    QueueIterator queueIterator = null;
                     if (queue != null) {
-                        queue_iterator = queue.getIterator();
+                        queueIterator = queue.getIterator();
                     }
-                    sketch.initializeBeforeAllTests(stack.ctrl_conf,
-                            stack.oracle_conf, queue_iterator);
+                    sketch.initializeBeforeAllTests(stack.ctrlConf,
+                            stack.oracleConf, queueIterator);
                     nruns += 1;
                     for (int c = 0; c < sketch.getNumCounterexamples(); c++) {
                         ncounterexamples += 1;
@@ -73,24 +73,24 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                         }
                     }
                     stack.setCost(sketch.getSolutionCost());
-                    if (ssr.add_solution(stack)) {
+                    if (ssr.addSolution(stack)) {
                         nsolutions += 1;
                     }
-                    ssr.wait_handler.throw_if_synthesis_complete();
+                    ssr.waitHandler.throwIfSynthesisComplete();
                 } catch (ScSynthesisAssertFailure e) {
                 } catch (ScDynamicUntilvException e) {
-                    force_pop = true;
+                    forcePop = true;
                 }
                 // advance the stack (whether it succeeded or not)
                 try {
-                    if (longest_stack_size < stack.stack.size()) {
-                        longest_stack = stack.clone();
-                        longest_stack_size = stack.stack.size();
+                    if (longestStackSize < stack.stack.size()) {
+                        longestStack = stack.clone();
+                        longestStackSize = stack.stack.size();
                     }
-                    if (mt_local.nextFloat() < replacement_probability) {
-                        add_random_stack();
+                    if (mtLocal.nextFloat() < replacementProbability) {
+                        addRandomStack();
                     }
-                    stack.next(force_pop);
+                    stack.next(forcePop);
                 } catch (ScSearchDoneException e) {
                     DebugOut.print_mt("exhausted local search");
                     return true;
@@ -100,57 +100,57 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
         }
 
         /** add to the random stacks list and remove half of it */
-        private void add_random_stack() {
-            random_stacks.add(stack.clone());
-            if (random_stacks.size() > ssr.max_num_random) {
-                int length1 = random_stacks.size() / 2;
+        private void addRandomStack() {
+            randomStacks.add(stack.clone());
+            if (randomStacks.size() > ssr.maxNumRandom) {
+                int length1 = randomStacks.size() / 2;
                 for (int c = 0; c < length1; c++) {
-                    random_stacks
-                            .remove(mt_local.nextInt(random_stacks.size()));
+                    randomStacks
+                            .remove(mtLocal.nextInt(randomStacks.size()));
                 }
-                replacement_probability /= 2.f;
+                replacementProbability /= 2.f;
             }
         }
 
         @Override
-        public void run_inner() {
-            longest_stack_size = -1;
-            longest_stack = null;
-            stack = ssr.search_manager.clone_default_search();
-            for (long a = 0; !ssr.wait_handler.synthesis_complete.get(); a += NUM_BLIND_FAST) {
-                if (a >= ssr.debug_stop_after) {
-                    ssr.wait_handler.wait_exhausted();
+        public void runInner() {
+            longestStackSize = -1;
+            longestStack = null;
+            stack = ssr.searchManager.cloneDefaultSearch();
+            for (long a = 0; !ssr.waitHandler.synthesisComplete.get(); a += NUM_BLIND_FAST) {
+                if (a >= ssr.debugStopAfter) {
+                    ssr.waitHandler.waitExhausted();
                 }
                 //
                 // NOTE to readers: main call
-                exhausted = blind_fast_routine();
-                update_stats();
-                ssr.wait_handler.throw_if_synthesis_complete();
-                if (!ui_queue.isEmpty()) {
-                    ui_queue.remove().setInfo(ScLocalStackSynthesis.this, this,
+                exhausted = blindFastRoutine();
+                updateStats();
+                ssr.waitHandler.throwIfSynthesisComplete();
+                if (!uiQueue.isEmpty()) {
+                    uiQueue.remove().setInfo(ScLocalStackSynthesis.this, this,
                             stack);
                 }
                 if (exhausted) {
-                    ssr.wait_handler.wait_exhausted();
-                    ssr.wait_handler.throw_if_synthesis_complete();
+                    ssr.waitHandler.waitExhausted();
+                    ssr.waitHandler.throwIfSynthesisComplete();
                     //
                     DebugOut.not_implemented("get next active stack");
-                    stack = ssr.search_manager.get_active_prefix();
+                    stack = ssr.searchManager.getActivePrefix();
                 }
             }
         }
 
         @Override
-        public void process_ui_queue(ScUiModifier ui_modifier) {
-            ui_modifier.setInfo(ScLocalStackSynthesis.this, this, stack);
+        public void processUiQueue(ScUiModifier uiModifier) {
+            uiModifier.setInfo(ScLocalStackSynthesis.this, this, stack);
         }
     }
 
     @Override
     public void queueModifier(ScUiModifier m) throws ScUiQueueableInactive {
-        if (ui_queue == null) {
+        if (uiQueue == null) {
             throw new ScUiQueueableInactive();
         }
-        ui_queue.add(m);
+        uiQueue.add(m);
     }
 }

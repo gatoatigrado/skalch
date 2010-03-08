@@ -97,7 +97,7 @@ class StrassenMultiplySketch(val first_nadds : Int, val nmultiplies : Int,
 object StrassenMultiplyTest {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
-        BackendOptions.add_opts(cmdopts)
+        BackendOptions.addOpts(cmdopts)
         skalch.AngelicSketchSynthesize(() => new StrassenMultiplySketch(6, 7, 12))
     }
 }*/

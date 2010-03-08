@@ -12,44 +12,44 @@ import sketch.util.DebugOut;
  *          make changes, please consider contributing back!
  */
 public class ScLocalPrefix extends ScPrefix {
-    public int nlinks_to_shared;
-    public ScSharedPrefix base_prefix;
+    public int nlinksToShared;
+    public ScSharedPrefix basePrefix;
 
-    public ScLocalPrefix(int nlinks_to_shared, ScSharedPrefix current_prefix) {
-        this.nlinks_to_shared = nlinks_to_shared;
-        base_prefix = current_prefix;
+    public ScLocalPrefix(int nlinksToShared, ScSharedPrefix currentPrefix) {
+        this.nlinksToShared = nlinksToShared;
+        basePrefix = currentPrefix;
     }
 
     @Override
-    public boolean get_all_searched() {
+    public boolean getAllSearched() {
         return false;
     }
 
     @Override
-    public ScPrefix get_parent(ScPrefixSearch search) {
-        if (nlinks_to_shared < 1) {
+    public ScPrefix getParent(ScPrefixSearch search) {
+        if (nlinksToShared < 1) {
             DebugOut.assertFalse("dummy assert");
         }
-        if (nlinks_to_shared == 1) {
-            return base_prefix;
+        if (nlinksToShared == 1) {
+            return basePrefix;
         } else {
-            nlinks_to_shared -= 1;
+            nlinksToShared -= 1;
             return this;
         }
     }
 
     @Override
-    public void set_all_searched() {
+    public void setAllSearched() {
     }
 
     @Override
-    public ScPrefix add_entries(int added_entries) {
-        nlinks_to_shared += added_entries;
+    public ScPrefix addEntries(int addedEntries) {
+        nlinksToShared += addedEntries;
         return this;
     }
 
     @Override
-    public int next_value() {
+    public int nextValue() {
         DebugOut.assertFalse("don't call next value with local searches!");
         return 0;
     }

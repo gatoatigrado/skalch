@@ -19,99 +19,99 @@ import ec.util.MersenneTwisterFast;
 public abstract class ScLocalSynthesis implements ScUiQueueable {
     protected ScDynamicSketchCall<?> sketch;
     public AbstractSynthesisThread thread;
-    public AsyncMTEvent done_events = new AsyncMTEvent();
+    public AsyncMTEvent doneEvents = new AsyncMTEvent();
     // ui
     public final int uid;
-    public ConcurrentLinkedQueue<ScUiModifier> ui_queue;
+    public ConcurrentLinkedQueue<ScUiModifier> uiQueue;
     public boolean animated;
-    public final BackendOptions be_opts;
+    public final BackendOptions beOpts;
 
     public ScLocalSynthesis(ScDynamicSketchCall<?> sketch,
-            BackendOptions be_opts, int uid)
+            BackendOptions beOpts, int uid)
     {
         this.sketch = sketch;
-        this.be_opts = be_opts;
+        this.beOpts = beOpts;
         this.uid = uid;
-        animated = be_opts.ui_opts.display_animated;
+        animated = beOpts.uiOpts.displayAnimated;
         if (animated && uid > 0) {
             assertFalse("use one thread with the animated option.");
         }
     }
 
-    protected abstract AbstractSynthesisThread create_synth_thread();
+    protected abstract AbstractSynthesisThread createSynthThread();
 
     public final void run() {
-        ui_queue = new ConcurrentLinkedQueue<ScUiModifier>();
-        done_events.reset();
+        uiQueue = new ConcurrentLinkedQueue<ScUiModifier>();
+        doneEvents.reset();
         if (thread != null && thread.isAlive()) {
             DebugOut.assertFalse("localsynthesis thead alive");
         }
-        thread = create_synth_thread();
+        thread = createSynthThread();
         thread.start();
     }
 
-    public final void thread_wait() {
+    public final void threadWait() {
         try {
             thread.join();
-            ui_queue = null;
+            uiQueue = null;
         } catch (InterruptedException e) {
             DebugOut.assertFalse("interrupted waiting for ScLocalSynthesis");
         }
     }
 
-    public final boolean thread_alive() {
+    public final boolean threadAlive() {
         return (thread != null) && (thread.isAlive());
     }
 
     public final static int NUM_BLIND_FAST = 8192;
 
     public void queueModifier(ScUiModifier m) throws ScUiQueueableInactive {
-        if (ui_queue == null) {
+        if (uiQueue == null) {
             throw new ScUiQueueableInactive();
         }
-        ui_queue.add(m);
+        uiQueue.add(m);
     }
 
     public abstract class AbstractSynthesisThread extends Thread {
-        protected MersenneTwisterFast mt_local;
+        protected MersenneTwisterFast mtLocal;
         protected int nruns = 0, ncounterexamples = 0, nsolutions = 0;
-        protected int num_counterexamples = sketch.getNumCounterexamples();
+        protected int numCounterexamples = sketch.getNumCounterexamples();
 
         public AbstractSynthesisThread() {
-            if (num_counterexamples <= 0) {
+            if (numCounterexamples <= 0) {
                 assertFalse("no counterexamples!");
             }
         }
 
-        protected void update_stats() {
-            ScStatsMT.stats_singleton.nruns.add(nruns);
-            ScStatsMT.stats_singleton.ncounterexamples.add(ncounterexamples);
-            ScStatsMT.stats_singleton.nsolutions.add(nsolutions);
+        protected void updateStats() {
+            ScStatsMT.statsSingleton.nruns.add(nruns);
+            ScStatsMT.statsSingleton.ncounterexamples.add(ncounterexamples);
+            ScStatsMT.statsSingleton.nsolutions.add(nsolutions);
             nruns = 0;
             ncounterexamples = 0;
             nsolutions = 0;
         }
 
-        protected abstract void run_inner();
+        protected abstract void runInner();
 
-        protected abstract void process_ui_queue(ScUiModifier ui_modifier);
+        protected abstract void processUiQueue(ScUiModifier uiModifier);
 
         @Override
         public final void run() {
             try {
-                BackendOptions.backend_opts.set(be_opts);
-                mt_local = mt();
-                run_inner();
+                BackendOptions.backendOpts.set(beOpts);
+                mtLocal = mt();
+                runInner();
             } catch (ScSynthesisCompleteException e) {
             }
             try {
                 while (true) {
-                    process_ui_queue(ui_queue.remove());
+                    processUiQueue(uiQueue.remove());
                 }
             } catch (NoSuchElementException e) {
-                update_stats();
-                ui_queue = null;
-                done_events.set_done();
+                updateStats();
+                uiQueue = null;
+                doneEvents.set_done();
             }
         }
     }

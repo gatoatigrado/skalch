@@ -12,59 +12,59 @@ import sketch.util.gui.Vector4;
  *          make changes, please consider contributing back!
  */
 public class ScHighlightValues {
-    private static ScConstructValueString gen_value_string(float f,
+    private static ScConstructValueString genValueString(float f,
             ScConstructValue inner)
     {
-        float amnt_first, amnt_second, amnt_third;
+        float amntFirst, amntSecond, amntThird;
         if (f < 0.5) {
-            amnt_first = 1 - 2 * f;
-            amnt_second = 2 * f;
-            amnt_third = 0;
+            amntFirst = 1 - 2 * f;
+            amntSecond = 2 * f;
+            amntThird = 0;
         } else {
-            amnt_first = 0;
-            amnt_second = 2 - 2 * f;
-            amnt_third = 2 * f - 1;
+            amntFirst = 0;
+            amntSecond = 2 - 2 * f;
+            amntThird = 2 * f - 1;
         }
         Vector4 first = new Vector4(0.f, 0.f, 1.f, 1.f);
         Vector4 second = new Vector4(0.8f, 0.63f, 0.f, 1.f);
         Vector4 third = new Vector4(1.f, 0.f, 0.f, 1.f);
-        Vector4 the_color =
-                first.scalar_multiply(amnt_first).add(
-                        second.scalar_multiply(amnt_second)).add(
-                        third.scalar_multiply(amnt_third));
-        String color = the_color.hexColor();
+        Vector4 theColor =
+                first.scalar_multiply(amntFirst).add(
+                        second.scalar_multiply(amntSecond)).add(
+                        third.scalar_multiply(amntThird));
+        String color = theColor.hexColor();
         return new ScConstructValueString("<span style=\"color: " + color
                 + ";\">", inner, "</span>");
     }
 
-    public static void gen_value_strings(Vector<Value> values) {
+    public static void genValueStrings(Vector<Value> values) {
         if (values.size() == 0) {
             return;
         }
-        float maxv = Value.vector_max(values);
+        float maxv = Value.vectorMax(values);
         for (int a = 0; a < values.size(); a++) {
-            float c = values.get(a).color_value / maxv;
-            values.get(a).result = gen_value_string(c, values.get(a).value);
+            float c = values.get(a).colorValue / maxv;
+            values.get(a).result = genValueString(c, values.get(a).value);
         }
     }
 
     public static class Value {
         protected ScConstructValue value;
         public ScConstructValueString result;
-        protected float color_value;
+        protected float colorValue;
         public Object tag;
 
-        public Value(ScConstructValue value, float color_value, Object tag) {
+        public Value(ScConstructValue value, float colorValue, Object tag) {
             this.value = value;
-            this.color_value = color_value;
+            this.colorValue = colorValue;
             this.tag = tag;
         }
 
-        public static float vector_max(Vector<Value> values) {
-            float max = values.get(0).color_value;
+        public static float vectorMax(Vector<Value> values) {
+            float max = values.get(0).colorValue;
             for (Value v : values) {
-                if (v.color_value > max) {
-                    max = v.color_value;
+                if (v.colorValue > max) {
+                    max = v.colorValue;
                 }
             }
             return max;

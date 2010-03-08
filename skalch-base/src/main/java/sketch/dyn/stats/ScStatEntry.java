@@ -18,15 +18,15 @@ public class ScStatEntry {
     protected AtomicLong ctr = new AtomicLong();
     public Float value;
     public String name;
-    public String short_name;
+    public String shortName;
 
     /**
-     * @param short_name
+     * @param shortName
      *            name used when printing rate string
      */
-    public ScStatEntry(String name, String short_name) {
+    public ScStatEntry(String name, String shortName) {
         this.name = name;
-        this.short_name = short_name;
+        this.shortName = shortName;
     }
 
     @Override
@@ -50,13 +50,13 @@ public class ScStatEntry {
         this(name, name);
     }
 
-    public float get_value() {
+    public float getValue() {
         value = new Float(ctr.get());
         return value;
     }
 
-    public String rate_string(ScStatEntry base) {
-        return short_name + " / " + base.short_name + ": " + rate(base);
+    public String rateString(ScStatEntry base) {
+        return shortName + " / " + base.shortName + ": " + rate(base);
     }
 
     public void add(long v) {

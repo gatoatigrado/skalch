@@ -18,24 +18,24 @@ public class ScDebugStackRun extends ScDefaultDebugRun {
     protected ScStack stack;
 
     public ScDebugStackRun(
-            ScDynamicSketchCall<ScAngelicSketchBase> sketch_call, ScStack stack) {
-        super(sketch_call);
+            ScDynamicSketchCall<ScAngelicSketchBase> sketchCall, ScStack stack) {
+        super(sketchCall);
         this.stack = stack;
     }
 
     @Override
-    public void run_init() {
-        stack.reset_before_run();
+    public void runInit() {
+        stack.resetBeforeRun();
     }
 
     @Override
-    public ScCtrlConf get_ctrl_conf() {
-        return stack.ctrl_conf;
+    public ScCtrlConf getCtrlConf() {
+        return stack.ctrlConf;
     }
 
     @Override
-    public ScInputConf get_oracle_conf() {
-        return stack.oracle_conf;
+    public ScInputConf getOracleConf() {
+        return stack.oracleConf;
     }
 
 }

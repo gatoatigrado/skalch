@@ -21,43 +21,43 @@ import sketch.util.DebugOut;
 public class QueueUI implements ScUserInterface {
 
     public final ScUserInterface base;
-    private ScDynamicSketchCall<ScAngelicSketchBase> sketch_call;
+    private ScDynamicSketchCall<ScAngelicSketchBase> sketchCall;
 
     private Vector<Vector<Object>> listOfQueuesOutput;
-    private String queue_output_file_name;
+    private String queueOutputFileName;
     private Queue previousQueues;
     private boolean isFinished;
 
     public QueueUI(ScUserInterface base,
-            ScDynamicSketchCall<ScAngelicSketchBase> sketch_call,
-            String queue_output_file_name, String queue_input_file_name)
+            ScDynamicSketchCall<ScAngelicSketchBase> sketchCall,
+            String queueOutputFileName, String queueInputFileName)
     {
-        this.queue_output_file_name = queue_output_file_name;
-        this.sketch_call = sketch_call;
+        this.queueOutputFileName = queueOutputFileName;
+        this.sketchCall = sketchCall;
         this.base = base;
         isFinished = false;
 
-        if (queue_input_file_name != "") {
-            QueueFileInput input = new QueueFileInput(queue_input_file_name);
+        if (queueInputFileName != "") {
+            QueueFileInput input = new QueueFileInput(queueInputFileName);
             previousQueues = input.getQueue();
         }
 
-        if (queue_output_file_name != "") {
+        if (queueOutputFileName != "") {
             listOfQueuesOutput = new Vector<Vector<Object>>();
         }
     }
 
     public void addStackSolution(ScStack stack) {
         ScStack _stack = stack.clone();
-        ScDebugRun debugRun = new ScDebugStackRun(sketch_call, _stack);
+        ScDebugRun debugRun = new ScDebugStackRun(sketchCall, _stack);
         debugRun.run();
         boolean isValid = true;
 
         if (previousQueues != null && !isFinished) {
-            Vector<Object> queue_trace = debugRun.get_queue_trace();
+            Vector<Object> queueTrace = debugRun.getQueueTrace();
             QueueIterator iterator = previousQueues.getIterator();
-            for (int i = 0; i < queue_trace.size(); i++) {
-                if (!iterator.checkValue(queue_trace.elementAt(i))) {
+            for (int i = 0; i < queueTrace.size(); i++) {
+                if (!iterator.checkValue(queueTrace.elementAt(i))) {
                     isValid = false;
                 }
             }
@@ -67,7 +67,7 @@ public class QueueUI implements ScUserInterface {
         }
         if (isValid) {
             if (listOfQueuesOutput != null && !isFinished) {
-                Vector<Object> queue = debugRun.get_queue();
+                Vector<Object> queue = debugRun.getQueue();
                 listOfQueuesOutput.add(queue);
             }
             base.addStackSolution(stack);
@@ -94,8 +94,8 @@ public class QueueUI implements ScUserInterface {
         base.setStats(modifier);
     }
 
-    public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        base.set_counterexamples(inputs);
+    public void setCounterexamples(ScSolvingInputConf[] inputs) {
+        base.setCounterexamples(inputs);
     }
 
     public void synthesisFinished() {
@@ -103,7 +103,7 @@ public class QueueUI implements ScUserInterface {
             try {
                 ObjectOutputStream out =
                         new ObjectOutputStream(new FileOutputStream(
-                                queue_output_file_name));
+                                queueOutputFileName));
                 out.writeObject(listOfQueuesOutput);
                 out.close();
             } catch (FileNotFoundException e) {

@@ -4,61 +4,61 @@ import javax.swing.JList;
 
 /**
  * sorted UI list panel
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScUiSortedList<T extends Comparable<T>> extends ScUiList<T> {
-    public ScUiSortedList(JList list, Class<T[]> array_cls, int max_entries) {
-        super(list, array_cls, max_entries);
+    public ScUiSortedList(JList list, Class<T[]> arrayCls, int maxEntries) {
+        super(list, arrayCls, maxEntries);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void add(T element) {
-        if (remove_queue.contains(element)) {
-            remove_queue.remove(element);
+        if (removeQueue.contains(element)) {
+            removeQueue.remove(element);
         } else {
-            int sz = list_model.getSize();
+            int sz = listModel.getSize();
             int step = sz / 2;
-            int insert_idx = sz / 2;
+            int insertIdx = sz / 2;
             // binary search
-            while (insert_idx < sz) {
+            while (insertIdx < sz) {
                 step /= 2;
-                T other = (T) list_model.getElementAt(insert_idx);
-                boolean elt_lt_other = (element.compareTo(other) < 0);
-                if (elt_lt_other) {
-                    if (insert_idx == 0) {
+                T other = (T) listModel.getElementAt(insertIdx);
+                boolean eltLtOther = (element.compareTo(other) < 0);
+                if (eltLtOther) {
+                    if (insertIdx == 0) {
                         // have element <= other[0], insert at position 0
                         break;
                     } else {
-                        T other_left =
-                                (T) list_model.getElementAt(insert_idx - 1);
-                        if (other_left.compareTo(element) <= 0) {
-                            // other_left <= element < other
+                        T otherLeft = (T) listModel.getElementAt(insertIdx - 1);
+                        if (otherLeft.compareTo(element) <= 0) {
+                            // otherLeft <= element < other
                             break;
                         } else {
                             // search left subtree to find closer values
-                            insert_idx -= Math.max(1, step);
+                            insertIdx -= Math.max(1, step);
                         }
                     }
                 } else {
-                    if (insert_idx == sz - 1) {
-                        insert_idx = sz;
+                    if (insertIdx == sz - 1) {
+                        insertIdx = sz;
                         break;
                     } else {
-                        insert_idx += Math.max(1, step);
+                        insertIdx += Math.max(1, step);
                     }
                 }
             }
-            if (list_model.getSize() >= max_entries) {
-                if (insert_idx < max_entries - 1) {
-                    list_model.add(insert_idx, element);
-                    list_model.removeElementAt(list_model.getSize() - 1);
+            if (listModel.getSize() >= maxEntries) {
+                if (insertIdx < maxEntries - 1) {
+                    listModel.add(insertIdx, element);
+                    listModel.removeElementAt(listModel.getSize() - 1);
                 }
             } else {
-                list_model.add(insert_idx, element);
+                listModel.add(insertIdx, element);
             }
         }
     }

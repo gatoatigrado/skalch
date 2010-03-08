@@ -19,11 +19,11 @@ public interface ScUserInterface {
 
     public int nextModifierTimestamp();
 
-    public void addStackSynthesis(ScLocalStackSynthesis local_ssr);
+    public void addStackSynthesis(ScLocalStackSynthesis localSsr);
 
     public void addStackSolution(ScStack stack);
 
-    public void set_counterexamples(ScSolvingInputConf[] inputs);
+    public void setCounterexamples(ScSolvingInputConf[] inputs);
 
     public void setStats(ScStatsModifier modifier);
 

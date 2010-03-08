@@ -12,22 +12,22 @@ import sketch.dyn.main.ScDynamicSketchCall;
  */
 public class ScSourceUntilvHole implements ScSourceConstructInfo {
     int uid;
-    ScDynamicSketchCall<?> sketch_call;
+    ScDynamicSketchCall<?> sketchCall;
 
-    public ScSourceUntilvHole(int uid, ScDynamicSketchCall<?> sketch_call) {
+    public ScSourceUntilvHole(int uid, ScDynamicSketchCall<?> sketchCall) {
         this.uid = uid;
-        this.sketch_call = sketch_call;
+        this.sketchCall = sketchCall;
     }
 
     public boolean hasMultipleValues() {
         return false;
     }
 
-    public String valueString(String src_args) {
+    public String valueString(String srcArgs) {
         try {
-            return sketch_call.getHoleValueString(uid).formatString();
+            return sketchCall.getHoleValueString(uid).formatString();
         } catch (ScNoValueStringException e) {
-            return "/* not reached */ ??(" + src_args + ")";
+            return "/* not reached */ ??(" + srcArgs + ")";
         }
     }
 

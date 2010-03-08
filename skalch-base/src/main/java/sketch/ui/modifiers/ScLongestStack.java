@@ -16,7 +16,7 @@ public class ScLongestStack extends ScLocalSynthDispatcher {
 
     @Override
     public String toString() {
-        return "longest stack for stack synthesis " + local_ssr.uid;
+        return "longest stack for stack synthesis " + localSsr.uid;
     }
 
     @Override
@@ -28,14 +28,14 @@ public class ScLongestStack extends ScLocalSynthDispatcher {
     private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.auto_display_first_solution = false;
-            ui_thread.gui.fillWithStack(ScLongestStack.this,
-                    local_ssr.longest_stack);
+            uiThread.autoDisplayFirstSolution = false;
+            uiThread.gui.fillWithStack(ScLongestStack.this,
+                    localSsr.longestStack);
         }
     }
 
     @Override
-    public ScUiModifierInner get_modifier() {
+    public ScUiModifierInner getModifier() {
         return new Modifier();
     }
 }

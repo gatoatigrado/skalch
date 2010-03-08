@@ -21,41 +21,41 @@ public abstract class ScDefaultDebugRun extends ScDebugRun {
     public final ScAngelicSketchBase sketch;
 
     public ScDefaultDebugRun(
-            ScDynamicSketchCall<ScAngelicSketchBase> sketch_call) {
-        super(sketch_call);
-        sketch = sketch_call.getSketch();
+            ScDynamicSketchCall<ScAngelicSketchBase> sketchCall) {
+        super(sketchCall);
+        sketch = sketchCall.getSketch();
     }
 
     @Override
-    public void enable_debug() {
-        sketch.enable_debug();
+    public void enableDebug() {
+        sketch.enableDebug();
     }
 
     @Override
-    public StackTraceElement get_assert_failure_location() {
-        return sketch.debug_assert_failure_location;
+    public StackTraceElement getAssertFailureLocation() {
+        return sketch.debugAssertFailureLocation;
     }
 
     @Override
-    public Vector<ScDebugEntry> get_debug_out() {
-        if (sketch.debug_out == null) {
+    public Vector<ScDebugEntry> getDebugOut() {
+        if (sketch.debugOut == null) {
             assertFalse("ScDefaultDebugRun - debug out null");
         }
-        return sketch.debug_out;
+        return sketch.debugOut;
     }
 
     @Override
-    public Vector<Object> get_queue() {
-        return sketch.sketch_queue;
+    public Vector<Object> getQueue() {
+        return sketch.sketchQueue;
     }
 
     @Override
-    public Vector<Object> get_queue_trace() {
-        return sketch.sketch_queue_trace;
+    public Vector<Object> getQueueTrace() {
+        return sketch.sketchQueueTrace;
     }
 
     @Override
-    public QueueIterator get_queue_iterator() {
+    public QueueIterator getQueueIterator() {
         return null;
     }
 }

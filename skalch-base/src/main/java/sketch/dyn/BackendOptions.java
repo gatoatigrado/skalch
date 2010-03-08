@@ -17,38 +17,38 @@ import ec.util.ThreadLocalMT;
  *          changes, please consider contributing back!
  */
 public class BackendOptions {
-    public ScSynthesisOptions synth_opts;
-    public ScUiOptions ui_opts;
-    public ScStatsOptions stat_opts;
-    public static ThreadLocal<BackendOptions> backend_opts =
+    public ScSynthesisOptions synthOpts;
+    public ScUiOptions uiOpts;
+    public ScStatsOptions statOpts;
+    public static ThreadLocal<BackendOptions> backendOpts =
             new ThreadLocal<BackendOptions>();
 
     public BackendOptions(CliParser p) {
-        synth_opts = new ScSynthesisOptions();
-        synth_opts.parse(p);
-        ui_opts = new ScUiOptions();
-        ui_opts.parse(p);
-        stat_opts = new ScStatsOptions();
-        stat_opts.parse(p);
+        synthOpts = new ScSynthesisOptions();
+        synthOpts.parse(p);
+        uiOpts = new ScUiOptions();
+        uiOpts.parse(p);
+        statOpts = new ScStatsOptions();
+        statOpts.parse(p);
     }
 
-    public static void add_opts(CliParser p) {
-        backend_opts.set(new BackendOptions(p));
+    public static void addOpts(CliParser p) {
+        backendOpts.set(new BackendOptions(p));
     }
 
     /** initialize default options if the frontend didn't initialize them */
-    public static void initialize_defaults() {
-        if (backend_opts.get() == null) {
-            String[] no_args = {};
-            DebugOut.print("please call BackendOptions.add_opts() " + "in your frontend.");
-            backend_opts.set(new BackendOptions(new CliParser(no_args)));
+    public static void initializeDefaults() {
+        if (backendOpts.get() == null) {
+            String[] noArgs = {};
+            DebugOut.print("please call BackendOptions.addOpts() " + "in your frontend.");
+            backendOpts.set(new BackendOptions(new CliParser(noArgs)));
         }
     }
 
-    public void initialize_annotated() {
-        stat_opts.set_values();
-        DebugOut.no_bash_color = ui_opts.no_bash_color;
-        ScSourceCache.linesep = ui_opts.linesep_regex;
-        ThreadLocalMT.disable_use_current_time_millis = synth_opts.no_clock_rand;
+    public void initializeAnnotated() {
+        statOpts.set_values();
+        DebugOut.no_bash_color = uiOpts.noBashColor;
+        ScSourceCache.linesep = uiOpts.linesepRegex;
+        ThreadLocalMT.disable_use_current_time_millis = synthOpts.noClockRand;
     }
 }

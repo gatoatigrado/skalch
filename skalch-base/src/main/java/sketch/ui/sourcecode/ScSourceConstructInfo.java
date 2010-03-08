@@ -20,7 +20,7 @@ public abstract interface ScSourceConstructInfo {
      */
     public boolean hasMultipleValues();
 
-    public String valueString(String src_args);
+    public String valueString(String srcArgs);
 
     public abstract String getName();
 }

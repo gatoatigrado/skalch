@@ -18,7 +18,7 @@ public class DefaultHashMap<K, V> {
     public V get(final K key) {
         V result = this.base.get(key);
         if (result == null) {
-            result = this.defvalue.get_value();
+            result = this.defvalue.getValue();
             if (result == null) {
                 DebugOut.assertFalse("defvalue() gave a null value");
             }
@@ -36,6 +36,6 @@ public class DefaultHashMap<K, V> {
     }
 
     public abstract class DefValueGenerator {
-        public abstract V get_value();
+        public abstract V getValue();
     }
 }

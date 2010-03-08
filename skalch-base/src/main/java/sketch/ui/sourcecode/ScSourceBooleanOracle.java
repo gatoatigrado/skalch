@@ -13,8 +13,8 @@ import sketch.util.wrapper.ScRichString;
  *          make changes, please consider contributing back!
  */
 public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
-    public ScSourceBooleanOracle(int uid, ScDynamicSketchCall<?> sketch_call) {
-        super(uid, sketch_call);
+    public ScSourceBooleanOracle(int uid, ScDynamicSketchCall<?> sketchCall) {
+        super(uid, sketchCall);
     }
 
     @Override
@@ -26,14 +26,14 @@ public class ScSourceBooleanOracle extends ScSourceUntilvOracle {
     public String valueString(String srcArgs) {
         try {
             Vector<ScConstructValueString> values =
-                    sketch_call.getOracleValueString(uid);
-            Vector<String> result_arr = new Vector<String>();
-            for (ScConstructValueString value_string : values) {
-                boolean v = value_string.value.intValue() == 1;
-                result_arr.add(value_string.formatWithNewValueString(v ? "true"
+                    sketchCall.getOracleValueString(uid);
+            Vector<String> resultArr = new Vector<String>();
+            for (ScConstructValueString valueString : values) {
+                boolean v = valueString.value.intValue() == 1;
+                resultArr.add(valueString.formatWithNewValueString(v ? "true"
                         : "false"));
             }
-            return (new ScRichString(", ")).join(result_arr
+            return (new ScRichString(", ")).join(resultArr
                     .toArray(new String[0]));
         } catch (ScNoValueStringException e) {
             return "not encountered";

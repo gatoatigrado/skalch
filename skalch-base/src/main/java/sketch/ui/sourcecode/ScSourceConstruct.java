@@ -10,44 +10,45 @@ import sketch.util.wrapper.XmlNoXpathMatchException;
 
 /**
  * A source construct info bound to a location in source.
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
-    public ScSourceConstructInfo construct_info;
+    public ScSourceConstructInfo constructInfo;
     /** location to print for identification only */
-    public ScSourceLocation real_location;
-    public ScSourceLocation entire_location;
-    public ScSourceLocation argument_location;
+    public ScSourceLocation realLocation;
+    public ScSourceLocation entireLocation;
+    public ScSourceLocation argumentLocation;
 
-    public ScSourceConstruct(ScSourceConstructInfo construct_info,
-            ScSourceLocation real_location, ScSourceLocation entire_location,
-            ScSourceLocation argument_location)
+    public ScSourceConstruct(ScSourceConstructInfo constructInfo,
+            ScSourceLocation realLocation, ScSourceLocation entireLocation,
+            ScSourceLocation argumentLocation)
     {
-        this.real_location = real_location;
-        this.construct_info = construct_info;
-        this.entire_location = entire_location;
-        this.argument_location = argument_location;
+        this.realLocation = realLocation;
+        this.constructInfo = constructInfo;
+        this.entireLocation = entireLocation;
+        this.argumentLocation = argumentLocation;
     }
 
     @Override
     public String toString() {
-        return "ScSourceConstruct[entire_loc=" + entire_location.toString()
-                + ", arg_loc=" + argument_location.toString() + "]";
+        return "ScSourceConstruct[entireLoc=" + entireLocation.toString() + ", argLoc=" +
+                argumentLocation.toString() + "]";
     }
 
     public String getName() {
-        return construct_info.getName() + "@" + real_location.start.toString();
+        return constructInfo.getName() + "@" + realLocation.start.toString();
     }
 
-    public static ScSourceLocation get_location(XmlEltWrapper root,
-            String filename, String name, boolean can_be_zero_len)
+    public static ScSourceLocation getLocation(XmlEltWrapper root, String filename,
+            String name, boolean canBeZeroLen)
     {
         try {
             XmlEltWrapper loc = root.XpathElt("rangepos[@name='" + name + "']");
-            return ScSourceLocation.fromXML(filename, loc, can_be_zero_len);
+            return ScSourceLocation.fromXML(filename, loc, canBeZeroLen);
         } catch (XmlNoXpathMatchException e) {
             XmlEltWrapper loc = root.XpathElt("position[@name='" + name + "']");
             LineColumn lc = LineColumn.fromXML(loc);
@@ -55,48 +56,46 @@ public class ScSourceConstruct implements Comparable<ScSourceConstruct> {
         }
     }
 
-    public static ScSourceConstruct from_node(Element child_, String filename,
-            ScDynamicSketchCall<?> sketch_call)
+    public static ScSourceConstruct fromNode(Element child_, String filename,
+            ScDynamicSketchCall<?> sketchCall)
     {
         XmlEltWrapper elt = new XmlEltWrapper(child_);
-        int uid = elt.int_attr("uid");
-        ScSourceLocation eloc =
-                get_location(elt, filename, "entire_pos", false);
+        int uid = elt.intAttr("uid");
+        ScSourceLocation eloc = getLocation(elt, filename, "entire_pos", false);
         ScSourceLocation rloc = eloc;
         String pt = elt.getAttributeValue("param_type");
         // vars for individual cases to set
-        ScSourceConstructInfo cons_info = null;
-        boolean zero_len_arg_loc = false;
+        ScSourceConstructInfo consInfo = null;
+        boolean zeroLenArgLoc = false;
         if (elt.getLocalName().equals("holeapply")) {
             if (pt.contains("[[integer untilv hole]]")) {
-                cons_info = new ScSourceUntilvHole(uid, sketch_call);
+                consInfo = new ScSourceUntilvHole(uid, sketchCall);
             } else {
                 DebugOut.assertSlow(pt.contains("[[object apply hole]]"),
                         "unknown parameter type", pt);
-                cons_info = new ScSourceApplyHole(uid, sketch_call);
+                consInfo = new ScSourceApplyHole(uid, sketchCall);
             }
         } else if (elt.getLocalName().equals("oracleapply")) {
             if (pt.contains("[[integer untilv oracle]]")) {
-                cons_info = new ScSourceUntilvOracle(uid, sketch_call);
+                consInfo = new ScSourceUntilvOracle(uid, sketchCall);
             } else if (pt.contains("[[boolean oracle]]")) {
-                zero_len_arg_loc = true;
-                cons_info = new ScSourceBooleanOracle(uid, sketch_call);
+                zeroLenArgLoc = true;
+                consInfo = new ScSourceBooleanOracle(uid, sketchCall);
             } else {
                 DebugOut.assertSlow(pt.contains("[[object apply oracle]]"),
                         "unknown parameter type", pt);
-                cons_info = new ScSourceApplyOracle(uid, sketch_call);
+                consInfo = new ScSourceApplyOracle(uid, sketchCall);
             }
             eloc = new ScSourceLocation(filename, eloc.start.line);
         }
-        if (cons_info == null) {
-            DebugOut.assertFalse("no cons_info set.");
+        if (consInfo == null) {
+            DebugOut.assertFalse("no consInfo set.");
         }
-        ScSourceLocation arg_loc =
-                get_location(elt, filename, "arg_pos", zero_len_arg_loc);
-        return new ScSourceConstruct(cons_info, rloc, eloc, arg_loc);
+        ScSourceLocation argLoc = getLocation(elt, filename, "arg_pos", zeroLenArgLoc);
+        return new ScSourceConstruct(consInfo, rloc, eloc, argLoc);
     }
 
     public int compareTo(ScSourceConstruct other) {
-        return entire_location.compareTo(other.entire_location);
+        return entireLocation.compareTo(other.entireLocation);
     }
 }

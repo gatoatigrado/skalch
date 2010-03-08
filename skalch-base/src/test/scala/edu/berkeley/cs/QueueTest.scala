@@ -25,7 +25,7 @@ object QueueTest1Main {
 	  for (arg <- args)
 		  Console.println(arg)
       val cmdopts = new cli.CliParser(args)
-      BackendOptions.add_opts(cmdopts)
+      BackendOptions.addOpts(cmdopts)
 	  skalch.AngelicSketchSynthesize(() => new QueueTest1())
   }
 }

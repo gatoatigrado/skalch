@@ -23,15 +23,15 @@ public class ScUserInterfaceManager {
      *            This should be removed sometime, using calls to ScUserInterface from
      *            appropriate solvers.
      */
-    public static ScUserInterface start_ui(BackendOptions be_opts,
-            ScSynthesis<?> synth_runtime, ScDynamicSketchCall<?> sketch,
+    public static ScUserInterface startUi(BackendOptions beOpts,
+            ScSynthesis<?> synthRuntime, ScDynamicSketchCall<?> sketch,
             ScSourceConstruct sourceInfo)
     {
-        if (be_opts.ui_opts.no_gui) {
-            return new ScDebugConsoleUI(be_opts, sketch);
+        if (beOpts.uiOpts.noGui) {
+            return new ScDebugConsoleUI(beOpts, sketch);
         } else {
             ScUiThread thread =
-                    new ScUiThread(synth_runtime, sketch, be_opts, sourceInfo);
+                    new ScUiThread(synthRuntime, sketch, beOpts, sourceInfo);
             thread.start();
             return thread;
         }

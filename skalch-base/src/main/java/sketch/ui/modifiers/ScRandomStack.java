@@ -19,7 +19,7 @@ public class ScRandomStack extends ScLocalSynthDispatcher {
 
     @Override
     public String toString() {
-        return "random stack for stack synthesis " + local_ssr.uid;
+        return "random stack for stack synthesis " + localSsr.uid;
     }
 
     @Override
@@ -30,15 +30,15 @@ public class ScRandomStack extends ScLocalSynthDispatcher {
     private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.auto_display_first_solution = false;
-            int rand_idx = rand.get().nextInt(local_ssr.random_stacks.size());
-            ui_thread.gui.fillWithStack(ScRandomStack.this,
-                    local_ssr.random_stacks.get(rand_idx));
+            uiThread.autoDisplayFirstSolution = false;
+            int randIdx = rand.get().nextInt(localSsr.randomStacks.size());
+            uiThread.gui.fillWithStack(ScRandomStack.this,
+                    localSsr.randomStacks.get(randIdx));
         }
     }
 
     @Override
-    public ScUiModifierInner get_modifier() {
+    public ScUiModifierInner getModifier() {
         return new Modifier();
     }
 }

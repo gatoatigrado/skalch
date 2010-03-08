@@ -15,20 +15,20 @@ import sketch.util.DebugOut;
  *          make changes, please consider contributing back!
  */
 public class ScExhaustedWaitHandler {
-    protected AtomicInteger n_exhausted = new AtomicInteger(0);
+    protected AtomicInteger nExhausted = new AtomicInteger(0);
     protected Semaphore wait = new Semaphore(0);
-    private final int num_synthesis;
-    public AtomicBoolean synthesis_complete = new AtomicBoolean(false);
+    private final int numSynthesis;
+    public AtomicBoolean synthesisComplete = new AtomicBoolean(false);
 
-    ScExhaustedWaitHandler(int num_synthesis) {
-        this.num_synthesis = num_synthesis;
+    ScExhaustedWaitHandler(int numSynthesis) {
+        this.numSynthesis = numSynthesis;
     }
 
-    public void wait_exhausted() {
-        if (n_exhausted.incrementAndGet() >= num_synthesis) {
+    public void waitExhausted() {
+        if (nExhausted.incrementAndGet() >= numSynthesis) {
             DebugOut.print_mt("all exhausted, exiting");
-            set_synthesis_complete();
-            n_exhausted.addAndGet(-num_synthesis);
+            setSynthesisComplete();
+            nExhausted.addAndGet(-numSynthesis);
             return;
         }
         DebugOut.print_mt("exhausted handler waiting");
@@ -41,13 +41,13 @@ public class ScExhaustedWaitHandler {
         DebugOut.print_mt("done waiting");
     }
 
-    public void set_synthesis_complete() {
-        synthesis_complete.set(true);
-        wait.release(num_synthesis - 1);
+    public void setSynthesisComplete() {
+        synthesisComplete.set(true);
+        wait.release(numSynthesis - 1);
     }
 
-    public void throw_if_synthesis_complete() {
-        if (synthesis_complete.get()) {
+    public void throwIfSynthesisComplete() {
+        if (synthesisComplete.get()) {
             throw new ScSynthesisCompleteException();
         }
     }

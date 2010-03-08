@@ -29,20 +29,20 @@ import sketch.ui.ScUserInterface;
  */
 public final class ScUiModifier {
     public int timestamp;
-    private AtomicInteger enqueue_remaining;
+    private AtomicInteger enqueueRemaining;
     protected ScUserInterface ui;
     public ScUiModifierInner modifier;
-    public static AtomicLong queued_modifiers = new AtomicLong(0);
+    public static AtomicLong queuedModifiers = new AtomicLong(0);
 
     public ScUiModifier(ScUserInterface ui, ScUiModifierInner modifier) {
         timestamp = ui.nextModifierTimestamp();
         this.ui = ui;
         this.modifier = modifier;
-        queued_modifiers.incrementAndGet();
+        queuedModifiers.incrementAndGet();
     }
 
     public final void enqueueTo(ScUiQueueable... targets) throws ScUiQueueableInactive {
-        enqueue_remaining = new AtomicInteger(targets.length + 1);
+        enqueueRemaining = new AtomicInteger(targets.length + 1);
         for (ScUiQueueable target : targets) {
             target.queueModifier(this);
         }
@@ -50,9 +50,9 @@ public final class ScUiModifier {
     }
 
     public final void setInfoComplete() {
-        if (enqueue_remaining.decrementAndGet() == 0) {
+        if (enqueueRemaining.decrementAndGet() == 0) {
             ui.modifierComplete(this);
-            long remaining = queued_modifiers.decrementAndGet();
+            long remaining = queuedModifiers.decrementAndGet();
             if (remaining < 0) {
                 assertFalse("bad bug - modifiers remaining < 0");
             } else if (remaining > 1000) {
@@ -61,10 +61,10 @@ public final class ScUiModifier {
         }
     }
 
-    public final void setInfo(ScLocalStackSynthesis local_synth,
-            ScLocalStackSynthesis.ScStackSynthesisThread synth_thread, ScStack stack)
+    public final void setInfo(ScLocalStackSynthesis localSynth,
+            ScLocalStackSynthesis.ScStackSynthesisThread synthThread, ScStack stack)
     {
-        modifier.setInfo(local_synth, synth_thread, stack);
+        modifier.setInfo(localSynth, synthThread, stack);
         setInfoComplete();
     }
 

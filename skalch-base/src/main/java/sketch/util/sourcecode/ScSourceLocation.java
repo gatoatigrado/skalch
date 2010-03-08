@@ -32,14 +32,14 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
     }
 
     public ScSourceLocation(String filename, LineColumn start, LineColumn end,
-            boolean can_be_zero_length)
+            boolean canBeZeroLength)
     {
         this.filename = filename;
         this.start = start;
         this.end = end;
         boolean truth =
                 start.lessThan(end)
-                        || (!end.lessThan(start) && can_be_zero_length);
+                        || (!end.lessThan(start) && canBeZeroLength);
         if (!truth) {
             DebugOut.assertFalse("constructed invalid source location", start,
                     end);
@@ -76,8 +76,8 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
         }
 
         public static LineColumn fromXML(XmlEltWrapper pos) {
-            return new LineColumn(pos.int_attr("line") - 1, pos
-                    .int_attr("column") - 1);
+            return new LineColumn(pos.intAttr("line") - 1, pos
+                    .intAttr("column") - 1);
         }
     }
 
@@ -93,11 +93,11 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
         }
     }
 
-    public boolean start_eq_to_end() {
+    public boolean startEqToEnd() {
         return (!start.lessThan(end)) && (!end.lessThan(start));
     }
 
-    public ScSourceLocation source_between(ScSourceLocation other) {
+    public ScSourceLocation sourceBetween(ScSourceLocation other) {
         if (filename != other.filename) {
             DebugOut
                     .assertFalse("requesting source between two different files");
@@ -112,22 +112,22 @@ public class ScSourceLocation implements Comparable<ScSourceLocation> {
     }
 
     public ScSourceLocation contextAfter(int nlines) {
-        int last_line =
-                ScSourceCache.singleton().cached_files.get(filename).lines.length - 1;
+        int lastLine =
+                ScSourceCache.singleton().cachedFiles.get(filename).lines.length - 1;
         LineColumn afterEnd =
-                new LineColumn(Math.min(last_line, end.line + nlines + 1), 0);
+                new LineColumn(Math.min(lastLine, end.line + nlines + 1), 0);
         return new ScSourceLocation(filename, end, afterEnd, true);
     }
 
     public static ScSourceLocation fromXML(String filename,
-            XmlEltWrapper location, boolean can_be_zero_length)
+            XmlEltWrapper location, boolean canBeZeroLength)
     {
-        XmlEltWrapper start_elt = location.XpathElt("position[@name='start']");
-        XmlEltWrapper end_elt = location.XpathElt("position[@name='end']");
-        LineColumn start_lc = LineColumn.fromXML(start_elt);
-        LineColumn end_lc = LineColumn.fromXML(end_elt);
-        return new ScSourceLocation(filename, start_lc, end_lc,
-                can_be_zero_length);
+        XmlEltWrapper startElt = location.XpathElt("position[@name='start']");
+        XmlEltWrapper endElt = location.XpathElt("position[@name='end']");
+        LineColumn startLc = LineColumn.fromXML(startElt);
+        LineColumn endLc = LineColumn.fromXML(endElt);
+        return new ScSourceLocation(filename, startLc, endLc,
+                canBeZeroLength);
     }
 
     public static ScSourceLocation fromXML(String filename,

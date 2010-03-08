@@ -19,68 +19,68 @@ import sketch.util.DebugOut;
 
 public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchBase> {
     /** array of tuples */
-    public final Object[][] test_cases;
+    public final Object[][] testCases;
     public final ScAngelicSketchBase sketch;
-    public final Method main_method;
+    public final Method mainMethod;
 
     @SuppressWarnings("unchecked")
     public ScAngelicSketchCall(ScAngelicSketchBase sketch) {
         this.sketch = sketch;
-        Method main_method = null;
+        Method mainMethod = null;
         for (Method m : sketch.getClass().getMethods()) {
             if (m.getName().equals("main")) {
-                main_method = m;
+                mainMethod = m;
             }
         }
-        this.main_method = main_method;
-        if (main_method == null) {
+        this.mainMethod = mainMethod;
+        if (mainMethod == null) {
             assertFalse("main method null.");
         }
-        int nparams = main_method.getParameterTypes().length;
-        Object[] tuple_arr = null;
+        int nparams = mainMethod.getParameterTypes().length;
+        Object[] tupleArr = null;
         try {
-            Object test_cases_obj = sketch.getClass().getMethod("tests").invoke(sketch);
-            if (test_cases_obj instanceof Object[]) {
-                tuple_arr = (Object[]) test_cases_obj;
-            } else if (test_cases_obj instanceof int[]) {
-                int[] int_arr = (int[]) test_cases_obj;
-                tuple_arr = new Object[int_arr.length];
-                for (int a = 0; a < int_arr.length; a++) {
-                    tuple_arr[a] = new Integer(int_arr[a]);
+            Object testCasesObj = sketch.getClass().getMethod("tests").invoke(sketch);
+            if (testCasesObj instanceof Object[]) {
+                tupleArr = (Object[]) testCasesObj;
+            } else if (testCasesObj instanceof int[]) {
+                int[] intArr = (int[]) testCasesObj;
+                tupleArr = new Object[intArr.length];
+                for (int a = 0; a < intArr.length; a++) {
+                    tupleArr[a] = new Integer(intArr[a]);
                 }
-            } else if (test_cases_obj instanceof long[]) {
-                long[] long_arr = (long[]) test_cases_obj;
-                tuple_arr = new Object[long_arr.length];
-                for (int a = 0; a < long_arr.length; a++) {
-                    tuple_arr[a] = new Long(long_arr[a]);
+            } else if (testCasesObj instanceof long[]) {
+                long[] longArr = (long[]) testCasesObj;
+                tupleArr = new Object[longArr.length];
+                for (int a = 0; a < longArr.length; a++) {
+                    tupleArr[a] = new Long(longArr[a]);
                 }
-            } else if (test_cases_obj instanceof float[]) {
-                float[] float_arr = (float[]) test_cases_obj;
-                tuple_arr = new Object[float_arr.length];
-                for (int a = 0; a < float_arr.length; a++) {
-                    tuple_arr[a] = new Float(float_arr[a]);
+            } else if (testCasesObj instanceof float[]) {
+                float[] floatArr = (float[]) testCasesObj;
+                tupleArr = new Object[floatArr.length];
+                for (int a = 0; a < floatArr.length; a++) {
+                    tupleArr[a] = new Float(floatArr[a]);
                 }
-            } else if (test_cases_obj instanceof boolean[]) {
-                boolean[] boolean_arr = (boolean[]) test_cases_obj;
-                tuple_arr = new Object[boolean_arr.length];
-                for (int a = 0; a < boolean_arr.length; a++) {
-                    tuple_arr[a] = new Boolean(boolean_arr[a]);
+            } else if (testCasesObj instanceof boolean[]) {
+                boolean[] booleanArr = (boolean[]) testCasesObj;
+                tupleArr = new Object[booleanArr.length];
+                for (int a = 0; a < booleanArr.length; a++) {
+                    tupleArr[a] = new Boolean(booleanArr[a]);
                 }
-            } else if (test_cases_obj instanceof double[]) {
-                double[] double_arr = (double[]) test_cases_obj;
-                tuple_arr = new Object[double_arr.length];
-                for (int a = 0; a < double_arr.length; a++) {
-                    tuple_arr[a] = new Double(double_arr[a]);
+            } else if (testCasesObj instanceof double[]) {
+                double[] doubleArr = (double[]) testCasesObj;
+                tupleArr = new Object[doubleArr.length];
+                for (int a = 0; a < doubleArr.length; a++) {
+                    tupleArr[a] = new Double(doubleArr[a]);
                 }
             } else {
                 assertFalse("ScAngelicSketchCall -- don't know what to do with "
-                        + "test cases object", test_cases_obj);
+                        + "test cases object", testCasesObj);
             }
         } catch (Exception e) {
             DebugOut.print_exception("requesting tests variable from sketch", e);
             assertFalse();
         }
-        test_cases = new Object[tuple_arr.length][];
+        testCases = new Object[tupleArr.length][];
         // for i in $(seq 2 15); do echo
         // "} else if (elt instanceof scala.Tuple${i}) {test_cases[a] = arr(";
         // for c in $(seq 1 "$(($i - 1))"); do echo
@@ -88,52 +88,52 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
         // "((scala.Tuple${i})elt)._${i}());"; echo
         // "assertSlow(nparams == ${i}, \"got ${i} parameters, expected\", nparams);";
         // done | xc
-        for (int a = 0; a < tuple_arr.length; a++) {
-            Object elt = tuple_arr[a];
+        for (int a = 0; a < tupleArr.length; a++) {
+            Object elt = tupleArr[a];
             if (elt instanceof scala.runtime.BoxedUnit) {
-                test_cases[a] = arr();
+                testCases[a] = arr();
                 assertSlow(nparams == 0, "got 0 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple2) {
-                test_cases[a] = arr(((scala.Tuple2) elt)._1(), ((scala.Tuple2) elt)._2());
+                testCases[a] = arr(((scala.Tuple2) elt)._1(), ((scala.Tuple2) elt)._2());
                 assertSlow(nparams == 2, "got 2 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple3) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple3) elt)._1(), ((scala.Tuple3) elt)._2(),
                                 ((scala.Tuple3) elt)._3());
                 assertSlow(nparams == 3, "got 3 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple4) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple4) elt)._1(), ((scala.Tuple4) elt)._2(),
                                 ((scala.Tuple4) elt)._3(), ((scala.Tuple4) elt)._4());
                 assertSlow(nparams == 4, "got 4 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple5) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple5) elt)._1(), ((scala.Tuple5) elt)._2(),
                                 ((scala.Tuple5) elt)._3(), ((scala.Tuple5) elt)._4(),
                                 ((scala.Tuple5) elt)._5());
                 assertSlow(nparams == 5, "got 5 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple6) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple6) elt)._1(), ((scala.Tuple6) elt)._2(),
                                 ((scala.Tuple6) elt)._3(), ((scala.Tuple6) elt)._4(),
                                 ((scala.Tuple6) elt)._5(), ((scala.Tuple6) elt)._6());
                 assertSlow(nparams == 6, "got 6 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple7) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple7) elt)._1(), ((scala.Tuple7) elt)._2(),
                                 ((scala.Tuple7) elt)._3(), ((scala.Tuple7) elt)._4(),
                                 ((scala.Tuple7) elt)._5(), ((scala.Tuple7) elt)._6(),
                                 ((scala.Tuple7) elt)._7());
                 assertSlow(nparams == 7, "got 7 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple8) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple8) elt)._1(), ((scala.Tuple8) elt)._2(),
                                 ((scala.Tuple8) elt)._3(), ((scala.Tuple8) elt)._4(),
                                 ((scala.Tuple8) elt)._5(), ((scala.Tuple8) elt)._6(),
                                 ((scala.Tuple8) elt)._7(), ((scala.Tuple8) elt)._8());
                 assertSlow(nparams == 8, "got 8 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple9) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple9) elt)._1(), ((scala.Tuple9) elt)._2(),
                                 ((scala.Tuple9) elt)._3(), ((scala.Tuple9) elt)._4(),
                                 ((scala.Tuple9) elt)._5(), ((scala.Tuple9) elt)._6(),
@@ -141,7 +141,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple9) elt)._9());
                 assertSlow(nparams == 9, "got 9 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple10) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple10) elt)._1(), ((scala.Tuple10) elt)._2(),
                                 ((scala.Tuple10) elt)._3(), ((scala.Tuple10) elt)._4(),
                                 ((scala.Tuple10) elt)._5(), ((scala.Tuple10) elt)._6(),
@@ -149,7 +149,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple10) elt)._9(), ((scala.Tuple10) elt)._10());
                 assertSlow(nparams == 10, "got 10 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple11) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple11) elt)._1(), ((scala.Tuple11) elt)._2(),
                                 ((scala.Tuple11) elt)._3(), ((scala.Tuple11) elt)._4(),
                                 ((scala.Tuple11) elt)._5(), ((scala.Tuple11) elt)._6(),
@@ -158,7 +158,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple11) elt)._11());
                 assertSlow(nparams == 11, "got 11 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple12) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple12) elt)._1(), ((scala.Tuple12) elt)._2(),
                                 ((scala.Tuple12) elt)._3(), ((scala.Tuple12) elt)._4(),
                                 ((scala.Tuple12) elt)._5(), ((scala.Tuple12) elt)._6(),
@@ -167,7 +167,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple12) elt)._11(), ((scala.Tuple12) elt)._12());
                 assertSlow(nparams == 12, "got 12 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple13) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple13) elt)._1(), ((scala.Tuple13) elt)._2(),
                                 ((scala.Tuple13) elt)._3(), ((scala.Tuple13) elt)._4(),
                                 ((scala.Tuple13) elt)._5(), ((scala.Tuple13) elt)._6(),
@@ -177,7 +177,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple13) elt)._13());
                 assertSlow(nparams == 13, "got 13 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple14) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple14) elt)._1(), ((scala.Tuple14) elt)._2(),
                                 ((scala.Tuple14) elt)._3(), ((scala.Tuple14) elt)._4(),
                                 ((scala.Tuple14) elt)._5(), ((scala.Tuple14) elt)._6(),
@@ -187,7 +187,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple14) elt)._13(), ((scala.Tuple14) elt)._14());
                 assertSlow(nparams == 14, "got 14 parameters, expected", nparams);
             } else if (elt instanceof scala.Tuple15) {
-                test_cases[a] =
+                testCases[a] =
                         arr(((scala.Tuple15) elt)._1(), ((scala.Tuple15) elt)._2(),
                                 ((scala.Tuple15) elt)._3(), ((scala.Tuple15) elt)._4(),
                                 ((scala.Tuple15) elt)._5(), ((scala.Tuple15) elt)._6(),
@@ -198,7 +198,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
                                 ((scala.Tuple15) elt)._15());
                 assertSlow(nparams == 15, "got 15 parameters, expected", nparams);
             } else {
-                test_cases[a] = arr(elt);
+                testCases[a] = arr(elt);
                 assertSlow(nparams == 1, "got 1 parameters, expected", nparams);
             }
         }
@@ -209,22 +209,22 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
     }
 
     public int getNumCounterexamples() {
-        return test_cases.length;
+        return testCases.length;
     }
 
-    public void initializeBeforeAllTests(ScCtrlConf ctrl_conf, ScInputConf oracle_conf,
+    public void initializeBeforeAllTests(ScCtrlConf ctrlConf, ScInputConf oracleConf,
             QueueIterator queueIterator)
     {
-        sketch.solution_cost = 0;
-        sketch.num_asserts_passed = 0;
-        sketch.ctrl_conf = ctrl_conf;
-        sketch.oracle_conf = oracle_conf;
-        sketch.queue_iterator = queueIterator;
+        sketch.solutionCost = 0;
+        sketch.numAssertsPassed = 0;
+        sketch.ctrlConf = ctrlConf;
+        sketch.oracleConf = oracleConf;
+        sketch.queueIterator = queueIterator;
     }
 
     public boolean runTest(int idx) {
         try {
-            main_method.invoke(sketch, test_cases[idx]);
+            mainMethod.invoke(sketch, testCases[idx]);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             assertFalse("run test");
@@ -245,7 +245,7 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
     }
 
     public int getSolutionCost() {
-        return sketch.solution_cost;
+        return sketch.solutionCost;
     }
 
     public ScAngelicSketchBase getSketch() {
@@ -255,13 +255,13 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
     public ScConstructValueString getHoleValueString(int uid)
             throws ScNoValueStringException
     {
-        return sketch.ctrl_conf.getValueString(uid);
+        return sketch.ctrlConf.getValueString(uid);
     }
 
     public Vector<ScConstructValueString> getOracleValueString(int uid)
             throws ScNoValueStringException
     {
-        return sketch.oracle_conf.getValueString(uid);
+        return sketch.oracleConf.getValueString(uid);
     }
 
     public void addSourceInfo(ScSourceConstruct info) {

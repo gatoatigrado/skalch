@@ -17,10 +17,10 @@ public class ScGeneralDebugEntry extends ScDebugEntry {
     }
 
     @Override
-    public String htmlString(LinkedList<String> active_html_contexts) {
+    public String htmlString(LinkedList<String> activeHtmlContexts) {
         String rv = ScHtmlUtil.html_nonpre_code(text);
         rv = "<li>" + rv + "</li>";
-        if (!active_html_contexts.contains("ul")) {
+        if (!activeHtmlContexts.contains("ul")) {
             rv = "<ul>" + rv + "</ul>";
         }
         return rv + "\n";

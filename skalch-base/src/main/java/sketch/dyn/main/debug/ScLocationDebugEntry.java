@@ -23,9 +23,9 @@ public class ScLocationDebugEntry extends ScDebugEntry {
     }
 
     @Override
-    public String htmlString(LinkedList<String> active_html_contexts) {
+    public String htmlString(LinkedList<String> activeHtmlContexts) {
         String rv = "<p><i>@ " + location + ":</i></p>";
-        if (active_html_contexts.contains("ul")) {
+        if (activeHtmlContexts.contains("ul")) {
             rv = "</ul>" + rv + "<ul>";
         }
         return rv;

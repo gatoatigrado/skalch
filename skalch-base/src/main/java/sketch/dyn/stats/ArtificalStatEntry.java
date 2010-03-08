@@ -4,13 +4,13 @@
 package sketch.dyn.stats;
 
 public class ArtificalStatEntry extends ScStatEntry {
-    public ArtificalStatEntry(float value, String name, String short_name) {
-        super(name, short_name);
+    public ArtificalStatEntry(float value, String name, String shortName) {
+        super(name, shortName);
         this.value = value;
     }
 
     @Override
-    public float get_value() {
+    public float getValue() {
         return value;
     }
 }

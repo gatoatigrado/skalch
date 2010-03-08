@@ -19,7 +19,7 @@ public class DefaultVectorHashMap<K, T> extends DefaultHashMap<K, Vector<T>> {
 
     public class VectorGenerator extends DefValueGenerator {
         @Override
-        public Vector<T> get_value() {
+        public Vector<T> getValue() {
             return new Vector<T>();
         }
     }

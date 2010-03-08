@@ -10,8 +10,8 @@ import sketch.dyn.main.ScDynamicSketchCall;
  *          make changes, please consider contributing back!
  */
 public class ScSourceApplyOracle extends ScSourceUntilvOracle {
-    public ScSourceApplyOracle(int uid, ScDynamicSketchCall<?> sketch_call) {
-        super(uid, sketch_call);
+    public ScSourceApplyOracle(int uid, ScDynamicSketchCall<?> sketchCall) {
+        super(uid, sketchCall);
     }
 
     @Override

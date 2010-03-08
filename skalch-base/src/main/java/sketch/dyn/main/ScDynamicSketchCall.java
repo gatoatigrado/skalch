@@ -21,7 +21,7 @@ import sketch.ui.sourcecode.ScSourceConstruct;
 public interface ScDynamicSketchCall<T> {
     public int getNumCounterexamples();
 
-    public void initializeBeforeAllTests(ScCtrlConf ctrl_conf, ScInputConf oracle_conf,
+    public void initializeBeforeAllTests(ScCtrlConf ctrlConf, ScInputConf oracleConf,
             QueueIterator queueIterator);
 
     public boolean runTest(int idx);

@@ -13,5 +13,5 @@ public abstract class ScDebugEntry {
     public abstract String consoleString();
 
     /** TODO - make this some sort of visitor pattern */
-    public abstract String htmlString(LinkedList<String> active_html_contexts);
+    public abstract String htmlString(LinkedList<String> activeHtmlContexts);
 }

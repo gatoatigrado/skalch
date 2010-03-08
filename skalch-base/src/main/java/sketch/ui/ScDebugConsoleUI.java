@@ -1,7 +1,6 @@
 package sketch.ui;
 
 import static sketch.util.DebugOut.BASH_SALMON;
-import static sketch.util.DebugOut.print_colored;
 import sketch.dyn.BackendOptions;
 import sketch.dyn.constructs.inputs.ScFixedInputConf;
 import sketch.dyn.constructs.inputs.ScSolvingInputConf;
@@ -26,17 +25,17 @@ import sketch.util.DebugOut;
  *          changes, please consider contributing back!
  */
 public class ScDebugConsoleUI implements ScUserInterface, ScStatsPrinter {
-    ScFixedInputConf[] all_counterexamples;
-    ScDynamicSketchCall<?> ui_sketch;
-    public final BackendOptions be_opts;
+    ScFixedInputConf[] allCounterexamples;
+    ScDynamicSketchCall<?> uiSketch;
+    public final BackendOptions beOpts;
 
-    public ScDebugConsoleUI(BackendOptions be_opts, ScDynamicSketchCall<?> sketch) {
-        this.be_opts = be_opts;
-        ui_sketch = sketch;
+    public ScDebugConsoleUI(BackendOptions beOpts, ScDynamicSketchCall<?> sketch) {
+        this.beOpts = beOpts;
+        uiSketch = sketch;
     }
 
-    public void addStackSynthesis(ScLocalStackSynthesis local_ssr) {
-        DebugOut.print("ui add stack synthesis", local_ssr);
+    public void addStackSynthesis(ScLocalStackSynthesis localSsr) {
+        DebugOut.print("ui add stack synthesis", localSsr);
     }
 
     public void modifierComplete(ScUiModifier m) {
@@ -51,46 +50,46 @@ public class ScDebugConsoleUI implements ScUserInterface, ScStatsPrinter {
     @SuppressWarnings("unchecked")
     public void addStackSolution(ScStack stack__) {
         DebugOut.print_mt("solution with stack", stack__);
-        if (be_opts.ui_opts.no_con_skdprint) {
+        if (beOpts.uiOpts.noConSkdprint) {
             return;
         }
         ScStack stack = stack__.clone();
         // FIXME -- hack
         printDebugRun(new ScDebugStackRun(
-                (ScDynamicSketchCall<ScAngelicSketchBase>) ui_sketch, stack));
+                (ScDynamicSketchCall<ScAngelicSketchBase>) uiSketch, stack));
     }
 
-    protected void printDebugRun(ScDebugRun sketch_run) {
-        sketch_run.run();
-        if (sketch_run.debug_out == null) {
+    protected void printDebugRun(ScDebugRun sketchRun) {
+        sketchRun.run();
+        if (sketchRun.debugOut == null) {
             DebugOut.assertFalse("debug out is null");
         }
-        for (ScDebugEntry debug_entry : sketch_run.debug_out) {
+        for (ScDebugEntry debugEntry : sketchRun.debugOut) {
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[skdprint]", " ", false,
-                    debug_entry.consoleString());
+                    debugEntry.consoleString());
         }
     }
 
-    public void set_counterexamples(ScSolvingInputConf[] inputs) {
-        if (be_opts.ui_opts.print_counterex) {
+    public void setCounterexamples(ScSolvingInputConf[] inputs) {
+        if (beOpts.uiOpts.printCounterex) {
             Object[] text = { "counterexamples", inputs };
             DebugOut.print_colored(DebugOut.BASH_GREEN, "[user requested print]", "\n",
                     true, text);
         }
-        all_counterexamples = ScFixedInputConf.from_inputs(inputs);
+        allCounterexamples = ScFixedInputConf.fromInputs(inputs);
     }
 
     public void setStats(ScStatsModifier modifier) {
-        print_stat_line("=== statistics ===");
+        printStatLine("=== statistics ===");
         modifier.execute(this);
     }
 
-    public void print_stat_line(String line) {
-        print_colored(BASH_SALMON, "[stats]", "", false, line);
+    public void printStatLine(String line) {
+        DebugOut.print_colored(BASH_SALMON, "[stats]", "", false, line);
     }
 
-    public void print_stat_warning(String line) {
-        DebugOut.not_implemented("ScStatsPrinter.print_stat_warning");
+    public void printStatWarning(String line) {
+        DebugOut.not_implemented("ScStatsPrinter.printStatWarning");
     }
 
     public void synthesisFinished() {

@@ -20,7 +20,7 @@ class GaFindMeSketch() extends AngelicSketch {
 object GaFindMeTest {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
-        BackendOptions.add_opts(cmdopts)
+        BackendOptions.addOpts(cmdopts)
         skalch.AngelicSketchSynthesize(() => new GaFindMeSketch())
     }
 }

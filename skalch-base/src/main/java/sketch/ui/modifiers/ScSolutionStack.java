@@ -13,7 +13,7 @@ import sketch.ui.gui.ScUiThread;
  *          make changes, please consider contributing back!
  */
 public class ScSolutionStack extends ScModifierDispatcher {
-    protected ScStack my_stack;
+    protected ScStack myStack;
 
     /**
      * @param stack
@@ -23,7 +23,7 @@ public class ScSolutionStack extends ScModifierDispatcher {
             ScUiList<ScModifierDispatcher> list, ScStack stack)
     {
         super(uiThread, list);
-        my_stack = stack;
+        myStack = stack;
     }
 
     @Override
@@ -34,24 +34,24 @@ public class ScSolutionStack extends ScModifierDispatcher {
     private class Modifier extends ScUiModifierInner {
         @Override
         public void apply() {
-            ui_thread.gui.fillWithStack(ScSolutionStack.this, my_stack);
+            uiThread.gui.fillWithStack(ScSolutionStack.this, myStack);
         }
     }
 
     @Override
-    public ScUiModifierInner get_modifier() {
+    public ScUiModifierInner getModifier() {
         return new Modifier();
     }
 
     @Override
     public int getCost() {
-        return my_stack.solution_cost;
+        return myStack.solutionCost;
     }
 
     @Override
     public String toString() {
-        return "solution [cost=" + my_stack.solution_cost + "] "
-                + my_stack.hashCode();
+        return "solution [cost=" + myStack.solutionCost + "] "
+                + myStack.hashCode();
     }
 
     @Override

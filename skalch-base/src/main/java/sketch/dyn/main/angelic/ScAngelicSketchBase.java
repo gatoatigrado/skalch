@@ -24,53 +24,53 @@ import sketch.util.sourcecode.ScSourceLocation;
  *          changes, please consider contributing back!
  */
 public class ScAngelicSketchBase {
-    public ScCtrlConf ctrl_conf;
-    public ScInputConf oracle_conf;
-    public Vector<ScSourceConstruct> construct_src_info = new Vector<ScSourceConstruct>();
-    public Vector<Object> sketch_queue;
-    public Vector<Object> sketch_queue_trace;
-    public QueueIterator queue_iterator;
+    public ScCtrlConf ctrlConf;
+    public ScInputConf oracleConf;
+    public Vector<ScSourceConstruct> constructSrcInfo = new Vector<ScSourceConstruct>();
+    public Vector<Object> sketchQueue;
+    public Vector<Object> sketchQueueTrace;
+    public QueueIterator queueIterator;
 
-    public boolean debug_print_enable = false;
-    public Vector<ScDebugEntry> debug_out;
-    public ScSourceLocation dysketch_fcn_location;
-    public int solution_cost = 0;
-    public int num_asserts_passed = 0;
-    public StackTraceElement debug_assert_failure_location;
-    protected ScSynthesisAssertFailure assert_inst__ = new ScSynthesisAssertFailure();
-    protected ScDynamicUntilvException untilv_inst__ = new ScDynamicUntilvException();
+    public boolean debugPrintEnable = false;
+    public Vector<ScDebugEntry> debugOut;
+    public ScSourceLocation dysketchFcnLocation;
+    public int solutionCost = 0;
+    public int numAssertsPassed = 0;
+    public StackTraceElement debugAssertFailureLocation;
+    protected ScSynthesisAssertFailure assertInst__ = new ScSynthesisAssertFailure();
+    protected ScDynamicUntilvException untilvInst__ = new ScDynamicUntilvException();
 
     @Override
     public String toString() {
-        return "ScAngelicSketchBase [ctrl_conf=" + ctrl_conf + ", oracle_conf=" +
-                oracle_conf + "]";
+        return "ScAngelicSketchBase [ctrl_conf=" + ctrlConf + ", oracle_conf=" +
+                oracleConf + "]";
     }
 
     public void synthAssert(boolean truth) {
         if (!truth) {
-            if (debug_print_enable) {
-                debug_assert_failure_location = (new Exception()).getStackTrace()[1];
+            if (debugPrintEnable) {
+                debugAssertFailureLocation = (new Exception()).getStackTrace()[1];
             }
-            throw assert_inst__;
+            throw assertInst__;
         }
-        num_asserts_passed += 1;
+        numAssertsPassed += 1;
     }
 
     public void dynamicUntilvAssert(boolean truth) {
         if (!truth) {
-            if (debug_print_enable) {
-                debug_assert_failure_location = (new Exception()).getStackTrace()[1];
+            if (debugPrintEnable) {
+                debugAssertFailureLocation = (new Exception()).getStackTrace()[1];
             }
-            throw untilv_inst__;
+            throw untilvInst__;
         }
     }
 
-    public void enable_debug() {
-        debug_print_enable = true;
-        debug_assert_failure_location = null;
-        debug_out = new Vector<ScDebugEntry>();
-        sketch_queue = new Vector<Object>();
-        sketch_queue_trace = new Vector<Object>();
+    public void enableDebug() {
+        debugPrintEnable = true;
+        debugAssertFailureLocation = null;
+        debugOut = new Vector<ScDebugEntry>();
+        sketchQueue = new Vector<Object>();
+        sketchQueueTrace = new Vector<Object>();
     }
 
     public synchronized void skCompilerAssertInternal(Object... arr) {
@@ -79,9 +79,9 @@ public class ScAngelicSketchBase {
         DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n", false, arr);
         (new Exception()).printStackTrace();
         DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure] - oracles:", "\n",
-                false, oracle_conf.toString());
+                false, oracleConf.toString());
         DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure] - ctrls:", "\n",
-                false, ctrl_conf.toString());
+                false, ctrlConf.toString());
         DebugOut.assertFalse("compiler failure");
     }
 
@@ -97,31 +97,31 @@ public class ScAngelicSketchBase {
     }
 
     public void skAddCost(int cost) {
-        solution_cost += cost;
+        solutionCost += cost;
     }
 
-    public void skdprint_backend(String text) {
-        debug_out.add(new ScGeneralDebugEntry(text));
+    public void skdprintBackend(String text) {
+        debugOut.add(new ScGeneralDebugEntry(text));
     }
 
-    public void skqueue_put_backend(int queueNum, Object value) {
-        sketch_queue.add(value);
+    public void skqueuePutBackend(int queueNum, Object value) {
+        sketchQueue.add(value);
     }
 
-    public void skqueue_check_backend(int queueNum, Object value, boolean ifDebug) {
-        if (queue_iterator != null && !queue_iterator.checkValue(value)) {
+    public void skqueueCheckBackend(int queueNum, Object value, boolean ifDebug) {
+        if (queueIterator != null && !queueIterator.checkValue(value)) {
             synthAssert(false);
         }
         if (ifDebug) {
-            sketch_queue_trace.add(value);
+            sketchQueueTrace.add(value);
         }
     }
 
-    public void skdprint_location_backend(String location) {
-        debug_out.add(new ScLocationDebugEntry(location));
+    public void skdprintLocationBackend(String location) {
+        debugOut.add(new ScLocationDebugEntry(location));
     }
 
     public void addSourceInfo(ScSourceConstruct info) {
-        construct_src_info.add(info);
+        constructSrcInfo.add(info);
     }
 }

@@ -17,8 +17,8 @@ import sketch.util.thread.MTSafe;
  */
 @MTSafe
 public class ScSharedPrefix extends ScPrefix {
-    public AtomicBoolean search_done = new AtomicBoolean(false);
-    public AtomicInteger next_value = new AtomicInteger(0);
+    public AtomicBoolean searchDone = new AtomicBoolean(false);
+    public AtomicInteger nextValue = new AtomicInteger(0);
     public int nparentlinks;
     public AtomicReference<ScPrefix> parent =
             new AtomicReference<ScPrefix>(null);
@@ -33,39 +33,39 @@ public class ScSharedPrefix extends ScPrefix {
     }
 
     @Override
-    public boolean get_all_searched() {
+    public boolean getAllSearched() {
         // return false;
-        return search_done.get();
+        return searchDone.get();
     }
 
     @Override
-    public int next_value() {
-        return next_value.incrementAndGet();
+    public int nextValue() {
+        return nextValue.incrementAndGet();
     }
 
     @Override
-    public synchronized ScPrefix get_parent(ScPrefixSearch search) {
-        ScPrefix curr_parent = parent.get();
-        if (curr_parent == null) {
-            curr_parent = new ScSharedPrefix(nparentlinks + 1);
-            if (!parent.compareAndSet(null, curr_parent)) {
-                curr_parent = parent.get();
+    public synchronized ScPrefix getParent(ScPrefixSearch search) {
+        ScPrefix currParent = parent.get();
+        if (currParent == null) {
+            currParent = new ScSharedPrefix(nparentlinks + 1);
+            if (!parent.compareAndSet(null, currParent)) {
+                currParent = parent.get();
             }
         }
-        return curr_parent;
+        return currParent;
     }
 
     @Override
-    public void set_all_searched() {
-        search_done.set(true);
+    public void setAllSearched() {
+        searchDone.set(true);
     }
 
     @Override
-    public ScPrefix add_entries(int added_entries) {
-        if (added_entries <= 0) {
+    public ScPrefix addEntries(int addedEntries) {
+        if (addedEntries <= 0) {
             DebugOut.assertFalse("scsharedprefix - added entries is zero");
         }
         // System.identityHashCode();
-        return new ScLocalPrefix(added_entries, this);
+        return new ScLocalPrefix(addedEntries, this);
     }
 }

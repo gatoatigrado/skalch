@@ -21,22 +21,22 @@ public class ScSynthesisOptions extends CliAnnotatedOptionGroup {
     @CliParameter(help = "solver to use (ga or stack, ga default)")
     public ScSynthSolver solver = new ScSynthSolver("stack");
     @CliParameter(help = "number of solutions to find")
-    public long num_solutions = 1L << 50;
+    public long numSolutions = 1L << 50;
     @CliParameter(help = "override number of threads (default # of processors)")
-    public int num_threads = Runtime.getRuntime().availableProcessors();
+    public int numThreads = Runtime.getRuntime().availableProcessors();
     @CliParameter(help = "stop after a number of runs")
-    public long debug_stop_after = 1L << 50;
+    public long debugStopAfter = 1L << 50;
     @CliParameter(help = "don't seed the random number generator with the clock.")
-    public boolean no_clock_rand;
+    public boolean noClockRand;
     @CliParameter(help = "equivalent to throwing synthAssert() if too many controls"
             + " have been accessed.")
-    public int max_stack_depth = 1 << 30L;
+    public int maxStackDepth = 1 << 30L;
     @CliParameter(help = "filename to dump output of queues.")
-    public String queue_filename = "";
+    public String queueFilename = "";
     @CliParameter(help = "filename to retrieve the queues from the last program refinement.")
-    public String queuein_filename = "";
+    public String queueInFilename = "";
     @CliParameter(help = "filename to dump output of traces.")
-    public String trace_filename = "";
+    public String traceFilename = "";
     @CliParameter(help = "turn on entanglement analysis.")
     public boolean entanglement = false;
 

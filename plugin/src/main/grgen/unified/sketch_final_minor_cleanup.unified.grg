@@ -44,6 +44,8 @@ xgrs setFcnBinaryCallBaseType*
 xgrs setFcnBinaryCallArgs*
 xgrs setSymbolBaseType*
 xgrs setValDefBaseType*
+xgrs setVarRefBaseType*
+xgrs setFcnDefBaseType*
 {% endblock %}
 
 
@@ -131,6 +133,10 @@ rule setFcnBinaryCallArgs {
     }
 }
 
+// NOTE -- remember to call them from xgrs / grshell!
 {{ set_base_type("Symbol") }}
 {{ set_base_type("ValDef") }}
+{{ set_base_type("VarRef") }}
+{{ set_base_type("FcnDef") }}
+
 {% endblock %}

@@ -35,20 +35,20 @@ ClassDef(ClassDefSymbol:PrintSymName.name, OL[ClassDefFieldsList]:PrintSymName.n
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
     -> new TypeStruct(<ctx>, String, List[String], List[Type])
 
-FcnDef(FcnDefSymbol.symbolName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
+FcnDef(FcnDefSymbol:PrintSymName.name, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
     -> Function(<ctx>, String, Type, List[Parameter], "getImplements(node)", Statement)
 """
 
 
 
 STMTS = r"""
-ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
+ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName.name)
     -> new StmtVarDecl(<ctx>, Type, String, <null>)
 
-ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol.symbolName)
+ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName.name)
     -> new Parameter(Type, String)
 
-VarRef(VarRefSymbol.symbolName)
+VarRef(VarRefSymbol:PrintSymName.name)
     -> new ExprVar(<ctx>, String)
 
 SKAssertCall(SKAssertCallArg)
@@ -75,6 +75,9 @@ FcnBinaryCall(FcnBinaryCallLhs, .strop, FcnBinaryCallRhs)
 
 FcnCallUnaryNegative(FcnArgChain)
     -> new ExprUnary(<ctx>, "ExprUnary.UNOP_NEG", Expression)
+
+FcnCall(FcnCallSymbol:PrintSymName.name, OL[FcnArgList])
+    -> new ExprFunCall(<ctx>, String, List[Expression])
 
 HoleCall() -> new ExprStar(<ctx>)
 
@@ -125,7 +128,7 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall",
         "ExprConstant": "ExprConstInt ExprConstUnit",
         "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen",
         "Type": "TypeStruct TypePrimitive TypeStructRef" }

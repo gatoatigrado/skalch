@@ -98,7 +98,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         FEContext arg0 = create_fe_context(node);
 
         GXLNode arg1_tmp1 = followEdge("FcnDefSymbol", node); // gen marker 3
-        String arg1 = getStringAttribute("symbolName", arg1_tmp1); // gen marker 7
+        GXLNode arg1_tmp2 = followEdge("PrintSymName", arg1_tmp1); // gen marker 3
+        String arg1 = getStringAttribute("name", arg1_tmp2); // gen marker 7
 
         Type arg2 = getType(followEdge("FcnDefReturnTypeSymbol", node)); // gen marker 2
 
@@ -122,7 +123,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         Type arg1 = getType(followEdge("TypeSymbol", arg1_tmp1)); // gen marker 2
 
         GXLNode arg2_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
-        String arg2 = getStringAttribute("symbolName", arg2_tmp1); // gen marker 7
+        GXLNode arg2_tmp2 = followEdge("PrintSymName", arg2_tmp1); // gen marker 3
+        String arg2 = getStringAttribute("name", arg2_tmp2); // gen marker 7
 
         return new StmtVarDecl(arg0, arg1, arg2, null);
     }
@@ -134,7 +136,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         Type arg0 = getType(followEdge("TypeSymbol", arg0_tmp1)); // gen marker 2
 
         GXLNode arg1_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
-        String arg1 = getStringAttribute("symbolName", arg1_tmp1); // gen marker 7
+        GXLNode arg1_tmp2 = followEdge("PrintSymName", arg1_tmp1); // gen marker 3
+        String arg1 = getStringAttribute("name", arg1_tmp2); // gen marker 7
 
         return new Parameter(arg0, arg1);
     }
@@ -145,7 +148,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         FEContext arg0 = create_fe_context(node);
 
         GXLNode arg1_tmp1 = followEdge("VarRefSymbol", node); // gen marker 3
-        String arg1 = getStringAttribute("symbolName", arg1_tmp1); // gen marker 7
+        GXLNode arg1_tmp2 = followEdge("PrintSymName", arg1_tmp1); // gen marker 3
+        String arg1 = getStringAttribute("name", arg1_tmp2); // gen marker 7
 
         return new ExprVar(arg0, arg1);
     }
@@ -232,6 +236,24 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         Expression arg2 = getExpression(followEdge("FcnArgChain", node)); // gen marker 2
 
         return new ExprUnary(arg0, ExprUnary.UNOP_NEG, arg2);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprFunCall getExprFunCallFromFcnCall(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        GXLNode arg1_tmp1 = followEdge("FcnCallSymbol", node); // gen marker 3
+        GXLNode arg1_tmp2 = followEdge("PrintSymName", arg1_tmp1); // gen marker 3
+        String arg1 = getStringAttribute("name", arg1_tmp2); // gen marker 7
+
+        Vector<Expression> arg2_vec = new Vector<Expression>();
+        for (GXLNode arg2_tmp1 : followEdgeOL("FcnArgList", node)) {
+            arg2_vec.add(getExpression(arg2_tmp1)); // gen marker 4
+        }
+        List<Expression> arg2 = unmodifiableList(arg2_vec);
+
+        return new ExprFunCall(arg0, arg1, arg2);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -508,6 +530,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprConstUnitFromUnitConstant(node);
         } else if (typ.equals("IntConstant")) {
             return getExprConstIntFromIntConstant(node);
+        } else if (typ.equals("FcnCall")) {
+            return getExprFunCallFromFcnCall(node);
         } else if (typ.equals("FcnCallUnaryNegative")) {
             return getExprUnaryFromFcnCallUnaryNegative(node);
         } else if (typ.equals("VarRef")) {
@@ -540,6 +564,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprStarFromHoleCall(node);
         } else {
             throw new RuntimeException("no way to return a 'ExprStar' from a node of type " + typ);
+        }
+    }
+
+    public ExprFunCall getExprFunCall(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("FcnCall")) {
+            return getExprFunCallFromFcnCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprFunCall' from a node of type " + typ);
         }
     }
 }

@@ -96,4 +96,15 @@ public class ScDebugConsoleUI implements ScUserInterface, ScStatsPrinter {
         DebugOut.print("Finished synthesizing");
 
     }
+
+    public void resetStackSolutions() {
+    // TODO Auto-generated method stub
+
+    }
+
+    public void resetStackSyntheses() {
+    // TODO Auto-generated method stub
+
+    }
+
 }

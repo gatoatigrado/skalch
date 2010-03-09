@@ -1,5 +1,7 @@
 package sketch.ui.gui;
 
+import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,18 +49,20 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public boolean autoDisplayFirstSolution = true;
     public BackendOptions beOpts;
     public ScModifierDispatcher lastDisplayDispatcher;
-    private ScSourceConstruct sourceInfo;
+    public Vector<ScSourceConstruct> sourceCodeInfo;
 
     public ScUiThread(ScSynthesis<?> synthRuntime, ScDynamicSketchCall<?> sketchCall,
-            BackendOptions beOpts, ScSourceConstruct sourceInfo)
+            BackendOptions beOpts, Set<ScSourceConstruct> sourceCodeInfo)
     {
         super(0.05f);
         this.synthRuntime = synthRuntime;
         this.sketchCall = sketchCall;
         this.beOpts = beOpts;
-        this.sourceInfo = sourceInfo;
+        this.sourceCodeInfo = new Vector<ScSourceConstruct>();
+        this.sourceCodeInfo.addAll(sourceCodeInfo);
         autoDisplayFirstSolution = !beOpts.uiOpts.noAutoSolnDisp;
         guiList.add(this);
+
     }
 
     @Override
@@ -207,5 +211,15 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     public void synthesisFinished() {
         DebugOut.print("Synthesis finished");
+    }
+
+    public void resetStackSolutions() {
+    // TODO Auto-generated method stub
+
+    }
+
+    public void resetStackSyntheses() {
+    // TODO Auto-generated method stub
+
     }
 }

@@ -14,7 +14,6 @@ import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.ui.queues.QueueIterator;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
-import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 
 public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchBase> {
@@ -262,10 +261,5 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
             throws ScNoValueStringException
     {
         return sketch.oracleConf.getValueString(uid);
-    }
-
-    public void addSourceInfo(ScSourceConstruct info) {
-        sketch.addSourceInfo(info);
-
     }
 }

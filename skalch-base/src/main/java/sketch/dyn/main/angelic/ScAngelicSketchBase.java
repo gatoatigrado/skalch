@@ -10,7 +10,6 @@ import sketch.dyn.main.debug.ScLocationDebugEntry;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.queues.QueueIterator;
-import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.DebugOut;
 import sketch.util.sourcecode.ScSourceLocation;
 
@@ -26,7 +25,6 @@ import sketch.util.sourcecode.ScSourceLocation;
 public class ScAngelicSketchBase {
     public ScCtrlConf ctrlConf;
     public ScInputConf oracleConf;
-    public Vector<ScSourceConstruct> constructSrcInfo = new Vector<ScSourceConstruct>();
     public Vector<Object> sketchQueue;
     public Vector<Object> sketchQueueTrace;
     public QueueIterator queueIterator;
@@ -119,9 +117,5 @@ public class ScAngelicSketchBase {
 
     public void skdprintLocationBackend(String location) {
         debugOut.add(new ScLocationDebugEntry(location));
-    }
-
-    public void addSourceInfo(ScSourceConstruct info) {
-        constructSrcInfo.add(info);
     }
 }

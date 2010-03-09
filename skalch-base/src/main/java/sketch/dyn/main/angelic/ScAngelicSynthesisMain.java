@@ -1,5 +1,7 @@
 package sketch.dyn.main.angelic;
 
+import java.util.Set;
+
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
@@ -20,7 +22,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     public final ScAngelicSketchCall uiSketch;
     protected final ScAngelicSketchCall[] sketches;
     protected final ScSynthesis<?> synthesisRuntime;
-    private ScSourceConstruct sourceInfo;
+    private Set<ScSourceConstruct> sourceInfo;
 
     public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
         sketches = new ScAngelicSketchCall[nthreads];
@@ -29,7 +31,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         }
         uiSketch = new ScAngelicSketchCall(f.apply());
         sourceInfo = getSourceCodeInfo(uiSketch);
-        uiSketch.addSourceInfo(sourceInfo);
+        // uiSketch.addSourceInfo(sourceInfo);
         synthesisRuntime = getSynthesisRuntime(sketches);
     }
 
@@ -54,7 +56,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         // be_opts.synth_opts.queuein_filename);
         // }
 
-        ScSynthesisResults results = new ScSynthesisResults();
+        ScSynthesisResults results = new ScSynthesisResults(ui);
 
         initStats(ui);
         ScStatsMT.statsSingleton.startSynthesis();

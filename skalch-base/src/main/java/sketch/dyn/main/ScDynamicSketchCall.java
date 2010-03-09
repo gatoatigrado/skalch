@@ -7,7 +7,6 @@ import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.ui.queues.QueueIterator;
 import sketch.ui.sourcecode.ScConstructValueString;
 import sketch.ui.sourcecode.ScNoValueStringException;
-import sketch.ui.sourcecode.ScSourceConstruct;
 
 /**
  * provide common functionality (run, etc.) for sketches; mostly a way to abstract how
@@ -35,7 +34,4 @@ public interface ScDynamicSketchCall<T> {
 
     public Vector<ScConstructValueString> getOracleValueString(int uid)
             throws ScNoValueStringException;
-
-    public void addSourceInfo(ScSourceConstruct info);
-
 }

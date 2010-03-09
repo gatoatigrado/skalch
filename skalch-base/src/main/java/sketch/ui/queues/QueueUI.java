@@ -102,8 +102,7 @@ public class QueueUI implements ScUserInterface {
         if (listOfQueuesOutput != null) {
             try {
                 ObjectOutputStream out =
-                        new ObjectOutputStream(new FileOutputStream(
-                                queueOutputFileName));
+                        new ObjectOutputStream(new FileOutputStream(queueOutputFileName));
                 out.writeObject(listOfQueuesOutput);
                 out.close();
             } catch (FileNotFoundException e) {
@@ -114,5 +113,15 @@ public class QueueUI implements ScUserInterface {
         }
         base.synthesisFinished();
         isFinished = true;
+    }
+
+    public void resetStackSolutions() {
+    // TODO Auto-generated method stub
+
+    }
+
+    public void resetStackSyntheses() {
+    // TODO Auto-generated method stub
+
     }
 }

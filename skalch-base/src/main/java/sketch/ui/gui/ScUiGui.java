@@ -71,8 +71,8 @@ public class ScUiGui extends gui_0_1 {
         public final void add(int keyEvent0, int modifiers, boolean keyRelease) {
             KeyStroke myKeystroke =
                     KeyStroke.getKeyStroke(keyEvent0, modifiers, keyRelease);
-            getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                    myKeystroke, this);
+            getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(myKeystroke,
+                    this);
             getRootPane().getActionMap().put(this, this);
         }
 
@@ -181,9 +181,7 @@ public class ScUiGui extends gui_0_1 {
     protected StringBuilder getSourceWithSynthesisValues() {
         HashMap<String, Vector<ScSourceConstruct>> infoByFilename =
                 new HashMap<String, Vector<ScSourceConstruct>>();
-        ScAngelicSketchBase sketch =
-                (ScAngelicSketchBase) uiThread.sketchCall.getSketch();
-        for (ScSourceConstruct holeInfo : sketch.constructSrcInfo) {
+        for (ScSourceConstruct holeInfo : uiThread.sourceCodeInfo) {
             String f = holeInfo.entireLocation.filename;
             if (!infoByFilename.containsKey(f)) {
                 infoByFilename.put(f, new Vector<ScSourceConstruct>());
@@ -198,8 +196,7 @@ public class ScUiGui extends gui_0_1 {
                 + "<p style=\"margin-top: 0.1em;\">"
                 + "color indicates how often values are changed: red "
                 + "is very often, yellow is occasionally, blue is never.</p>");
-        for (Entry<String, Vector<ScSourceConstruct>> entry : infoByFilename.entrySet())
-        {
+        for (Entry<String, Vector<ScSourceConstruct>> entry : infoByFilename.entrySet()) {
             result.append("\n<p><pre style=\"font-family: serif;\">");
             addSourceInfo(result, entry.getKey(), entry.getValue());
             result.append("</pre></p><hr />");

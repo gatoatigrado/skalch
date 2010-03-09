@@ -5,6 +5,8 @@ import static sketch.util.DebugOut.not_implemented;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -41,13 +43,15 @@ public class ScSynthesisMainBase {
         }
     }
 
-    protected ScSourceConstruct getSourceCodeInfo(ScDynamicSketchCall<?> uiSketchCall) {
+    protected Set<ScSourceConstruct> getSourceCodeInfo(ScDynamicSketchCall<?> uiSketchCall)
+    {
+        HashSet<ScSourceConstruct> sourceInfo = new HashSet<ScSourceConstruct>();
         Class<?> cls = uiSketchCall.getSketch().getClass();
         String infoRc = cls.getName().replace(".", File.separator) + ".info";
         URL rc = cls.getClassLoader().getResource(infoRc);
         if (rc == null) {
             DebugOut.print_mt("No source info file found.", infoRc);
-            return null;
+            return sourceInfo;
         }
         try {
             String text = EntireFileReader.load_file(rc.openStream());
@@ -56,9 +60,8 @@ public class ScSynthesisMainBase {
             Elements srcinfo = doc.getRootElement().getChildElements();
             for (int a = 0; a < srcinfo.size(); a++) {
                 ScSourceConstruct info =
-                        ScSourceConstruct.fromNode(srcinfo.get(a), names[1],
-                                uiSketchCall);
-                return info;
+                        ScSourceConstruct.fromNode(srcinfo.get(a), names[1], uiSketchCall);
+                sourceInfo.add(info);
             }
         } catch (IOException e) {
             DebugOut.print_exception("reading source annotation info ", e);
@@ -68,7 +71,7 @@ public class ScSynthesisMainBase {
             DebugOut.print_exception("reading source annotation info ", e);
         }
         DebugOut.print_mt("Exception while reading source info file.", infoRc);
-        return null;
+        return sourceInfo;
     }
 
     public void initStats(ScUserInterface ui) {

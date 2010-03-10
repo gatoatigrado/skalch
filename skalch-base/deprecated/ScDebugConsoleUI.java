@@ -13,6 +13,7 @@ import sketch.dyn.stats.ScStatsModifier;
 import sketch.dyn.stats.ScStatsPrinter;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
+import sketch.result.ScSynthesisResults;
 import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
@@ -103,6 +104,11 @@ public class ScDebugConsoleUI implements ScUserInterface, ScStatsPrinter {
     }
 
     public void resetStackSyntheses() {
+    // TODO Auto-generated method stub
+
+    }
+
+    public void setScSynthesisResults(ScSynthesisResults results) {
     // TODO Auto-generated method stub
 
     }

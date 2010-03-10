@@ -16,8 +16,8 @@ public class ScUiOptions extends CliAnnotatedOptionGroup {
         super("ui", "user interface options");
     }
 
-    @CliParameter(help = "disable the GUI (not recommended)")
-    public boolean noGui;
+    // @CliParameter(help = "disable the GUI (not recommended)")
+    // public boolean noGui;
     @CliParameter(help = "don't automatically display the first solution")
     public boolean noAutoSolnDisp;
     @CliParameter(help = "scala file to generate after \"accept\" is clicked")

@@ -4,7 +4,6 @@ import java.util.Set;
 
 import sketch.dyn.BackendOptions;
 import sketch.dyn.main.ScDynamicSketchCall;
-import sketch.dyn.synth.ScSynthesis;
 import sketch.ui.gui.ScUiThread;
 import sketch.ui.sourcecode.ScSourceConstruct;
 
@@ -26,15 +25,11 @@ public class ScUserInterfaceManager {
      *            appropriate solvers.
      */
     public static ScUserInterface startUi(BackendOptions beOpts,
-            ScSynthesis<?> synthRuntime, ScDynamicSketchCall<?> sketch,
-            Set<ScSourceConstruct> sourceInfo)
+            ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceInfo)
     {
-        if (beOpts.uiOpts.noGui) {
-            return new ScDebugConsoleUI(beOpts, sketch);
-        } else {
-            ScUiThread thread = new ScUiThread(synthRuntime, sketch, beOpts, sourceInfo);
-            thread.start();
-            return thread;
-        }
+
+        ScUiThread thread = new ScUiThread(sketch, beOpts, sourceInfo);
+        thread.start();
+        return thread;
     }
 }

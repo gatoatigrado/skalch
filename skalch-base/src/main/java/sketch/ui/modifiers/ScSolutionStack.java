@@ -7,10 +7,11 @@ import sketch.ui.gui.ScUiThread;
 
 /**
  * display a solution stack
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScSolutionStack extends ScModifierDispatcher {
     protected ScStack myStack;
@@ -19,8 +20,8 @@ public class ScSolutionStack extends ScModifierDispatcher {
      * @param stack
      *            already cloned stack
      */
-    public ScSolutionStack(ScUiThread uiThread,
-            ScUiList<ScModifierDispatcher> list, ScStack stack)
+    public ScSolutionStack(ScUiThread uiThread, ScUiList<ScModifierDispatcher> list,
+            ScStack stack)
     {
         super(uiThread, list);
         myStack = stack;
@@ -44,14 +45,8 @@ public class ScSolutionStack extends ScModifierDispatcher {
     }
 
     @Override
-    public int getCost() {
-        return myStack.solutionCost;
-    }
-
-    @Override
     public String toString() {
-        return "solution [cost=" + myStack.solutionCost + "] "
-                + myStack.hashCode();
+        return "solution [cost=" + myStack.solutionCost + "] " + myStack.hashCode();
     }
 
     @Override

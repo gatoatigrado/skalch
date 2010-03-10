@@ -13,9 +13,9 @@ import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.stats.ScStatsModifier;
-import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
+import sketch.result.ScSynthesisResults;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.ScUserInterface;
 import sketch.ui.modifiers.ScActiveStack;
@@ -37,32 +37,31 @@ import sketch.util.thread.InteractiveThread;
  *          changes, please consider contributing back!
  */
 public class ScUiThread extends InteractiveThread implements ScUserInterface {
-    public ScSynthesis<?> synthRuntime;
     public ScDynamicSketchCall<?> sketchCall;
     public ScUiGui gui;
     public ScFixedInputConf[] allCounterexamples;
     public AtomicInteger modifierTimestamp = new AtomicInteger(0);
-    static ConcurrentLinkedQueue<ScUiThread> guiList =
-            new ConcurrentLinkedQueue<ScUiThread>();
     static ConcurrentLinkedQueue<ScUiModifier> modifierList =
             new ConcurrentLinkedQueue<ScUiModifier>();
     public boolean autoDisplayFirstSolution = true;
     public BackendOptions beOpts;
     public ScModifierDispatcher lastDisplayDispatcher;
     public Vector<ScSourceConstruct> sourceCodeInfo;
+    public ScSynthesisResults results;
 
-    public ScUiThread(ScSynthesis<?> synthRuntime, ScDynamicSketchCall<?> sketchCall,
-            BackendOptions beOpts, Set<ScSourceConstruct> sourceCodeInfo)
+    public ScUiThread(ScDynamicSketchCall<?> sketchCall, BackendOptions beOpts,
+            Set<ScSourceConstruct> sourceCodeInfo)
     {
         super(0.05f);
-        this.synthRuntime = synthRuntime;
         this.sketchCall = sketchCall;
         this.beOpts = beOpts;
         this.sourceCodeInfo = new Vector<ScSourceConstruct>();
         this.sourceCodeInfo.addAll(sourceCodeInfo);
         autoDisplayFirstSolution = !beOpts.uiOpts.noAutoSolnDisp;
-        guiList.add(this);
+    }
 
+    public void setScSynthesisResults(ScSynthesisResults results) {
+        this.results = results;
     }
 
     @Override
@@ -197,7 +196,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
         @Override
         public void apply() {
-            if (!synthRuntime.waitHandler.synthesisComplete.get()) {
+            if (!results.synthesisComplete()) {
                 add(); // re-enqueue;
             }
             if (thread_time - lastTime > timeoutSecs) {
@@ -222,4 +221,5 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     // TODO Auto-generated method stub
 
     }
+
 }

@@ -75,6 +75,7 @@ public class ScSynthesisMainBase {
     }
 
     public void initStats(ScUserInterface ui) {
-        new ScStatsMT(ui, beOpts);
+        ScStatsMT.setUI(ui);
+        ScStatsMT.setBackendOptions(beOpts);
     }
 }

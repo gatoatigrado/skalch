@@ -4,6 +4,7 @@ import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.stats.ScStatsModifier;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
+import sketch.result.ScSynthesisResults;
 import sketch.ui.modifiers.ScUiModifier;
 
 /**
@@ -15,6 +16,9 @@ import sketch.ui.modifiers.ScUiModifier;
  *          changes, please consider contributing back!
  */
 public interface ScUserInterface {
+
+    public void setScSynthesisResults(ScSynthesisResults results);
+
     public void modifierComplete(ScUiModifier m);
 
     public int nextModifierTimestamp();

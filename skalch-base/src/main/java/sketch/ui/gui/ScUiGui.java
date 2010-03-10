@@ -19,10 +19,8 @@ import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.main.debug.ScDebugEntry;
 import sketch.dyn.main.debug.ScDebugRun;
 import sketch.dyn.main.debug.ScDebugStackRun;
-import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.stack.ScStack;
-import sketch.ui.ScDebugConsoleUI;
-import sketch.ui.ScUiSortedList;
+import sketch.ui.ScUiList;
 import sketch.ui.modifiers.ScModifierDispatcher;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceTraceVisitor;
@@ -42,7 +40,7 @@ import sketch.util.sourcecode.ScSourceLocation;
 public class ScUiGui extends gui_0_1 {
     private static final long serialVersionUID = 6584583626375432139L;
     public ScUiThread uiThread;
-    public ScUiSortedList<ScModifierDispatcher> synthCompletions;
+    public ScUiList<ScModifierDispatcher> synthCompletions;
     public int numSynthActive = 0;
     public int contextLen;
     public int contextSplitLen;
@@ -58,7 +56,7 @@ public class ScUiGui extends gui_0_1 {
         // java is very annoying
         int maxListLength = uiThread.beOpts.uiOpts.maxListLength;
         synthCompletions =
-                new ScUiSortedList<ScModifierDispatcher>(
+                new ScUiList<ScModifierDispatcher>(
                         synthCompletionList,
                         (Class<ScModifierDispatcher[]>) (new ScModifierDispatcher[0]).getClass(),
                         maxListLength);
@@ -89,8 +87,8 @@ public class ScUiGui extends gui_0_1 {
             @Override
             public void action() {
                 // set a console UI so the stats are dumped there.
-                ScStatsMT.statsSingleton.ui =
-                        new ScDebugConsoleUI(uiThread.beOpts, uiThread.sketchCall);
+                // ScStatsMT.statsSingleton.ui =
+                // new ScDebugConsoleUI(uiThread.beOpts, uiThread.sketchCall);
                 stopSolver();
                 setVisible(false);
                 dispose();
@@ -152,7 +150,7 @@ public class ScUiGui extends gui_0_1 {
 
     @Override
     protected void stopSolver() {
-        uiThread.synthRuntime.waitHandler.setSynthesisComplete();
+        uiThread.results.setSynthesisComplete();
     }
 
     /** this all happens on the UI thread, but it shouldn't be that slow */

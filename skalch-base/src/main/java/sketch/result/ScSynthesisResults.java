@@ -9,17 +9,19 @@ import sketch.util.DebugOut;
 
 public class ScSynthesisResults {
 
-    Vector<ScStack> solutions;
+    private Vector<ScStack> solutions;
     private ScUserInterface ui;
+    private Vector<ScLocalStackSynthesis> localSynths;
 
     public ScSynthesisResults(ScUserInterface ui) {
         this.ui = ui;
+        ui.setScSynthesisResults(this);
         solutions = new Vector<ScStack>();
+        localSynths = new Vector<ScLocalStackSynthesis>();
     }
 
     public void addStackSynthesis(ScLocalStackSynthesis localSynth) {
-    // TODO Auto-generated method stub
-
+        localSynths.add(localSynth);
     }
 
     public void addStackSolution(ScStack stack) {
@@ -27,6 +29,15 @@ public class ScSynthesisResults {
         solutions.add(stack);
 
         ui.addStackSolution(stack);
+    }
+
+    public boolean synthesisComplete() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public void setSynthesisComplete() {
+
     }
 
 }

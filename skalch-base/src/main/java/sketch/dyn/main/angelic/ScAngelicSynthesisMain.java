@@ -31,30 +31,12 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         }
         uiSketch = new ScAngelicSketchCall(f.apply());
         sourceInfo = getSourceCodeInfo(uiSketch);
-        // uiSketch.addSourceInfo(sourceInfo);
         synthesisRuntime = getSynthesisRuntime(sketches);
     }
 
     public Object synthesize() throws Exception {
         // start various utilities
-        ScUserInterface ui =
-                ScUserInterfaceManager.startUi(beOpts, synthesisRuntime, uiSketch,
-                        sourceInfo);
-
-        // if (be_opts.synth_opts.trace_filename != "") {
-        // ui = new TraceUI(ui, be_opts.synth_opts.trace_filename);
-        // }
-        //
-        // if (be_opts.synth_opts.entanglement) {
-        // ui = new RecordTraceUI(ui);
-        // }
-        //
-        // if (be_opts.synth_opts.queue_filename != ""
-        // || be_opts.synth_opts.queuein_filename != "") {
-        // ui = new QueueUI(ui, queue_sketch,
-        // be_opts.synth_opts.queue_filename,
-        // be_opts.synth_opts.queuein_filename);
-        // }
+        ScUserInterface ui = ScUserInterfaceManager.startUi(beOpts, uiSketch, sourceInfo);
 
         ScSynthesisResults results = new ScSynthesisResults(ui);
 

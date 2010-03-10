@@ -6,19 +6,15 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Vector;
 
-import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.main.angelic.ScAngelicSketchBase;
 import sketch.dyn.main.debug.ScDebugRun;
 import sketch.dyn.main.debug.ScDebugStackRun;
-import sketch.dyn.stats.ScStatsModifier;
-import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.ui.ScUserInterface;
-import sketch.ui.modifiers.ScUiModifier;
 import sketch.util.DebugOut;
 
-public class QueueUI implements ScUserInterface {
+public class QueueUI {
 
     public final ScUserInterface base;
     private ScDynamicSketchCall<ScAngelicSketchBase> sketchCall;
@@ -77,27 +73,6 @@ public class QueueUI implements ScUserInterface {
         }
     }
 
-    public void addStackSynthesis(ScLocalStackSynthesis localSsr) {
-        localSsr.queue = previousQueues;
-        base.addStackSynthesis(localSsr);
-    }
-
-    public void modifierComplete(ScUiModifier m) {
-        base.modifierComplete(m);
-    }
-
-    public int nextModifierTimestamp() {
-        return base.nextModifierTimestamp();
-    }
-
-    public void setStats(ScStatsModifier modifier) {
-        base.setStats(modifier);
-    }
-
-    public void setCounterexamples(ScSolvingInputConf[] inputs) {
-        base.setCounterexamples(inputs);
-    }
-
     public void synthesisFinished() {
         if (listOfQueuesOutput != null) {
             try {
@@ -113,15 +88,5 @@ public class QueueUI implements ScUserInterface {
         }
         base.synthesisFinished();
         isFinished = true;
-    }
-
-    public void resetStackSolutions() {
-    // TODO Auto-generated method stub
-
-    }
-
-    public void resetStackSyntheses() {
-    // TODO Auto-generated method stub
-
     }
 }

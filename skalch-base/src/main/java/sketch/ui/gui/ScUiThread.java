@@ -1,5 +1,6 @@
 package sketch.ui.gui;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -49,19 +50,17 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
     public Vector<ScSourceConstruct> sourceCodeInfo;
     public ScSynthesisResults results;
 
-    public ScUiThread(ScDynamicSketchCall<?> sketchCall, BackendOptions beOpts,
-            Set<ScSourceConstruct> sourceCodeInfo)
+    public ScUiThread(ScSynthesisResults results, ScDynamicSketchCall<?> sketchCall,
+            BackendOptions beOpts, Set<ScSourceConstruct> sourceCodeInfo)
     {
         super(0.05f);
         this.sketchCall = sketchCall;
         this.beOpts = beOpts;
         this.sourceCodeInfo = new Vector<ScSourceConstruct>();
         this.sourceCodeInfo.addAll(sourceCodeInfo);
-        autoDisplayFirstSolution = !beOpts.uiOpts.noAutoSolnDisp;
-    }
-
-    public void setScSynthesisResults(ScSynthesisResults results) {
         this.results = results;
+        results.registerObserver(this);
+        autoDisplayFirstSolution = !beOpts.uiOpts.noAutoSolnDisp;
     }
 
     @Override
@@ -110,6 +109,25 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                 new ScActiveStack(target, gui.synthCompletions, localSsr).add();
             }
         };
+    }
+
+    public void removeAllSyntheses() {
+        final ScUiThread target = this;
+        // new RemoveModifier() {
+        // @Override
+        // public void apply() {
+        // ScUiGui gui = target.gui;
+        // gui.numSynthActive -= 1;
+        //                
+        // gui.synthCompletions.
+        // }
+        // };
+
+    }
+
+    public void removeStackSynthesis(ScLocalStackSynthesis localSynthesis) {
+    // TODO Auto-generated method stub
+
     }
 
     public void addStackSolution(ScStack stack__) {
@@ -217,7 +235,12 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     }
 
-    public void resetStackSyntheses() {
+    public void removeAllStackSolutions() {
+    // TODO Auto-generated method stub
+
+    }
+
+    public void resetStackSolutions(List<ScStack> solutions) {
     // TODO Auto-generated method stub
 
     }

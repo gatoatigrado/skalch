@@ -36,9 +36,10 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
 
     public Object synthesize() throws Exception {
         // start various utilities
-        ScUserInterface ui = ScUserInterfaceManager.startUi(beOpts, uiSketch, sourceInfo);
+        ScSynthesisResults results = new ScSynthesisResults();
 
-        ScSynthesisResults results = new ScSynthesisResults(ui);
+        ScUserInterface ui =
+                ScUserInterfaceManager.startUi(results, beOpts, uiSketch, sourceInfo);
 
         initStats(ui);
         ScStatsMT.statsSingleton.startSynthesis();

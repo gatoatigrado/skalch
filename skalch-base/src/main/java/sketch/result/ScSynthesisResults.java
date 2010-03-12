@@ -1,34 +1,48 @@
 package sketch.result;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
+import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
-import sketch.ui.ScUserInterface;
-import sketch.util.DebugOut;
 
 public class ScSynthesisResults {
 
     private Vector<ScStack> solutions;
-    private ScUserInterface ui;
     private Vector<ScLocalStackSynthesis> localSynths;
 
-    public ScSynthesisResults(ScUserInterface ui) {
-        this.ui = ui;
-        ui.setScSynthesisResults(this);
+    private List<ScResultsObserver> observers;
+
+    public ScSynthesisResults() {
         solutions = new Vector<ScStack>();
         localSynths = new Vector<ScLocalStackSynthesis>();
+        observers = new ArrayList<ScResultsObserver>();
     }
 
-    public void addStackSynthesis(ScLocalStackSynthesis localSynth) {
+    public void registerObserver(ScResultsObserver observer) {
+        observers.add(observer);
+    }
+
+    public void detachObserver(ScResultsObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void addSynthesis(ScLocalStackSynthesis localSynth) {
         localSynths.add(localSynth);
+
+        for (ScResultsObserver observer : observers) {
+            observer.addStackSynthesis(localSynth);
+        }
     }
 
     public void addStackSolution(ScStack stack) {
-        DebugOut.print(stack);
         solutions.add(stack);
 
-        ui.addStackSolution(stack);
+        for (ScResultsObserver observer : observers) {
+            observer.addStackSolution(stack);
+        }
     }
 
     public boolean synthesisComplete() {
@@ -38,6 +52,12 @@ public class ScSynthesisResults {
 
     public void setSynthesisComplete() {
 
+    }
+
+    public void setCounterexamples(ScSolvingInputConf[] inputs) {
+        for (ScResultsObserver observer : observers) {
+            observer.setCounterexamples(inputs);
+        }
     }
 
 }

@@ -53,7 +53,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         gotFirstRun = new AtomicBoolean(false);
         firstSolution = new AtomicReference<ScStack>(null);
         for (ScLocalStackSynthesis localSynth : localSynthesis) {
-            resultsStore.addStackSynthesis(localSynth);
+            resultsStore.addSynthesis(localSynth);
             localSynth.run();
         }
     }

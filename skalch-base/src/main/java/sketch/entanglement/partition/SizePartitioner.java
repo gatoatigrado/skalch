@@ -1,10 +1,10 @@
-package sketch.ui.entanglement.partition;
+package sketch.entanglement.partition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import sketch.ui.entanglement.Trace;
+import sketch.entanglement.Trace;
 
 public class SizePartitioner implements TraceListPartitioner {
 
@@ -15,8 +15,7 @@ public class SizePartitioner implements TraceListPartitioner {
     }
 
     public List<List<Trace>> getTraceListPartition() {
-        HashMap<Integer, List<Trace>> partitions =
-                new HashMap<Integer, List<Trace>>();
+        HashMap<Integer, List<Trace>> partitions = new HashMap<Integer, List<Trace>>();
         for (Trace trace : traces) {
             int size = traces.size();
             List<Trace> partition;

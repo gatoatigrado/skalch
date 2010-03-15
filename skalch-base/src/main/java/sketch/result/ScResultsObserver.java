@@ -16,6 +16,8 @@ public interface ScResultsObserver {
 
     public void addStackSolution(ScStack solution);
 
+    public void removeStackSolution(ScStack solution);
+
     public void removeAllStackSolutions();
 
     public void resetStackSolutions(List<ScStack> solutions);

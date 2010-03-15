@@ -10,29 +10,28 @@ import sketch.dyn.synth.ScSearchDoneException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
 import sketch.ui.ScUiQueueableInactive;
 import sketch.ui.modifiers.ScUiModifier;
-import sketch.ui.queues.Queue;
 import sketch.ui.queues.QueueIterator;
 import sketch.util.DebugOut;
 
 /**
- * Container for a synthesis thread. The actual thread is an inner class because
- * the threads will die between synthesis rounds, whereas the sketch object
- * doesn't need to be deleted.
+ * Container for a synthesis thread. The actual thread is an inner class because the
+ * threads will die between synthesis rounds, whereas the sketch object doesn't need to be
+ * deleted.
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScLocalStackSynthesis extends ScLocalSynthesis {
     protected ScStackSynthesis ssr;
     public int longestStackSize;
     public ScStack longestStack;
     public Vector<ScStack> randomStacks;
-    public Queue queue;
 
-    public ScLocalStackSynthesis(ScDynamicSketchCall<?> sketch,
-            ScStackSynthesis ssr, BackendOptions beOpts, int uid) {
+    public ScLocalStackSynthesis(ScDynamicSketchCall<?> sketch, ScStackSynthesis ssr,
+            BackendOptions beOpts, int uid)
+    {
         super(sketch, beOpts, uid);
         this.ssr = ssr;
     }
@@ -60,11 +59,11 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                 trycatch: try {
                     stack.resetBeforeRun();
                     QueueIterator queueIterator = null;
-                    if (queue != null) {
-                        queueIterator = queue.getIterator();
+                    if (ssr.queue != null) {
+                        queueIterator = ssr.queue.getIterator();
                     }
-                    sketch.initializeBeforeAllTests(stack.ctrlConf,
-                            stack.oracleConf, queueIterator);
+                    sketch.initializeBeforeAllTests(stack.ctrlConf, stack.oracleConf,
+                            queueIterator);
                     nruns += 1;
                     for (int c = 0; c < sketch.getNumCounterexamples(); c++) {
                         ncounterexamples += 1;
@@ -105,8 +104,7 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
             if (randomStacks.size() > ssr.maxNumRandom) {
                 int length1 = randomStacks.size() / 2;
                 for (int c = 0; c < length1; c++) {
-                    randomStacks
-                            .remove(mtLocal.nextInt(randomStacks.size()));
+                    randomStacks.remove(mtLocal.nextInt(randomStacks.size()));
                 }
                 replacementProbability /= 2.f;
             }
@@ -117,7 +115,9 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
             longestStackSize = -1;
             longestStack = null;
             stack = ssr.searchManager.cloneDefaultSearch();
-            for (long a = 0; !ssr.waitHandler.synthesisComplete.get(); a += NUM_BLIND_FAST) {
+            for (long a = 0; !ssr.waitHandler.synthesisComplete.get(); a +=
+                    NUM_BLIND_FAST)
+            {
                 if (a >= ssr.debugStopAfter) {
                     ssr.waitHandler.waitExhausted();
                 }
@@ -127,8 +127,7 @@ public class ScLocalStackSynthesis extends ScLocalSynthesis {
                 updateStats();
                 ssr.waitHandler.throwIfSynthesisComplete();
                 if (!uiQueue.isEmpty()) {
-                    uiQueue.remove().setInfo(ScLocalStackSynthesis.this, this,
-                            stack);
+                    uiQueue.remove().setInfo(ScLocalStackSynthesis.this, this, stack);
                 }
                 if (exhausted) {
                     ssr.waitHandler.waitExhausted();

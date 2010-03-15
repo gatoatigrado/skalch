@@ -25,15 +25,15 @@ public class QueueFileInput {
     protected List<? extends List<Object>> readQueuesFromFile(String fileName) {
         Vector<Vector<Object>> listOfQueues = new Vector<Vector<Object>>();
         try {
-            ObjectInputStream input = new ObjectInputStream(
-                    new FileInputStream(fileName));
+            ObjectInputStream input =
+                    new ObjectInputStream(new FileInputStream(fileName));
             listOfQueues = (Vector<Vector<Object>>) input.readObject();
         } catch (FileNotFoundException e) {
-            DebugOut.print_exception("Problem reading file " + fileName
-                    + " for queues", e);
+            DebugOut.print_exception("Problem reading file " + fileName + " for queues",
+                    e);
         } catch (IOException e) {
-            DebugOut.print_exception("Problem opening file " + fileName
-                    + " for queues", e);
+            DebugOut.print_exception("Problem opening file " + fileName + " for queues",
+                    e);
         } catch (ClassNotFoundException e) {
             DebugOut.print_exception("Queue file input in wrong input", e);
         }

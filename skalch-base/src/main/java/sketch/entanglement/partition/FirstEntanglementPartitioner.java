@@ -1,4 +1,4 @@
-package sketch.ui.entanglement.partition;
+package sketch.entanglement.partition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import sketch.ui.entanglement.Event;
-import sketch.ui.entanglement.DynAngel;
-import sketch.ui.entanglement.EntanglementAnalysis;
-import sketch.ui.entanglement.Trace;
+import sketch.entanglement.DynAngel;
+import sketch.entanglement.EntanglementAnalysis;
+import sketch.entanglement.Event;
+import sketch.entanglement.Trace;
 
 public class FirstEntanglementPartitioner implements TraceListPartitioner {
 
@@ -23,8 +23,7 @@ public class FirstEntanglementPartitioner implements TraceListPartitioner {
         EntanglementAnalysis ea = new EntanglementAnalysis(traces);
         Set<DynAngel> entangledDynAngels = ea.getEntangledAngels();
         if (entangledDynAngels.isEmpty()) {
-            List<List<Trace>> noPartition =
-                    new ArrayList<List<Trace>>();
+            List<List<Trace>> noPartition = new ArrayList<List<Trace>>();
             noPartition.add(traces);
             return noPartition;
         }
@@ -51,9 +50,7 @@ public class FirstEntanglementPartitioner implements TraceListPartitioner {
         return new ArrayList<List<Trace>>(projValuesToTraces.values());
     }
 
-    private DynAngel getFirstAngel(Trace trace,
-            Set<DynAngel> entangledDynAngels)
-    {
+    private DynAngel getFirstAngel(Trace trace, Set<DynAngel> entangledDynAngels) {
         for (Event event : trace.getEvents()) {
             if (entangledDynAngels.contains(event.dynAngel)) {
                 return event.dynAngel;

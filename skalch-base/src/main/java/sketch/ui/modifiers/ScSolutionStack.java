@@ -14,7 +14,7 @@ import sketch.ui.gui.ScUiThread;
  *          changes, please consider contributing back!
  */
 public class ScSolutionStack extends ScModifierDispatcher {
-    protected ScStack myStack;
+    final public ScStack myStack;
 
     /**
      * @param stack

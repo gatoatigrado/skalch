@@ -11,7 +11,6 @@ import sketch.dyn.synth.ScSynthesis;
 import sketch.dyn.synth.stack.prefix.ScDefaultPrefix;
 import sketch.dyn.synth.stack.prefix.ScPrefixSearchManager;
 import sketch.result.ScSynthesisResults;
-import sketch.ui.queues.Queue;
 
 /**
  * cloned Lexin's implementation, then modified for
@@ -28,7 +27,6 @@ import sketch.ui.queues.Queue;
 public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
     protected ScSynthCtrlConf ctrls;
     protected ScSolvingInputConf oracleInputs;
-    protected Queue queue;
 
     // variables for ScLocalStackSynthesis
     public ScPrefixSearchManager<ScStack> searchManager;
@@ -53,7 +51,7 @@ public class ScStackSynthesis extends ScSynthesis<ScLocalStackSynthesis> {
         gotFirstRun = new AtomicBoolean(false);
         firstSolution = new AtomicReference<ScStack>(null);
         for (ScLocalStackSynthesis localSynth : localSynthesis) {
-            resultsStore.addSynthesis(localSynth);
+            resultsStore.addStackSynthesis(localSynth);
             localSynth.run();
         }
     }

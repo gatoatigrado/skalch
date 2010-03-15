@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import sketch.dyn.BackendOptions;
 import sketch.result.ScSynthesisResults;
+import sketch.ui.queues.Queue;
+import sketch.ui.queues.QueueFileInput;
 import sketch.util.DebugOut;
 
 /**
@@ -24,6 +26,7 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
     protected AtomicLong nsolutionsFound;
     public final BackendOptions beOpts;
     protected ScSynthesisResults resultsStore;
+    public Queue queue;
 
     public ScSynthesis(BackendOptions beOpts) {
         nsolutionsFound = new AtomicLong(0);
@@ -32,6 +35,11 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         nsolutionsToFind = beOpts.synthOpts.numSolutions;
         debugStopAfter = beOpts.synthOpts.debugStopAfter;
         maxNumRandom = beOpts.uiOpts.maxRandomStacks;
+
+        if (beOpts.synthOpts.queueFilename != "") {
+            QueueFileInput input = new QueueFileInput(beOpts.synthOpts.queueFilename);
+            queue = input.getQueue();
+        }
     }
 
     public final void synthesize(ScSynthesisResults resultsStore) {

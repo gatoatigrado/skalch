@@ -1,4 +1,4 @@
-package sketch.ui.entanglement;
+package sketch.entanglement;
 
 import java.util.List;
 import java.util.Set;

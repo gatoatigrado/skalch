@@ -1,10 +1,13 @@
-package sketch.ui.entanglement;
+package sketch.entanglement;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import sketch.entanglement.graph.ScGraph;
 
 public class EntanglementAnalysis {
 
@@ -12,9 +15,9 @@ public class EntanglementAnalysis {
     private HashMap<DynAngel, ArrayList<Integer>> angelsToValueMap;
     private Set<DynAngelPair> entangledAngelPairs;
 
-    public EntanglementAnalysis(List<Trace> traces) {
-        this.traces = traces;
-        angelsToValueMap = getAngelsToValuesMap(traces);
+    public EntanglementAnalysis(Collection<Trace> traces) {
+        this.traces = new ArrayList<Trace>(traces);
+        angelsToValueMap = getAngelsToValuesMap(this.traces);
         entangledAngelPairs = getEntangledPairs();
     }
 
@@ -183,4 +186,15 @@ public class EntanglementAnalysis {
         return projTraceSet;
     }
 
+    public List<List<DynAngel>> getEntangledSubsets() {
+        ScGraph<DynAngel> entanglementGraph = new ScGraph<DynAngel>();
+        for (DynAngel angel : angelsToValueMap.keySet()) {
+            entanglementGraph.addVertex(angel);
+        }
+
+        for (DynAngelPair entangledAngels : entangledAngelPairs) {
+            entanglementGraph.addEdge(entangledAngels.loc1, entangledAngels.loc2);
+        }
+        return entanglementGraph.getConnectedComponents();
+    }
 }

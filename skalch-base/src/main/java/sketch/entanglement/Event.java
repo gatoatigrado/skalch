@@ -1,4 +1,4 @@
-package sketch.ui.entanglement;
+package sketch.entanglement;
 
 public class Event {
 

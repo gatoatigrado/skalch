@@ -113,25 +113,44 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     public void removeAllSyntheses() {
         final ScUiThread target = this;
-        // new RemoveModifier() {
-        // @Override
-        // public void apply() {
-        // ScUiGui gui = target.gui;
-        // gui.numSynthActive -= 1;
-        //                
-        // gui.synthCompletions.
-        // }
-        // };
-
+        new RemoveModifier() {
+            @Override
+            public void apply() {
+                ScUiGui gui = target.gui;
+                Object[] completions = gui.synthCompletions.getAll();
+                for (Object completion : completions) {
+                    if (completion instanceof ScActiveStack) {
+                        ScActiveStack stack = (ScActiveStack) completion;
+                        gui.synthCompletions.remove(stack);
+                        gui.numSynthActive -= 1;
+                    }
+                }
+            }
+        };
     }
 
-    public void removeStackSynthesis(ScLocalStackSynthesis localSynthesis) {
-    // TODO Auto-generated method stub
-
+    public void removeStackSynthesis(final ScLocalStackSynthesis localSsr) {
+        final ScUiThread target = this;
+        new RemoveModifier() {
+            @Override
+            public void apply() {
+                ScUiGui gui = target.gui;
+                Object[] completions = gui.synthCompletions.getAll();
+                for (Object completion : completions) {
+                    if (completion instanceof ScActiveStack) {
+                        ScActiveStack stack = (ScActiveStack) completion;
+                        if (stack.localSsr == localSsr) {
+                            gui.synthCompletions.remove(stack);
+                            gui.numSynthActive -= 1;
+                        }
+                    }
+                }
+            }
+        };
     }
 
-    public void addStackSolution(ScStack stack__) {
-        final ScStack stackToAdd = stack__.clone();
+    public void addStackSolution(ScStack stack) {
+        final ScStack stackToAdd = stack.clone();
         new AddedModifier() {
             @Override
             public void apply() {
@@ -140,6 +159,66 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                                 stackToAdd);
                 solution.add();
                 autoDisplaySolution(solution);
+            }
+        };
+    }
+
+    public void removeAllStackSolutions() {
+        final ScUiThread target = this;
+        new RemoveModifier() {
+            @Override
+            public void apply() {
+                ScUiGui gui = target.gui;
+                Object[] completions = gui.synthCompletions.getAll();
+                for (Object completion : completions) {
+                    if (completion instanceof ScSolutionStack) {
+                        ScSolutionStack solution = (ScSolutionStack) completion;
+                        gui.synthCompletions.remove(solution);
+                    }
+                }
+            }
+        };
+    }
+
+    public void removeStackSolution(ScStack stack) {
+        final ScStack stackToRemove = stack.clone();
+        new RemoveModifier() {
+            @Override
+            public void apply() {
+                ScUiGui gui = ScUiThread.this.gui;
+                Object[] completions = gui.synthCompletions.getAll();
+                for (Object completion : completions) {
+                    if (completion instanceof ScSolutionStack) {
+                        ScSolutionStack solution = (ScSolutionStack) completion;
+                        if (stackToRemove == solution.myStack) {
+                            gui.synthCompletions.remove(solution);
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    public void resetStackSolutions(final List<ScStack> solutions) {
+        final ScUiThread target = this;
+        new RemoveModifier() {
+            @Override
+            public void apply() {
+                ScUiGui gui = target.gui;
+                Object[] completions = gui.synthCompletions.getAll();
+                for (Object completion : completions) {
+                    if (completion instanceof ScSolutionStack) {
+                        ScSolutionStack solution = (ScSolutionStack) completion;
+                        gui.synthCompletions.remove(solution);
+                    }
+                }
+
+                for (ScStack stack : solutions) {
+                    ScSolutionStack solution =
+                            new ScSolutionStack(ScUiThread.this, gui.synthCompletions,
+                                    stack);
+                    solution.add();
+                }
             }
         };
     }
@@ -204,6 +283,20 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         }
     }
 
+    private abstract class RemoveModifier extends ScUiModifierInner {
+        public RemoveModifier() {
+            remove();
+        }
+
+        protected void remove() {
+            try {
+                new ScUiModifier(ScUiThread.this, this).enqueueTo();
+            } catch (ScUiQueueableInactive e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public abstract class AnimatedRunnableModifier extends AddedModifier {
         public float timeoutSecs;
         public float lastTime = 0.f;
@@ -228,21 +321,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     public void synthesisFinished() {
         DebugOut.print("Synthesis finished");
-    }
-
-    public void resetStackSolutions() {
-    // TODO Auto-generated method stub
-
-    }
-
-    public void removeAllStackSolutions() {
-    // TODO Auto-generated method stub
-
-    }
-
-    public void resetStackSolutions(List<ScStack> solutions) {
-    // TODO Auto-generated method stub
-
     }
 
 }

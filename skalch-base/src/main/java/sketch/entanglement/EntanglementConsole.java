@@ -1,34 +1,39 @@
-package sketch.ui.entanglement;
+package sketch.entanglement;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
-public class EntanglementConsole {
+import sketch.dyn.synth.stack.ScStack;
+import sketch.result.ScSynthesisResults;
+import sketch.util.thread.InteractiveThread;
 
-    private ArrayList<Trace> traces;
-    private ArrayList<List<Trace>> partitions;
+public class EntanglementConsole extends InteractiveThread {
+
     private EntanglementAnalysis ea;
+    private InputStream input;
+    private Map<Trace, ScStack> traceToStack;
+    private ScSynthesisResults results;
 
-    public EntanglementConsole(Vector<Trace> traces) {
-        this.traces = new ArrayList<Trace>(traces);
-
-        partitions = new ArrayList<List<Trace>>();
-        partitions.add(new ArrayList<Trace>(traces));
-
-        ea = new EntanglementAnalysis(this.traces);
+    public EntanglementConsole(InputStream input, ScSynthesisResults results) {
+        super(0.05f);
+        this.input = input;
+        this.results = results;
+        traceToStack = new HashMap<Trace, ScStack>();
+        updateEA();
     }
 
     public void startConsole() {
-        Scanner in = new Scanner(System.in);
+        Scanner in = new Scanner(input);
         while (true) {
             System.out.print("<<<");
-            boolean matched = false;
 
             String line = in.nextLine();
             try {
@@ -48,8 +53,14 @@ public class EntanglementConsole {
                     printAllConstantDynAngels();
                 } else if ("entangled".equals(command)) {
                     printAllEntangledPairs();
+                } else if ("subsets".equals(command)) {
+                    printEntangledSubsets();
+                } else if ("update".equals(command)) {
+                    updateEA();
                 } else if ("exit".equals(command)) {
                     break;
+                } else if ("remove".equals(command)) {
+                    results.removeAllStackSolutions();
                 } else {
                     System.out.println("Unknown command: " + command);
                 }
@@ -58,6 +69,15 @@ public class EntanglementConsole {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void updateEA() {
+        traceToStack.clear();
+        ArrayList<ScStack> solutions = results.getSolutions();
+        for (ScStack solution : solutions) {
+            traceToStack.put(solution.getExecutionTrace(), solution);
+        }
+        ea = new EntanglementAnalysis(traceToStack.keySet());
     }
 
     private void compareTwoDynAngels(DynAngel angel1, DynAngel angel2) {
@@ -145,9 +165,24 @@ public class EntanglementConsole {
         Collections.sort(dynAngels);
         System.out.println("Constant angels");
         for (DynAngel dynAngel : dynAngels) {
-            System.out.println("Location: " + dynAngel.staticAngelId + "[" +
-                    dynAngel.execNum + "]");
-
+            System.out.println("Location: " + dynAngel);
         }
+    }
+
+    private void printEntangledSubsets() {
+        List<List<DynAngel>> subsets = ea.getEntangledSubsets();
+
+        for (List<DynAngel> subset : subsets) {
+            System.out.println("--------------");
+            for (DynAngel dynAngel : subset) {
+                System.out.println("Location: " + dynAngel);
+            }
+        }
+
+    }
+
+    @Override
+    public void run_inner() {
+        startConsole();
     }
 }

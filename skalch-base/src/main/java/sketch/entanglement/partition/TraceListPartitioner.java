@@ -1,8 +1,8 @@
-package sketch.ui.entanglement.partition;
+package sketch.entanglement.partition;
 
 import java.util.List;
 
-import sketch.ui.entanglement.Trace;
+import sketch.entanglement.Trace;
 
 public interface TraceListPartitioner {
     public List<List<Trace>> getTraceListPartition();

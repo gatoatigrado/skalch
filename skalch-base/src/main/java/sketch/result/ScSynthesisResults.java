@@ -8,7 +8,7 @@ import sketch.dyn.constructs.inputs.ScSolvingInputConf;
 import sketch.dyn.synth.stack.ScLocalStackSynthesis;
 import sketch.dyn.synth.stack.ScStack;
 
-public class ScSynthesisResults {
+public class ScSynthesisResults implements ScResultsObserver {
 
     private Vector<ScStack> solutions;
     private Vector<ScLocalStackSynthesis> localSynths;
@@ -29,19 +29,62 @@ public class ScSynthesisResults {
         observers.remove(observer);
     }
 
-    public void addSynthesis(ScLocalStackSynthesis localSynth) {
+    public void addStackSynthesis(ScLocalStackSynthesis localSynth) {
         localSynths.add(localSynth);
+        // localSynth.doneEvents.enqueue(this, "removeSynthesis", localSynth);
 
         for (ScResultsObserver observer : observers) {
             observer.addStackSynthesis(localSynth);
         }
     }
 
-    public void addStackSolution(ScStack stack) {
-        solutions.add(stack);
+    public void removeStackSynthesis(ScLocalStackSynthesis localSynth) {
+        localSynths.remove(localSynth);
 
         for (ScResultsObserver observer : observers) {
-            observer.addStackSolution(stack);
+            observer.removeStackSynthesis(localSynth);
+        }
+    }
+
+    public void removeAllSyntheses() {
+        localSynths.removeAllElements();
+
+        for (ScResultsObserver observer : observers) {
+            observer.removeAllSyntheses();
+        }
+    }
+
+    public void addStackSolution(ScStack stack) {
+        ScStack clonedStack = stack.clone();
+        solutions.add(clonedStack);
+
+        for (ScResultsObserver observer : observers) {
+            observer.addStackSolution(clonedStack);
+        }
+    }
+
+    public void removeStackSolution(ScStack stack) {
+        solutions.remove(stack);
+
+        for (ScResultsObserver observer : observers) {
+            observer.removeStackSolution(stack);
+        }
+    }
+
+    public void removeAllStackSolutions() {
+        solutions.removeAllElements();
+
+        for (ScResultsObserver observer : observers) {
+            observer.removeAllStackSolutions();
+        }
+    }
+
+    public void resetStackSolutions(List<ScStack> newSolutions) {
+        solutions.removeAllElements();
+        solutions.addAll(newSolutions);
+
+        for (ScResultsObserver observer : observers) {
+            observer.resetStackSolutions(newSolutions);
         }
     }
 
@@ -51,7 +94,7 @@ public class ScSynthesisResults {
     }
 
     public void setSynthesisComplete() {
-
+    // TODO
     }
 
     public void setCounterexamples(ScSolvingInputConf[] inputs) {
@@ -60,4 +103,7 @@ public class ScSynthesisResults {
         }
     }
 
+    public ArrayList<ScStack> getSolutions() {
+        return new ArrayList<ScStack>(solutions);
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
+import sketch.entanglement.EntanglementConsole;
 import sketch.result.ScSynthesisResults;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
@@ -32,11 +33,14 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         uiSketch = new ScAngelicSketchCall(f.apply());
         sourceInfo = getSourceCodeInfo(uiSketch);
         synthesisRuntime = getSynthesisRuntime(sketches);
+
     }
 
     public Object synthesize() throws Exception {
         // start various utilities
         ScSynthesisResults results = new ScSynthesisResults();
+        EntanglementConsole console = new EntanglementConsole(System.in, results);
+        console.start();
 
         ScUserInterface ui =
                 ScUserInterfaceManager.startUi(results, beOpts, uiSketch, sourceInfo);

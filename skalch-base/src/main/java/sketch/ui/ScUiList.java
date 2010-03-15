@@ -8,10 +8,11 @@ import javax.swing.JList;
 
 /**
  * generic wrapper for a list view. can remove elements before they are added.
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScUiList<T> {
     private static final long serialVersionUID = -21488839374096350L;
@@ -47,10 +48,18 @@ public class ScUiList<T> {
         return arrayCopy(asObj, asObj.length, arrayCls);
     }
 
+    public Object[] getAll() {
+        return listModel.toArray();
+    }
+
     public void remove(T elt) {
         if (!listModel.removeElement(elt)) {
             removeQueue.add(elt);
         }
+    }
+
+    public void removeAll() {
+        listModel.removeAllElements();
     }
 
     @SuppressWarnings("unchecked")
@@ -76,11 +85,8 @@ public class ScUiList<T> {
     public static <NEW, OLD> NEW[] arrayCopy(OLD[] original, int newLength,
             Class<? extends NEW[]> newType)
     {
-        NEW[] copy =
-                (NEW[]) Array
-                        .newInstance(newType.getComponentType(), newLength);
-        System.arraycopy(original, 0, copy, 0, Math.min(original.length,
-                newLength));
+        NEW[] copy = (NEW[]) Array.newInstance(newType.getComponentType(), newLength);
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
     }
 }

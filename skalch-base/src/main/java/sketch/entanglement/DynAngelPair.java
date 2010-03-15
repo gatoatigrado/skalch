@@ -1,4 +1,4 @@
-package sketch.ui.entanglement;
+package sketch.entanglement;
 
 public class DynAngelPair implements Comparable<DynAngelPair> {
     final DynAngel loc1, loc2;

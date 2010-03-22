@@ -7,11 +7,11 @@ public class EntanglementComparison {
 
     final Set<DynAngel> proj1, proj2;
     final List<Trace> proj1Values, proj2Values;
-    final boolean[][] correlationMap;
+    final int[][] correlationMap;
     final boolean isEntangled;
 
     public EntanglementComparison(Set<DynAngel> proj1, Set<DynAngel> proj2,
-            List<Trace> proj1Values, List<Trace> proj2Values, boolean[][] correlationMap)
+            List<Trace> proj1Values, List<Trace> proj2Values, int[][] correlationMap)
     {
         super();
         this.proj1 = proj1;
@@ -23,10 +23,10 @@ public class EntanglementComparison {
         isEntangled = checkEntanglement(correlationMap);
     }
 
-    private boolean checkEntanglement(boolean[][] correlationMap2) {
+    private boolean checkEntanglement(int[][] correlationMap2) {
         for (int i = 0; i < correlationMap.length; i++) {
             for (int j = 0; j < correlationMap[0].length; j++) {
-                if (!correlationMap[i][j]) {
+                if (correlationMap[i][j] != 0) {
                     return true;
                 }
             }

@@ -9,11 +9,19 @@ class TestSketch extends AngelicSketch {
     val tests = Array( () )
     
     def main() {
-		
+      val x1 : Int = !!(3)
+      val x2 : Int = !!(3)
+      val x3 : Int = !!(3)
+      val x4 : Int = !!(3)
+      val x5 : Int = !!(3)
+  
+      val x : Int = x1 + x2 + x3 + x4 + x5
+    
+      synthAssert(x == 5)
     }
 }
 
-object ListReverseMain {
+object TestMain {
     def main(args: Array[String]) = {
         for (arg <- args)
             Console.println(arg)

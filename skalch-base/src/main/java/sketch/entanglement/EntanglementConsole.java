@@ -54,7 +54,12 @@ public class EntanglementConsole extends InteractiveThread {
                 } else if ("entangled".equals(command)) {
                     printAllEntangledPairs();
                 } else if ("subsets".equals(command)) {
-                    printEntangledSubsets();
+                    if (tokens.hasMoreElements()) {
+                        int n = Integer.parseInt(tokens.nextToken());
+                        printNEntangledSubsets(n);
+                    } else {
+                        printEntangledSubsets();
+                    }
                 } else if ("update".equals(command)) {
                     updateEA();
                 } else if ("exit".equals(command)) {
@@ -87,12 +92,12 @@ public class EntanglementConsole extends InteractiveThread {
         Set<DynAngel> proj2 = new HashSet<DynAngel>();
         proj2.add(angel2);
 
-        EntanglementComparison result = ea.compareTwoSubtraces(proj1, proj2, true);
+        EntanglementComparison result = ea.compareTwoSubtraces(proj1, proj2);
         printEntanglementResults(result);
     }
 
     private void printEntanglementResults(EntanglementComparison result) {
-        boolean[][] correlationMap = result.correlationMap;
+        int[][] correlationMap = result.correlationMap;
 
         int numRows = 1 + correlationMap.length;
         int numColumns = 1 + correlationMap[0].length;
@@ -118,8 +123,8 @@ public class EntanglementConsole extends InteractiveThread {
 
         for (int i = 0; i < correlationMap.length; i++) {
             for (int j = 0; j < correlationMap[0].length; j++) {
-                if (correlationMap[i][j]) {
-                    grid[i + 1][j + 1] = "X";
+                if (correlationMap[i][j] != 0) {
+                    grid[i + 1][j + 1] = "" + correlationMap[i][j];
                 }
             }
         }
@@ -170,15 +175,22 @@ public class EntanglementConsole extends InteractiveThread {
     }
 
     private void printEntangledSubsets() {
-        List<List<DynAngel>> subsets = ea.getEntangledSubsets();
+        List<List<DynAngel>> subsets = ea.getOneEntangledSubsets();
+        printSubsets(subsets);
+    }
 
+    private void printNEntangledSubsets(int n) {
+        List<List<DynAngel>> subsets = ea.getNEntangledSubsets(n);
+        printSubsets(subsets);
+    }
+
+    private void printSubsets(List<List<DynAngel>> subsets) {
         for (List<DynAngel> subset : subsets) {
             System.out.println("--------------");
             for (DynAngel dynAngel : subset) {
                 System.out.println("Location: " + dynAngel);
             }
         }
-
     }
 
     @Override

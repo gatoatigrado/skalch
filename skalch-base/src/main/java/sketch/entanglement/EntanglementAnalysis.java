@@ -78,7 +78,7 @@ public class EntanglementAnalysis {
                 Set<DynAngel> proj2 = new HashSet<DynAngel>();
                 proj2.add(dynamicAngels.get(j));
 
-                if (compareTwoSubtraces(proj1, proj2, false).isEntangled) {
+                if (compareTwoSubtraces(proj1, proj2).isEntangled) {
                     entangledPairs.add(new DynAngelPair(dynamicAngels.get(i),
                             dynamicAngels.get(j)));
                 }
@@ -92,7 +92,7 @@ public class EntanglementAnalysis {
     }
 
     public EntanglementComparison compareTwoSubtraces(Set<DynAngel> proj1,
-            Set<DynAngel> proj2, boolean verbose)
+            Set<DynAngel> proj2)
     {
         Set<DynAngel> projUnion = new HashSet<DynAngel>();
         projUnion.addAll(proj1);
@@ -112,8 +112,13 @@ public class EntanglementAnalysis {
         List<Trace> proj2TraceList = new ArrayList<Trace>(proj2TraceSet);
 
         // default value is false
-        boolean[][] correlationMap =
-                new boolean[proj1TraceList.size()][proj2TraceList.size()];
+        int[][] correlationMap = new int[proj1TraceList.size()][proj2TraceList.size()];
+
+        for (int i = 0; i < correlationMap.length; i++) {
+            for (int j = 0; j < correlationMap[0].length; j++) {
+                correlationMap[i][j] = 0;
+            }
+        }
 
         for (int i = 0; i < proj1TraceList.size(); i++) {
             for (int j = 0; j < proj2TraceList.size(); j++) {
@@ -121,7 +126,7 @@ public class EntanglementAnalysis {
                     if (unionTrace.getSubTrace(proj1).equals(proj1TraceList.get(i)) &&
                             unionTrace.getSubTrace(proj2).equals(proj2TraceList.get(j)))
                     {
-                        correlationMap[i][j] = true;
+                        correlationMap[i][j]++;
                         break;
                     }
                 }
@@ -186,7 +191,7 @@ public class EntanglementAnalysis {
         return projTraceSet;
     }
 
-    public List<List<DynAngel>> getEntangledSubsets() {
+    public List<List<DynAngel>> getOneEntangledSubsets() {
         ScGraph<DynAngel> entanglementGraph = new ScGraph<DynAngel>();
         for (DynAngel angel : angelsToValueMap.keySet()) {
             entanglementGraph.addVertex(angel);
@@ -196,5 +201,50 @@ public class EntanglementAnalysis {
             entanglementGraph.addEdge(entangledAngels.loc1, entangledAngels.loc2);
         }
         return entanglementGraph.getConnectedComponents();
+    }
+
+    public List<List<DynAngel>> getNEntangledSubsets(int n) {
+        List<List<DynAngel>> entangledSubsets = getOneEntangledSubsets();
+        for (int i = 2; i < n; i++) {
+            ScGraph<List<DynAngel>> graph = new ScGraph<List<DynAngel>>();
+            for (List<DynAngel> subset : entangledSubsets) {
+                graph.addVertex(subset);
+            }
+            SubsetIterator iterator = new SubsetIterator(i, entangledSubsets.size());
+            while (iterator.hasNext()) {
+                iterator.next();
+                HashSet<DynAngel> firstSubset = new HashSet<DynAngel>();
+                HashSet<DynAngel> secondSubset = new HashSet<DynAngel>();
+
+                for (Integer index : iterator.firstSubset()) {
+                    firstSubset.addAll(entangledSubsets.get(index));
+                }
+                for (Integer index : iterator.secondSubset()) {
+                    secondSubset.addAll(entangledSubsets.get(index));
+                }
+                EntanglementComparison result =
+                        compareTwoSubtraces(firstSubset, secondSubset);
+                if (result.isEntangled) {
+                    for (Integer index1 : iterator.firstSubset()) {
+                        for (Integer index2 : iterator.secondSubset()) {
+                            graph.addEdge(entangledSubsets.get(index1),
+                                    entangledSubsets.get(index2));
+                        }
+                    }
+                }
+            }
+            List<List<List<DynAngel>>> connectedComponents =
+                    graph.getConnectedComponents();
+            entangledSubsets.clear();
+            for (List<List<DynAngel>> connectedComponent : connectedComponents) {
+                List<DynAngel> allDynAngels = new ArrayList<DynAngel>();
+                for (List<DynAngel> node : connectedComponent) {
+                    allDynAngels.addAll(node);
+                }
+                entangledSubsets.add(allDynAngels);
+            }
+        }
+        // entangledSubsets.clear();
+        return entangledSubsets;
     }
 }

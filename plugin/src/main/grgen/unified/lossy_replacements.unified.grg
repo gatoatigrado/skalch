@@ -1,0 +1,76 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+Lossy replacements (things I don't want to code in Scala...)
+
+{% endblock %}
+{% block gm %}
+{% endblock %}
+
+
+
+{% block grs %}
+xgrs replaceThrowWithAssertFalse*
+xgrs deleteObjectInitCall*
+xgrs retypeWeirdInits*
+xgrs deleteUnitConstants*
+
+# also, node colors
+# dump set edge MyEdge color Red
+# dump set node MyNode color Red
+{% endblock %}
+
+
+
+{% block grg %}
+rule replaceThrowWithAssertFalse {
+    x:Node -e:Edge-> :Throw;
+    booleanSymbol:ScalaSymbol;
+
+    if { booleanSymbol.fullSymbolName == "scala.Boolean"; }
+
+    replace {
+        x -:typeof(e)-> :SKAssertCall
+            -:SKAssertCallArg-> falseConst:BooleanConstant
+            -:LiteralTypeSymbol-> booleanSymbol;
+        eval { falseConst.value = false; }
+    }
+}
+
+rule deleteObjectInitCall {
+    x:ListNode -:ListValue->
+        call:FcnSuperCall -:FcnCallSymbol-> sym:Symbol;
+    if { sym.fullSymbolName == "java.lang.Object.<init>"; }
+
+    independent { :BodyStatement(call); }
+
+    modify { exec(listDelete(x)); }
+}
+
+/// for some reason, init's return () but their signature return type
+/// is MyClass. Not my fault.
+
+rule retypeWeirdInits {
+    fcndef:FcnDef -e:FcnDefReturnTypeSymbol-> othersym:Symbol;
+    unitconst:UnitConstant;
+    unitsym:ScalaUnitTypeSymbol;
+
+    independent { :FcnBodyStatement(fcndef, unitconst); }
+    independent { :IsLastNode(unitconst); }
+
+    modify { delete(e); fcndef -:FcnDefReturnTypeSymbol-> unitsym; }
+}
+
+rule deleteUnitConstants {
+    x:ListNode -:ListValue-> unitconst:UnitConstant;
+    independent { :BodyStatement(unitconst); }
+
+    modify { exec(listDelete(x)); }
+}
+{% endblock %}

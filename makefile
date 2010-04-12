@@ -10,6 +10,9 @@ clean:
 	zsh -c "setopt -G; rm -f **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
 	zsh -c "setopt -G; rm -rf **/(bin|target) .gen **/gen/"
 
+clean-gxl:
+	zsh -c "setopt -G; rm -rf base/target/test-classes base/**/*.gxl"
+
 test: killall
 	echo "TODO -- run mvn test when it works again."
 	(cd plugin/src/test/grgen; make test)
@@ -33,11 +36,16 @@ install-plugin: gen
 compile: install-plugin
 	mvn compile test-compile
 
+py-fsc-compile:
+	python scripts/compile_all.py
+
 ### Compile various tests using the plugin (to test the plugin)
 
 grgen-devel:
 	python scripts/compile_all.py
 	python scripts/rulegen/rulegen.py
+
+gxltosketch-devel: clean-gxl gen py-fsc-compile grgen java_gxlimport
 
 killall:
 	@killall mono 2>/dev/null; true
@@ -59,6 +67,7 @@ grgen: gen killall
 	plugin/src/main/grgen/sugared_test.sh; make killall
 
 ycomp: gen killall
+	
 	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; make killall
 
 ycomp-intermediate: killall

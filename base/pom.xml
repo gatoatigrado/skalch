@@ -44,7 +44,7 @@
                     <scalaVersion>${scala.version}</scalaVersion>
                     <!--
                     <args>
-                        <arg>-Ybrowse:jvm</arg>
+                        <arg>-Ybrowse:typer</arg>
                     </args>
                     -->
                     <compilerPlugins>

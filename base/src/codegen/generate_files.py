@@ -65,11 +65,77 @@ def check_cmdline_generated(fname, stripped_lines):
                 % ("\n".join(outlines), "\n".join(block)))
             import sys; sys.exit(1)
 
+#class GraphletNode(object):
+#    def __init__(self, name, type):
+#        self.edges = []
+#        self.name, self.type = name, type
+#
+#class GraphletEdge(object):
+#    def __init__(self, from_):
+#        self.from_ = from_
+#        self.to_ = None
+#
+#class RuleParse(object):
+#    def __init__(self, text):
+#        self.tokens = text.split()
+#
+#        # build information about the existing match block.
+#        self.matchTokens = self.tokens[3:self.tokens.index("modify")]
+#        self.nodes, self.edges = [], []
+#        
+#        state = ("node", None)
+#        for mt in self.matchTokens:
+#            if state[0] == "node":
+#                node_text = mt.strip(";")
+#                if ":" in mt:
+#                    node = GraphletNode(*node_text.split(":"))
+#                else:
+#                    node = GraphletNode(node_text, self.get_node_type(node_text))
+#                if state[1]: state[1].to_ = node
+#                self.nodes.append(node)
+#                state = ("edge", node)
+#            elif state[0] == "edge":
+#                ...
+#            if state[0] == "node" and mt.endswith(";"):
+#                state = ("node", None)
+#
+#        # identify end of match block for postprocessing.
+#        min_pos_idx = lambda a: text.index(a) if a in text else (1 << 20)
+#        firstBlock = min(min_pos_idx("modify {"), min_pos_idx("negative {"))
+#        self.matchEnd = (v for v in range(firstBlock, 0, -1) if not text[v - 1] in " \t\n").next()
+#
+#        pprint(self.matchTokens)
+#        exit(1)
+#        
+#    def get_node_type(self, name):
+#        return get_singleton(v.type for v in self.nodes if v.name == name)
+#
+#class NullModifier(object):
+#    def __init__(self): pass
+#    def createFcn(self, node, clazz): return ""
+#    def copySig(self, from_, to_): return ""
+#
+#class NewClassModifier(object):
+#    def __init(self, rule_parse):
+#        self.match_additions = []
+#
+#class UnifiedProcessor(object):
+#    def __init__(self):
+#        pass
+#
+#    def baseNewMethod(self, caller):
+#        initText = caller(NullModifier())
+#        modifier = NewClassModifier(RuleParse(initText))
+#        return modifier.modify(RuleParse(caller(modifier)))
+
 def process_unified():
     grgen = Path("plugin/src/main/grgen")
     unified = grgen.subpath("unified")
     env = Environment(loader=FileSystemLoader(unified), trim_blocks=True,
         extensions=[jinja2.ext.do])
+#    unified_processor = UnifiedProcessor()
+#    args = dict((k, getattr(unified_processor, k)) for k in dir(unified_processor))
+#    env.globals.update(args)
 
     @memoize_file(".gen/unified_processed_results", use_hash=True)
     def process_file_inner(fname, text_hash):

@@ -47,7 +47,7 @@ rule markGetterCalls {
 {% call macros.inner_rule("setGetterFcnField", "x", "GetterFcnDef") %}
     x -:FcnDefSymbol-> sym:Symbol;
     x -:FcnBody-> :FieldAccess
-        -:ClassRefSymbol-> fld_sym:Symbol;
+        -:FieldAccessSymbol-> fld_sym:Symbol;
     modify { sym -:GetterFcnField-> fld_sym; }
 {% endcall %}
 
@@ -60,8 +60,8 @@ rule markGetterCalls {
         sym;
         fld_access:FieldAccess<x>
             -:FieldAccessObject-> var_ref;
-        fld_access -:ClassRefSymbol-> fld_sym;
-        fld_access -:ClassRefTypeSymbol-> fcn_typ;
+        fld_access -:FieldAccessSymbol-> fld_sym;
+        fld_access -:FieldAccessTypeSymbol-> fcn_typ;
     }
 {% endcall %}
 {% endblock %}

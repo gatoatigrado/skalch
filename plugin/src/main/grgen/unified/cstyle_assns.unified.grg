@@ -52,10 +52,12 @@ rule makeValDefsEmpty {
     modify {
         delete(val_def_rhs);
         val_def -:ValDefRhs-> :EmptyTree;
+
         assign:Assign -assign_rhs:AssignRhs-> rhs;
         assign -assign_lhs:AssignLhs-> var_ref:VarRef
             -var_ref_symbol:VarRefSymbol-> symbol;
         exec(listInsertAfter(vd_listnode, assign));
+
         eval {
             {{ macros.copySrcPosition("val_def", ["assign", "var_ref"]) }}
         }
@@ -102,6 +104,7 @@ rule cstyleAssignToBlocks {
     block -:BlockStmtList-> stmts:List;
     block -:BlockExpr-> block_expr_node:ListNode -block_expr_edge:ListValue-> expr:ScAstNode;
     assign -assign_lhs:AssignLhs-> lhs:ScAstNode;
+
     modify {
         block2:SKBlock -:BlockStmtList-> stmts;
         block2 -:BlockTypeSymbol-> block_typ;

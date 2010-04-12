@@ -28,6 +28,8 @@ using ScalaAstModel;
 #include "rules/gen/ycomp_selection.grg"
 #include "rules/gen/get_selection_info.grg"
 #include "rules/gen/cstyle_assns.grg"
+#include "rules/gen/new_initializer_fcn_stubs.grg"
+#include "rules/gen/lossy_replacements.grg"
 // add unified here
 
 rule assertFalse(var msg : string) {
@@ -50,3 +52,28 @@ rule print(var x : string) { modify { emit(x); } }
 rule printn(x : Node) { modify { emit(x); } }
 
 rule deleteNode(x : Node) { modify { delete(x); } }
+
+/// grab the parent of a node
+pattern TreeReplacer(y:ScAstNode) {
+    x:Node -e:Replaceable-> y;
+
+    replace (next:Node) {
+        y; x -:typeof(e)-> next;
+    }
+}
+
+/// statements that are within the body of e.g. a function or if stmt
+pattern BodyStatement(x:ScAstNode) {
+    blk:Block -:BlockStmtList-> :List -:ListElt->
+        :ListNode -:ListValue-> x;
+}
+
+pattern FcnBodyStatement(fcn:FcnDef, x:ScAstNode) {
+     fcn -:FcnBody-> blk:Block -:BlockStmtList-> :List -:ListElt->
+        :ListNode -:ListValue-> x;
+}
+
+pattern IsLastNode(x:ScAstNode) {
+    lstnode:ListNode -:ListValue-> x;
+    lstnode -:ListNext-> :ListLastNode;
+}

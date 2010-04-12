@@ -19,6 +19,7 @@
                 <exclude>org.scala-lang:scala-compiler</exclude>
                 <exclude>org.jython:jython</exclude>
                 <exclude>antlr:antlr</exclude>
+                <!--<exclude>edu.berkeley.cs.sketch:sketch-frontend</exclude>-->
             </excludes>
         </dependencySet>
     </dependencySets>

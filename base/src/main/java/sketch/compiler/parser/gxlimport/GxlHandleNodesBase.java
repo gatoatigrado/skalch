@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
+import net.sourceforge.gxl.GXLBool;
 import net.sourceforge.gxl.GXLEdge;
 import net.sourceforge.gxl.GXLInt;
 import net.sourceforge.gxl.GXLNode;
@@ -14,9 +15,11 @@ import scala.Tuple2;
 import sketch.compiler.ast.core.FEContext;
 import sketch.compiler.ast.core.Function;
 import sketch.compiler.ast.core.Parameter;
+import sketch.compiler.ast.core.exprs.ExprNullPtr;
 import sketch.compiler.ast.core.stmts.Statement;
 import sketch.compiler.ast.core.typs.Type;
 import sketch.util.DebugOut;
+import sketch.util.datastructures.TypedHashMap;
 
 /**
  * Handle simple node types. Non-generated functions; generated functions are added in the
@@ -33,6 +36,11 @@ public class GxlHandleNodesBase {
     public HashSet<Tuple2<GXLNode, String>> visited_nodes =
             new HashSet<Tuple2<GXLNode, String>>();
     public HashSet<GXLNode> visited_simple = new HashSet<GXLNode>();
+    /**
+     * certain string will cause Sketch to fail. GrGen already assigns unique names, so
+     * character avoiding is all that's necessary.
+     */
+    protected TypedHashMap<String, String> names = new TypedHashMap<String, String>();
 
     public GxlHandleNodesBase(final GxlImport imprt) {
         this.imprt = imprt;
@@ -106,6 +114,10 @@ public class GxlHandleNodesBase {
         return ((GXLString) node.getAttr(name).getValue()).getValue();
     }
 
+    public boolean getBooleanAttribute(final String name, final GXLNode node) {
+        return ((GXLBool) node.getAttr(name).getValue()).getBooleanValue();
+    }
+
     public int getIntAttribute(final String name, final GXLNode node) {
         return ((GXLInt) node.getAttr(name).getValue()).getIntValue();
     }
@@ -135,7 +147,30 @@ public class GxlHandleNodesBase {
     @SuppressWarnings("deprecation")
     public Function createFunction(final FEContext arg0, final String arg1,
             final Type arg2, final List<Parameter> arg3, final String arg4,
-            final Statement arg5) {
+            final Statement arg5)
+    {
         return Function.newStatic(arg0, arg1, arg2, arg3, arg4, arg5);
+    }
+
+    protected ExprNullPtr createExprNullPtr(final FEContext arg0) {
+        return ExprNullPtr.nullPtr;
+    }
+
+    protected String createString(final String arg0) {
+        final String existing = this.names.get(arg0);
+        if (existing != null) {
+            return existing;
+        } else {
+            String next =
+                    arg0.replaceAll("\\$", "").replaceAll("<", "LT_").replaceAll(">",
+                            "_RT");
+            // very unlikely
+            while (this.names.containsValue(next)) {
+                next += "_";
+            }
+            this.names.put(arg0, next);
+            // DebugOut.print("sanitized string", next);
+            return next;
+        }
     }
 }

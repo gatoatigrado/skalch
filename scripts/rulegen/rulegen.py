@@ -12,7 +12,7 @@ from gatoatigrado_lib import (ExecuteIn, Path, SubProc, dict, get_singleton,
     list, memoize_file, pprint, process_jinja2, set, sort_asc, sort_desc)
 import pygtk; pygtk.require("2.0")
 import gtk
-import re, sys
+import re, sys, time
 from multiprocessing import Process
 from amara import bindery
 import resource
@@ -364,6 +364,9 @@ class GuiBase(object):
             kwargs={"ycomp_selection": True, "ycomp": True})
         proc.start()
         self.subprocs.append(proc)
+        print("WARNING -- DEBUG KILL IN 30 SECONDS (avoid cpu pegging)")
+        time.sleep(30)
+        killmono()
 
     def run_gxl_inner(self, **kwargs):
         with ExecuteIn(proj_path):
@@ -398,6 +401,9 @@ class GuiBase(object):
     def main(self):
         gtk.main()
 
+def killmono():
+    SubProc(["killall", "mono"]).start()
+
 def main():
     try:
         state = State.load()
@@ -408,7 +414,7 @@ def main():
     finally:
         # kill mono on exit
         [v.terminate() for v in self.subprocs]
-        SubProc(["killall", "mono"]).start()
+        killmono()
 
 if __name__ == "__main__":
     import optparse

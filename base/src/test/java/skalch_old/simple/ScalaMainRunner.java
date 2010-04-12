@@ -13,7 +13,7 @@ import org.junit.Assert;
  *          make changes, please consider contributing back!
  */
 public class ScalaMainRunner {
-    public static void run(String classname, ArgsOption args) throws Throwable {
+    public static void run(final String classname, ArgsOption args) throws Throwable {
         try {
             args = new ArgsOption(args, "--ui_no_gui");
             Class<?> cls =
@@ -38,7 +38,7 @@ public class ScalaMainRunner {
     public static class ArgsOption {
         Vector<String> args;
 
-        public ArgsOption(Object... args) {
+        public ArgsOption(final Object... args) {
             this.args = new Vector<String>();
             for (Object arg : args) {
                 if (arg instanceof ArgsOption) {
@@ -50,12 +50,12 @@ public class ScalaMainRunner {
         }
 
         public String[] asArray() {
-            return args.toArray(new String[0]);
+            return this.args.toArray(new String[0]);
         }
     }
 
     public static ArgsOption one_soln =
             new ArgsOption("--sy_num_solutions", "1");
     public static ArgsOption ga = new ArgsOption("--sy_solver", "ga");
-    public static ArgsOption ga_one_soln = new ArgsOption(ga, one_soln);
+    public static ArgsOption ga_one_soln = new ArgsOption(ScalaMainRunner.ga, ScalaMainRunner.one_soln);
 }

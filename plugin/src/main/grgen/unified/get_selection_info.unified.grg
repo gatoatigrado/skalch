@@ -37,23 +37,20 @@ rule printSelectionToplevel {
     }
 }
 
-rule setPrinted(x:Node) {
-    modify { x -:NodePrinted-> x; }
-}
-
 /// everything "under" the node
 rule printNodeEntireBody(x:ScAstNode) {
     modify {
         emit("[INFO]     <node type=\""); emit(x); emit("\">\n");
-        exec(setPrinted(x) & printTree(x)* & printTreeSymbol(x)* & printList(x)*);
+        exec(printTree(x)* & printTreeSymbol(x)* & printList(x)*);
         emit("[INFO]     </node>\n");
     }
 }
 
 rule printTree(x:ScAstNode) {
     x -e:Edge-> y:ScAstNode;
-    negative { y -:NodePrinted-> y; }
+    negative { x -:NodePrinted-> y; }
     modify {
+        x -:NodePrinted-> y;
         emit("[INFO] <subtree edgetype=\""); emit(e); emit("\">\n");
         exec(printNodeEntireBody(y));
         emit("[INFO] </subtree>\n");
@@ -62,9 +59,9 @@ rule printTree(x:ScAstNode) {
 
 rule printTreeSymbol(x:ScAstNode) {
     x -e:Edge-> y:Symbol;
-    negative { y -:NodePrinted-> y; }
+    negative { x -:NodePrinted-> y; }
     modify {
-        exec(setPrinted(y));
+        x -:NodePrinted-> y;
         emit("[INFO] <subtree edgetype=\""); emit(e); emit("\">\n");
         emit("[INFO]     <node type=\""); emit(y); emit("\">\n");
         emit("[INFO]     </node>\n");
@@ -74,10 +71,11 @@ rule printTreeSymbol(x:ScAstNode) {
 
 rule printList(x:ScAstNode) {
     x -e:Edge-> lst:List -:ListFirst-> y:ListFirstNode;
-    negative { lst -:NodePrinted-> lst; }
+    negative { x -:NodePrinted-> lst; }
     modify {
+        x -:NodePrinted-> lst;
         emit("[INFO] <list edgetype=\""); emit(e); emit("\">\n");
-        exec(setPrinted(lst) && printListNext(y));
+        exec(printListNext(y));
         emit("[INFO] </list>\n");
     }
 }

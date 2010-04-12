@@ -21,21 +21,32 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
         lst_last:ListLastNode;
 {%- endmacro %}
 
-{% macro finiteList(names) -%}
+{% macro finiteListBase(names, isInit) -%}
     lst:List -:ListFirst-> lst_first:ListFirstNode -:ListNext->
 {% for name in names %}
         lstnode_{{ name.split(":")[0] }}:ListNode -:ListNext->
 {% endfor %}
         lst_last:ListLastNode;
+{% if isInit %}
+        lst -:ListLast-> lst_last;
+{% endif %}
 {% for name in names %}
+{% if isInit %}
+        lst -:ListElt-> lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
+{% else %}
         lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
+{% endif %}
 {% endfor %}
 {%- endmacro %}
+
+{% macro finiteList(names) %}{{ finiteListBase(names, False) }}{% endmacro %}
+{% macro finiteListInit(names) %}{{ finiteListBase(names, True) }}{% endmacro %}
 
 
 
 {# various utility things #}
 {# place this in an eval block #}
+
 {% macro copySrcPosition(from_, to_arr) %}
 {% for to_ in to_arr %}
     {{ to_ }}.startLine = {{ from_ }}.startLine;

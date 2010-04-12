@@ -170,9 +170,6 @@ edge class PackageDefFcn;
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
 
-node class SKAssertCall extends FcnCall;
-edge class SKAssertCallArg extends Subtree;
-
 
 
 
@@ -214,6 +211,32 @@ edge class NodePrinted;
 
 
 
+
+// edge class MyEdge
+// node class MyNode
+edge class ClassInitializerFcn;
+edge class ClassCreatorSymbol;
+
+// dataflow edge
+node class DFRef;
+node class DebugNode;
+// edge from DFRef to the desired expression
+abstract edge class DFExprBase;
+edge class DFExpr extends DFExprBase;
+edge class DFExprParams extends DFExprBase;
+edge class HLArg;
+node class HLArgEnd;
+
+
+
+
+
+
+
+
+
+
+
 // add unified here
 
 
@@ -243,6 +266,12 @@ edge class SKAssertExpr;
 
 // same edge classes as Block
 node class SKBlock extends Block;
+
+node class SKStmtExpr extends ScAstNode;
+edge class SKStmtExprExpr;
+
+node class SKAssertCall extends FcnCall;
+edge class SKAssertCallArg extends Subtree;
 
 
 
@@ -331,6 +360,7 @@ node class FcnCallBinaryLessThan extends FcnBinaryCall { strop = "<"; }
 node class FcnCallBinaryLessThanOrEqual extends FcnBinaryCall { strop = "<="; }
 node class FcnCallBinaryLogicAnd extends FcnBinaryCall { strop = "&"; }
 node class FcnCallBinaryLogicOr extends FcnBinaryCall { strop = "|"; }
+node class FcnCallBinaryBitwiseXor extends FcnBinaryCall { strop = "^"; }
 node class FcnCallBinaryNotSameObj extends FcnBinaryCall { strop = "!="; }
 node class FcnCallBinaryPrimitiveEquals extends FcnBinaryCall { strop = "=="; }
 node class FcnCallBinaryPrimitiveNotEquals extends FcnBinaryCall { strop = "!="; }
@@ -350,6 +380,8 @@ node class FieldAccess extends ScAstNode;
 node class If extends ScalaExprStmt;
 node class NewArray extends ScAstNode;
 node class NewConstructor extends FcnCall;
+node class SKNew extends ScAstNode;
+node class NewAllocOnly extends ScAstNode;
 node class PackageDef extends ScAstNode;
 node class QualifiedClassRef extends ScAstNode;
 node class Return extends ScAstNode;
@@ -471,6 +503,7 @@ edge class ClassRefSymbol extends ScTermSymbol;
 edge class EmptyTreeTypeSymbol extends ScTermSymbol;
 edge class FcnCallSymbol extends ScTermSymbol;
 edge class FcnDefSymbol extends ScTermSymbol;
+edge class FieldAccessSymbol extends ScTermSymbol;
 edge class LabelDefSymbol extends ScTermSymbol;
 edge class NewClassSymbol extends ScTermSymbol;
 edge class PackageDefSymbol extends ScTermSymbol;
@@ -480,7 +513,6 @@ edge class ThisSymbol extends ScTermSymbol;
 edge class TypeTreeSymbol extends ScTermSymbol;
 edge class ValDefSymbol extends ScTermSymbol;
 edge class VarRefSymbol extends ScTermSymbol;
-edge class ClassRefTermSymbol extends ScTermSymbol;
 
 // Type symbols
 edge class AssignTypeSymbol extends ScTypeSymbol;
@@ -490,6 +522,7 @@ edge class ClassRefTypeSymbol extends ScTypeSymbol;
 edge class FcnCallTypeSymbol extends ScTypeSymbol;
 edge class FcnDefTypeSymbol extends ScTypeSymbol;
 edge class FcnDefReturnTypeSymbol extends ScTypeSymbol;
+edge class FieldAccessTypeSymbol extends ScTypeSymbol;
 edge class IfTypeSymbol extends ScTypeSymbol;
 edge class LiteralTypeSymbol extends ScTypeSymbol;
 edge class PackageDefTypeSymbol extends ScTypeSymbol;

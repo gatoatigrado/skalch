@@ -31,10 +31,18 @@ rule removeThisVarFromMain {
     x:SketchMainFcnDef -:FcnDefParamsList-> :List
         -:ListFirst-> :ListFirstNode
         -:ListNext-> ths_lst_node:ListNode
-        -:ListValue-> ths_valdef:ThisValDef;
+        -:ListValue-> ths_valdef:ThisValDef
+        -e:ValDefRhs-> et:EmptyTree;
+
+    ths_valdef -:ValDefSymbol-> :Symbol
+        -:TypeSymbol-> typesym:Symbol;
+
     x -:FcnBody-> :SKBlock -:BlockStmtList-> :List
         -:ListFirst-> body_first:ListFirstNode;
+
     modify {
+        delete(e, et);
+        ths_valdef -:ValDefRhs-> :SKNew -:FcnCallTypeSymbol-> typesym;
         exec((listInsertAfter(body_first, ths_valdef) &
             listDelete(ths_lst_node)) ||
             assertFalse("removeThisVarFromMain failed"));

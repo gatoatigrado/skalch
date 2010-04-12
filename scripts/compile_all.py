@@ -62,6 +62,7 @@ def is_up_to_date(srcfile, cls_files):
         return True
 
 def run_compile(classpath, outpath, sources, plugin_jar):
+    outpath.makedirs()
     cls_files = list(outpath.walk_files(["class"]))
     sources = [v for v in sources if not is_up_to_date(v, cls_files)]
     src_by_typ = list(sources).equiv_classes(lambda a: a.endswith(".scala"))
@@ -74,6 +75,8 @@ def run_compile(classpath, outpath, sources, plugin_jar):
         exit(1)
     try:
         if src_by_typ[True]:
+            print("running scala on", src_by_typ[True])
+            #os.enviorn["JAVA_OPTS"] = "-Xmx1024M -Xms256M -ea"
             SubProc(["fsc", "-cp", classpath + os.path.pathsep + outpath,
                 "-d", outpath, "-Xplugin:" + str(plugin_jar)] + src_by_typ[True]).start_wait()
     except:

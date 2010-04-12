@@ -14,12 +14,6 @@ import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
 import ScalaDebugOut._
 import net.sourceforge.gxl._
 
-/*
-import skalch.DynamicSketch
-import sketch.dyn.BackendOptions
-import sketch.util.cli
-*/
-
 /**
  * Scala plugin for sketching support. Generates a GXL file, executes a
  * script, and stores the result of the script in the header of the GXL file.
@@ -46,7 +40,8 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
         val global : ExternalGxlTransformer.this.global.type =
             ExternalGxlTransformer.this.global
         val runsAfter = List("typer")
-        override val runsBefore = List("explicitouter")
+        override val runsBefore = List("superaccessors")
+//        override val runsBefore = List("explicitouter")
         val phaseName = "grab_static_type_annotations"
         def newPhase(prev: Phase) = new GrabAnnotations(prev)
 
@@ -57,11 +52,29 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
 
             class AnnotTf() extends Transformer {
                 override def transform(tree : Tree) = {
+//                    println("(scanning type info for " + tree.getClass.getName + ")")
                     val sym = tree.symbol
                     if ((sym != null) && (sym != NoSymbol)) {
+//                        println("    symbol attributes: " + sym.annotations);
+//                        println("    type annotations: " + sym.tpe.annotations);
+//
+//                        tree match {
+//                            case TypeDef(mods, _, params, rhs) =>
+//                                println("    type def; mods: " + mods)
+//                                println("    type def; rhs: " + rhs)
+//                            case TypeTree() =>
+//                                println("    type tree; type: " + tree.tpe)
+//                            case _ => ()
+//                        }
+//                        sym.tpe match {
+//                            case AnnotatedType(annots, _, _) =>
+//                                println("    symbol type annotations: " + annots)
+//                            case _ => ()
+//                        }
                         (sym.annotations ::: sym.tpe.annotations) match {
                             case Nil => ()
                             case lst => annotations.put(sym.fullNameString, lst)
+//                                 println("    annotations list: " + lst)
                         }
                     }
                     super.transform(tree)

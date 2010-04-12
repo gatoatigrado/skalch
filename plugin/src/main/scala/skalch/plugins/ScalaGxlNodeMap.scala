@@ -103,7 +103,8 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
         val clsname = tree.getClass().getSimpleName() match {
             case "Apply" => "FcnCall"
             case "Ident" => "VarRef"
-            case "Select" => "ClassRef"
+            case "Select" =>
+                if (tree.symbol.isModule) "ClassRef" else "FieldAccess"
             case "DefDef" => "FcnDef"
             case "ArrayValue" => "NewArray"
             case "Trees$EmptyTree$" => "EmptyTree"
@@ -239,7 +240,8 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
 //                     symlink("Class", tree.symbol)
 //                     gettype(tree.symbol.tpe)
                 } else {
-                    node.set_type("FieldAccess", null)
+                    assert (node.typ == "FieldAccess",
+                            "(ScalaGxlNodeMap.scala) FieldAccess not named correctly")
                     subtree("FieldAccessObject", qualifier)
 //                     new core.exprs.ExprField(ctx, , getname(name))
                 }

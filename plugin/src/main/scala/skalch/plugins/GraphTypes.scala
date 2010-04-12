@@ -65,6 +65,8 @@ abstract class NodeFactory {
     }
 
     def get_annotation_node(info : AnnotationInfo) : GrNode = {
+//         println("=== ANNOTATION NODE ===")
+//         println(info)
         var annot_node = new GrNode("Annotation", "annot_" + id_ctr())
         val node_fcns = new BoundNodeFcns(annot_node, "Annotation")
         import node_fcns._

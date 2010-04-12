@@ -91,6 +91,8 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/ycomp_selection.gm" %}
 {% include "nodes/gen/get_selection_info.gm" %}
 {% include "nodes/gen/cstyle_assns.gm" %}
+{% include "nodes/gen/new_initializer_fcn_stubs.gm" %}
+{% include "nodes/gen/lossy_replacements.gm" %}
 // add unified here
 
 
@@ -120,6 +122,12 @@ edge class SKAssertExpr;
 
 // same edge classes as Block
 node class SKBlock extends Block;
+
+node class SKStmtExpr extends ScAstNode;
+edge class SKStmtExprExpr;
+
+node class SKAssertCall extends FcnCall;
+edge class SKAssertCallArg extends Subtree;
 
 
 
@@ -211,6 +219,7 @@ node class FcnCallBinary{{ name }} extends FcnBinaryCall { strop = "{{ strop }}"
 {{ sk_binop("LessThanOrEqual", "<=") }}
 {{ sk_binop("LogicAnd", "&") }}
 {{ sk_binop("LogicOr", "|") }}
+{{ sk_binop("BitwiseXor", "^") }}
 {{ sk_binop("NotSameObj", "!=") }}
 {{ sk_binop("PrimitiveEquals", "==") }}
 {{ sk_binop("PrimitiveNotEquals", "!=") }}
@@ -230,6 +239,8 @@ node class FieldAccess extends ScAstNode;
 node class If extends ScalaExprStmt;
 node class NewArray extends ScAstNode;
 node class NewConstructor extends FcnCall;
+node class SKNew extends ScAstNode;
+node class NewAllocOnly extends ScAstNode;
 node class PackageDef extends ScAstNode;
 node class QualifiedClassRef extends ScAstNode;
 node class Return extends ScAstNode;
@@ -351,6 +362,7 @@ edge class ClassRefSymbol extends ScTermSymbol;
 edge class EmptyTreeTypeSymbol extends ScTermSymbol;
 edge class FcnCallSymbol extends ScTermSymbol;
 edge class FcnDefSymbol extends ScTermSymbol;
+edge class FieldAccessSymbol extends ScTermSymbol;
 edge class LabelDefSymbol extends ScTermSymbol;
 edge class NewClassSymbol extends ScTermSymbol;
 edge class PackageDefSymbol extends ScTermSymbol;
@@ -360,7 +372,6 @@ edge class ThisSymbol extends ScTermSymbol;
 edge class TypeTreeSymbol extends ScTermSymbol;
 edge class ValDefSymbol extends ScTermSymbol;
 edge class VarRefSymbol extends ScTermSymbol;
-edge class ClassRefTermSymbol extends ScTermSymbol;
 
 // Type symbols
 edge class AssignTypeSymbol extends ScTypeSymbol;
@@ -370,6 +381,7 @@ edge class ClassRefTypeSymbol extends ScTypeSymbol;
 edge class FcnCallTypeSymbol extends ScTypeSymbol;
 edge class FcnDefTypeSymbol extends ScTypeSymbol;
 edge class FcnDefReturnTypeSymbol extends ScTypeSymbol;
+edge class FieldAccessTypeSymbol extends ScTypeSymbol;
 edge class IfTypeSymbol extends ScTypeSymbol;
 edge class LiteralTypeSymbol extends ScTypeSymbol;
 edge class PackageDefTypeSymbol extends ScTypeSymbol;

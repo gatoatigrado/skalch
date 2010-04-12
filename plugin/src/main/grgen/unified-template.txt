@@ -23,6 +23,10 @@ There are plenty of examples.
 {% block grs %}
 # grs rewrite sequence here
 # xgrs myRule*
+
+# also, node colors
+# dump set edge MyEdge color Red
+# dump set node MyNode color Red
 {% endblock %}
 
 
@@ -32,6 +36,11 @@ There are plenty of examples.
 // rule myRule {
 //      x:MyNode -e:MyEdge-> z:MyNode2;
 //      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
-//      modify { x -:MyEdge-> w:MyNode; delete(e); }
+//      modify {
+//          x -:MyEdge-> w:MyNode; delete(e);
+//          eval {
+//              {{ macros.copySrcPosition("x", ["w"]) }}
+//          }
+//      }
 // }
 {% endblock %}

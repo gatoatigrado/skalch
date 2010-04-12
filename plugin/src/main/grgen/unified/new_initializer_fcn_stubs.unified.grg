@@ -1,0 +1,260 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+update transform.template.grs -- add include, when rule should be executed
+There are plenty of examples.
+
+{% endblock %}
+{% block gm %}
+// edge class MyEdge
+// node class MyNode
+edge class ClassInitializerFcn;
+edge class ClassCreatorSymbol;
+
+// dataflow edge
+node class DFRef;
+node class DebugNode;
+// edge from DFRef to the desired expression
+abstract edge class DFExprBase;
+edge class DFExpr extends DFExprBase;
+edge class DFExprParams extends DFExprBase;
+edge class HLArg;
+node class HLArgEnd;
+{% endblock %}
+
+
+
+{% block grs %}
+#dump set node CfgAbstractNode color Red
+
+dump set node NewConstructor color Red
+xgrs markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+
+
+# copy params
+#xgrs doCopy
+#xgrs [setCopySymbolNames]
+#xgrs cleanupCopyTo*
+
+
+{% endblock %}
+
+
+
+{% block grg %}
+rule markInitializerFunctions {
+    new_constructor:NewConstructor -new_class_symbol:NewClassSymbol->
+        class_sym:Symbol;
+    new_constructor -fcn_call_symbol:FcnCallSymbol-> init_method:Symbol;
+    fcn_def:FcnDef -fcn_def_symbol:FcnDefSymbol-> init_method;
+    class_def:ClassDef -:ClassDefSymbol-> class_sym;
+
+    negative { class_def -:ClassInitializerFcn-> fcn_def; }
+    modify { class_def -:ClassInitializerFcn-> fcn_def; }
+}
+
+rule copySig(copyfrom:FcnDef, copyto:FcnDef) {
+    copyfrom -:FcnDefParamsList-> copyfrom_lst:List;
+    copyfrom -:FcnDefReturnTypeSymbol-> retsym:Symbol;
+
+    modify {
+        copyto -:FcnDefParamsList-> copyto_lst:List;
+        copyfrom_lst -:CopyTo-> copyto_lst;
+        copyto -:FcnDefReturnTypeSymbol-> retsym;
+        exec(doCopy & [setCopySymbolNames] & cleanupCopyTo*);
+    }
+}
+
+/// NOTE -- the init() function should return null ...
+// setFcnReturnType(create_fcn, class_sym)
+rule setFcnReturnType(fcn:FcnDef, next_sym:Symbol) {
+    fcn -:FcnDefReturnTypeSymbol-> other:Symbol;
+    replace { other; fcn -:FcnDefReturnTypeSymbol-> next_sym; }
+}
+
+/// lower-level object references (erase df edges)
+ rule llrefs { modify { exec(llrefs_vd+ & llrefs_params+ & init_hlargs+ &
+    init_hlargs_ends+ & hlargs_single+ & hlargs_lst+ & hlargs_empty_lst+
+    & hlargs_delete_last+); } }
+// rule llrefs { modify { exec(llrefs_vd); } }#}
+
+rule llrefs_vd() {
+    x:DFRef -e:DFExpr-> y:ValDef;
+    y -:ValDefSymbol-> sym:Symbol;
+
+    modify {
+        delete(e);
+        vr:VarRef<x> -:VarRefSymbol-> sym;
+    }
+}
+
+rule llrefs_params {
+    x:DFRef -e:DFExprParams-> fcn:FcnDef;
+    fcn -:FcnDefParamsList-> params:List
+        -:ListFirst-> param_first:ListFirstNode;
+    
+    modify {
+        delete(e);
+        lst:List<x> -:ListFirst-> first:ListFirstNode
+            -:ListNext-> last:ListLastNode;
+            lst -:ListLast-> last;
+        exec(llCopyParam(param_first, first, last));
+    }
+}
+
+/// convert it to args first
+rule init_hlargs {
+    fcn:FcnCall -e:HLArg-> hlfirst:Node;
+
+    negative { fcn -:FcnArgList-> .; }
+    modify {
+        delete(e);
+        fcn -:FcnArgList-> {{ macros.finiteListInit([]) }}
+
+        // $lst_first from macro above
+        lst_first -:typeof(e)-> hlfirst;
+    }
+}
+
+rule init_hlargs_ends {
+    // chain ending in something other than HLArgEnd
+    x:Node -:HLArg -> y:Node;
+    // x:Node -:HLArg -> y:(Node \ HLArgEnd);
+    negative { y; y -:HLArg-> .; }
+    if { typeof(y) != HLArgEnd; }
+
+    modify { y -:HLArg-> :HLArgEnd; }
+}
+
+// then process it as a chain
+rule hlargs_single {
+    x:ListAbstractNode -e:HLArg-> y:ScAstNode
+        -e2:HLArg-> z:Node;
+
+    modify {
+        delete(e, e2);
+        lst_y:ListNode -:ListValue-> y;
+        lst_y -:typeof(e2)-> z;
+        exec(listInsertNodeAfter(x, lst_y));
+    }
+}
+
+rule hlargs_empty_lst {
+    x:ListAbstractNode -e:HLArg-> {{ macros.finiteList([]) }}
+        -e2:HLArg-> z:Node;
+
+    modify {
+        delete(e, e2);
+        x -:typeof(e2)-> z;
+    }
+}
+
+rule hlargs_lst {
+    x:ListAbstractNode -e:HLArg-> lst_to_add:List
+        -:ListFirst-> :ListFirstNode -:ListNext-> first_real_node:ListNode
+        -:ListValue-> real_node_value:Node;
+
+    modify {
+        delete(e);
+        new_node:ListNode -:ListValue-> real_node_value;
+        new_node -:typeof(e)-> lst_to_add;
+        exec(listDelete(first_real_node) & listInsertNodeAfter(x, new_node));
+    }
+}
+
+rule hlargs_delete_last {
+    x:ListNode -e:HLArg-> y:HLArgEnd;
+    modify { delete(e, y); }
+}
+
+rule llCopyParam(param:ListAbstractNode, left:ListAbstractNode, last:ListAbstractNode) {
+    modify { exec(llConnectLast(param, left, last) || llCopyNext(param, left, last) ||
+        assertFalse("llCopyParam() failed!")); }
+}
+
+rule llConnectLast(param:ListAbstractNode, left:ListAbstractNode, last:ListAbstractNode) {
+    param -:ListNext-> :ListLastNode;
+    modify { left -:ListNext-> last; }
+}
+
+rule llCopyNext(param:ListAbstractNode, left:ListAbstractNode, last:ListAbstractNode) {
+    param -:ListNext-> curr_param:ListNode
+        -:ListValue-> val_def:ValDef -:ValDefSymbol-> curr_param_sym:Symbol;
+    
+    modify {
+        arg_node:ListNode -:ListValue-> vr:VarRef -:VarRefSymbol-> curr_param_sym;
+        exec(listInsertNodeAfter(left, arg_node) & llCopyParam(curr_param, arg_node, last));
+    }
+}
+
+// delete unused $this arg copied from the <init> function.
+rule makeFcnStatic(fcn:FcnDef) {
+    fcn -:FcnDefParamsList-> params:List
+        -:ListFirst-> first:ListFirstNode
+        -:ListNext-> vdnode:ListNode
+        -:ListValue-> :ThisValDef;
+    modify { exec(listDelete(vdnode)); }
+}
+
+rule createInitializerFunctions {
+    class_def:ClassDef -initfcnedge:ClassInitializerFcn-> init_fcn:FcnDef
+        -fcn_def_symbol:FcnDefSymbol-> init_fcn_sym:Symbol
+        -:SymbolOwner-> owner:Symbol;
+    class_def -:ClassDefSymbol-> class_sym:Symbol;
+    hom(owner, class_sym);
+    class_def -class_def_impl:ClassDefImpl-> template:Template;
+
+    modify {
+        delete(initfcnedge);
+        template -template_element:TemplateElement-> create_fcn:MemberFcn;
+        create_fcn -:FcnDefSymbol-> create_fcn_symbol:Symbol
+            -:SymbolOwner-> owner;
+        class_def -:ClassCreatorSymbol-> create_fcn_symbol;
+
+        // TODO -- set zero calls
+        create_fcn -:FcnBody->
+            body:SKBlock -:BlockStmtList-> {{ macros.finiteListInit(
+                ["new_vd:ValDef", "initcall:FcnCall", "ret:Return"]) }}
+
+        new_vd -:ValDefRhs-> :SKNew -:FcnCallTypeSymbol-> class_sym;
+        new_vd -:ValDefSymbol-> tmpresultsym:Symbol -:TypeSymbol-> class_sym;
+
+        initcall -fcn_call_symbol1:FcnCallSymbol-> init_fcn_sym;
+        // NOTE -- Start using this pattern more pervasively!
+        initcall -:HLArg-> init_ths:DFRef -:HLArg-> params:DFRef;
+            init_ths -:DFExpr-> new_vd;
+            params -:DFExprParams-> create_fcn;
+
+        ret -return_expr:ReturnExpr-> :VarRef -:VarRefSymbol-> tmpresultsym;
+        //ret -:ReturnSymbol-> :InsertedReturnSymbol;
+
+        eval {
+            create_fcn_symbol.symbolName = "create" + class_sym.symbolName;
+            tmpresultsym.symbolName = "created" + class_sym.symbolName;
+            {{ macros.copySrcPosition("init_fcn", ["body", "create_fcn", "new_vd", "initcall", "ret"]) }}
+        }
+
+        exec(copySig(init_fcn, create_fcn) & makeFcnStatic(create_fcn)
+            && setFcnReturnType(create_fcn, class_sym) && llrefs);
+    }
+}
+
+rule replaceConstructors {
+    x:NewConstructor -e:NewClassSymbol-> sym:Symbol;
+    cls_def:ClassDef -:ClassDefSymbol-> sym;
+    cls_def -:ClassCreatorSymbol-> creator_sym:Symbol;
+    x -e2:FcnCallSymbol-> init_sym:Symbol;
+
+    modify {
+        delete(e, e2);
+        createcall:FcnCall<x> -:FcnCallSymbol-> creator_sym;
+    }
+}
+{% endblock %}

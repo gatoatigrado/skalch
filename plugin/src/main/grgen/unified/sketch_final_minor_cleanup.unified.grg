@@ -24,15 +24,13 @@ edge class PackageDefFcn;
 
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
-
-node class SKAssertCall extends FcnCall;
-edge class SKAssertCallArg extends Subtree;
 {% endblock %}
 
 
 
 {% block grs %}
 dump set node SKAssertCall color LightBlue
+dump set node SKStmtExpr color Red
 
 xgrs setSymbolNames* & deletePrintRenamer*
 xgrs setSymbolSketchType*
@@ -46,12 +44,15 @@ xgrs setSymbolBaseType*
 xgrs setValDefBaseType*
 xgrs setVarRefBaseType*
 xgrs setFcnDefBaseType*
+xgrs addSkExprStmts*
+
 {% endblock %}
 
 
 
 {% block grg %}
 {% import "macros.grg" as macros %}
+
 rule setSymbolSketchType {
     x:Symbol -:PrintSymName-> name:PrintName;
     :ClassDef -:ClassDefSymbol-> x;
@@ -138,5 +139,17 @@ rule setFcnBinaryCallArgs {
 {{ set_base_type("ValDef") }}
 {{ set_base_type("VarRef") }}
 {{ set_base_type("FcnDef") }}
+
+/// in the SKETCH compiler, expressions are not statements!
+rule addSkExprStmts {
+    expr:FcnCall \ (SKAssertCall);
+    independent { :BodyStatement(expr); }
+    r:TreeReplacer(expr);
+
+    modify {
+        stmtexpr:SKStmtExpr -:SKStmtExprExpr-> expr;
+        r(stmtexpr);
+    }
+}
 
 {% endblock %}

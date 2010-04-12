@@ -59,13 +59,23 @@ include "stages-scripts/gen/cleanup_accessors.grs"
 include "stages-scripts/clean_sketch_constructs.grs"
 include "stages-scripts/gen/blockify_fcndefs.grs"
 include "stages-scripts/gen/nice_lists.grs"
+
+# most modern stages should go after nice_lists
+# and before cstyle lowering
+{% if (not ycomp) or getSelRunFinal %}
+    include "stages-scripts/gen/sketch_nospec.grs"
+{% endif %}
+include "stages-scripts/gen/lossy_replacements.grs"
+# new A(arg1, arg2, arg3) --> A.initNew(arg1, arg2, arg3)
+include "stages-scripts/gen/new_initializer_fcn_stubs.grs"
+
+# cstyle lowering -- convert "int x = v" to "int x; x = v" for canonical rep
 include "stages-scripts/gen/cstyle_stmts.grs"
 include "stages-scripts/gen/cstyle_assns.grs" # final part of cstyle lowering
 
 # === final code ===
 {{ getSelCode() if getSelCode else "" }}
-{% if (not getSelCode) or getSelRunFinal %}
-    include "stages-scripts/gen/sketch_nospec.grs"
+{% if (not ycomp) or getSelRunFinal %}
     include "stages-scripts/gen/sketch_final_minor_cleanup.grs"
 {% endif %}
 

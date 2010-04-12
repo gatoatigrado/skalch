@@ -183,17 +183,32 @@ rule listDelete(x:ListNode) {
     modify { exec(listDeleteInner(x) || assertFalse("list delete failed")); }
 }
 
-rule listDoInsertAfter(x:ListAbstractNode, y:Node) {
+rule listDoInsertAfter(x:ListAbstractNode, lst_y:ListNode) {
     lst:List -:ListElt-> x -e:ListNext-> next:ListAbstractNode;
     modify {
         delete(e);
-        x -:ListNext-> lst_y:ListNode -:ListNext-> next;
-        lst -:ListElt-> lst_y -:ListValue-> y;
+        x -:ListNext-> lst_y -:ListNext-> next;
+        lst -:ListElt-> lst_y;
     }
 }
 
+{#
+rule toListNode(x:Node) : (ListNode) {
+    modify {
+        lst_x:ListNode -:ListValue-> x;
+        return (lst_x);
+    }
+}
+#}
+
 /// first arg: node already part of list; second arg: node to insert
 rule listInsertAfter(x:ListAbstractNode, y:Node) {
+    modify { lst_y:ListNode -:ListValue-> y;
+        exec(listInsertNodeAfter(x, lst_y) || assertFalse("list insert after failed")); }
+}
+
+/// first arg: node already part of list; second arg: node to insert
+rule listInsertNodeAfter(x:ListAbstractNode, y:ListNode) {
     modify { exec(listDoInsertAfter(x, y) || assertFalse("list insert after failed")); }
 }
 

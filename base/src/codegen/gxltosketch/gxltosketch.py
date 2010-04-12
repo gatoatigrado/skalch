@@ -31,32 +31,35 @@ PackageDef(UL[PackageDefGlobal], UL[PackageDefFcn])
     -> new StreamSpec(<ctx>, "StreamSpec.STREAM_FILTER", "new StreamType((FEContext)null,
             TypePrimitive.bittype, TypePrimitive.bittype)", "\"MAIN\"", "Collections.EMPTY_LIST", List[StmtVarDecl], List[Function])
 
-ClassDef(ClassDefSymbol:PrintSymName.name, OL[ClassDefFieldsList]:PrintSymName.name, 
+ClassDef(ClassDefSymbol:PrintSymName, OL[ClassDefFieldsList]:PrintSymName,
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
     -> new TypeStruct(<ctx>, String, List[String], List[Type])
 
-FcnDef(FcnDefSymbol:PrintSymName.name, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
+FcnDef(FcnDefSymbol:PrintSymName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
     -> Function(<ctx>, String, Type, List[Parameter], "getImplements(node)", Statement)
 """
 
 
 
 STMTS = r"""
-ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName.name)
+ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName)
     -> new StmtVarDecl(<ctx>, Type, String, <null>)
 
-ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName.name)
+ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName)
     -> new Parameter(Type, String)
 
-VarRef(VarRefSymbol:PrintSymName.name)
+VarRef(VarRefSymbol:PrintSymName)
     -> new ExprVar(<ctx>, String)
 
 SKAssertCall(SKAssertCallArg)
     -> new StmtAssert(<ctx>, Expression, "false")
-    
+
 SKBlock(OL[BlockStmtList])
     -> new StmtBlock(<ctx>, List[Statement])
-    
+
+SKStmtExpr(SKStmtExprExpr)
+    -> new StmtExpr(<ctxnode>, Expression)
+
 Return(ReturnExpr)
     -> new StmtReturn(<ctx>, Expression)
 
@@ -69,6 +72,8 @@ If(IfCond, IfThen, IfElse)
 
 
 
+#FieldAccess(FieldAccessObject, ...)
+#    -> new ExprField(<ctxnode>, Expression,
 EXPRS = r"""
 FcnBinaryCall(FcnBinaryCallLhs, .strop, FcnBinaryCallRhs)
     -> new ExprBinary(<ctxnode>, Expression, String, Expression)
@@ -76,10 +81,20 @@ FcnBinaryCall(FcnBinaryCallLhs, .strop, FcnBinaryCallRhs)
 FcnCallUnaryNegative(FcnArgChain)
     -> new ExprUnary(<ctx>, "ExprUnary.UNOP_NEG", Expression)
 
-FcnCall(FcnCallSymbol:PrintSymName.name, OL[FcnArgList])
+FcnCall(FcnCallSymbol:PrintSymName, OL[FcnArgList])
     -> new ExprFunCall(<ctx>, String, List[Expression])
 
+SKNew(FcnCallTypeSymbol)
+    -> new ExprNew(<ctx>, Type)
+
+FieldAccess(FieldAccessObject, FieldAccessSymbol:PrintSymName)
+    -> new ExprField(<ctxnode>, Expression, String)
+
 HoleCall() -> new ExprStar(<ctx>)
+
+NullTypeConstant() -> new ExprNullPtr(<ctx>)
+
+BooleanConstant(.value) -> new ExprConstBoolean(<ctx>, boolean)
 
 IntConstant(.value) -> new ExprConstInt(<ctx>, int)
 
@@ -95,10 +110,14 @@ TypeUnit() -> TypePrimitive "TypePrimitive.voidtype"
 
 Symbol() -> Type "getType(followEdge(\"SketchType\", node))"
 
-TypeStructRef(.typename) -> new TypeStructRef(String)
+TypeStructRef() -> new TypeStructRef("createString(getStringAttribute(\"typename\", node))")
 """
 
-GXL_TO_SKETCH = STRUCTURE + STMTS + EXPRS + TYPES
+MISC = r"""
+PrintName(.name) -> String(String)
+"""
+
+GXL_TO_SKETCH = STRUCTURE + STMTS + EXPRS + TYPES + MISC
 
 # FENode context, int cls, String name, Type returnType, List<Parameter> params, Statement body
 
@@ -128,9 +147,9 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall",
-        "ExprConstant": "ExprConstInt ExprConstUnit",
-        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew",
+        "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr",
         "Type": "TypeStruct TypePrimitive TypeStructRef" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:

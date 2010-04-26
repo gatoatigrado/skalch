@@ -321,6 +321,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
 
     public void synthesisFinished() {
         DebugOut.print("Synthesis finished");
+        ScStatsMT.statsSingleton.showStatsWithUi();
     }
 
 }

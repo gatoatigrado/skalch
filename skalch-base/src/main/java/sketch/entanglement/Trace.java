@@ -11,8 +11,7 @@ public class Trace {
         events = new ArrayList<Event>();
     }
 
-    public void addEvent(int holeId, int numHoleExec, int numValues, int valueChosen)
-    {
+    public void addEvent(int holeId, int numHoleExec, int numValues, int valueChosen) {
         events.add(new Event(holeId, numHoleExec, numValues, valueChosen));
     }
 

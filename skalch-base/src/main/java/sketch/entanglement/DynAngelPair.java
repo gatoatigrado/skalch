@@ -44,6 +44,12 @@ public class DynAngelPair implements Comparable<DynAngelPair> {
     }
 
     @Override
+    public int hashCode() {
+        return loc1.hashCode() + loc2.hashCode();
+
+    }
+
+    @Override
     public String toString() {
         return "" + loc1 + " entangled with " + loc2;
     }

@@ -6,27 +6,33 @@ import java.util.List;
 
 import sketch.entanglement.Trace;
 
-public class SizePartitioner implements TraceListPartitioner {
+public class SizePartitioner extends TraceListPartitioner {
 
-    List<Trace> traces;
+    public SizePartitioner() {}
 
-    public SizePartitioner(List<Trace> traces) {
-        this.traces = traces;
-    }
-
-    public List<List<Trace>> getTraceListPartition() {
-        HashMap<Integer, List<Trace>> partitions = new HashMap<Integer, List<Trace>>();
+    @Override
+    public List<Partition> getTraceListPartition(Partition p) {
+        List<Trace> traces = p.getTraces();
+        HashMap<Integer, List<Trace>> sizePartitions =
+                new HashMap<Integer, List<Trace>>();
         for (Trace trace : traces) {
             int size = traces.size();
             List<Trace> partition;
-            if (partitions.containsKey(size)) {
-                partition = partitions.get(size);
+            if (sizePartitions.containsKey(size)) {
+                partition = sizePartitions.get(size);
             } else {
                 partition = new ArrayList<Trace>();
-                partitions.put(size, partition);
+                sizePartitions.put(size, partition);
             }
             partition.add(trace);
         }
-        return new ArrayList<List<Trace>>(partitions.values());
+
+        List<Partition> partitions = new ArrayList<Partition>();
+        for (Integer size : sizePartitions.keySet()) {
+            Partition partition =
+                    new Partition(sizePartitions.get(size), size.toString(), p);
+            partitions.add(partition);
+        }
+        return partitions;
     }
 }

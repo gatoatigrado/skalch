@@ -36,8 +36,8 @@ public abstract class ScSynthesis<LocalSynthType extends ScLocalSynthesis> {
         debugStopAfter = beOpts.synthOpts.debugStopAfter;
         maxNumRandom = beOpts.uiOpts.maxRandomStacks;
 
-        if (beOpts.synthOpts.queueFilename != "") {
-            QueueFileInput input = new QueueFileInput(beOpts.synthOpts.queueFilename);
+        if (beOpts.synthOpts.queueInFilename != "") {
+            QueueFileInput input = new QueueFileInput(beOpts.synthOpts.queueInFilename);
             queue = input.getQueue();
         }
     }

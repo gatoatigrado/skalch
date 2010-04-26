@@ -12,12 +12,14 @@ public class ScSynthesisResults implements ScResultsObserver {
 
     private Vector<ScStack> solutions;
     private Vector<ScLocalStackSynthesis> localSynths;
+    private boolean synthesisComplete;
 
     private List<ScResultsObserver> observers;
 
     public ScSynthesisResults() {
         solutions = new Vector<ScStack>();
         localSynths = new Vector<ScLocalStackSynthesis>();
+        synthesisComplete = false;
         observers = new ArrayList<ScResultsObserver>();
     }
 
@@ -89,12 +91,7 @@ public class ScSynthesisResults implements ScResultsObserver {
     }
 
     public boolean synthesisComplete() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    public void setSynthesisComplete() {
-    // TODO
+        return synthesisComplete;
     }
 
     public void setCounterexamples(ScSolvingInputConf[] inputs) {
@@ -105,5 +102,12 @@ public class ScSynthesisResults implements ScResultsObserver {
 
     public ArrayList<ScStack> getSolutions() {
         return new ArrayList<ScStack>(solutions);
+    }
+
+    public void synthesisFinished() {
+        synthesisComplete = true;
+        for (ScResultsObserver observer : observers) {
+            observer.synthesisFinished();
+        }
     }
 }

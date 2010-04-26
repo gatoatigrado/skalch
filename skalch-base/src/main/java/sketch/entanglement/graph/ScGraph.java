@@ -32,12 +32,12 @@ public class ScGraph<T> {
         vertices.get(v2).add(v1);
     }
 
-    public List<List<T>> getConnectedComponents() {
-        List<List<T>> connectedComponents = new ArrayList<List<T>>();
+    public Set<Set<T>> getConnectedComponents() {
+        Set<Set<T>> connectedComponents = new HashSet<Set<T>>();
         List<T> vertexList = new ArrayList<T>(vertices.keySet());
         while (!vertexList.isEmpty()) {
-            List<T> newCC = new ArrayList<T>();
-            List<T> addedVertices = new ArrayList<T>();
+            Set<T> newCC = new HashSet<T>();
+            Set<T> addedVertices = new HashSet<T>();
 
             connectedComponents.add(newCC);
             T firstVertex = vertexList.remove(0);
@@ -48,7 +48,6 @@ public class ScGraph<T> {
                 addedVertices.clear();
                 for (T element : newCC) {
                     Set<T> connectedVertices = vertices.get(element);
-                    // System.out.println(connectedVertices.size());
                     for (T nextVertex : connectedVertices) {
                         if (!newCC.contains(nextVertex)) {
                             addedVertices.add(nextVertex);
@@ -60,5 +59,18 @@ public class ScGraph<T> {
             }
         }
         return connectedComponents;
+    }
+
+    @Override
+    public String toString() {
+        String returnString = "";
+        for (T node : vertices.keySet()) {
+            returnString += ("(" + node + ":");
+            for (T edge : vertices.get(node)) {
+                returnString += edge + ",";
+            }
+            returnString += ")";
+        }
+        return returnString;
     }
 }

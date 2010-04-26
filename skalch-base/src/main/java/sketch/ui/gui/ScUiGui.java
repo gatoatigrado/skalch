@@ -150,7 +150,7 @@ public class ScUiGui extends gui_0_1 {
 
     @Override
     protected void stopSolver() {
-        uiThread.results.setSynthesisComplete();
+        uiThread.results.synthesisFinished();
     }
 
     /** this all happens on the UI thread, but it shouldn't be that slow */

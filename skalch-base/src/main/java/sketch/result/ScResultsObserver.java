@@ -22,5 +22,7 @@ public interface ScResultsObserver {
 
     public void resetStackSolutions(List<ScStack> solutions);
 
+    public void synthesisFinished();
+
     public void setCounterexamples(ScSolvingInputConf[] inputs);
 }

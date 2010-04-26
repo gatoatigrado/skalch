@@ -9,7 +9,9 @@ import sketch.entanglement.EntanglementConsole;
 import sketch.result.ScSynthesisResults;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;
+import sketch.ui.queues.QueueOutput;
 import sketch.ui.sourcecode.ScSourceConstruct;
+import sketch.util.thread.AsyncMTEvent;
 
 /**
  * where it all begins... for angelic sketches (see AngelicSketch.scala)
@@ -24,6 +26,8 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     protected final ScAngelicSketchCall[] sketches;
     protected final ScSynthesis<?> synthesisRuntime;
     private Set<ScSourceConstruct> sourceInfo;
+    public AsyncMTEvent done_events = new AsyncMTEvent();
+    private ScAngelicSketchCall queueSketch;
 
     public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
         sketches = new ScAngelicSketchCall[nthreads];
@@ -31,6 +35,7 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
             sketches[a] = new ScAngelicSketchCall(f.apply());
         }
         uiSketch = new ScAngelicSketchCall(f.apply());
+        queueSketch = new ScAngelicSketchCall(f.apply());
         sourceInfo = getSourceCodeInfo(uiSketch);
         synthesisRuntime = getSynthesisRuntime(sketches);
 
@@ -42,14 +47,24 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         EntanglementConsole console = new EntanglementConsole(System.in, results);
         console.start();
 
+        if (beOpts.synthOpts.queueFilename != "") {
+            results.registerObserver(new QueueOutput(queueSketch,
+                    beOpts.synthOpts.queueFilename));
+        }
+
         ScUserInterface ui =
                 ScUserInterfaceManager.startUi(results, beOpts, uiSketch, sourceInfo);
 
         initStats(ui);
         ScStatsMT.statsSingleton.startSynthesis();
+        done_events.reset();
+        done_events.enqueue(results, "synthesisFinished");
+
         // actual synthesize call
         synthesisRuntime.synthesize(results);
+
         // stop utilities
+        done_events.set_done();
         ScStatsMT.statsSingleton.showStatsWithUi();
         return synthesisRuntime.getSolutionTuple();
     }

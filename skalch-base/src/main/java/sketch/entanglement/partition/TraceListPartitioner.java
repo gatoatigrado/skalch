@@ -1,9 +1,16 @@
 package sketch.entanglement.partition;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import sketch.entanglement.Trace;
+public abstract class TraceListPartitioner {
 
-public interface TraceListPartitioner {
-    public List<List<Trace>> getTraceListPartition();
+    public static List<TraceListPartitioner> getPartitionerTypes() {
+        List<TraceListPartitioner> partitionTypes = new ArrayList<TraceListPartitioner>();
+        partitionTypes.add(new FirstEntanglementPartitioner());
+        partitionTypes.add(new SizePartitioner());
+        return partitionTypes;
+    }
+
+    public abstract List<Partition> getTraceListPartition(Partition p);
 }

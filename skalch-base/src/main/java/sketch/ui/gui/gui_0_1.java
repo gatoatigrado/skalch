@@ -53,8 +53,6 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         debugPrintoutsLabel = new javax.swing.JLabel();
         viewSelectionsButton = new javax.swing.JButton();
         synthCompletionLabel = new javax.swing.JLabel();
-        synthCompletionPane = new javax.swing.JScrollPane();
-        synthCompletionList = new javax.swing.JList();
         solversButton = new javax.swing.JButton();
         debugOutPane = new javax.swing.JScrollPane();
         debugOutEditor = new javax.swing.JEditorPane();
@@ -63,6 +61,10 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         statsPane = new javax.swing.JScrollPane();
         statsEditor = new javax.swing.JEditorPane();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        synthCompletionPane = new javax.swing.JScrollPane();
+        synthCompletionList = new javax.swing.JList();
+        jScrollPane1 = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Skalch GUI");
@@ -105,19 +107,6 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
 
         synthCompletionLabel.setFont(new java.awt.Font("Dialog", 0, 12));
         synthCompletionLabel.setText("Select synthesized completions");
-
-        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
-        synthCompletionList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                synthCompletionListMouseClicked(evt);
-            }
-        });
-        synthCompletionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                synthCompletionListValueChanged(evt);
-            }
-        });
-        synthCompletionPane.setViewportView(synthCompletionList);
 
         solversButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/oxygen/office-chart-ring.png"))); // NOI18N
         solversButton.setText("solvers...");
@@ -166,6 +155,22 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
         statsEditor.setText("<html>\n  <head>\n<style>\nbody {\nfont-size: 12pt;\n}\nul {\nmargin-left: 20pt;\n}\n</style>\n  </head>\n  <body>\n    <p style=\"color: #cccccc\">loading statistics and warnings...</p>\n  </body>\n</html>\n");
         statsPane.setViewportView(statsEditor);
 
+        synthCompletionList.setFont(new java.awt.Font("Dialog", 0, 12));
+        synthCompletionList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                synthCompletionListMouseClicked(evt);
+            }
+        });
+        synthCompletionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                synthCompletionListValueChanged(evt);
+            }
+        });
+        synthCompletionPane.setViewportView(synthCompletionList);
+
+        jTabbedPane1.addTab("Completions", synthCompletionPane);
+        jTabbedPane1.addTab("Entanglement", jScrollPane1);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -185,13 +190,13 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
                                 .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                                     .add(12, 12, 12)
                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
                                         .add(statsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
                                         .add(synthCompletionLabel)
                                         .add(layout.createSequentialGroup()
                                             .add(viewSelectionsButton)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 68, Short.MAX_VALUE)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 166, Short.MAX_VALUE)
                                             .add(acceptButton))
-                                        .add(synthCompletionPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
                                         .add(selectInputsLabel))))
                             .add(org.jdesktop.layout.GroupLayout.LEADING, debugPrintoutsLabel))
                         .add(17, 17, 17)))
@@ -199,7 +204,7 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(layout.createSequentialGroup()
                         .add(sourceViewLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 277, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 278, Short.MAX_VALUE)
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(contextSpinBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 38, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -233,15 +238,15 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                         .add(synthCompletionLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(synthCompletionPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(12, 12, 12)
+                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 136, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(viewSelectionsButton)
                             .add(acceptButton))
                         .add(18, 18, 18)
                         .add(debugPrintoutsLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(debugOutPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)))
+                        .add(debugOutPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -321,6 +326,8 @@ public abstract class gui_0_1 extends javax.swing.JFrame {
     javax.swing.JScrollPane debugOutPane;
     javax.swing.JLabel debugPrintoutsLabel;
     javax.swing.JLabel jLabel1;
+    javax.swing.JScrollPane jScrollPane1;
+    javax.swing.JTabbedPane jTabbedPane1;
     javax.swing.JLabel selectInputsLabel;
     protected javax.swing.JButton solversButton;
     public javax.swing.JEditorPane sourceCodeEditor;

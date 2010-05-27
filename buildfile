@@ -12,7 +12,7 @@ SKETCH_UTIL = 'edu.berkeley.cs.sketch:sketch-util:jar:0.01'
 
 define 'skalch' do
     project.group = 'edu.berkeley.cs.sketch'
-    project.version = '0.02-SNAPSHOT'
+    project.version = '0.03-SNAPSHOT'
     compile.options.target = '1.5'
     compile.options.lint = 'all'
 

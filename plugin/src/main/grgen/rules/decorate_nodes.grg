@@ -12,23 +12,35 @@ rule addScalaRoot {
     modify { pkg --> :SKRoot; }
 }
 
+
+
+// === set enclosing function ===
 rule setEnclosingFunctionInitial {
     x:FcnDef;
-    modify {
-        x -:EnclosingFcn-> x;
-        exec(setEnclosingFunction(x, x)*);
-    }
+    ise:iteratedSetEnclosing(x, x);
+    modify { ise(); }
 }
 
-rule setEnclosingFunction(x : ScAstNode, fcn:FcnDef) {
+pattern iteratedSetEnclosing(x:ScAstNode, fcn:FcnDef) {
     hom(x, fcn);
-    x --> y:ScAstNode;
-    negative { y -:EnclosingFcn ->; }
-    modify {
-        y -:EnclosingFcn -> fcn;
-        exec(setEnclosingFunction(y, fcn)*);
+    iterated {
+        x -:Subtree-> y:ScAstNode;
+        ise:iteratedSetEnclosing(y, fcn);
+        modify { ise(); }
     }
+    iterated {
+        x -:Subtree-> lst:List;
+        iterated {
+            lst -:ListElt-> :ListNode -:ListValue-> y:ScAstNode;
+            ise:iteratedSetEnclosing(y, fcn);
+            modify { ise(); }
+        }
+        modify { }
+    }
+    modify { x -:EnclosingFcn-> fcn; }
 }
+
+
 
 rule replaceAngelicSketchSymbol {
     cls_sym:Symbol -:SymbolOwner-> pkg_sym:Symbol;

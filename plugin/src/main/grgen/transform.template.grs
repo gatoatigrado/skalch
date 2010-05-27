@@ -4,6 +4,7 @@
 # hg clone http://dev.pocoo.org/hg/jinja2-main jinja2
 new graph "AllRules_0.grg"
 new graph "AllRules_1.grg"
+echo "loading {{ gxl_file }}"
 import "{{ gxl_file }}" ScalaAstModel.gm
 select actions lgsp-AllRules_0Actions.dll
 
@@ -63,7 +64,9 @@ include "stages-scripts/gen/nice_lists.grs"
 
 # new passes
 select actions lgsp-AllRules_1Actions.dll
+include "stages-scripts/gen/decorate_calls.grs"
 include "stages-scripts/gen/array_lowering.grs"
+include "stages-scripts/gen/emit_required_imports.grs"
 
 select actions lgsp-AllRules_0Actions.dll
 # most modern stages should go after nice_lists

@@ -26,7 +26,7 @@ node class GetterFcnCall extends FcnCall;
 xgrs [markGetterFcns]
 xgrs markGetterCalls*
 xgrs [setGetterFcnField]
-xgrs [replaceGetterCall]
+#xgrs [replaceGetterCall]
 xgrs deleteUnusedFcnDefs* & deleteDangling*
 {% endblock %}
 

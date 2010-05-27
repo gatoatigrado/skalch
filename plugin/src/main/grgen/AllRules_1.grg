@@ -1,9 +1,12 @@
 using ScalaAstModel;
 
 // library functions
+#include "rules/cleanup.grg"
 #include "rules/common.grg"
+#include "rules/decorate_nodes.grg"
 #include "rules/gen/nice_lists.grg"
 
 // simple transformation stages
 #include "rules/gen/array_lowering.grg"
+#include "rules/gen/emit_required_imports.grg"
 // add unified here

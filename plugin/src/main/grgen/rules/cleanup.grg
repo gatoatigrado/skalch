@@ -43,9 +43,3 @@ rule removeEnclosingLinks {
         delete(e);
     }
 }
-
-rule allChecks {
-    modify {
-        exec(! testNoBridgeFunctions);
-    }
-}

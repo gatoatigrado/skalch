@@ -42,6 +42,7 @@ Executing Graph Rewrite Sequence\.\.\. .+
 Graph "DefaultGraph" exported.*
 Warning: Unknown Statement.+
 saving to .+
+loading .+\.gxl
 """.splitlines() if v]
 
 execute_time = re.compile(r"Executing Graph Rewrite Sequence done after (.+)\:")

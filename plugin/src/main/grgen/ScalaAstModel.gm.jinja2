@@ -94,6 +94,8 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/new_initializer_fcn_stubs.gm" %}
 {% include "nodes/gen/lossy_replacements.gm" %}
 {% include "nodes/gen/array_lowering.gm" %}
+{% include "nodes/gen/decorate_calls.gm" %}
+{% include "nodes/gen/emit_required_imports.gm" %}
 // add unified here
 
 
@@ -202,7 +204,7 @@ node class CaseDef extends ScAstNode;
 node class ClassDef extends ScAstNode;
 node class EmptyTree extends ScAstNode;
 
-node class FcnCall extends ScAstNode;
+node class FcnCall extends ScAstNode { decoratedName : string; }
 node class FcnCallArrayGet extends FcnCall;
 node class FcnCallArrayLength extends FcnCall;
 node class FcnCallArraySet extends FcnCall;
@@ -308,6 +310,7 @@ edge class FcnArgNext extends FcnArg, Sibling;
 edge class FcnArgList extends Subtree, CstyleExprTarget;
 edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree;
+edge class ArrValueList extends Subtree;
 
 // Sibling edges indicate argument parameters
 edge class AnnotationArgsNext extends Sibling;

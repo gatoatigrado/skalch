@@ -18,6 +18,9 @@ test: killall
 	(cd plugin/src/test/grgen; make test)
 	@echo "TEST SUCCEEDED"
 
+swdoc: # open software documentation
+	oowriter doc/software_documentation.odt
+
 ### utilities
 
 cs: # code standards check, ignoring skalch_old, etc/util, no license, and Java files (eclipse formatter reigns supreme)

@@ -11,3 +11,4 @@ gen/
 plugin/src/main/resources/skalch/plugins/type_graph.gxl
 get-class-names
 plugin/src/main/grgen/ScalaAstModel__gxl.gm
+plugin/src/main/grgen/dependencies.txt

@@ -99,6 +99,7 @@ rule list{{ ntyp }}{{ etyp }}EmptyInit {
 {{ chain_to_list("FcnCall", "FcnArg") }}
 {{ chain_to_list("FcnDef", "FcnDefParams") }}
 {{ chain_to_list("SKBlock", "BlockStmt") }}
+{{ chain_to_list("NewArray", "ArrValue") }}
 
 rule listInitAllOrdered {
     modify { exec(

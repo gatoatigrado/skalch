@@ -34,7 +34,7 @@ abstract class SketchPluginComponent(val global : Global) extends PluginComponen
                 parents.exists(is_dynamic_sketch(_, true))
 
             case TypeRef(pre, sym, args) => tp.baseClasses.exists(
-                cls => dynamicSketchClasses contains cls.fullNameString)
+                cls => dynamicSketchClasses contains cls.fullName)
 
             case _ => false
         }

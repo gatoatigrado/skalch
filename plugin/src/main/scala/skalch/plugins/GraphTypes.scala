@@ -90,7 +90,7 @@ abstract class NodeFactory {
         case None =>
             val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
             node.append_str_attr("symbolName", sym.name.toString().trim())
-            node.append_str_attr("fullSymbolName", sym.fullNameString.trim())
+            node.append_str_attr("fullSymbolName", sym.fullName.trim())
             sym_to_gr_map.put(sym, node)
 
             val node_fcns = new BoundNodeFcns(node, "Symbol")
@@ -120,7 +120,7 @@ abstract class NodeFactory {
                 }
 
                 // static symbol annotations
-                val symname = sym.fullNameString.replace("$", ".")
+                val symname = sym.fullName.replace("$", ".")
                 annotations.get(symname) match {
                     case None => ()
                     case Some(lst) => lst foreach (x =>

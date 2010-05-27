@@ -6,7 +6,7 @@ import ScalaDebugOut._
 
 import scala.tools.nsc
 import nsc._
-import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
+import nsc.util.{FakePos, OffsetPosition, RangePosition}
 
 import net.sourceforge.gxl._
 

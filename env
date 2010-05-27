@@ -1,0 +1,5 @@
+#!/bin/bash
+# environment variables (source it from your .bashrc?)
+
+export skalchdir="$(dirname "$(readlink -f "$0")")"
+export grgenfiles="$skalchdir"/plugin/src/main/grgen

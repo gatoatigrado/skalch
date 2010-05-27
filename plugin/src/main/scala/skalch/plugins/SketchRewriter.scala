@@ -73,7 +73,7 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
 //                        }
                         (sym.annotations ::: sym.tpe.annotations) match {
                             case Nil => ()
-                            case lst => annotations.put(sym.fullNameString, lst)
+                            case lst => annotations.put(sym.fullName, lst)
 //                                 println("    annotations list: " + lst)
                         }
                     }

@@ -237,6 +237,14 @@ node class HLArgEnd;
 
 
 
+
+// edge class MyEdge
+// node class MyNode
+
+
+
+
+
 // add unified here
 
 
@@ -419,6 +427,8 @@ node class GotoCall extends ScAstNode;
 node class LabelDef extends ScalaExprStmt;
 node class Match extends ScAstNode;
 node class TypeTree extends ScAstNode;
+node class ApplyImplicitView extends ScAstNode;
+node class ApplyToImplicitArgs extends ScAstNode;
 
 
 
@@ -513,6 +523,8 @@ edge class ThisSymbol extends ScTermSymbol;
 edge class TypeTreeSymbol extends ScTermSymbol;
 edge class ValDefSymbol extends ScTermSymbol;
 edge class VarRefSymbol extends ScTermSymbol;
+edge class ApplyImplicitViewSymbol extends ScTermSymbol;
+edge class ApplyToImplicitArgsSymbol extends ScTermSymbol;
 
 // Type symbols
 edge class AssignTypeSymbol extends ScTypeSymbol;
@@ -535,6 +547,8 @@ edge class TypeTreeTypeSymbol extends ScTypeSymbol;
 edge class ValDefTypeSymbol extends ScTypeSymbol;
 edge class VarRefTypeSymbol extends ScTypeSymbol;
 edge class ParentTypeSymbol extends ScTypeSymbol;
+edge class ApplyImplicitViewTypeSymbol extends ScTypeSymbol;
+edge class ApplyToImplicitArgsTypeSymbol extends ScTypeSymbol;
 
 // symbols...
 edge class CaseDefTypeSymbol extends ScTypeSymbol;

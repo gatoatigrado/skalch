@@ -2,9 +2,10 @@
 # preprocessed with Jinja2
 # http://jinja.pocoo.org/2/documentation/
 # hg clone http://dev.pocoo.org/hg/jinja2-main jinja2
-new graph "AllRules.grg"
+new graph "AllRules_0.grg"
+new graph "AllRules_1.grg"
 import "{{ gxl_file }}" ScalaAstModel.gm
-select actions lgsp-AllRulesActions.dll
+select actions lgsp-AllRules_0Actions.dll
 
 {% set getSelCode = None %}
 {% if ycomp_selection or get_sel_info %}
@@ -60,6 +61,11 @@ include "stages-scripts/clean_sketch_constructs.grs"
 include "stages-scripts/gen/blockify_fcndefs.grs"
 include "stages-scripts/gen/nice_lists.grs"
 
+# new passes
+select actions lgsp-AllRules_1Actions.dll
+include "stages-scripts/gen/array_lowering.grs"
+
+select actions lgsp-AllRules_0Actions.dll
 # most modern stages should go after nice_lists
 # and before cstyle lowering
 {% if (not ycomp) or getSelRunFinal %}

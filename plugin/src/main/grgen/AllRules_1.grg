@@ -1,0 +1,9 @@
+using ScalaAstModel;
+
+// library functions
+#include "rules/common.grg"
+#include "rules/gen/nice_lists.grg"
+
+// simple transformation stages
+#include "rules/gen/array_lowering.grg"
+// add unified here

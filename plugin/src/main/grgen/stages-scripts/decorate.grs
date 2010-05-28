@@ -1,8 +1,0 @@
-
-echo "[REWRITE PRODUCTION] retype certain skalch constructs and function symbols"
-xgrs replaceAngelicSketchSymbol* & replaceAssertSymbol*
-xgrs replaceBangBangSymbol* & replaceHoleSymbol*
-xgrs setStaticAnnotationTypes* & [setOuterSymbol]
-xgrs setScalaRoot & setScalaSubtypes*
-xgrs [setUnboxSymbols] & [setUnitSymbols]
-xgrs setSketchClasses*

@@ -1,7 +1,7 @@
 
 # transformations not requiring EnclosingFcn links
 echo "[REWRITE PRODUCTION] replace assert calls"
-xgrs replaceAssertCalls*
+xgrs replaceAssertCalls* & deleteAssertElidableAnnot*
 
 echo "[REWRITE PRODUCTION] detect which classes can be assigned by !! or ??"
 xgrs (valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*

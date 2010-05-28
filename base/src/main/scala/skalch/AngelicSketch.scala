@@ -15,6 +15,7 @@ abstract class AngelicSketch {
     abstract class _SketchConstruct
     object !! extends _SketchConstruct
     object ?? extends _SketchConstruct
+    object `❬` extends _SketchConstruct
 
     var stopOptimization : Boolean = false
 
@@ -24,9 +25,20 @@ abstract class AngelicSketch {
     implicit def _resolve[T <: AnyRef](x : !!.type) : T =
         { assert(stopOptimization); "".asInstanceOf[T] }
 
+    implicit def _resolve[T <: AnyRef](x : `❬`.type) : T =
+        { assert(stopOptimization); "".asInstanceOf[T] }
+
     def synthAssert(v : Boolean) { scala.Predef.assert(false); }
     def skdprint(x : => String) { assert(false); }
     def skdprint_loc(x : => String) { assert(false); }
 
     class Range[T](values : Seq[T]) extends StaticAnnotation
+    class ArrayLen[T](len : Int) extends StaticAnnotation
+    class generator extends StaticAnnotation
+
+    def rangeTypedExpr[T](x : T, values : Seq[T]) = x
+
+    class BitArray {
+        
+    }
 }

@@ -197,7 +197,7 @@ edge class YcSSelected {
 
 
 
-edge class NodePrinted;
+edge class NodePrinted extends TmpEdge;
 
 
 
@@ -256,7 +256,13 @@ node class HLArgEnd;
 
 
 
-edge class CalledMethod;
+edge class CalledMethod extends TmpEdge;
+
+
+
+
+
+
 
 
 
@@ -276,6 +282,7 @@ edge class ListLast extends ListElt;
 edge class ListNext;
 edge class ListValue extends Replaceable;
 edge class ListTmpLast;
+abstract edge class TmpEdge; // for doing calculations
 
 
 
@@ -283,9 +290,6 @@ edge class ListTmpLast;
 
 node class SKRoot;
 node class SKHelperFcns;
-
-node class SKAssert extends ScAstNode;
-edge class SKAssertExpr;
 
 // same edge classes as Block
 node class SKBlock extends Block;
@@ -463,43 +467,44 @@ abstract edge class ScTypeSymbol;
 
 abstract edge class FcnArg extends CstyleExprTarget;
 abstract edge class BlockStmt;
+abstract edge class OldChainNext extends Sibling;
 
 edge class BlockStmtChain extends BlockStmt, Subtree;
-edge class BlockStmtNext extends BlockStmt, Sibling;
+edge class BlockStmtNext extends BlockStmt, OldChainNext;
 edge class FcnArgChain extends FcnArg, Subtree;
-edge class FcnArgNext extends FcnArg, Sibling;
+edge class FcnArgNext extends FcnArg, OldChainNext;
 edge class FcnArgList extends Subtree, CstyleExprTarget;
 edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree;
 edge class ArrValueList extends Subtree;
 
 // Sibling edges indicate argument parameters
-edge class AnnotationArgsNext extends Sibling;
-edge class ArrValueNext extends Sibling;
-edge class ClassDefTypeParamsNext extends Sibling;
-edge class FcnDefParamsNext extends Sibling;
-edge class MatchCaseNext extends Sibling;
+edge class AnnotationArgsNext extends OldChainNext;
+edge class ArrValueNext extends OldChainNext;
+edge class ClassDefTypeParamsNext extends OldChainNext;
+edge class FcnDefParamsNext extends OldChainNext;
+edge class MatchCaseNext extends OldChainNext;
 
 // Subtree links currently include the Last edges. These
 // should be removed if they become a problem.
 edge class AnnotationArgsChain extends Subtree;
-edge class AnnotationArgsLast extends Subtree;
+edge class AnnotationArgsLast;
 edge class ArrValueChain extends Subtree;
 edge class AssignLhs extends Subtree;
 edge class AssignRhs extends Subtree;
 edge class BlockExpr extends Subtree;
-edge class BlockStmtLast extends Subtree;
+edge class BlockStmtLast;
 edge class CaseBody extends Subtree;
 edge class CaseGuard extends Subtree;
 edge class CasePattern extends Subtree;
 edge class ClassDefImpl extends Subtree;
 edge class ClassDefTypeParamsChain extends Subtree;
 edge class ClsMethod extends Subtree;
-edge class FcnArgLast extends Subtree;
+edge class FcnArgLast;
 edge class FcnBody extends Subtree;
 edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
-edge class FcnDefParamsLast extends Subtree;
+edge class FcnDefParamsLast;
 edge class FcnTarget extends Subtree, CstyleExprTarget;
 edge class FieldAccessObject extends Subtree;
 edge class IfCond extends Subtree;
@@ -516,9 +521,9 @@ edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
 edge class ValDefRhs extends Subtree;
 
-edge class ArrValueLast extends Subtree;
-edge class FcnCallTypeArgsLast extends Subtree;
-edge class MatchCaseLast extends Subtree;
+edge class ArrValueLast;
+edge class FcnCallTypeArgsLast;
+edge class MatchCaseLast;
 
 // Term symbols
 edge class AnnotationSymbol extends ScTermSymbol;
@@ -541,6 +546,7 @@ edge class ValDefSymbol extends ScTermSymbol;
 edge class VarRefSymbol extends ScTermSymbol;
 edge class ApplyImplicitViewSymbol extends ScTermSymbol;
 edge class ApplyToImplicitArgsSymbol extends ScTermSymbol;
+edge class ClassRefTermSymbol extends ScTermSymbol;
 
 // Type symbols
 edge class AssignTypeSymbol extends ScTypeSymbol;

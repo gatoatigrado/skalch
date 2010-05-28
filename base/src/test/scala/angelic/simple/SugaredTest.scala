@@ -4,11 +4,22 @@ import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
 import sketch.util._
 
+/// isolate rightmost zero bit
 class MySketch() extends AngelicSketch {
     type Int5 = Int @ Range(-32 to 32)
 
-    def main(y : Int) {
-        val array = Array(1, 2, 3, ??)
+    /*
+    def arrayToInt(arr : Array[Int]) = {
+        var result = 0
+        for (idx <- 0 until arr.length) {
+            result += arr(idx) << idx
+        }
+        result
+    }
+    */
+
+    def main() {
+        assert((?? : Int5) < -2)
     }
 }
 

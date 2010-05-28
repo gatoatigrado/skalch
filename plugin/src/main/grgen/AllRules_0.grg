@@ -2,7 +2,7 @@ using ScalaAstModel;
 
 #include "rules/common.grg"
 #include "rules/gen/warn_unsupported.grg"
-#include "rules/decorate_nodes.grg"
+#include "rules/gen/decorate_nodes.grg"
 #include "rules/delete_bridge_functions.grg"
 #include "rules/construct_assignable_classes.grg"
 #include "rules/simplify_sketch_constructs.grg"

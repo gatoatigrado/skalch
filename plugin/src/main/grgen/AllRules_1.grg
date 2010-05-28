@@ -3,7 +3,7 @@ using ScalaAstModel;
 // library functions
 #include "rules/cleanup.grg"
 #include "rules/common.grg"
-#include "rules/decorate_nodes.grg"
+#include "rules/gen/decorate_nodes.grg"
 #include "rules/gen/nice_lists.grg"
 
 // simple transformation stages

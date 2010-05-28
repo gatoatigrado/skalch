@@ -1,12 +1,32 @@
-// -*- coding: utf-8 -*-
-// author: gatoatigrado (nicholas tung) [ntung at ntung]
+{% import "macros.grg" as macros with context %}
 
-// Licensed under the Apache License, Version 2.0 (the "License"); you may
-// not use this file except in compliance with the License. You may obtain a
-// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
 
-// decorate nodes with relevant information
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
+Add custom types to certain nodes
+
+{% endblock %}
+{% block gm %}
+{% endblock %}
+
+
+
+{% block grs %}
+echo "[REWRITE PRODUCTION] retype certain skalch constructs and function symbols"
+xgrs replaceAngelicSketchSymbol*
+xgrs runAllSymbolRetypes
+xgrs setStaticAnnotationTypes* & [setOuterSymbol]
+xgrs setScalaRoot & setScalaSubtypes*
+xgrs setSketchClasses*
+{% endblock %}
+
+
+
+{% block grg %}
 rule addScalaRoot {
     pkg:PackageDef;
     modify { pkg --> :SKRoot; }
@@ -17,6 +37,7 @@ rule addScalaRoot {
 // === set enclosing function ===
 rule setEnclosingFunctionInitial {
     x:FcnDef;
+    negative { x -:EnclosingFcn-> x; }
     ise:iteratedSetEnclosing(x, x);
     modify { ise(); }
 }
@@ -24,7 +45,12 @@ rule setEnclosingFunctionInitial {
 pattern iteratedSetEnclosing(x:ScAstNode, fcn:FcnDef) {
     hom(x, fcn);
     iterated {
-        x -:Subtree-> y:ScAstNode;
+        x -:Subtree -> y:ScAstNode;
+        ise:iteratedSetEnclosing(y, fcn);
+        modify { ise(); }
+    }
+    iterated {
+        x -:OldChainNext -> y:ScAstNode;
         ise:iteratedSetEnclosing(y, fcn);
         modify { ise(); }
     }
@@ -54,36 +80,38 @@ rule replaceAngelicSketchSymbol {
     }
 }
 
-rule replaceAssertSymbol {
-    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
+{% set retypeList = [] %}
+{% macro retype_syms(lst, totype, angelic=False) %}
+{% set fcnName = "symRetype" + ("Angelic" if angelic else "") + totype %}
+{% do retypeList.append(fcnName) %}
+rule {{ fcnName }} {
+    x:Symbol;
+{% if angelic %}
+    independent { x -:SymbolOwner-> :AngelicSketchSymbol; }
+{% endif %}
     if {
-        fcnsym.symbolName == "synthAssert";
-        typeof(fcnsym) == Symbol;
+{% for typ in lst %}
+        x.{{ "fullSymbol" if not angelic else "symbol" }}Name == "{{ typ }}"{{ " || " if not loop.last else ";" }}
+{% endfor %}
     }
-    modify {
-        assertsym:AssertFcnSymbol<fcnsym>;
-    }
+    modify { next:{{ totype }}<x>; }
 }
+{% endmacro %}
 
-rule replaceBangBangSymbol {
-    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
-    if {
-        fcnsym.symbolName == "$bang$bang";
-        typeof(fcnsym) == Symbol;
-    }
-    modify {
-        assertsym:BangBangSymbol<fcnsym>;
-    }
-}
+{{ retype_syms(["scala.Predef.assert"], "AssertFcnSymbol") }}
+{{ retype_syms(["synthAssert"], "AssertFcnSymbol", angelic=True) }}
+{{ retype_syms(["$bang$bang"], "BangBangSymbol", angelic=True) }}
+{{ retype_syms(["$qmark$qmark"], "HoleSymbol", angelic=True) }}
+{{ retype_syms(["scala.Int.unbox", "scala.Boolean.unbox",
+   "scala.Float.unbox", "scala.Double.unbox"], "ScalaUnboxSymbol") }}
+{{ retype_syms(["scala.Unit"], "ScalaUnitTypeSymbol") }}
 
-rule replaceHoleSymbol {
-    fcnsym:Symbol -:SymbolOwner-> :AngelicSketchSymbol;
-    if {
-        fcnsym.symbolName == "$qmark$qmark";
-        typeof(fcnsym) == Symbol;
-    }
+rule runAllSymbolRetypes {
     modify {
-        assertsym:HoleSymbol<fcnsym>;
+        exec(
+{% for elt in retypeList %}
+            [{{ elt }}]{{ " & " if not loop.last else ");" }}
+{% endfor %}
     }
 }
 
@@ -128,24 +156,6 @@ rule setOuterSymbol {
     modify { next_sym:OuterSymbol<outer_sym>; }
 }
 
-rule setUnboxSymbols {
-    sym:ScalaSymbol;
-//     if { sym.fullSymbolName == "scala.Boolean.unbox"; }
-    if {
-        sym.fullSymbolName == "scala.Int.unbox" ||
-        sym.fullSymbolName == "scala.Boolean.unbox" ||
-        sym.fullSymbolName == "scala.Float.unbox" ||
-        sym.fullSymbolName == "scala.Double.unbox";
-    }
-    replace { next_sym:ScalaUnboxSymbol<sym>; }
-}
-
-rule setUnitSymbols {
-    sym:ScalaSymbol;
-    if { sym.fullSymbolName == "scala.Unit"; }
-    replace { next_sym:ScalaUnitTypeSymbol<sym>; }
-}
-
 rule setSketchClasses {
     sym:Symbol -:ParentTypeSymbol-> :AngelicSketchSymbol;
     :ClassDef -:ClassDefSymbol-> sym;
@@ -164,3 +174,4 @@ rule setSketchMainFcn {
 }
 
 test testFail { negative { } }
+{% endblock %}

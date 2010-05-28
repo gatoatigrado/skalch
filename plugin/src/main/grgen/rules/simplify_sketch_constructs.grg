@@ -9,10 +9,18 @@
 
 rule replaceAssertCalls {
     fcn:FcnCall -:FcnCallSymbol-> :AssertFcnSymbol;
-    fcn -:FcnTarget-> . --> :AngelicSketchSymbol;
-    modify {
-        assert:SKAssert<fcn>;
-    }
+    fcn -e:FcnArgLast-> assertArg:ScAstNode;
+    // could be $this or the arg itself, depending on if assert or synthAssert is used.
+    fcn -e2:FcnArgChain-> rest:ScAstNode;
+    hom(rest, assertArg);
+    modify { delete(e, e2); assert:SKAssertCall<fcn> -:SKAssertCallArg-> assertArg; }
+}
+
+rule deleteAssertElidableAnnot {
+    x:Symbol -:SymbolAnnotation-> annot:Annotation
+        -:AnnotationSymbol-> y:Symbol;
+    if { x.symbolName == "assert" && y.symbolName == "elidable"; }
+    modify { delete(annot); }
 }
 
 rule retypeBangBangCall(resolv_call:FcnCall, sk_sym:SketchConstructSymbol) {

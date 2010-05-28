@@ -2,7 +2,7 @@
 
 # functions requiring setEnclosing links
 echo "[REWRITE PRODUCTION] adding info links"
-xgrs [setEnclosingFunctionInitial]
+xgrs setEnclosingFunctionInitial+
 
 echo "[REWRITE PRODUCTION] delete bridge functions"
 xgrs deleteBridgeFunctions

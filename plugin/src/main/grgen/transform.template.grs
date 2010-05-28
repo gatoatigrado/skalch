@@ -52,9 +52,11 @@ dump set node ListNode color Grey
 dump set node ListFirstNode color LightGrey
 dump set node ListLastNode color LightGrey
 
+dump set edge EnclosingFcn color green
+
 include "stages-scripts/gen/warn_unsupported.grs"
 include "stages-scripts/delete_marked_ignore.grs"
-include "stages-scripts/decorate.grs"
+include "stages-scripts/gen/decorate_nodes.grs"
 include "stages-scripts/convert_this.grs"
 include "stages-scripts/gen/cleanup_accessors.grs"
 

@@ -14,7 +14,7 @@ There are plenty of examples.
 
 {% endblock %}
 {% block gm %}
-edge class NodePrinted;
+edge class NodePrinted extends TmpEdge;
 {% endblock %}
 
 

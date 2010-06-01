@@ -32,6 +32,7 @@ edge class FcnBinaryCallRhs;
 dump set node SKAssertCall color LightBlue
 dump set node SKStmtExpr color Red
 
+debug xgrs removeEmptyTrees
 xgrs setSymbolNames* & deletePrintRenamer*
 xgrs setSymbolSketchType*
 xgrs setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit
@@ -96,6 +97,12 @@ rule removeEmptyChains {
         delete(y);
         exec(listDelete(x));
     }
+}
+
+rule removeEmptyTrees {
+    x:SKBlock -:BlockStmtList-> :List
+        -:ListElt-> y:ListNode -:ListValue-> :EmptyTree;
+    modify { exec(listDelete(y)); }
 }
 
 rule setAssertCalls {

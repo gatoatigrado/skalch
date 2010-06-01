@@ -86,9 +86,9 @@ include "stages-scripts/gen/cstyle_assns.grs" # final part of cstyle lowering
 
 # === final code ===
 {{ getSelCode() if getSelCode else "" }}
-{% if (not ycomp) or getSelRunFinal %}
+{#{% if (not ycomp) or getSelRunFinal %}#}
     include "stages-scripts/gen/sketch_final_minor_cleanup.grs"
-{% endif %}
+{#{% endif %}#}
 
 # === usually used if ycomp is not used ===
 {% if output_file %}

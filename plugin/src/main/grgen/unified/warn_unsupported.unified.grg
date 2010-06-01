@@ -28,11 +28,13 @@ rule {{ warn_fcn("unsupportedAssignToNonvar") }} {
     {{ warnblock() }}
 }
 
+{#
 rule {{ warn_fcn("scalaAssert") }} {
     x:Symbol;
     if { x.fullSymbolName == "scala.Predef.assert"; }
     {{ warnblock("please use synthAssert() instead of assert()") }}
 }
+#}
 
 rule unsupportedWarnAll {
     modify { exec(

@@ -25,4 +25,5 @@ dump set node CfgAbstractNode color LightGreen
 dump set edge CfgAbstractNext color DarkGreen
 dump set edge AbstractBlockify color DarkRed
 
-show graph ycomp "--dolayout"
+#show graph ycomp "--dolayout"
+debug enable

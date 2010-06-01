@@ -42,11 +42,9 @@
                 </executions>
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
-                    <!--
                     <args>
-                        <arg>-Ybrowse:typer</arg>
+                        <arg>-Ybrowse:superaccessors</arg>
                     </args>
-                    -->
                     <compilerPlugins>
                         <compilerPlugin>
                             <groupId>edu.berkeley.cs.sketch</groupId>

@@ -9,7 +9,8 @@ import scala.tools.nsc
 import nsc._
 import nsc.plugins.{Plugin, PluginComponent}
 import nsc.io.{AbstractFile, PlainFile}
-import nsc.util.{Position, NoPosition, FakePos, OffsetPosition, RangePosition}
+import nsc.util.{Position, FakePos, OffsetPosition, RangePosition}
+import nsc.symtab.Flags._
 
 import ScalaDebugOut._
 import net.sourceforge.gxl._
@@ -41,43 +42,74 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
             ExternalGxlTransformer.this.global
         val runsAfter = List("typer")
         override val runsBefore = List("superaccessors")
-//        override val runsBefore = List("explicitouter")
         val phaseName = "grab_static_type_annotations"
         def newPhase(prev: Phase) = new GrabAnnotations(prev)
 
         class GrabAnnotations(prev: Phase) extends StdPhase(prev) {
             def apply(comp_unit : CompilationUnit) = {
+                comp_unit.body = (new CreateTmpvarsForTyped()).transform(comp_unit.body)
                 (new AnnotTf()).transform(comp_unit.body)
+            }
+
+            /** formatting */
+            var ident = 0
+            var currMethod : Symbol = null
+
+            class CreateTmpvarsForTyped() extends Transformer {
+                def createBlockForTyped(expr:Tree, tpt:Tree) = {
+                    val name = newTermName("__skalch_internal_typed_tmp")
+                    val sym = expr.tpe.typeSymbol.newValue(NoPosition, name).setInfo(tpt.tpe)
+                    sym.owner = currMethod
+
+                    // println("symbol annotations: " + sym.tpe.annotations)
+                    // println("type annotations: " + tpt.tpe.annotations)
+                    // println("normalized annotations: " + sym.tpe.normalize.annotations)
+
+                    // core AST nodes
+                    val newtyped = Typed(expr, tpt)
+                    val vd = ValDef(Modifiers(LOCAL), name, tpt, newtyped)
+                    val ident = Ident(name)
+                    val replacement_block = Block(List(vd), ident)
+
+                    // set symbols
+                    vd.symbol = sym
+                    ident.symbol = sym
+
+                    // set types
+                    vd.tpe = NoType
+                    ident.tpe = tpt.tpe
+                    newtyped.tpe = tpt.tpe
+                    replacement_block.tpe = tpt.tpe
+
+                    replacement_block
+                }
+
+                override def transform(tree : Tree) = tree match {
+                    case x : DefDef => currMethod = x.symbol; super.transform(x)
+                    case Typed(expr, tpt) =>
+                        createBlockForTyped(super.transform(expr), super.transform(tpt))
+                    case _ => super.transform(tree)
+                }
             }
 
             class AnnotTf() extends Transformer {
                 override def transform(tree : Tree) = {
-//                    println("(scanning type info for " + tree.getClass.getName + ")")
                     val sym = tree.symbol
+
+                    // def print_indented(text:String) = { for (v <- 0 to ident) print(" "); println(text) }
+                    // def print_subident(text:String) = print_indented("- " + text)
+
                     if ((sym != null) && (sym != NoSymbol)) {
-//                        println("    symbol attributes: " + sym.annotations);
-//                        println("    type annotations: " + sym.tpe.annotations);
-//
-//                        tree match {
-//                            case TypeDef(mods, _, params, rhs) =>
-//                                println("    type def; mods: " + mods)
-//                                println("    type def; rhs: " + rhs)
-//                            case TypeTree() =>
-//                                println("    type tree; type: " + tree.tpe)
-//                            case _ => ()
-//                        }
-//                        sym.tpe match {
-//                            case AnnotatedType(annots, _, _) =>
-//                                println("    symbol type annotations: " + annots)
-//                            case _ => ()
-//                        }
-                        (sym.annotations ::: sym.tpe.annotations) match {
+                        (sym.annotations ::: sym.tpe.normalize.annotations) match {
                             case Nil => ()
                             case lst => annotations.put(sym.fullName, lst)
-//                                 println("    annotations list: " + lst)
                         }
                     }
-                    super.transform(tree)
+
+                    ident += 4
+                    val rv = super.transform(tree)
+                    ident -= 4
+                    rv
                 }
             }
         }

@@ -21,17 +21,16 @@ create blocks for all function bodies.
 echo "[REWRITE PRODUCTION] local simplifications"
 xgrs removeFcnTarget*
 xgrs (deleteDangling+ | removeNopTypeCast)*
+
 echo "[REWRITE PRODUCTION] local simplifications -- retype unit blocks"
-xgrs createFunctionBlocks*
-xgrs retypeUnitTypeBlocks* & convertFunctionBlocksToReturns*
-
-
-# xgrs checkOnlyFcnBlocks
+xgrs createFunctionBlocks* & retypeBlockSKBlock*
+xgrs checkOnlyFcnBlocks
 {% endblock %}
 
 
 
 {% block grg %}
+/// change f(x) = x to f(x) = { x }
 rule createFunctionBlocks {
     x:FcnDef -fcn_body:FcnBody-> y:ScAstNode;
     x -:FcnDefReturnTypeSymbol-> z:Symbol;
@@ -39,48 +38,48 @@ rule createFunctionBlocks {
     modify {
         delete(fcn_body);
 
-        ret:Return -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> z;
-        ret -:ReturnExpr-> y;
-
-        x -:FcnBody-> block:SKBlock -:BlockStmtChain-> ret;
-        block -:BlockStmtLast-> ret;
+        x -:FcnBody-> block:Block -:BlockExpr-> y;
+        block -:BlockStmtChain-> et:EmptyTree;
+        block -:BlockStmtLast-> et;
         block -:BlockTypeSymbol-> z;
 
         eval {
-            {{ macros.copySrcPosition("y", ["block", "ret"]) }}
+            {{ macros.copySrcPosition("y", ["block"]) }}
         }
     }
 }
 
-rule retypeUnitTypeBlocks {
-    block:Block -e_sym:BlockTypeSymbol-> unitsym:ScalaUnitTypeSymbol;
-    block -e1:BlockStmtLast-> last:ScAstNode;
-    block -e2:BlockExpr-> expr:ScAstNode;
-    replace {
-        next_block:SKBlock<block> -e_sym-> unitsym;
-        last -e3:BlockStmtNext-> expr;
-        block -e4:BlockStmtLast-> expr;
-    }
-}
+rule retypeBlockSKBlock {
+    :FcnDef --> block:Block -e:BlockExpr-> expr:ScAstNode;
+    block -e2:BlockStmtLast-> last:ScAstNode;
+    if { typeof(block) == Block; }
 
-rule convertFunctionBlocksToReturns {
-    fcndef:FcnDef -:FcnBody-> block:Block
-        -e:BlockExpr-> expr:ScAstNode;
-    block -le:BlockStmtLast-> last:ScAstNode;
-    block -:BlockTypeSymbol-> blk_typ:Symbol;
-    modify {
-        delete(e, le);
-        ret:Return -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
-        last -:BlockStmtNext-> ret -:ReturnExpr-> expr;
-        block -:BlockStmtLast-> ret;
-        next_block:SKBlock<block>;
+    alternative {
+        UnitType {
+            block -:BlockTypeSymbol-> :ScalaUnitTypeSymbol;
+            modify {
+                next_block:SKBlock<block> -:BlockStmtLast-> expr;
+                last -:BlockStmtNext-> expr;
+            }
+        }
+        Typed {
+            block -:BlockTypeSymbol-> blk_typ:Symbol;
+            negative { if { typeof(blk_typ) >= ScalaUnitTypeSymbol; } }
+            modify {
+                next_block:SKBlock<block> -:BlockStmtLast-> ret:Return
+                    -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
+                last -:BlockStmtNext-> ret;
+                ret -:ReturnExpr-> expr;
+            }
+        }
     }
+    modify { delete(e, e2); }
 }
 
 rule checkOnlyFcnBlocks {
     x:FcnDef -:FcnBody-> y:ScAstNode;
     x -:FcnDefSymbol-> fcn_sym:Symbol;
-    if { typeof(y) >= SKBlock; }
+    if { typeof(y) != SKBlock; }
     modify { exec(printn(x) & printn(y) & assertFalse("not sketch block.")); }
 }
 {% endblock %}

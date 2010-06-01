@@ -18,8 +18,16 @@ test: killall
 	(cd plugin/src/test/grgen; make test)
 	@echo "TEST SUCCEEDED"
 
-swdoc: # open software documentation
+### open documentation in openoffice
+
+swdoc:
 	oowriter doc/software_documentation.odt
+
+tutorial:
+	oowriter doc/tutorial.odt
+
+devdoc:
+	oowriter doc/developing.odt
 
 ### utilities
 
@@ -74,7 +82,7 @@ ycomp: gen killall
 	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; make killall
 
 ycomp-intermediate: killall
-	python plugin/src/main/grgen/transform_sketch.py --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"
+	python plugin/src/main/grgen/transform_sketch.py --ycomp --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"
 
 ycomp-unprocessed: killall
 	python plugin/src/main/grgen/transform_sketch.py --ycomp "--gxl_file=base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl" --grs_template='!/ycomp_intermediate.grs'

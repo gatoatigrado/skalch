@@ -32,7 +32,7 @@ edge class FcnBinaryCallRhs;
 dump set node SKAssertCall color LightBlue
 dump set node SKStmtExpr color Red
 
-debug xgrs removeEmptyTrees
+xgrs removeEmptyTrees
 xgrs setSymbolNames* & deletePrintRenamer*
 xgrs setSymbolSketchType*
 xgrs setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit

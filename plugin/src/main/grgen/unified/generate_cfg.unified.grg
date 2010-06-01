@@ -101,6 +101,13 @@ rule {{ init_fcn("cfgInitOtherNodes") }} {
     }
 }
 
+rule {{ init_fcn("cfgDeleteParamsNodes") }} {
+    :FcnDef -:FcnDefParamsList-> lst:List;
+    y:ScAstNode --> z:CfgAbstractNode;
+    :IsSubtree(lst, y);
+    modify { delete(z); }
+}
+
 // STEP 2a: Set a few lists as sequential, for cfgSetNextForLists
 
 rule cfgAnnotateSequentialLists {
@@ -126,25 +133,13 @@ rule {{ set_next_fcn("cfgSetNextForLists") }} {
     }
 }
 
-{% macro prologue_epilogue(name="x") %}
+rule {{ set_next_fcn("cfgSetSimpleInnerNext") }} {
+    x:ScAstNode -:CfgSimpleInner-> y:Node;
     x -:CfgPrologue-> prologue:CfgAbstractNode;
     x -:CfgEpilogue-> epilogue:CfgAbstractNode;
     negative { prologue -:CfgNext-> .; }
-{% endmacro %}
-{% macro simple_inner(ast_type, edge_type, rhs_type) %}
-rule {{ set_next_fcn("cfgSetNextAutoFor" + ast_type) }} {
-    x:{{ ast_type }} -:{{edge_type}}-> y:{{ rhs_type }};
-    {{ prologue_epilogue() }}
-    modify {
-        prologue -:CfgNext-> y -:CfgNext-> epilogue;
-    }
+    modify { prologue -:CfgNext-> y -:CfgNext-> epilogue; }
 }
-{% endmacro %}
-
-{{ simple_inner("ValDef", "ValDefRhs", "ScAstNode") }}
-{{ simple_inner("Block", "BlockStmtList", "List") }}
-{{ simple_inner("FcnCall", "FcnArgList", "List") }}
-{{ simple_inner("FcnDef", "FcnBody", "ScAstNode") }}
 
 // STEP 3: set any edges that are pointing to nodes to their respective
 // epilogues / prologues
@@ -255,4 +250,15 @@ rule cfgInit {
         )*
         ); }
 }
+
+test cfgExistsIncomplete {
+    . -:CfgAbstractNext-> x:CfgAbstractNode;
+    negative {
+        x; x -:CfgAbstractNext-> .;
+    }
+    negative {
+        x; :FcnDef -:CfgEpilogue-> x;
+    }
+}
+
 {% endblock grg %}

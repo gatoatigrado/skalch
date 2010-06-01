@@ -38,6 +38,8 @@ xgrs deleteDangling*
 echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
 xgrs cfgInit
 xgrs cfgSkipIf*
+debug xgrs cfgExistsIncomplete
+validate exitonfailure xgrs ! cfgExistsIncomplete
 
 echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable"
 # these must be executed before the prologues are erased.
@@ -45,7 +47,7 @@ xgrs setAttachableMemberFcns*
 xgrs setAttachableBlocks*
 
 echo "[REWRITE PRODUCTION] cstyle_stmts -- blockify req, forward cfg prologues, propagate req"
-xgrs blockifyDefault* & blockifyLists*
+debug xgrs blockifyDefault* & blockifyLists*
 xgrs forwardNonblockifyIntermediatePrologue*
 xgrs setBlockifyNextForAlreadyBlockified*
 xgrs (propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*
@@ -59,6 +61,7 @@ xgrs deleteCfgNode*
 xgrs createTemporaryAssign*
 xgrs attachNodesToBlockList*
 xgrs deleteLastAttachables* & deleteLastAttachables2*
+validate exitonfailure xgrs testNoBlockify
 echo "[REWRITE PRODUCTION] cstyle_stmts done"
 {% endblock %}
 {% block grg %}
@@ -286,6 +289,12 @@ rule deleteLastAttachables2 {
     negative { x; z; x --> .; }
     negative { x; z; . --> x; }
     modify { delete(x); }
+}
+
+test testNoBlockify {
+    negative {
+        x:Node -:AbstractBlockify-> x;
+    }
 }
 
 {% endblock %}

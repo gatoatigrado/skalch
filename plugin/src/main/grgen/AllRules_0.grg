@@ -31,4 +31,8 @@ using ScalaAstModel;
 #include "rules/gen/cstyle_assns.grg"
 #include "rules/gen/new_initializer_fcn_stubs.grg"
 #include "rules/gen/lossy_replacements.grg"
+
+// TODO -- move back to AllRules_1.grg
+#include "rules/gen/array_lowering.grg"
+#include "rules/gen/emit_required_imports.grg"
 // add unified here

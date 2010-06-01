@@ -27,7 +27,7 @@ tutorial:
 	oowriter doc/tutorial.odt
 
 devdoc:
-	oowriter doc/developing.odt
+	lyx doc/developing.lyx
 
 ### utilities
 

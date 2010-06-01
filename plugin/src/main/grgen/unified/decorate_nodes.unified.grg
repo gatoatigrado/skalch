@@ -81,17 +81,17 @@ rule replaceAngelicSketchSymbol {
 }
 
 {% set retypeList = [] %}
-{% macro retype_syms(lst, totype, angelic=False) %}
-{% set fcnName = "symRetype" + ("Angelic" if angelic else "") + totype %}
+{% macro retype_syms(lst, totype, skbase=False) %}
+{% set fcnName = "symRetype" + ("Sketch" if skbase else "") + totype %}
 {% do retypeList.append(fcnName) %}
 rule {{ fcnName }} {
     x:Symbol;
-{% if angelic %}
-    independent { x -:SymbolOwner-> :AngelicSketchSymbol; }
+{% if skbase %}
+    independent { x -:SymbolOwner-> :SketchBaseSymbol; }
 {% endif %}
     if {
 {% for typ in lst %}
-        x.{{ "fullSymbol" if not angelic else "symbol" }}Name == "{{ typ }}"{{ " || " if not loop.last else ";" }}
+        x.{{ "fullSymbol" if not skbase else "symbol" }}Name == "{{ typ }}"{{ " || " if not loop.last else ";" }}
 {% endfor %}
     }
     modify { next:{{ totype }}<x>; }
@@ -99,9 +99,9 @@ rule {{ fcnName }} {
 {% endmacro %}
 
 {{ retype_syms(["scala.Predef.assert"], "AssertFcnSymbol") }}
-{{ retype_syms(["synthAssert"], "AssertFcnSymbol", angelic=True) }}
-{{ retype_syms(["$bang$bang"], "BangBangSymbol", angelic=True) }}
-{{ retype_syms(["$qmark$qmark"], "HoleSymbol", angelic=True) }}
+{{ retype_syms(["synthAssert"], "AssertFcnSymbol", skbase=True) }}
+{{ retype_syms(["$bang$bang"], "BangBangSymbol", skbase=True) }}
+{{ retype_syms(["$qmark$qmark"], "HoleSymbol", skbase=True) }}
 {{ retype_syms(["scala.Int.unbox", "scala.Boolean.unbox",
    "scala.Float.unbox", "scala.Double.unbox"], "ScalaUnboxSymbol") }}
 {{ retype_syms(["scala.Unit"], "ScalaUnitTypeSymbol") }}

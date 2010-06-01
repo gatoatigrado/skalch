@@ -114,6 +114,7 @@ edge class ListNext;
 edge class ListValue extends Replaceable;
 edge class ListTmpLast;
 abstract edge class TmpEdge; // for doing calculations
+abstract edge class CfgSimpleInner; // prologue connected to child's prolog, same with epil.
 
 
 
@@ -129,7 +130,7 @@ node class SKStmtExpr extends ScAstNode;
 edge class SKStmtExprExpr;
 
 node class SKAssertCall extends FcnCall;
-edge class SKAssertCallArg extends Subtree;
+edge class SKAssertCallArg extends Subtree, CfgSimpleInner;
 
 
 
@@ -280,7 +281,7 @@ node class GotoCall extends ScAstNode;
 node class LabelDef extends ScalaExprStmt;
 node class Match extends ScAstNode;
 node class TypeTree extends ScAstNode;
-node class ApplyImplicitView extends ScAstNode;
+node class ApplyImplicitView extends FcnCall;
 node class ApplyToImplicitArgs extends ScAstNode;
 
 
@@ -307,9 +308,9 @@ edge class BlockStmtChain extends BlockStmt, Subtree;
 edge class BlockStmtNext extends BlockStmt, OldChainNext;
 edge class FcnArgChain extends FcnArg, Subtree;
 edge class FcnArgNext extends FcnArg, OldChainNext;
-edge class FcnArgList extends Subtree, CstyleExprTarget;
+edge class FcnArgList extends Subtree, CstyleExprTarget, CfgSimpleInner;
 edge class FcnDefParamsList extends Subtree;
-edge class BlockStmtList extends Subtree;
+edge class BlockStmtList extends Subtree, CfgSimpleInner;
 edge class ArrValueList extends Subtree;
 
 // Sibling edges indicate argument parameters
@@ -335,7 +336,7 @@ edge class ClassDefImpl extends Subtree;
 edge class ClassDefTypeParamsChain extends Subtree;
 edge class ClsMethod extends Subtree;
 edge class FcnArgLast;
-edge class FcnBody extends Subtree;
+edge class FcnBody extends Subtree, CfgSimpleInner;
 edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
 edge class FcnDefParamsLast;
@@ -353,7 +354,7 @@ edge class SymbolAnnotation extends Subtree;
 edge class TemplateElement extends Subtree;
 edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
-edge class ValDefRhs extends Subtree;
+edge class ValDefRhs extends Subtree, CfgSimpleInner;
 
 edge class ArrValueLast;
 edge class FcnCallTypeArgsLast;

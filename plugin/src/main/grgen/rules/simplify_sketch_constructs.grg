@@ -23,21 +23,22 @@ rule deleteAssertElidableAnnot {
     modify { delete(annot); }
 }
 
-rule retypeBangBangCall(resolv_call:FcnCall, sk_sym:SketchConstructSymbol) {
+rule retypeBangBangCall(resolv_call:ScAstNode, sk_sym:SketchConstructSymbol) {
     if { typeof(sk_sym) == BangBangSymbol; }
     modify { new_call:BangBangCall<resolv_call>; }
 }
 
-rule retypeHoleCall(resolv_call:FcnCall, sk_sym:SketchConstructSymbol) {
+rule retypeHoleCall(resolv_call:ScAstNode, sk_sym:SketchConstructSymbol) {
     if { typeof(sk_sym) == HoleSymbol; }
     modify { new_call:HoleCall<resolv_call>; }
 }
 
 rule replaceConstructCalls {
-    resolv_call:FcnCall -:FcnArgChain-> constr_call:FcnCall
+    resolv_call:ApplyImplicitView -:FcnArgChain->
+        :FcnCall // getter call for !! or ??
         -:FcnCallSymbol-> sk_sym:SketchConstructSymbol;
-    resolv_call -rcsymedge:FcnCallSymbol-> resolv_sym:Symbol;
-    resolv_call -targetedge:FcnTarget-> .;
+    resolv_call -:ApplyImplicitViewSymbol-> resolv_sym:Symbol
+        -:SymbolOwner-> :SketchBaseSymbol;
     if { resolv_sym.symbolName == "_resolve"; }
     modify {
         exec(retypeBangBangCall(resolv_call, sk_sym) ||

@@ -44,3 +44,12 @@ pattern IsLastNode(x:ScAstNode) {
     lstnode:ListNode -:ListValue-> x;
     lstnode -:ListNext-> :ListLastNode;
 }
+
+pattern IsSubtree(x:Node, y:Node) {
+    alternative {
+        DirectChild { x -:Subtree-> y; }
+        ListChild { x -:ListElt-> :ListNode -:ListValue-> y; }
+        RecursiveChild { x -:Subtree-> z:Node; :IsSubtree(z, y); }
+        RecursiveListChild { x -:ListElt-> :ListNode -:ListValue-> z:Node; :IsSubtree(z, y); }
+    }
+}

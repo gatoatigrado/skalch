@@ -1,6 +1,6 @@
 #!/bin/bash
 # not really, I just want to use formatting
-new graph "AllRules_1.grg"
+#new graph "AllRules_1.grg"
 new graph "AllRules_0.grg"
 export ../resources/skalch/plugins/type_graph.gxl
 exit

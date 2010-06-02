@@ -21,26 +21,26 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
         lst_last:ListLastNode;
 {%- endmacro %}
 
-{% macro finiteListBase(names, isInit) -%}
-    lst:List -:ListFirst-> lst_first:ListFirstNode -:ListNext->
+{% macro finiteListBase(names, isInit, lstname) -%}
+    {{ lstname }}:List -:ListFirst-> {{ lstname }}_first:ListFirstNode -:ListNext->
 {% for name in names %}
         lstnode_{{ name.split(":")[0] }}:ListNode -:ListNext->
 {% endfor %}
-        lst_last:ListLastNode;
+        {{ lstname }}_last:ListLastNode;
 {% if isInit %}
-        lst -:ListLast-> lst_last;
+        {{ lstname }} -:ListLast-> {{ lstname }}_last;
 {% endif %}
 {% for name in names %}
 {% if isInit %}
-        lst -:ListElt-> lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
+        {{ lstname }} -:ListElt-> lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
 {% else %}
         lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
 {% endif %}
 {% endfor %}
 {%- endmacro %}
 
-{% macro finiteList(names) %}{{ finiteListBase(names, False) }}{% endmacro %}
-{% macro finiteListInit(names) %}{{ finiteListBase(names, True) }}{% endmacro %}
+{% macro finiteList(names, lstname="lst") %}{{ finiteListBase(names, False, lstname) }}{% endmacro %}
+{% macro finiteListInit(names, lstname="lst") %}{{ finiteListBase(names, True, lstname) }}{% endmacro %}
 
 
 

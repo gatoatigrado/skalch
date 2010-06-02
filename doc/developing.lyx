@@ -145,6 +145,10 @@ List modernization
 \end_layout
 
 \begin_layout Itemize
+Process annotations
+\end_layout
+
+\begin_layout Itemize
 Array lowering
 \end_layout
 
@@ -301,12 +305,112 @@ Scala blocks have an expression value, so “{ x ; y }” will return the latest
  At the top level
 \end_layout
 
+\begin_layout Subsubsection
+List modernization
+\end_layout
+
+\begin_layout Standard
+TODO -- insert scan here
+\end_layout
+
+\begin_layout Standard
+There are several macros and functions to help with list modernization.
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+{{ macros.finiteList([names], lstname="lst") }}
+\end_layout
+
+\end_inset
+
+generates a subgraph to match an argument.
+ Since it actually generates a few lines of matching code (therefore it
+ needs to output semicolons), don't place a semicolon after it (
+\series bold
+grep
+\series default
+ grg files for examples).
+\end_layout
+
+\begin_layout Subsubsection
+Annotation processing 
+\end_layout
+
+\begin_layout Standard
+In this step, we rewrite the plugin's 
+\begin_inset Quotes eld
+\end_inset
+
+{ tmp = X : AnnotatedType; tmp }
+\begin_inset Quotes erd
+\end_inset
+
+ blocks, then we replace Scala's 
+\begin_inset Quotes eld
+\end_inset
+
+
+\begin_inset Formula $m$
+\end_inset
+
+ to 
+\begin_inset Formula $M$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+
+\begin_inset Formula $m$
+\end_inset
+
+ until 
+\begin_inset Formula $S$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+ notation with much simplified trees.
+ We then calculate which functions need
+\end_layout
+
 \begin_layout Section
 Writing graph transformations
 \end_layout
 
 \begin_layout Standard
 Please skim the GrGen manual first, to learn the basics of graph rewriting.
+\end_layout
+
+\begin_layout Subsection
+Basics
+\end_layout
+
+\begin_layout Standard
+To start a new module, run 
+\series bold
+make new-unified-module
+\series default
+.
+ This will prompt you for a module name, and update 
+\series bold
+transform.template.grs
+\series default
+ (the top-level rewrite sequence), and 
+\series bold
+AllRules.grg
+\series default
+ (the top-level actions / rules file).
 \end_layout
 
 \begin_layout Subsection

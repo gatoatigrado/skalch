@@ -97,6 +97,7 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/decorate_calls.gm" %}
 {% include "nodes/gen/emit_required_imports.gm" %}
 {% include "nodes/gen/decorate_nodes.gm" %}
+{% include "nodes/gen/process_annotations.gm" %}
 // add unified here
 
 
@@ -312,6 +313,7 @@ edge class FcnArgList extends Subtree, CstyleExprTarget, CfgSimpleInner;
 edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree, CfgSimpleInner;
 edge class ArrValueList extends Subtree;
+edge class AnnotationArgsList extends Subtree;
 
 // Sibling edges indicate argument parameters
 edge class AnnotationArgsNext extends OldChainNext;

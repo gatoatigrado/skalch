@@ -1,0 +1,24 @@
+/// grab the parent of a node
+pattern TreeReplacer(y:ScAstNode) replace (next:Node) {
+    x:Node -e:Replaceable-> y;
+
+    replace {
+        y; x -:typeof(e)-> next;
+    }
+}
+
+rule cleanupTmpTypedBlock {
+    // parent:Node -e:Replaceable->
+    x:Block -:BlockStmtList-> {{ macros.finiteList(["y:ValDef", "z:VarRef"]) }}
+    y -:ValDefSymbol-> sym:TypedTmpSymbol;
+    z -:VarRefSymbol-> sym;
+    y -:ValDefRhs-> w:ScAstNode;
+    r:TreeReplacer(x);
+    optional {
+        sym -:SymbolAnnotation-> annot:Annotation;
+        modify { w -:TypeAnnotation-> annot; }
+    }
+    // modify { }
+    // modify { delete(e); parent -:typeof(e)-> w; }
+    modify { r(w); }
+}

@@ -1,0 +1,13 @@
+Unable to execute xgrs: System.InvalidCastException: Cannot cast from source type to destination type.
+  at de.unika.ipd.grGen.Action_AllRules_0.Rule_cleanupTmpTypedBlock.ModifyNoReuse (de.unika.ipd.grGen.lgsp.LGSPGraph graph, IMatch _curMatch) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.Action_AllRules_0.Action_cleanupTmpTypedBlock.Modify (IGraph graph, IMatch_cleanupTmpTypedBlock match) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.Action_AllRules_0.Action_cleanupTmpTypedBlock.Modify (IGraph graph, IMatch match) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.libGr.BaseGraph.Replace (IMatches matches, Int32 which) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.libGr.BaseGraph.ApplyRewrite (de.unika.ipd.grGen.libGr.RuleInvocationParameterBindings paramBindings, Int32 which, Int32 localMaxMatches, Boolean special, Boolean test) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.libGr.SequenceRule.ApplyImpl (IGraph graph) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.libGr.Sequence.Apply (IGraph graph) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.libGr.BaseGraph.ApplyGraphRewriteSequence (de.unika.ipd.grGen.libGr.Sequence sequence) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.libGr.NamedGraph.ApplyGraphRewriteSequence (de.unika.ipd.grGen.libGr.Sequence sequence) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.grShell.GrShellImpl.ApplyRewriteSequence (de.unika.ipd.grGen.libGr.Sequence seq, Boolean debug) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.grShell.GrShellImpl.DebugRewriteSequence (de.unika.ipd.grGen.libGr.Sequence seq) [0x00000] in <filename unknown>:0 
+  at de.unika.ipd.grGen.grShell.GrShell.DebugCommand () [0x00000] in <filename unknown>:0 

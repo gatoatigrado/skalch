@@ -1,39 +1,28 @@
 Name: skalch
-Project: Scala dynamic sketching
+Project: Scala Sketching Projects
 Institution: UC Berkeley ParLab
-Authors: Nicholas Tung, Casey Rodarmor
+Authors: Nicholas Tung, Shaon Barman, Casey Rodarmor, Ras Bodik
 
-=== Building ===
+Please see relevant documents in the "doc" folder (rendered into .pdf for every release),
+    * software_documentation.lyx -- Software dependencies, commands to build the project
+    * tutorials.lyx -- A tutorial on sketching in Scala
+    * developing.lyx -- A guide to developing this compiler; it may contain relevant info for those only interested in graph transformations
 
-Building is now much cleaner, thanks to Maven! You do need to install (not just compile) the plugin so Maven can find the jar file. Note that installations are per-user, so you don't have to be root.
-
-    >>> mvn install
-
-=== Running ===
-
-Aliases to run tests are contained in the Makefile; view them with
-
-    >>> make help
-
-=== Editing ===
-
-BEFORE YOU EDIT: Please use Eclipse to edit all Java files. The Eclipse formatter should control _all_ formatting in _all_ java files. To get it set up,
-
-    * Import project files with "Import / Existing projects into workspace".
-        * Select the "skalch-base" subdirectory.
-    * Right-click the project, go to properties
-    * In "Java Code Style", "Enable project specific settings" should be checked.
-    * In "Java Editor / Save Actions", "Enable project specific settings" should be checked.
-
-=== Contacts ===
-
-Please send any contributions to the SKETCH team.
-    
-    Primary contact for minor bugs / help:
-        Nicholas Tung <ntung@ntung.com>
-    
-    Other contacts:
-        Casey Rodarmor <casey@rodarmor.com>
-        Armando Solar-Lezama <asolar@csail.mit.edu>
+For most questions, ask Nicholas. Below is a short list of contacts / credits. Note that some work may not be in the latest branches, to avoid compilation issues (as the APIs change).
+    Research Advisor:
         Rastislav Bodik <bodik@cs.berkeley.edu>
-        Joel Galenson <joel@cs.berkeley.edu>
+
+    Scala to SKETCH translation:
+        Nicholas Tung <ntung@ntung.com>
+        Thanks to Edgar Jakumeit and the GrGen team for their great tool, and occasional help.
+
+    Queueing work:
+        Shaon Barman <shaon.barman@gmail.com>
+
+    Dynamic work:
+        Nicholas Tung
+        Casey Rodarmor <casey@rodarmor.com> (also coauthor of DWS work with Ras)
+
+    Other contacts:
+        Armando Solar-Lezama <asolar@csail.mit.edu> (maintainer of SKETCH; see http://bitbucket.org/gatoatigrado/sketch-frontend)
+        Joel Galenson <joel@cs.berkeley.edu> (author of a different Scala backtracking backend)

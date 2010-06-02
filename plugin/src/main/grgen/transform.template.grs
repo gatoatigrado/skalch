@@ -66,6 +66,7 @@ include "stages-scripts/gen/nice_lists.grs"
 
 # new passes
 # select actions lgsp-AllRules_1Actions.dll
+include "stages-scripts/gen/process_annotations.grs"
 include "stages-scripts/gen/decorate_calls.grs"
 include "stages-scripts/gen/array_lowering.grs"
 include "stages-scripts/gen/emit_required_imports.grs"
@@ -86,9 +87,9 @@ include "stages-scripts/gen/cstyle_assns.grs" # final part of cstyle lowering
 
 # === final code ===
 {{ getSelCode() if getSelCode else "" }}
-{#{% if (not ycomp) or getSelRunFinal %}#}
+{% if (not ycomp) or getSelRunFinal %}
     include "stages-scripts/gen/sketch_final_minor_cleanup.grs"
-{#{% endif %}#}
+{% endif %}
 
 # === usually used if ycomp is not used ===
 {% if output_file %}

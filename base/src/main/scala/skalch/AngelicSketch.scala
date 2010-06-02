@@ -35,10 +35,4 @@ abstract class AngelicSketch {
     class Range[T](values : Seq[T]) extends StaticAnnotation
     class ArrayLen[T](len : Int) extends StaticAnnotation
     class generator extends StaticAnnotation
-
-    def rangeTypedExpr[T](x : T, values : Seq[T]) = x
-
-    class BitArray {
-        
-    }
 }

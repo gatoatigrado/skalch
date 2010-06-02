@@ -35,4 +35,5 @@ using ScalaAstModel;
 // TODO -- move back to AllRules_1.grg
 #include "rules/gen/array_lowering.grg"
 #include "rules/gen/emit_required_imports.grg"
+#include "rules/gen/process_annotations.grg"
 // add unified here

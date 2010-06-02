@@ -1,0 +1,143 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+update transform.template.grs -- add include, when rule should be executed
+There are plenty of examples.
+
+{% endblock %}
+{% block gm %}
+edge class TypeAnnotation;
+
+node class PrimitiveIntRange extends ScAstNode;
+edge class PrimitiveIntRangeFrom extends Subtree;
+edge class PrimitiveIntRangeTo extends Subtree;
+
+edge class IsUntilValue;
+
+node class AnnotFcnDef extends MemberFcn;
+edge class AnnotFcnDefConstructType;
+
+edge class CreateAnnotFcn;
+{% endblock %}
+
+
+
+{% block grs %}
+echo "[REWRITE PRODUCTION] Annotation processing"
+xgrs cleanupTmpTypedBlock*
+xgrs deleteAnnotationLink
+xgrs deleteDangling*
+
+xgrs replacePrimitiveRanges* & decrementUntilValues*
+xgrs markAnnotsWithNewSym*
+xgrs deleteDangling*
+
+# TODO -- maybe make this less strict
+debug xgrs existsDanglingAnnotation
+validate exitonfailure xgrs ! existsDanglingAnnotation
+{% endblock %}
+
+
+
+{% block grg %}
+rule cleanupTmpTypedBlock {
+    // NOTE -- for some reason, TreeReplacer doesn't work here
+    // maybe it's a bug that will be fixed later.
+    parent:Node -e:Replaceable->
+        x:Block -:BlockStmtList-> {{ macros.finiteList(["y:ValDef", "z:VarRef"]) }}
+    y -:ValDefSymbol-> sym:TypedTmpSymbol;
+    z -:VarRefSymbol-> sym;
+    y -:ValDefRhs-> w:ScAstNode;
+    optional {
+        sym -:SymbolAnnotation-> annot:Annotation;
+        modify { w -:TypeAnnotation-> annot; }
+    }
+    modify { delete(e); parent -:typeof(e)-> w; }
+}
+
+rule deleteAnnotationLink {
+    :Symbol -e:Edge-> :Annotation;
+    modify { delete(e); }
+}
+
+test existsDanglingAnnotation {
+    x:Annotation;
+    negative { x; . --> x; }
+}
+
+/** NOTE -- this takes time!
+ * TODO -- pass hints to the compiler as to what nodes to look for first */
+rule replacePrimitiveRanges {
+    x:FcnCall -:FcnCallTypeSymbol-> richint:ScalaSymbol;
+    x -:FcnCallSymbol-> tomethod:ScalaSymbol;
+    x -:FcnArgList -> {{ macros.finiteList(["view:ApplyImplicitView", "z:IntConstant"]) }}
+    view -:FcnArgList-> {{ macros.finiteList([":ScAstNode", "y:IntConstant"], lstname="lst2") }}
+
+    if { richint.symbolName.indexOf("RichInt") == 0; }
+
+    alternative {
+        To {
+            if { tomethod.symbolName == "to"; }
+            modify { }
+        }
+        From {
+            if { tomethod.symbolName == "until"; }
+            modify { z -:IsUntilValue-> z; }
+        }
+    }
+
+    replace { next:PrimitiveIntRange<x> -:PrimitiveIntRangeFrom-> y;
+        next -:PrimitiveIntRangeTo-> z; }
+}
+
+rule decrementUntilValues {
+    x:IntConstant;
+    x -e:IsUntilValue-> x;
+    modify {
+        delete(e);
+        eval { x.value = x.value - 1;
+            x.scalaSource = "until(" + x.scalaSource + ")"; }
+    }
+}
+
+rule markAnnotsWithNewSym {
+    x:SketchConstructCall -:TypeAnnotation-> y:Annotation;
+    negative {
+        z:SketchConstructCall -:CreateAnnotFcn-> y;
+        hom(x, z);
+        if { typeof(x) == typeof(z); }
+    }
+    modify { x -:CreateAnnotFcn-> y; }
+}
+
+{#
+rule createAnnotationFunction {
+    constr_call:SketchConstructCall -:CreateAnnotFcn-> annot:Annotation;
+    modify {
+        x:AnnotFcnDef
+    }
+}
+#}
+
+{#
+// view other files if you want example rules that do something.
+// rule myRule {
+//      x:MyNode -e:MyEdge-> z:MyNode2;
+//      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
+//      modify {
+//          x -:MyEdge-> w:MyNode; delete(e);
+//          eval {
+//              {{ macros.copySrcPosition("x", ["w"]) }}
+//          }
+//      }
+// }
+#}
+{% endblock %}

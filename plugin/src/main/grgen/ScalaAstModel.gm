@@ -261,6 +261,25 @@ edge class CalledMethod extends TmpEdge;
 
 
 
+node class TypedTmpSymbol extends Symbol;
+
+
+
+
+
+
+edge class TypeAnnotation;
+
+node class PrimitiveIntRange extends ScAstNode;
+edge class PrimitiveIntRangeFrom extends Subtree;
+edge class PrimitiveIntRangeTo extends Subtree;
+
+edge class IsUntilValue;
+
+node class AnnotFcnDef extends MemberFcn;
+edge class AnnotFcnDefConstructType;
+
+edge class CreateAnnotFcn;
 
 
 
@@ -478,6 +497,7 @@ edge class FcnArgList extends Subtree, CstyleExprTarget, CfgSimpleInner;
 edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree, CfgSimpleInner;
 edge class ArrValueList extends Subtree;
+edge class AnnotationArgsList extends Subtree;
 
 // Sibling edges indicate argument parameters
 edge class AnnotationArgsNext extends OldChainNext;

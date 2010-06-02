@@ -11,6 +11,7 @@ Add custom types to certain nodes
 
 {% endblock %}
 {% block gm %}
+node class TypedTmpSymbol extends Symbol;
 {% endblock %}
 
 
@@ -81,7 +82,7 @@ rule replaceAngelicSketchSymbol {
 }
 
 {% set retypeList = [] %}
-{% macro retype_syms(lst, totype, skbase=False) %}
+{% macro retype_syms(lst, totype, skbase=False, rel=False) %}
 {% set fcnName = "symRetype" + ("Sketch" if skbase else "") + totype %}
 {% do retypeList.append(fcnName) %}
 rule {{ fcnName }} {
@@ -91,7 +92,7 @@ rule {{ fcnName }} {
 {% endif %}
     if {
 {% for typ in lst %}
-        x.{{ "fullSymbol" if not skbase else "symbol" }}Name == "{{ typ }}"{{ " || " if not loop.last else ";" }}
+        x.{{ "fullSymbol" if not (skbase or rel) else "symbol" }}Name == "{{ typ }}"{{ " || " if not loop.last else ";" }}
 {% endfor %}
     }
     modify { next:{{ totype }}<x>; }
@@ -105,6 +106,7 @@ rule {{ fcnName }} {
 {{ retype_syms(["scala.Int.unbox", "scala.Boolean.unbox",
    "scala.Float.unbox", "scala.Double.unbox"], "ScalaUnboxSymbol") }}
 {{ retype_syms(["scala.Unit"], "ScalaUnitTypeSymbol") }}
+{{ retype_syms(["__skalch_internal_typed_tmp"], "TypedTmpSymbol", rel=True) }}
 
 rule runAllSymbolRetypes {
     modify {

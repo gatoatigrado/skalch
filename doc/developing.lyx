@@ -197,7 +197,7 @@ make py-fsc-compile
 \begin_layout Standard
 Typical GrGen development consists of running 
 \series bold
-make ycomp
+make -j ycomp
 \series default
  a lot--this runs GrGen's visualization library, 
 \series bold
@@ -206,13 +206,17 @@ ycomp
 .
  This displays the compiler graph before the final stages, since those stages
  remove useful information you want when transforming the tree.
- If you do want to view other stages, commands are,
+ If you do want to view other stages, first 
+\series bold
+source ./env
+\series default
+, then run
 \end_layout
 
 \begin_layout Itemize
 
 \series bold
-make ycomp-unprocessed-scala
+make -j stagetf-compile; tf-test --debugafter initial_import 
 \series default
 
 \begin_inset Newline newline
@@ -224,19 +228,7 @@ To visualize the initial Scala AST, as exported by the plugin
 \begin_layout Itemize
 
 \series bold
-make ycomp-pre-library
-\series default
-
-\begin_inset Newline newline
-\end_inset
-
-To visualize the AST before libraries have been imported.
-\end_layout
-
-\begin_layout Itemize
-
-\series bold
-make ycomp-final-sketch
+make -j stagetf-compile; tf-test --debugafter SketchFinalMinorCleanup
 \series default
 
 \begin_inset Newline newline

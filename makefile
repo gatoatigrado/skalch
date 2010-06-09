@@ -1,10 +1,17 @@
 # @code standards ignore file
 
-SHELL=/bin/bash
+SHELL=/usr/bin/zsh
+grgenfiles=$(shell source ./env && echo $$grgenfiles)
+libgrg=$(shell source ./env && echo $$libgrg)
+stagetf_sources=$(shell source ./env && echo $$stagetf_sources)
 
 help:
 	@echo "NOTE - this makefile is mostly unix aliases. Use 'mvn install' to build."
-	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -r "s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
+	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -u -r "/ #HIDDEN/d; s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
+
+help-all: # show uncommon commands as well
+	@echo "NOTE - this makefile is mostly unix aliases. Use 'mvn install' to build."
+	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -u -r "s/ #HIDDEN//g; s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
 	zsh -c "setopt -G; rm -f **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
@@ -13,10 +20,17 @@ clean:
 clean-gxl:
 	zsh -c "setopt -G; rm -rf base/target/test-classes base/**/*.gxl"
 
+show-env-vars:
+	@echo "\$$grgenfiles from $(origin grgenfiles), value '$(grgenfiles)'"
+	@echo "\$$libgrg from $(origin libgrg), value '$(libgrg)'"
+	@echo "\$$stagetf_sources from $(origin stagetf_sources), value '$(stagetf_sources)'"
+
 test: killall
 	echo "TODO -- run mvn test when it works again."
 	(cd plugin/src/test/grgen; make test)
 	@echo "TEST SUCCEEDED"
+
+
 
 ### open documentation in openoffice
 
@@ -28,6 +42,8 @@ tutorial:
 
 devdoc:
 	lyx doc/developing.lyx
+
+
 
 ### utilities
 
@@ -50,6 +66,8 @@ compile: install-plugin
 py-fsc-compile:
 	python scripts/compile_all.py
 
+
+
 ### Compile various tests using the plugin (to test the plugin)
 
 grgen-devel:
@@ -63,23 +81,36 @@ killall:
 
 gen:
 	base/src/codegen/generate_files.py plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-	cd plugin/src/main/grgen; grshell -N generate_typegraph.grs
+	@make --quiet plugin/src/main/resources/skalch/plugins/type_graph.gxl
 	base/src/codegen/generate_files.py --no_rebuild
+
+plugin/src/main/resources/skalch/plugins/type_graph.gxl: plugin/src/main/grgen/ScalaAstModel.gm
+	cd plugin/src/main/grgen; grshell -N generate_typegraph.grs
 
 sugared_plugin_gxl: install-plugin
 	@make plugin_dev testfile=angelic/simple/SugaredTest.scala
+
+
 
 ### grgen commands
 
 new-unified-module:
 	cd plugin/src/main/grgen; zsh "new_unified.zsh"
 
-grgen: gen killall
-	plugin/src/main/grgen/sugared_test.sh; make killall
+grgen: gen killall stagetf-compile
+	source ./env; mono "$$grgenfiles"/transformer.exe --goal sketch
 
-ycomp: gen killall
-	
-	plugin/src/main/grgen/sugared_test.sh --ycomp --runonly; make killall
+stagetf-compile: $(libgrg)/fsharp_stage_transformer.dll $(grgenfiles)/transformer.exe # compile the stage transformer (computes changes in transformer.fs and its library)
+
+$(grgenfiles)/transformer.exe: $(grgenfiles)/transformer.fs
+	fsharpc --resident --optimize+ -r:"$$libgrg"/fsharp_stage_transformer.dll -r:"$$libgrg"/GrIO.dll -r:"$$libgrg"/GrShell.dll -r:"$$libgrg"/lgspBackend.dll -r:"$$libgrg"/libGr.dll --out:"$$grgenfiles"/transformer.exe "$$grgenfiles"/transformer.fs
+
+$(libgrg)/fsharp_stage_transformer.dll: $(stagetf_sources)
+	@echo -e "\n\nNOTE -- compiling stage transformer library..."
+	cd $(libgrg)/../FSharpBindings; ./build.zsh
+
+ycomp: gen killall stagetf-compile
+	source ./env; tf-test --debugafter CstyleStmts
 
 ycomp-intermediate: killall
 	python plugin/src/main/grgen/transform_sketch.py --ycomp --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"
@@ -92,16 +123,6 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 
 java_gxlimport: gen
 	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl")
-
-
-
-### Sketch tests; use EXEC_ARGS=args to pass arguments
-
-angelic_sketch: plugin_angelic_sketch # new angelic sketch base
-	cd base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=angelic.simple.SugaredTest" -Dexec.args="$(EXEC_ARGS)"
-
-run_test: plugin_dev # run TEST_CLASS=<canonical java class name>	
-	cd base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
 
 

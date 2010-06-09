@@ -1,7 +1,8 @@
-#Fri Feb 26 19:33:27 PST 2010
+#Thu Jun 03 11:48:35 PDT 2010
 eclipse.preferences.version=1
 encoding//base/src/codegen/gxltosketch/get_typegraph.py=utf-8
 encoding//base/src/codegen/gxltosketch/gxltosketch.py=utf-8
+encoding//plugin/src/main/grgen/build_templates.py=utf-8
 encoding//plugin/src/main/grgen/transform_sketch.py=utf-8
 encoding//scripts/compile_all.py=utf-8
 encoding//scripts/rulegen/rulegen.py=utf-8

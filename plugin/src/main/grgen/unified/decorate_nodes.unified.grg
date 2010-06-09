@@ -175,5 +175,4 @@ rule setSketchMainFcn {
     modify { next:SketchMainFcnDef<x>; }
 }
 
-test testFail { negative { } }
 {% endblock %}

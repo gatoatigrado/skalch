@@ -98,7 +98,7 @@ new-unified-module:
 	cd plugin/src/main/grgen; zsh "new_unified.zsh"
 
 grgen: gen killall stagetf-compile
-	source ./env; mono "$$grgenfiles"/transformer.exe --goal sketch
+	source ./env; tf-test
 
 stagetf-compile: $(libgrg)/fsharp_stage_transformer.dll $(grgenfiles)/transformer.exe # compile the stage transformer (computes changes in transformer.fs and its library)
 
@@ -110,7 +110,7 @@ $(libgrg)/fsharp_stage_transformer.dll: $(stagetf_sources)
 	cd $(libgrg)/../FSharpBindings; ./build.zsh
 
 ycomp: gen killall stagetf-compile
-	source ./env; tf-test --debugafter CstyleStmts
+	source ./env; tf-test --debugafter CstyleAssns
 
 ycomp-intermediate: killall
 	python plugin/src/main/grgen/transform_sketch.py --ycomp --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"

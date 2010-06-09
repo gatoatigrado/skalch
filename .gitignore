@@ -14,3 +14,4 @@ plugin/src/main/grgen/ScalaAstModel__gxl.gm
 plugin/src/main/grgen/dependencies.txt
 *~
 *.lyx.emergency
+*.exe

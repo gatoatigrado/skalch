@@ -121,6 +121,13 @@ let SketchFinalMinorCleanupRules = [Xgrs "removeEmptyTrees";
 
 
 (* rewrite stages *)
+(*let SetSymbolLabels = {
+    stageDefault with
+        name = "SetSymbolLabels";
+        description = "set a label field for ycomp in the symbols";
+        priority = -2.f;
+        stage = RewriteStage [ Xgrs "[setSymbolLabels]" ] }*)
+
 let WarnUnsupported = {
     stageDefault with
         name = "WarnUnsupported";
@@ -216,10 +223,18 @@ let all_stages = [ WarnUnsupported; DeleteMarkedIgnore; DecorateNodes;
     ArrayLowering; EmitRequiredImports; LossyReplacements; NewInitializerFcnStubs;
     CstyleStmts; CstyleAssns; SketchFinalMinorCleanup]
 
+(* metastages *)
+let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
+let no_oo_meta = [ ConvertThis ]
+let optimize_meta = [ ArrayLowering ]
+let sketch_meta = [ ProcessAnnotations; LossyReplacements; SketchFinalMinorCleanup ]
+let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleStmts; CstyleAssns ]
+let library_meta = [ EmitRequiredImports ]
+
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
 let deps = [
     WarnUnsupported <?? DecorateNodes;
-    DeleteMarkedIgnore <+? DecorateNodes;
+    DeleteMarkedIgnore <?? DecorateNodes;
     DecorateNodes <+? ConvertThis;
     DecorateNodes <+? BlockifyFcndefs;
     BlockifyFcndefs <?? NiceLists;
@@ -236,12 +251,9 @@ let deps = [
     ]
 
 (* Goals -- sets of stages *)
-let sketch = { name = "sketch"; stages=[ WarnUnsupported;
-    DeleteMarkedIgnore; DecorateNodes; ConvertThis;
-    BlockifyFcndefs; NiceLists; ProcessAnnotations;
-    ArrayLowering; EmitRequiredImports; LossyReplacements;
-    NewInitializerFcnStubs; CstyleStmts; CstyleAssns;
-    SketchFinalMinorCleanup ] }
+let sketch = { name = "sketch";
+    stages=innocuous_meta @ no_oo_meta @ optimize_meta @
+        sketch_meta @ cstyle_meta @ library_meta }
 
 let all_goals = [sketch]
 
@@ -280,12 +292,19 @@ let main(args:string[]) =
         "CfgAbstractNode", "LightGreen";
         "HighlightValDef", "Black";
         "PrintNode", "DarkBlue";
-        "DebugBadNode", "Red"
+        "DebugBadNode", "Red";
+        "List", "Grey";
+        "ListNode", "Grey";
+        "ListFirstNode", "LightGrey";
+        "ListLastNode", "LightGrey"
         ]
     initialgraph.SetEdgeColors [
         "CfgAbstractNext", "DarkGreen"
         "AbstractBlockify", "DarkRed"
         ]
+    initialgraph.SetNodeLabel ""  "ListAbstractNode"
+    initialgraph.SetNodeShape "circle" "ListAbstractNode"
+    List.iter (initialgraph.SetEdgeLabel "") [ "ListElt"; "ListNext"; "ListValue" ]
 
     (* Each step of this loop processes one stage *)
     let rec mainLoop stages deps results graph =

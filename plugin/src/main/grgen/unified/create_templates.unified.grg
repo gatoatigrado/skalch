@@ -1,0 +1,80 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+author: gatoatigrado (nicholas tung) [ntung at ntung]
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain a
+copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+
+DESCRIPTION OF FILE HERE
+
+remember to update transformer.fs
+
+{% endblock %}
+{% block gm %}
+edge class CreateTemplate;
+
+// FcnDef <---> TemplateToExport
+// prevents deletion of node
+node class TemplateToExport;
+{% endblock %}
+
+
+{% block grg %}
+rule markTemplates {
+    clsdef:ClassDef -:ClassDefSymbol-> x:Symbol;
+    independent {
+        x -:ParentTypeSymbol-> y:Symbol --> :IgnoreClassAnnotation;
+        if { y.symbolName == "RewriteTemplates$Template"; }
+    }
+    modify {
+        clsdef -:CreateTemplate-> clsdef;
+        :TemplateClassSymbol<x>;
+    }
+}
+
+
+
+/// readability rewrite
+rule deleteNonTemplates {
+    clsdef:ClassDef;
+    negative { clsdef -:CreateTemplate-> clsdef; }
+    modify { delete(clsdef); }
+}
+
+
+
+/// convert certain calls into template parameters
+rule convertFieldsToTmplParams {
+    x:FieldAccess -e0:FieldAccessSymbol-> sym:Symbol
+        -:SymbolOwner-> y:TemplateClassSymbol;
+    x -e1:FieldAccessObject-> z:ScAstNode;
+    x -e2:FieldAccessTypeSymbol-> w:Node;
+    modify {
+        delete(e0, e1, e2);
+        tmpl_param:TemplateParameter<x>;
+        eval {
+            tmpl_param.template = y.simpleName;
+            tmpl_param.name = sym.symbolName;
+        }
+    }
+}
+
+/// readability rewrite
+rule deleteUnnecessaryTemplateFcns {
+    x:FcnDef -:FcnDefSymbol-> z:Symbol;
+    if { z.symbolName != "fcn"; }
+    modify { delete(x); }
+}
+
+rule printAndRetypeTemplates {
+    x:FcnDef -:FcnDefSymbol-> . -:SymbolOwner-> z:Symbol;
+    modify {
+        next:TemplateFcn<x>;
+        eval { next.template = z.simpleName; }
+        emit("Template " + z.simpleName + "\n");
+    }
+}
+
+{% endblock %}

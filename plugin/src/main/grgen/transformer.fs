@@ -41,10 +41,19 @@ let ConvertThisRules = [Xgrs "setEnclosingFunctionInitial+";
     Xgrs "removeEnclosingLinks* & deleteDangling*";
     Xgrs "setSketchMainFcn*"]
 
-(*let CleanupAccessorsRules = [Xgrs "[markGetterFcns]";
-    Xgrs "markGetterCalls*";
-    Xgrs "[setGetterFcnField]";
-    Xgrs "deleteUnusedFcnDefs* & deleteDangling*"]*)
+let RedirectAccessorsToFieldsRules = [
+    Xgrs "[markGetterCalls]";
+    Xgrs "[setGetterFcnFieldEdges]";
+    Xgrs "replaceGetterFcnCalls*";
+    Xgrs "[deleteGetterEdges]";
+    Xgrs "deleteDangling*"]
+
+let CleanSketchConstructsRules = [Xgrs "replaceAssertCalls* & deleteAssertElidableAnnot*";
+    Xgrs "(valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*";
+    Xgrs "replaceConstructCalls*";
+    Xgrs "unboxConstructCalls*";
+    Xgrs "simplifyClassConstruction*";
+    Xgrs "deleteDangling*"]
 
 let BlockifyFcndefsRules = [Xgrs "removeFcnTarget*";
     Xgrs "(deleteDangling+ | removeNopTypeCast)*";
@@ -59,10 +68,13 @@ let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listCompleteLast*";
     Xgrs "listCompleteBlockLast*"]
 
-let ProcessAnnotationsRules = [Xgrs "cleanupTmpTypedBlock*";
+let CleanTypedTmpBlockRules = [Xgrs "cleanupTmpTypedBlock*";
     Xgrs "deleteAnnotationLink";
-    Xgrs "deleteDangling*";
-    Xgrs "replacePrimitiveRanges* & decrementUntilValues*";
+    Xgrs "deleteDangling*"] 
+
+let ProcessAnnotationsRules =
+    CleanTypedTmpBlockRules @
+    [Xgrs "replacePrimitiveRanges* & decrementUntilValues*";
     Xgrs "markAnnotsWithNewSym*";
     Xgrs "deleteDangling*";
     Validate "! existsDanglingAnnotation"]
@@ -118,6 +130,13 @@ let SketchFinalMinorCleanupRules = [Xgrs "removeEmptyTrees";
     Xgrs "setFcnDefBaseType*";
     Xgrs "addSkExprStmts*"]
 
+let CreateTemplatesRules =
+    [ Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*";
+    Xgrs "convertFieldsToTmplParams*";
+    Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*";
+    Xgrs "[printAndRetypeTemplates]"
+    ] @
+    CleanTypedTmpBlockRules
 
 
 (* rewrite stages *)
@@ -152,11 +171,17 @@ let ConvertThis = {
         description = "delete bridge functions, convert $this to a parameter";
         stage = RewriteStage ConvertThisRules }
 
-(*let CleanupAccessors = {
+let RedirectAccessorsToFields = {
     stageDefault with
-        name = "CleanupAccessors";
+        name = "RedirectAccessorsToFields";
         description = "";
-        stage = RewriteStage CleanupAccessorsRules }*)
+        stage = RewriteStage RedirectAccessorsToFieldsRules }
+
+let CleanSketchConstructs = {
+    stageDefault with
+        name = "CleanSketchConstructs";
+        description = "replace assert calls, clean calls to !! / ??";
+        stage = RewriteStage CleanSketchConstructsRules }
 
 let BlockifyFcndefs = {
     stageDefault with
@@ -218,6 +243,12 @@ let SketchFinalMinorCleanup = {
         description = "Final minor cleanup (information loss stage)";
         stage = RewriteStage SketchFinalMinorCleanupRules }
 
+let CreateTemplates = {
+    stageDefault with
+        name = "CreateTemplates";
+        description = "transform RewriteTemplates.Template into useable templates"
+        stage = RewriteStage CreateTemplatesRules }
+
 let all_stages = [ WarnUnsupported; DeleteMarkedIgnore; DecorateNodes;
     ConvertThis; BlockifyFcndefs; NiceLists; ProcessAnnotations;
     ArrayLowering; EmitRequiredImports; LossyReplacements; NewInitializerFcnStubs;
@@ -230,17 +261,29 @@ let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements; SketchFinalMinorCleanup ]
 let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleStmts; CstyleAssns ]
 let library_meta = [ EmitRequiredImports ]
+let create_templates_meta = [ NiceLists; CreateTemplates;
+    CleanSketchConstructs; RedirectAccessorsToFields ]
 
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
 let deps = [
     WarnUnsupported <?? DecorateNodes;
     DeleteMarkedIgnore <?? DecorateNodes;
+    DeleteMarkedIgnore <?? CleanSketchConstructs;
+    DecorateNodes <+? RedirectAccessorsToFields;
     DecorateNodes <+? ConvertThis;
     DecorateNodes <+? BlockifyFcndefs;
+    DecorateNodes <+? CreateTemplates;
+    DecorateNodes <+? CleanSketchConstructs;
+    RedirectAccessorsToFields <?? BlockifyFcndefs;
+    RedirectAccessorsToFields <?? NiceLists;
+    RedirectAccessorsToFields <?? ConvertThis;
     BlockifyFcndefs <?? NiceLists;
+    BlockifyFcndefs <+? CreateTemplates;
+    CleanSketchConstructs <?? NiceLists;
     NiceLists <+? ProcessAnnotations;
     NiceLists <+? ArrayLowering;
     NiceLists <+? CstyleStmts;
+    NiceLists <+? CreateTemplates;
     ProcessAnnotations <?? ArrayLowering;
     ArrayLowering <?? EmitRequiredImports;
     EmitRequiredImports <?? LossyReplacements;
@@ -251,11 +294,13 @@ let deps = [
     ]
 
 (* Goals -- sets of stages *)
+let create_templates = { name = "create_templates";
+    stages=innocuous_meta @ create_templates_meta }
+let test = { name = "test"; stages=innocuous_meta @ [NiceLists] }
 let sketch = { name = "sketch";
     stages=innocuous_meta @ no_oo_meta @ optimize_meta @
         sketch_meta @ cstyle_meta @ library_meta }
-
-let all_goals = [sketch]
+let all_goals = [create_templates; sketch; test]
 
 (* Functions for command line parsing. Exposed so you can add aliases, etc. *)
 let goalMap, stageMap = (defaultGoalMap all_goals, defaultStageMap all_stages)
@@ -307,8 +352,9 @@ let main(args:string[]) =
     List.iter (initialgraph.SetEdgeLabel "") [ "ListElt"; "ListNext"; "ListValue" ]
 
     (* Each step of this loop processes one stage *)
-    let rec mainLoop stages deps results graph =
+    let rec mainLoop (stages:StageSet) deps results graph =
         let nextStages = getNextStages stages deps
+        printfn "number of stages remaining: %d" (stages.Count)
         match ((Set.isEmpty stages), nextStages) with
         | (true, []) -> ()
 
@@ -320,8 +366,10 @@ let main(args:string[]) =
         (* Process a stage *)
         | (_, hd :: tail) ->
             let results, graph = processStage hd results graph
+            let nextset = (Set.remove hd stages)
+            (stages.Count - nextset.Count) = 1 |> assert1
             mainLoop (Set.remove hd stages) deps results graph
 
-    mainLoop (getAllStages stages deps) deps [] initialgraph
+    mainLoop stages deps [] initialgraph
 
     0

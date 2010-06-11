@@ -6,6 +6,7 @@ package skalch
 */
 
 class RewriteTemplates extends AngelicSketch {
+    @SkalchIgnoreClass
     abstract class Template(name : String)
 
     object IntRangeHole extends Template("int range hole") {

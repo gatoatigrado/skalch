@@ -9,8 +9,7 @@ copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
 DESCRIPTION OF FILE HERE
 
-update transform.template.grs -- add include, when rule should be executed
-There are plenty of examples.
+remember to update transformer.fs
 
 {% endblock %}
 {% block gm %}

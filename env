@@ -9,6 +9,7 @@ function getpath() {
 export skalchdir="$(dirname "$(getpath "$0")")"
 export grgenfiles="$skalchdir"/plugin/src/main/grgen
 export sugaredtest="$skalchdir"/base/src/test/scala/angelic/simple/SugaredTest.scala.ast.gxl
+export rewritetemplates="$skalchdir"/base/src/main/scala/skalch/RewriteTemplates.scala.ast.gxl
 export libgrg="$(getpath "$skalchdir"/../grgen/engine-net-2/bin)"
 export stagetf="$(getpath "$skalchdir"/../grgen/engine-net-2/FSharpBindings)"
 stagetf_sources_array=($(for i in $(cat "$stagetf"/filelist); do echo "$stagetf"/"$i"; done))
@@ -17,9 +18,9 @@ export MONO_PATH="$libgrg"
 
 function g() { grep -E "$@" **/*(grg|grs) | sed '/\/gen\//d'; }
 function tf() {
-    mono "$grgenfiles"/transformer.exe --goal sketch "$@"
+    mono "$grgenfiles"/transformer.exe "$@"
 }
-function tf-test() { tf $sugaredtest "$@"; }
+function tf-test() { tf --goal sketch $sugaredtest "$@"; }
 
 if ! [ -d "$libgrg" ]; then
     echo "ERROR -- '$libgrg' doesn't exist! Please check out GrGen!" >&2; exit 1

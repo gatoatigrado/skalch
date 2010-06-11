@@ -34,7 +34,7 @@ rule retypeHoleCall(resolv_call:ScAstNode, sk_sym:SketchConstructSymbol) {
 }
 
 rule replaceConstructCalls {
-    resolv_call:ApplyImplicitView -:FcnArgChain->
+    resolv_call:ApplyImplicitView -:FcnArgLast->
         :FcnCall // getter call for !! or ??
         -:FcnCallSymbol-> sk_sym:SketchConstructSymbol;
     resolv_call -:ApplyImplicitViewSymbol-> resolv_sym:Symbol
@@ -49,11 +49,15 @@ rule replaceConstructCalls {
 // more artifacts from the Scala view
 rule unboxConstructCalls() {
     unbox_call:FcnCall -unboxedge:FcnCallSymbol-> unbox_sym:ScalaUnboxSymbol;
-    unbox_call -constredge:FcnArgChain-> constr_sym:SketchConstructCall;
-    unbox_call -targetedge:FcnTarget-> n:Node;
-    unbox_call -constrlastedge:FcnArgLast-> constr_sym;
+    unbox_call -constredge:FcnArgLast-> constr_sym:SketchConstructCall;
+    unbox_call -targetedge:FcnArgChain-> n:Node;
+    hom(constr_sym, n);
+    optional {
+        unbox_call -e:FcnTarget-> x:ScAstNode;
+        modify { delete(e); }
+    }
     modify {
-        delete(unboxedge, constredge, targetedge, constrlastedge);
+        delete(unboxedge, constredge, targetedge);
         boolean_call:typeof(constr_sym)<unbox_call>;
     }
 }

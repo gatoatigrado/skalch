@@ -89,6 +89,9 @@ abstract class NodeFactory {
     def getsym(sym : Symbol) : GrNode = sym_to_gr_map.get(sym) match {
         case None =>
             val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
+            val simplename = nme.originalName(sym.simpleName).toString().trim()
+            node.append_str_attr("simpleName",
+                simplename.substring(simplename.indexOf("$") + 1))
             node.append_str_attr("symbolName", sym.name.toString().trim())
             node.append_str_attr("fullSymbolName", sym.fullName.trim())
             sym_to_gr_map.put(sym, node)

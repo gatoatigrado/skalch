@@ -18,6 +18,7 @@ node class ScAstNode {
 
 // N.B. -- not an AST node
 node class Symbol {
+    simpleName : string;
     symbolName : string;
     fullSymbolName : string;
 }
@@ -53,6 +54,7 @@ node class IgnoreClassAnnotation extends Annotation;
 node class OuterSymbol extends Symbol;
 node class ScalaUnboxSymbol extends ScalaSymbol;
 node class ScalaUnitTypeSymbol extends ScalaSymbol;
+node class TemplateClassSymbol extends Symbol;
 // can be LHS target of a sketch construct assignment
 edge class CanBeConstructAssigned;
 
@@ -98,6 +100,7 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/emit_required_imports.gm" %}
 {% include "nodes/gen/decorate_nodes.gm" %}
 {% include "nodes/gen/process_annotations.gm" %}
+{% include "nodes/gen/create_templates.gm" %}
 // add unified here
 
 
@@ -116,6 +119,13 @@ edge class ListValue extends Replaceable;
 edge class ListTmpLast;
 abstract edge class TmpEdge; // for doing calculations
 abstract edge class CfgSimpleInner; // prologue connected to child's prolog, same with epil.
+
+
+
+// === template nodes ===
+node class TemplateParameter extends ScAstNode { template : string; name : string; }
+edge class TemplateArgument { template : string; name : string; }
+node class TemplateFcn extends FcnDef { template : string; }
 
 
 

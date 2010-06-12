@@ -102,8 +102,8 @@ grgen: gen killall stagetf-compile
 
 stagetf-compile: $(libgrg)/fsharp_stage_transformer.dll $(grgenfiles)/transformer.exe # compile the stage transformer (computes changes in transformer.fs and its library)
 
-$(grgenfiles)/transformer.exe: $(grgenfiles)/transformer.fs
-	fsharpc --resident --optimize+ -r:"$$libgrg"/fsharp_stage_transformer.dll -r:"$$libgrg"/GrIO.dll -r:"$$libgrg"/GrShell.dll -r:"$$libgrg"/lgspBackend.dll -r:"$$libgrg"/libGr.dll --out:"$$grgenfiles"/transformer.exe "$$grgenfiles"/transformer.fs
+$(grgenfiles)/transformer.exe: $(grgenfiles)/rewrite_rules.fs $(grgenfiles)/rewrite_stage_info.fs $(grgenfiles)/transformer.fs
+	fsharpc --optimize+ -r:"$$libgrg"/fsharp_stage_transformer.dll -r:"$$libgrg"/GrIO.dll -r:"$$libgrg"/GrShell.dll -r:"$$libgrg"/lgspBackend.dll -r:"$$libgrg"/libGr.dll --out:"$$grgenfiles"/transformer.exe "$$grgenfiles"/rewrite_rules.fs "$$grgenfiles"/rewrite_stage_info.fs "$$grgenfiles"/transformer.fs
 
 $(libgrg)/fsharp_stage_transformer.dll: $(stagetf_sources)
 	@echo -e "\n\nNOTE -- compiling stage transformer library..."

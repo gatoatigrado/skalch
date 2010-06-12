@@ -77,4 +77,23 @@ rule printAndRetypeTemplates {
     }
 }
 
+rule IsolateTemplate(var name : string) {
+    x:TemplateFcn;
+    if { x.template == name; }
+    modify {
+        x --> export_node:TemplateToExport;
+        export_node --> x;
+    }
+}
+
+rule deletePackageDefs {
+    x:PackageDef;
+    modify { delete(x); }
+}
+
+rule removeToExport {
+    x:TemplateToExport;
+    modify { delete(x); }
+}
+
 {% endblock %}

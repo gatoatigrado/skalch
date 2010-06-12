@@ -1,4 +1,4 @@
-module edu.berkeley.cs.grgenmods.fsharp.main
+module edu.berkeley.cs.skalch.transformer.main
 (*
     Copyright 2010 gatoatigrado (nicholas tung) [ntung at ntung]
 
@@ -20,239 +20,44 @@ open edu.berkeley.cs.grgenmods.fsharp.graph
 open edu.berkeley.cs.grgenmods.fsharp.cmdline
 open edu.berkeley.cs.grgenmods.fsharp.stages
 open edu.berkeley.cs.grgenmods.fsharp.dependencies
+open edu.berkeley.cs.skalch.transformer.rewrite_rules
+open edu.berkeley.cs.skalch.transformer.rewrite_stage_info
 
-(* rewrite rules *)
-let WarnUnsupportedRules = [Xgrs "unsupportedWarnAll"]
+module Config =
+    let templates = Path("~/.sketch/skalch-templates").create_dir
+    let libraries = Path("~/.sketch/skalch-libraries").create_dir
+    let template name = templates.subpath (sprintf "%s.gxl.gz" name)
+    let library name = libraries.subpath (sprintf "%s.gxl.gz" name)
 
-let DeleteMarkedIgnoreRules = [Xgrs "setIgnoreAnnotationType*";
-    Xgrs "deleteIgnoreAnnotated* & deleteDangling*"]
+let create_rewrite_stage name =
+    let rewrites = [ Xgrs (sprintf "[IsolateTemplate(\"%s\")]" name);
+        Xgrs "[deletePackageDefs] & deleteDangling*";
+        Xgrs "[removeToExport]" ]
+    { stageDefault with
+        name = (sprintf "ExportTemplateInner[%s]" name);
+        description = (sprintf "export the template %s" name);
+        stage = RewriteStage rewrites }
 
-let DecorateNodesRules = [Xgrs "replaceAngelicSketchSymbol*";
-    Xgrs "runAllSymbolRetypes";
-    Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]";
-    Xgrs "setScalaRoot & setScalaSubtypes*";
-    Xgrs "setSketchClasses*"]
+let export_templates (results:RewriteResult list) graph =
+    let exportfcn (results, (graph:Graph)) name =
+        let graphstack = graph.Impl.getGraphStack()
+        graphstack.PushClone()
+        let results, e_g = processStage (create_rewrite_stage name) results graph
+        printfn "exporting %s" (Config.template name).value
+        let r_exp = e_g.Export (Config.template name)
+        graphstack.Pop() |> ignore
+        (r_exp :: results, graph)
+    (getAllStageEmit results).Split '\n'
+    |> Array.map (fun x -> x.Split())
+    |> Array.filter (fun x -> (x.Length > 1) && "Template" = x.[0])
+    |> Array.map (fun x -> x.[1])
+    |> Array.fold exportfcn (results, graph)
 
-let ConvertThisRules = [Xgrs "setEnclosingFunctionInitial+";
-    Xgrs "deleteBridgeFunctions";
-    Validate "testNoBridgeFunctions";
-    Xgrs "[transformFcnWrapper]";
-    Validate "testNoThisNodes";
-    Xgrs "removeEnclosingLinks* & deleteDangling*";
-    Xgrs "setSketchMainFcn*"]
-
-let RedirectAccessorsToFieldsRules = [
-    Xgrs "[markGetterCalls]";
-    Xgrs "[setGetterFcnFieldEdges]";
-    Xgrs "replaceGetterFcnCalls*";
-    Xgrs "[deleteGetterEdges]";
-    Xgrs "deleteDangling*"]
-
-let CleanSketchConstructsRules = [Xgrs "replaceAssertCalls* & deleteAssertElidableAnnot*";
-    Xgrs "(valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*";
-    Xgrs "replaceConstructCalls*";
-    Xgrs "unboxConstructCalls*";
-    Xgrs "simplifyClassConstruction*";
-    Xgrs "deleteDangling*"]
-
-let BlockifyFcndefsRules = [Xgrs "removeFcnTarget*";
-    Xgrs "(deleteDangling+ | removeNopTypeCast)*";
-    Xgrs "createFunctionBlocks* & retypeBlockSKBlock*";
-    Xgrs "checkOnlyFcnBlocks"]
-
-let NiceListsRules = [Xgrs "listBlockInit*";
-    Xgrs "listClassDefsInit*";
-    Xgrs "listInitAllOrdered";
-    Xgrs "listAddClassField*";
-    Xgrs "listSetNext*";
-    Xgrs "listCompleteLast*";
-    Xgrs "listCompleteBlockLast*"]
-
-let CleanTypedTmpBlockRules = [Xgrs "cleanupTmpTypedBlock*";
-    Xgrs "deleteAnnotationLink";
-    Xgrs "deleteDangling*"] 
-
-let ProcessAnnotationsRules =
-    CleanTypedTmpBlockRules @
-    [Xgrs "replacePrimitiveRanges* & decrementUntilValues*";
-    Xgrs "markAnnotsWithNewSym*";
-    Xgrs "deleteDangling*";
-    Validate "! existsDanglingAnnotation"]
-
-let ArrayLoweringRules = [Xgrs "replaceArrayInit+"]
-
-let EmitRequiredImportsRules = [Xgrs "[setEnclosingFunctionInitial]";
-    Xgrs "setCalledMethods* & emitRequiredImports* & emitProvides*";
-    Xgrs "removeEnclosingLinks* & deleteDangling* & cleanupTmpEdges*"]
-
-let LossyReplacementsRules = [Xgrs "replaceThrowWithAssertFalse*";
-    Xgrs "deleteObjectInitCall*";
-    Xgrs "retypeWeirdInits*";
-    Xgrs "deleteUnitConstants*"]
-
-let NewInitializerFcnStubsRules = [
-    Xgrs "markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+"]
-
-let CstyleStmtsRules = [Xgrs "deleteDangling*";
-    Xgrs "cfgInit";
-    Xgrs "cfgSkipIf*";
-    Validate "! cfgExistsIncomplete";
-    Xgrs "setAttachableMemberFcns*";
-    Xgrs "setAttachableBlocks*";
-    Xgrs "forwardNonblockifyIntermediatePrologue*";
-    Xgrs "setBlockifyNextForAlreadyBlockified*";
-    Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*";
-    Xgrs "setBlockifyChain*";
-    Xgrs "checkBlockifyLinks";
-    Xgrs "forwardBlockifySkip*";
-    Xgrs "addDummyBlockifyChainEndNodes*";
-    Xgrs "deleteCfgNode*";
-    Xgrs "createTemporaryAssign*";
-    Xgrs "attachNodesToBlockList*";
-    Xgrs "deleteLastAttachables* & deleteLastAttachables2*";
-    Validate "testNoBlockify"]
-
-let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
-    Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]
-
-let SketchFinalMinorCleanupRules = [Xgrs "removeEmptyTrees";
-    Xgrs "setSymbolNames* & deletePrintRenamer*";
-    Xgrs "setSymbolSketchType*";
-    Xgrs "setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit";
-    Xgrs "connectFunctions*";
-    Xgrs "removeEmptyChains*";
-    Xgrs "setAssertCalls* & deleteDangling*";
-    Xgrs "setFcnBinaryCallBaseType*";
-    Xgrs "setFcnBinaryCallArgs*";
-    Xgrs "setSymbolBaseType*";
-    Xgrs "setValDefBaseType*";
-    Xgrs "setVarRefBaseType*";
-    Xgrs "setFcnDefBaseType*";
-    Xgrs "addSkExprStmts*"]
-
-let CreateTemplatesRules =
-    [ Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*";
-    Xgrs "convertFieldsToTmplParams*";
-    Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*";
-    Xgrs "[printAndRetypeTemplates]"
-    ] @
-    CleanTypedTmpBlockRules
-
-
-(* rewrite stages *)
-(*let SetSymbolLabels = {
+let ExportTemplates = {
     stageDefault with
-        name = "SetSymbolLabels";
-        description = "set a label field for ycomp in the symbols";
-        priority = -2.f;
-        stage = RewriteStage [ Xgrs "[setSymbolLabels]" ] }*)
-
-let WarnUnsupported = {
-    stageDefault with
-        name = "WarnUnsupported";
-        description = "check for unsupported features";
-        stage = RewriteStage WarnUnsupportedRules }
-
-let DeleteMarkedIgnore = {
-    stageDefault with
-        name = "DeleteMarkedIgnore";
-        description = "delete classes marked as ignore";
-        stage = RewriteStage DeleteMarkedIgnoreRules }
-
-let DecorateNodes = {
-    stageDefault with
-        name = "DecorateNodes";
-        description = "retype certain skalch constructs and function symbols";
-        stage = RewriteStage DecorateNodesRules }
-
-let ConvertThis = {
-    stageDefault with
-        name = "ConvertThis";
-        description = "delete bridge functions, convert $this to a parameter";
-        stage = RewriteStage ConvertThisRules }
-
-let RedirectAccessorsToFields = {
-    stageDefault with
-        name = "RedirectAccessorsToFields";
-        description = "";
-        stage = RewriteStage RedirectAccessorsToFieldsRules }
-
-let CleanSketchConstructs = {
-    stageDefault with
-        name = "CleanSketchConstructs";
-        description = "replace assert calls, clean calls to !! / ??";
-        stage = RewriteStage CleanSketchConstructsRules }
-
-let BlockifyFcndefs = {
-    stageDefault with
-        name = "BlockifyFcndefs";
-        description = "Convert function bodies to SKBlock(s)";
-        stage = RewriteStage BlockifyFcndefsRules }
-
-let NiceLists = {
-    stageDefault with
-        name = "NiceLists";
-        description = "Convert all lists to nice ('generic') lists";
-        stage = RewriteStage NiceListsRules }
-
-let ProcessAnnotations = {
-    stageDefault with
-        name = "ProcessAnnotations";
-        description = "Annotation processing";
-        stage = RewriteStage ProcessAnnotationsRules }
-
-let ArrayLowering = {
-    stageDefault with
-        name = "ArrayLowering";
-        description = "Remove sugar from array calls, and retype boxed arrays";
-        stage = RewriteStage ArrayLoweringRules }
-
-let EmitRequiredImports = {
-    stageDefault with
-        name = "EmitRequiredImports";
-        description = "print discrete union requirements";
-        stage = RewriteStage EmitRequiredImportsRules }
-
-let LossyReplacements = {
-    stageDefault with
-        name = "LossyReplacements";
-        description = "ignore try / catch for now, fix some Scala weirdnesses (bugs?)";
-        stage = RewriteStage LossyReplacementsRules }
-
-let NewInitializerFcnStubs = {
-    stageDefault with
-        name = "NewInitializerFcnStubs";
-        description = "create a function that rewrites";
-        stage = RewriteStage NewInitializerFcnStubsRules }
-
-let CstyleStmts = {
-    stageDefault with
-        name = "CstyleStmts";
-        description = "move Scala-style expression-statements to blocks";
-        stage = RewriteStage CstyleStmtsRules }
-
-let CstyleAssns = {
-    stageDefault with
-        name = "CstyleAssns";
-        description = "replace x = { block; expr } with block; x = expr";
-        stage = RewriteStage CstyleAssnsRules }
-
-let SketchFinalMinorCleanup = {
-    stageDefault with
-        name = "SketchFinalMinorCleanup";
-        description = "Final minor cleanup (information loss stage)";
-        stage = RewriteStage SketchFinalMinorCleanupRules }
-
-let CreateTemplates = {
-    stageDefault with
-        name = "CreateTemplates";
-        description = "transform RewriteTemplates.Template into useable templates"
-        stage = RewriteStage CreateTemplatesRules }
-
-let all_stages = [ WarnUnsupported; DeleteMarkedIgnore; DecorateNodes;
-    ConvertThis; BlockifyFcndefs; NiceLists; ProcessAnnotations;
-    ArrayLowering; EmitRequiredImports; LossyReplacements; NewInitializerFcnStubs;
-    CstyleStmts; CstyleAssns; SketchFinalMinorCleanup]
+        name = "ExportTemplates"
+        description = "Export each template specified by the CreateTemplates stage"
+        stage = CustomStage export_templates }
 
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
@@ -261,7 +66,7 @@ let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements; SketchFinalMinorCleanup ]
 let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleStmts; CstyleAssns ]
 let library_meta = [ EmitRequiredImports ]
-let create_templates_meta = [ NiceLists; CreateTemplates;
+let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
     CleanSketchConstructs; RedirectAccessorsToFields ]
 
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
@@ -284,6 +89,7 @@ let deps = [
     NiceLists <+? ArrayLowering;
     NiceLists <+? CstyleStmts;
     NiceLists <+? CreateTemplates;
+    CreateTemplates <?? ExportTemplates;
     ProcessAnnotations <?? ArrayLowering;
     ArrayLowering <?? EmitRequiredImports;
     EmitRequiredImports <?? LossyReplacements;
@@ -354,7 +160,6 @@ let main(args:string[]) =
     (* Each step of this loop processes one stage *)
     let rec mainLoop (stages:StageSet) deps results graph =
         let nextStages = getNextStages stages deps
-        printfn "number of stages remaining: %d" (stages.Count)
         match ((Set.isEmpty stages), nextStages) with
         | (true, []) -> ()
 

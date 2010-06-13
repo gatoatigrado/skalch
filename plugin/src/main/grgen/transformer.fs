@@ -38,6 +38,8 @@ let create_rewrite_stage name =
         description = (sprintf "export the template %s" name);
         stage = RewriteStage rewrites }
 
+(* export each template individually. The export functions "destroy" the graph
+ for any futher exports, so a graph stack is used to revert stage *)
 let export_templates (results:RewriteResult list) graph =
     let exportfcn (results, (graph:Graph)) name =
         let graphstack = graph.Impl.getGraphStack()
@@ -49,15 +51,34 @@ let export_templates (results:RewriteResult list) graph =
         (r_exp :: results, graph)
     (getAllStageEmit results).Split '\n'
     |> Array.map (fun x -> x.Split())
-    |> Array.filter (fun x -> (x.Length > 1) && "Template" = x.[0])
+    |> Array.filter (fun x -> (x.Length = 2) && "Template" = x.[0])
     |> Array.map (fun x -> x.[1])
     |> Array.fold exportfcn (results, graph)
+
+let import_templates (results:RewriteResult list) (graph:Graph) =
+    let importfcn (results, (graph:Graph)) name =
+        printfn "importing %s" (Config.template name).value
+        let r_exp = graph.ImportDUnion (Config.template name)
+        (r_exp :: results, graph)
+    (getLastStageEmit results).Split '\n'
+    |> Array.map (fun x -> x.Split())
+    |> Array.filter (fun x -> (x.Length = 3) && ([|"Request"; "template"|]) = x.[0 .. 1])
+    |> Array.map (fun x -> x.[2])
+    |> Array.fold importfcn (results, graph)
 
 let ExportTemplates = {
     stageDefault with
         name = "ExportTemplates"
         description = "Export each template specified by the CreateTemplates stage"
         stage = CustomStage export_templates }
+
+let ImportTemplates = {
+    stageDefault with
+        name = "ImportTemplates"
+        description = "Import any templates, required by the last stage of processing"
+        (* run it before others, since it uses the last emitout values. *)
+        priority = -0.1f
+        stage = CustomStage import_templates }
 
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
@@ -91,6 +112,7 @@ let deps = [
     NiceLists <+? CreateTemplates;
     CreateTemplates <?? ExportTemplates;
     ProcessAnnotations <?? ArrayLowering;
+    ProcessAnnotations <?+ ImportTemplates;
     ArrayLowering <?? EmitRequiredImports;
     EmitRequiredImports <?? LossyReplacements;
     LossyReplacements <?? NewInitializerFcnStubs;

@@ -17,19 +17,6 @@ remember to update transformer.fs
 // node class MyNode
 {% endblock %}
 
-
-
-{% block grs %}
-# grs rewrite sequence here
-# xgrs myRule*
-
-# also, node colors
-# dump set edge MyEdge color Red
-# dump set node MyNode color Red
-{% endblock %}
-
-
-
 {% block grg %}
 {#
 // view other files if you want example rules that do something.

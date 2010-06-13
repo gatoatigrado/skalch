@@ -60,8 +60,9 @@ remove-whitespace: # trim trailing whitespace on all files
 install-plugin: gen
 	(cd plugin; mvn assembly:assembly install)
 
-compile: install-plugin
+compile: install-plugin stagetf-compile
 	mvn compile test-compile
+	source env; tf --goal create_templates "$$rewritetemplates"
 
 py-fsc-compile:
 	python scripts/compile_all.py

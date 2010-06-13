@@ -64,10 +64,11 @@ let CleanTypedTmpBlockRules = [Xgrs "cleanupTmpTypedBlock*";
 
 let ProcessAnnotationsRules =
     CleanTypedTmpBlockRules @
-    [Xgrs "replacePrimitiveRanges* & decrementUntilValues*";
+    [ Xgrs "replacePrimitiveRanges* & decrementUntilValues*";
     Xgrs "markAnnotsWithNewSym*";
     Xgrs "deleteDangling*";
-    Validate "! existsDanglingAnnotation"]
+    Validate "! existsDanglingAnnotation";
+    Xgrs "[requestIntHoleTemplate]" ]
 
 let ArrayLoweringRules = [Xgrs "replaceArrayInit+"]
 

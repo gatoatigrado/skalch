@@ -53,3 +53,8 @@ pattern IsSubtree(x:Node, y:Node) {
         RecursiveListChild { x -:ListElt-> :ListNode -:ListValue-> z:Node; :IsSubtree(z, y); }
     }
 }
+
+rule replaceSubtree(x:Node, y:Node) {
+    parent:Node -e:Replaceable-> x;
+    modify { delete(e); parent -:typeof(e)-> y; }
+}

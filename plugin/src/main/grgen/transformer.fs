@@ -36,7 +36,7 @@ let create_rewrite_stage name =
     { stageDefault with
         name = (sprintf "ExportTemplateInner[%s]" name);
         description = (sprintf "export the template %s" name);
-        stage = RewriteStage rewrites }
+        stage = rewriteStage rewrites }
 
 (* export each template individually. The export functions "destroy" the graph
  for any futher exports, so a graph stack is used to revert stage *)
@@ -80,44 +80,58 @@ let ImportTemplates = {
         priority = -0.1f
         stage = CustomStage import_templates }
 
+let ProcessAnnotations = {
+    stageDefault with
+        name = "ProcessAnnotations"
+        description = "(metastage) process annotations, esp. those for sketch constructs"
+        stage = MetaStage [ProcessAnnotations1; ImportTemplates; ProcessAnnotations2] }
+
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
 let no_oo_meta = [ ConvertThis ]
 let optimize_meta = [ ArrayLowering ]
-let sketch_meta = [ ProcessAnnotations; LossyReplacements; SketchFinalMinorCleanup ]
+let sketch_meta = [ ProcessAnnotations; LossyReplacements;
+    CleanSketchConstructs; SketchFinalMinorCleanup ]
 let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleStmts; CstyleAssns ]
 let library_meta = [ EmitRequiredImports ]
 let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
-    CleanSketchConstructs; RedirectAccessorsToFields ]
+    DecorateNodes; CleanSketchConstructs; RedirectAccessorsToFields ]
 
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
 let deps = [
-    WarnUnsupported <?? DecorateNodes;
-    DeleteMarkedIgnore <?? DecorateNodes;
-    DeleteMarkedIgnore <?? CleanSketchConstructs;
-    DecorateNodes <+? RedirectAccessorsToFields;
-    DecorateNodes <+? ConvertThis;
-    DecorateNodes <+? BlockifyFcndefs;
-    DecorateNodes <+? CreateTemplates;
-    DecorateNodes <+? CleanSketchConstructs;
-    RedirectAccessorsToFields <?? BlockifyFcndefs;
-    RedirectAccessorsToFields <?? NiceLists;
-    RedirectAccessorsToFields <?? ConvertThis;
-    BlockifyFcndefs <?? NiceLists;
-    BlockifyFcndefs <+? CreateTemplates;
-    CleanSketchConstructs <?? NiceLists;
-    NiceLists <+? ProcessAnnotations;
-    NiceLists <+? ArrayLowering;
-    NiceLists <+? CstyleStmts;
-    NiceLists <+? CreateTemplates;
-    CreateTemplates <?? ExportTemplates;
-    ProcessAnnotations <?? ArrayLowering;
-    ProcessAnnotations <?+ ImportTemplates;
-    ArrayLowering <?? EmitRequiredImports;
-    EmitRequiredImports <?? LossyReplacements;
-    LossyReplacements <?? NewInitializerFcnStubs;
-    NewInitializerFcnStubs <?? CstyleStmts;
-    CstyleStmts <+? CstyleAssns;
+    WarnUnsupported <?? DecorateNodes
+    DeleteMarkedIgnore <?? DecorateNodes
+    DeleteMarkedIgnore <?? CleanSketchConstructs
+    DeleteMarkedIgnore <+? CreateTemplates
+    DecorateNodes <+? RedirectAccessorsToFields
+    DecorateNodes <+? ConvertThis
+    DecorateNodes <+? BlockifyFcndefs
+    DecorateNodes <+? CreateTemplates
+    DecorateNodes <+? CleanSketchConstructs
+    DecorateNodes <?? LossyReplacements
+    RedirectAccessorsToFields <?? BlockifyFcndefs
+    RedirectAccessorsToFields <?? NiceLists
+    RedirectAccessorsToFields <?? ConvertThis
+    BlockifyFcndefs <?? NiceLists
+    BlockifyFcndefs <+? CreateTemplates
+    CleanSketchConstructs <?? NiceLists
+    CleanSketchConstructs <?? ProcessAnnotations
+    CleanSketchConstructs <?? LossyReplacements
+    NiceLists <+? ProcessAnnotations
+    NiceLists <+? ArrayLowering
+    NiceLists <+? CstyleStmts
+    NiceLists <+? CreateTemplates
+    CreateTemplates <?? ExportTemplates
+    ProcessAnnotations <?? ArrayLowering
+    ProcessAnnotations <+? CstyleStmts
+    ProcessAnnotations <?? LossyReplacements
+    ArrayLowering <?? EmitRequiredImports
+    LossyReplacements <?? NewInitializerFcnStubs
+    LossyReplacements <+? EmitRequiredImports
+    EmitRequiredImports <?? SketchFinalMinorCleanup
+    EmitRequiredImports <?? CstyleStmts
+    NewInitializerFcnStubs <?? CstyleStmts
+    CstyleStmts <+? CstyleAssns
     CstyleStmts <?? SketchFinalMinorCleanup
     ]
 
@@ -174,6 +188,8 @@ let main(args:string[]) =
     initialgraph.SetEdgeColors [
         "CfgAbstractNext", "DarkGreen"
         "AbstractBlockify", "DarkRed"
+        "ListElt", "LightBlue"
+        "ListValue", "Lilac"
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"

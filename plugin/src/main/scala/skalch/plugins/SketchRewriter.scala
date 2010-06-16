@@ -40,6 +40,7 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
     object TypeAnnotationComponent extends PluginComponent {
         val global : ExternalGxlTransformer.this.global.type =
             ExternalGxlTransformer.this.global
+        var symbolNameCtr = 0
         val runsAfter = List("typer")
         override val runsBefore = List("superaccessors")
         val phaseName = "grab_static_type_annotations"
@@ -57,7 +58,8 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
 
             class CreateTmpvarsForTyped() extends Transformer {
                 def createBlockForTyped(expr:Tree, tpt:Tree) = {
-                    val name = newTermName("__skalch_internal_typed_tmp")
+                    val name = newTermName("__skalch_internal_typed_tmp" + symbolNameCtr)
+                    symbolNameCtr += 1
                     val sym = expr.tpe.typeSymbol.newValue(NoPosition, name).setInfo(tpt.tpe)
                     sym.owner = currMethod
 

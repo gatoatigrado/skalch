@@ -6,7 +6,7 @@ class MySketch() extends AngelicSketch {
     type Int5 = Int @ Range(-32 to 31)
 
     def main(x : Int) {
-        assert((?? : Int5) * x == x + x + (?? : Int5))
+        assert((?? : Int5) * x == x + x + (?? : Int @ Range(-100 to 100)))
     }
 }
 

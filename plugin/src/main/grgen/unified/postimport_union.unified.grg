@@ -1,0 +1,51 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+// 
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+// 
+// Join symbols and packages after a discrete union import
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+rule instantiateTemplateSymbols {
+    x:TemplateClassSymbol;
+    y:TemplateClassSymbol;
+    if { x.number == y.number; }
+    modify {
+        eval {
+            y.number = y.number + 1;
+            y.symbolName = "RewriteTemplates$" + y.simpleName + "_" + y.number;
+            y.fullSymbolName = "skalch." + y.symbolName;
+        }
+    }
+}
+
+rule unionRootSymbol {
+    x:RootSymbol;
+    y:RootSymbol;
+    iterated {
+        z:Node -e:Edge-> y;
+        modify { delete(e); z -:typeof(e)-> x; }
+    }
+    modify { delete(y); }
+}
+
+rule unionSubSymbol {
+    x:Symbol -:SymbolOwner-> z:Symbol;
+    y:Symbol -:SymbolOwner-> z;
+    if { x.fullSymbolName == y.fullSymbolName; }
+    iterated {
+        w:Node -e:Edge-> y;
+        modify { delete(e); w -:typeof(e)-> x; }
+    }
+    modify { delete(y); }
+}
+{% endblock %}

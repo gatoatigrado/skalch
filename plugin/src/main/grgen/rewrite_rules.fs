@@ -17,7 +17,10 @@ let WarnUnsupportedRules = [Xgrs "unsupportedWarnAll"]
 let DeleteMarkedIgnoreRules = [Xgrs "setIgnoreAnnotationType*";
     Xgrs "deleteIgnoreAnnotated* & deleteDangling*"]
 
-let DecorateNodesRules = [Xgrs "replaceAngelicSketchSymbol*";
+let DecorateNodesRules = [
+    Xgrs "[setRootSymbol]";
+    Validate "existsRootSymbol && ! multipleRootSymbols";
+    Xgrs "replaceAngelicSketchSymbol*";
     Xgrs "runAllSymbolRetypes";
     Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]";
     Xgrs "setScalaRoot & setScalaSubtypes*";
@@ -58,28 +61,52 @@ let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listCompleteLast*";
     Xgrs "listCompleteBlockLast*"]
 
-let CleanTypedTmpBlockRules = [Xgrs "cleanupTmpTypedBlock*";
+let CleanTypedTmpBlockRules = [
+    Xgrs "deleteDangling*";
+    Validate "cleanupDummyVarBlocks";
+    Xgrs "cleanupDummyVarBlocks*";
     Xgrs "deleteAnnotationLink";
+    Validate "! existsDanglingAnnotation";
     Xgrs "deleteDangling*"]
 
-let ProcessAnnotationsRules =
+let PostImportUnionRules = [
+    Xgrs "instantiateTemplateSymbols";
+    Xgrs "unionRootSymbol*";
+    Xgrs "unionSubSymbol*" ]
+
+let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
-    [ Xgrs "replacePrimitiveRanges* & decrementUntilValues*";
-    Xgrs "markAnnotsWithNewSym*";
+    [ Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*";
     Xgrs "deleteDangling*";
     Validate "! existsDanglingAnnotation";
     Xgrs "[requestIntHoleTemplate]" ]
 
+let ProcessAnnotationsRules2 =
+    PostImportUnionRules @
+    [ Xgrs "attachAnnotationsToTemplates*";
+    Xgrs "setTemplateParameter*";
+    Xgrs "createFcnCallTemplates*";
+    Validate "! existsUnreplacedCall";
+    Validate "! existsDanglingTemplateFcn" ]
+
 let ArrayLoweringRules = [Xgrs "replaceArrayInit+"]
 
-let EmitRequiredImportsRules = [Xgrs "[setEnclosingFunctionInitial]";
-    Xgrs "setCalledMethods* & emitRequiredImports* & emitProvides*";
-    Xgrs "removeEnclosingLinks* & deleteDangling* & cleanupTmpEdges*"]
+let EmitRequiredImportsRules = [
+    Xgrs "[setEnclosingFunctionInitial]"
+    Xgrs "setCalledMethods* & unsetDefinedCalledMethods*"
+    Xgrs "emitRequiredImports*"
+    Xgrs "emitProvides*"
+    Xgrs "removeEnclosingLinks* & deleteDangling* & cleanupTmpEdges*"
+    ]
 
-let LossyReplacementsRules = [Xgrs "replaceThrowWithAssertFalse*";
-    Xgrs "deleteObjectInitCall*";
-    Xgrs "retypeWeirdInits*";
-    Xgrs "deleteUnitConstants*"]
+let LossyReplacementsRules = [
+    Xgrs "replaceThrowWithAssertFalse*"
+    Xgrs "deleteObjectInitCall*"
+    Xgrs "retypeWeirdInits*"
+    Xgrs "deleteUnitConstants*"
+    Xgrs "detachBinaryFcns* & deleteAssertSymbolEdges* & deleteDangling*"
+    Xgrs "deleteSketchThisSymbol* & deleteDangling*"
+    ]
 
 let NewInitializerFcnStubsRules = [
     Xgrs "markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+"]

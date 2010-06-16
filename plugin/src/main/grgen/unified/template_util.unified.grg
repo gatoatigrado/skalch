@@ -1,0 +1,79 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// Template utility functions for abstracting template operations
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+/// see usage in process_annotations.grg
+pattern GetTemplateInstance(tmpl:TemplateFcn, var name : string) {
+    if { tmpl.template == name; }
+    negative { . -:TemplateArgument-> tmpl; }
+}
+
+rule setTemplateParameter {
+    y:ScAstNode -e:TemplateArgument-> x:TemplateFcn;
+    x -:FcnDefSymbol-> fcn:Symbol -:SymbolOwner-> z:TemplateClassSymbol;
+    w:TemplateParameter -:SkTemplateSymbol-> z;
+    if { w.name == e.name; }
+    modify {
+        delete(e);
+        exec(replaceSubtree(w, y) || assertFalse("replace failed"));
+    }
+}
+
+rule createFcnCallTemplates {
+    x:ScAstNode -e:ReplaceWithTemplateFcnCall-> y:TemplateFcn
+        -:FcnDefSymbol-> sym:Symbol;
+    x -:FcnArgList-> arglist:List; // argument list is required to be provided by the caller
+    x -:FcnCallTypeSymbol-> typesym:Symbol;
+    z:PackageDef;
+
+    optional {
+        negative { z -:PackageDefFcn-> y; }
+        modify { z -:PackageDefFcn-> y; }
+    }
+
+    modify {
+        delete(e);
+        call:FcnCall -:FcnCallSymbol-> sym;
+        call -:FcnArgList-> arglist;
+        call -:FcnCallTypeSymbol-> typesym;
+        exec(replaceSubtree(x, call) || assertFalse("replace failed"));
+    }
+}
+
+test existsUnreplacedCall {
+    . -:ReplaceWithTemplateFcnCall-> .;
+}
+
+test existsDanglingTemplateFcn {
+    x:TemplateFcn;
+    negative { x; . --> x; }
+}
+
+{#
+FIXME -- this version is broken!
+rule setTemplateParameter {
+    y:ScAstNode -e:TemplateArgument-> x:TemplateFcn;
+    x -:FcnDefSymbol-> fcn:Symbol -:SymbolOwner-> z:TemplateClassSymbol;
+    parent:ScAstNode -e1:Replaceable-> w:TemplateParameter -:SkTemplateSymbol-> z;
+    if { w.name == e.name; }
+    modify {
+        delete(e, e1);
+        parent -:typeof(e1)-> y;
+    }
+}
+#}
+
+{% endblock %}

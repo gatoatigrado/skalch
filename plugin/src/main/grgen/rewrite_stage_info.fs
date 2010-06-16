@@ -13,109 +13,118 @@ module edu.berkeley.cs.skalch.transformer.rewrite_stage_info
 open edu.berkeley.cs.skalch.transformer.rewrite_rules
 open edu.berkeley.cs.grgenmods.fsharp.stages
 
+let rewriteStage rules = RewriteStage (rules, false)
+
 let WarnUnsupported = {
     stageDefault with
         name = "WarnUnsupported";
-        description = "check for unsupported features";
-        stage = RewriteStage WarnUnsupportedRules }
+        description = "Check for unsupported features";
+        stage = rewriteStage WarnUnsupportedRules }
 
 let DeleteMarkedIgnore = {
     stageDefault with
         name = "DeleteMarkedIgnore";
-        description = "delete classes marked as ignore";
-        stage = RewriteStage DeleteMarkedIgnoreRules }
+        description = "Delete classes marked as ignore";
+        stage = rewriteStage DeleteMarkedIgnoreRules }
 
 let DecorateNodes = {
     stageDefault with
         name = "DecorateNodes";
-        description = "retype certain skalch constructs and function symbols";
-        stage = RewriteStage DecorateNodesRules }
+        description = "Retype certain skalch constructs and function symbols";
+        stage = rewriteStage DecorateNodesRules }
 
 let ConvertThis = {
     stageDefault with
         name = "ConvertThis";
-        description = "delete bridge functions, convert $this to a parameter";
-        stage = RewriteStage ConvertThisRules }
+        description = "Delete bridge functions, convert $this to a parameter";
+        stage = rewriteStage ConvertThisRules }
 
 let RedirectAccessorsToFields = {
     stageDefault with
         name = "RedirectAccessorsToFields";
-        description = "";
-        stage = RewriteStage RedirectAccessorsToFieldsRules }
+        description = "Redirect obj.field() to obj.field; useful for template parameters";
+        stage = rewriteStage RedirectAccessorsToFieldsRules }
 
 let CleanSketchConstructs = {
     stageDefault with
         name = "CleanSketchConstructs";
-        description = "replace assert calls, clean calls to !! / ??";
-        stage = RewriteStage CleanSketchConstructsRules }
+        description = "Replace assert calls, clean calls to !! / ??";
+        stage = rewriteStage CleanSketchConstructsRules }
 
 let BlockifyFcndefs = {
     stageDefault with
         name = "BlockifyFcndefs";
         description = "Convert function bodies to SKBlock(s)";
-        stage = RewriteStage BlockifyFcndefsRules }
+        stage = rewriteStage BlockifyFcndefsRules }
 
 let NiceLists = {
     stageDefault with
         name = "NiceLists";
         description = "Convert all lists to nice ('generic') lists";
-        stage = RewriteStage NiceListsRules }
+        stage = rewriteStage NiceListsRules }
 
-let ProcessAnnotations = {
+let ProcessAnnotations1 = {
     stageDefault with
-        name = "ProcessAnnotations";
-        description = "Annotation processing";
-        stage = RewriteStage ProcessAnnotationsRules }
+        name = "ProcessAnnotations1"
+        description = "Annotation pre-processing"
+        stage = rewriteStage ProcessAnnotationsRules1 }
+
+let ProcessAnnotations2 = {
+    stageDefault with
+        name = "ProcessAnnotations2"
+        description = "Replace annotations with their literal"
+        stage = rewriteStage ProcessAnnotationsRules2 }
 
 let ArrayLowering = {
     stageDefault with
         name = "ArrayLowering";
         description = "Remove sugar from array calls, and retype boxed arrays";
-        stage = RewriteStage ArrayLoweringRules }
+        stage = rewriteStage ArrayLoweringRules }
 
 let EmitRequiredImports = {
     stageDefault with
         name = "EmitRequiredImports";
-        description = "print discrete union requirements";
-        stage = RewriteStage EmitRequiredImportsRules }
+        description = "Print discrete union requirements";
+        stage = rewriteStage EmitRequiredImportsRules }
 
 let LossyReplacements = {
     stageDefault with
         name = "LossyReplacements";
-        description = "ignore try / catch for now, fix some Scala weirdnesses (bugs?)";
-        stage = RewriteStage LossyReplacementsRules }
+        description = "Ignore try / catch for now, fix some Scala weirdnesses (bugs?)";
+        stage = rewriteStage LossyReplacementsRules }
 
 let NewInitializerFcnStubs = {
     stageDefault with
         name = "NewInitializerFcnStubs";
-        description = "create a function that rewrites";
-        stage = RewriteStage NewInitializerFcnStubsRules }
+        description = "Create a function that both calls \"new obj()\" and \"obj.<init>()\"";
+        stage = rewriteStage NewInitializerFcnStubsRules }
 
 let CstyleStmts = {
     stageDefault with
         name = "CstyleStmts";
-        description = "move Scala-style expression-statements to blocks";
-        stage = RewriteStage CstyleStmtsRules }
+        description = "Create tempvars for Scala-style expression-statements";
+        stage = rewriteStage CstyleStmtsRules }
 
 let CstyleAssns = {
     stageDefault with
         name = "CstyleAssns";
-        description = "replace x = { block; expr } with block; x = expr";
-        stage = RewriteStage CstyleAssnsRules }
+        description = "Replace x = { block; expr } with block; x = expr";
+        stage = rewriteStage CstyleAssnsRules }
 
 let SketchFinalMinorCleanup = {
     stageDefault with
         name = "SketchFinalMinorCleanup";
         description = "Final minor cleanup (information loss stage)";
-        stage = RewriteStage SketchFinalMinorCleanupRules }
+        stage = rewriteStage SketchFinalMinorCleanupRules }
 
 let CreateTemplates = {
     stageDefault with
         name = "CreateTemplates";
-        description = "transform RewriteTemplates.Template into useable templates"
-        stage = RewriteStage CreateTemplatesRules }
+        description = "Transform RewriteTemplates.Template into useable templates"
+        stage = rewriteStage CreateTemplatesRules }
 
 let all_stages = [ WarnUnsupported; DeleteMarkedIgnore; DecorateNodes;
-    ConvertThis; BlockifyFcndefs; NiceLists; ProcessAnnotations;
+    ConvertThis; BlockifyFcndefs; NiceLists; ProcessAnnotations1;
+    ProcessAnnotations2;
     ArrayLowering; EmitRequiredImports; LossyReplacements; NewInitializerFcnStubs;
     CstyleStmts; CstyleAssns; SketchFinalMinorCleanup]

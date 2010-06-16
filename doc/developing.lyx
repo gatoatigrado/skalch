@@ -526,6 +526,46 @@ d
 \end_layout
 
 \begin_layout Subsection
+Troubleshooting
+\end_layout
+
+\begin_layout Standard
+If your rewrite hangs, try running with the 
+\begin_inset Quotes eld
+\end_inset
+
+--verbose
+\begin_inset Quotes erd
+\end_inset
+
+ flag, to see which rule ran last.
+ Most likely, some 
+\begin_inset Quotes eld
+\end_inset
+
+rule*
+\begin_inset Quotes erd
+\end_inset
+
+ is rewriting the graph in a way such that it is applied indefinitely, e.g.
+ adding an edge without deleting any.
+ If a rewrite hangs, or doesn't apply when you think it should, try running
+ --debugrule, and press 
+\begin_inset Quotes eld
+\end_inset
+
+d
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph on
+in the console window, not ycomp
+\emph default
+ to see if GrGen finds a potential match.
+\end_layout
+
+\begin_layout Subsection
 Examples
 \end_layout
 

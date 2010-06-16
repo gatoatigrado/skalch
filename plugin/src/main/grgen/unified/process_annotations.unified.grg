@@ -22,36 +22,17 @@ edge class IsUntilValue;
 
 node class AnnotFcnDef extends MemberFcn;
 edge class AnnotFcnDefConstructType;
-
-edge class CreateAnnotFcn;
-{% endblock %}
-
-
-
-{% block grs %}
-echo "[REWRITE PRODUCTION] Annotation processing"
-xgrs cleanupTmpTypedBlock*
-xgrs deleteAnnotationLink
-xgrs deleteDangling*
-
-xgrs replacePrimitiveRanges* & decrementUntilValues*
-xgrs markAnnotsWithNewSym*
-xgrs deleteDangling*
-
-# TODO -- maybe make this less strict
-debug xgrs existsDanglingAnnotation
-validate exitonfailure xgrs ! existsDanglingAnnotation
 {% endblock %}
 
 
 
 {% block grg %}
-rule cleanupTmpTypedBlock {
+rule cleanupDummyVarBlocks {
     // NOTE -- for some reason, TreeReplacer doesn't work here
     // maybe it's a bug that will be fixed later.
     parent:Node -e:Replaceable->
         x:Block -:BlockStmtList-> {{ macros.finiteList(["y:ValDef", "z:VarRef"]) }}
-    y -:ValDefSymbol-> sym:TypedTmpSymbol;
+    y -:ValDefSymbol-> sym:Symbol;
     z -:VarRefSymbol-> sym;
     y -:ValDefRhs-> w:ScAstNode;
     optional {
@@ -62,7 +43,7 @@ rule cleanupTmpTypedBlock {
 }
 
 rule deleteAnnotationLink {
-    :Symbol -e:Edge-> :Annotation;
+    :Symbol -e:Edge-> :Annotation \ IgnoreClassAnnotation;
     modify { delete(e); }
 }
 
@@ -74,9 +55,9 @@ test existsDanglingAnnotation {
 /** NOTE -- this takes time!
  * TODO -- pass hints to the compiler as to what nodes to look for first */
 rule replacePrimitiveRanges {
-    x:FcnCall -:FcnCallTypeSymbol-> richint:ScalaSymbol;
-    x -:FcnCallSymbol-> tomethod:ScalaSymbol;
-    x -:FcnArgList -> {{ macros.finiteList(["view:ApplyImplicitView", "z:IntConstant"]) }}
+    x:FcnCall -e1:FcnCallTypeSymbol-> richint:ScalaSymbol;
+    x -e2:FcnCallSymbol-> tomethod:ScalaSymbol;
+    x -e3:FcnArgList -> {{ macros.finiteList(["view:ApplyImplicitView", "z:IntConstant"]) }}
     view -:FcnArgList-> {{ macros.finiteList([":ScAstNode", "y:IntConstant"], lstname="lst2") }}
 
     if { richint.symbolName.indexOf("RichInt") == 0; }
@@ -92,8 +73,11 @@ rule replacePrimitiveRanges {
         }
     }
 
-    replace { next:PrimitiveIntRange<x> -:PrimitiveIntRangeFrom-> y;
-        next -:PrimitiveIntRangeTo-> z; }
+    modify {
+        delete(e1, e2, e3);
+        next:PrimitiveIntRange<x> -:PrimitiveIntRangeFrom-> y;
+        next -:PrimitiveIntRangeTo-> z;
+    }
 }
 
 rule decrementUntilValues {
@@ -106,43 +90,34 @@ rule decrementUntilValues {
     }
 }
 
-rule markAnnotsWithNewSym {
-    x:SketchConstructCall -:TypeAnnotation-> y:Annotation;
-    negative {
-        z:SketchConstructCall -:CreateAnnotFcn-> y;
-        hom(x, z);
-        if { typeof(x) == typeof(z); }
-    }
-    modify { x -:CreateAnnotFcn-> y; }
-}
-
 rule requestIntHoleTemplate {
-    x:Annotation -:AnnotationArgsList-> {{ macros.finiteList(["y:PrimitiveIntRange"]) }}
+    constr:HoleCall -:TypeAnnotation-> x:Annotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["y:PrimitiveIntRange"]) }}
     modify {
         emit("Request template IntRangeHole\n");
     }
 }
 
-{#
-rule createAnnotationFunction {
-    constr_call:SketchConstructCall -:CreateAnnotFcn-> annot:Annotation;
+rule attachAnnotationsToTemplates {
+    constr:HoleCall -:TypeAnnotation-> x:Annotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["y:PrimitiveIntRange"]) }}
+    y -:PrimitiveIntRangeFrom-> z:ScAstNode;
+    y -:PrimitiveIntRangeTo-> w:ScAstNode;
+
+    tmpl:TemplateFcn;
+    :GetTemplateInstance(tmpl, "IntRangeHole");
+    negative { z -:TemplateArgument-> .; }
+
     modify {
-        x:AnnotFcnDef
+        z -e1:TemplateArgument-> tmpl;
+        w -e2:TemplateArgument-> tmpl;
+        constr -:ReplaceWithTemplateFcnCall-> tmpl;
+        constr -:FcnArgList-> {{ macros.finiteListInit([], lstname="lst2") }}
+        eval {
+            e1.name = "from_";
+            e2.name = "to_";
+        }
     }
 }
-#}
 
-{#
-// view other files if you want example rules that do something.
-// rule myRule {
-//      x:MyNode -e:MyEdge-> z:MyNode2;
-//      if { typeof(x) >= BaseClass; } // is subclass of BaseClass
-//      modify {
-//          x -:MyEdge-> w:MyNode; delete(e);
-//          eval {
-//              {{ macros.copySrcPosition("x", ["w"]) }}
-//          }
-//      }
-// }
-#}
 {% endblock %}

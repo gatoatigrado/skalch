@@ -20,8 +20,6 @@ node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
 
 edge class SketchType;
 
-edge class PackageDefFcn;
-
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
 {% endblock %}

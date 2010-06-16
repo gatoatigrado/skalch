@@ -54,15 +54,12 @@ node class IgnoreClassAnnotation extends Annotation;
 node class OuterSymbol extends Symbol;
 node class ScalaUnboxSymbol extends ScalaSymbol;
 node class ScalaUnitTypeSymbol extends ScalaSymbol;
-node class TemplateClassSymbol extends Symbol;
+node class TemplateClassSymbol extends Symbol { number : int; }
 // can be LHS target of a sketch construct assignment
 edge class CanBeConstructAssigned;
-
-
-
-// === Scala symbols ===
 // all symbols in the "scala" package become ScalaSymbols
 node class ScalaSymbol extends Symbol;
+node class RootSymbol extends Symbol;
 
 
 
@@ -164,8 +161,6 @@ node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
 
 edge class SketchType;
 
-edge class PackageDefFcn;
-
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
 
@@ -260,12 +255,6 @@ edge class CalledMethod extends TmpEdge;
 
 
 
-node class TypedTmpSymbol extends Symbol;
-
-
-
-
-
 
 edge class TypeAnnotation;
 
@@ -278,11 +267,6 @@ edge class IsUntilValue;
 node class AnnotFcnDef extends MemberFcn;
 edge class AnnotFcnDefConstructType;
 
-edge class CreateAnnotFcn;
-
-
-
-
 
 
 edge class CreateTemplate;
@@ -291,6 +275,12 @@ edge class CreateTemplate;
 // prevents deletion of node
 node class TemplateToExport;
 
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 // add unified here
 
 
@@ -314,14 +304,14 @@ abstract edge class CfgSimpleInner; // prologue connected to child's prolog, sam
 
 // === template nodes ===
 node class TemplateParameter extends ScAstNode { template : string; name : string; }
-edge class TemplateArgument { template : string; name : string; }
+edge class TemplateArgument { name : string; }
 node class TemplateFcn extends FcnDef { template : string; }
+edge class ReplaceWithTemplateFcnCall;
 
 
 
 // === SKETCH nodes ===
 
-node class SKRoot;
 node class SKHelperFcns;
 
 // same edge classes as Block
@@ -332,6 +322,8 @@ edge class SKStmtExprExpr;
 
 node class SKAssertCall extends FcnCall;
 edge class SKAssertCallArg extends Subtree, CfgSimpleInner;
+
+edge class PackageDefFcn extends Subtree;
 
 
 
@@ -547,7 +539,7 @@ edge class IfThen extends Subtree;
 edge class MatchCaseChain extends Subtree;
 edge class MatchTarget extends Subtree;
 edge class PackageDefElement extends Subtree;
-edge class ReturnExpr extends Subtree;
+edge class ReturnExpr extends Subtree, CfgSimpleInner;
 edge class StaticMember extends Subtree;
 edge class SymbolAnnotation extends Subtree;
 edge class TemplateElement extends Subtree;
@@ -581,6 +573,7 @@ edge class VarRefSymbol extends ScTermSymbol;
 edge class ApplyImplicitViewSymbol extends ScTermSymbol;
 edge class ApplyToImplicitArgsSymbol extends ScTermSymbol;
 edge class ClassRefTermSymbol extends ScTermSymbol;
+edge class SkTemplateSymbol extends ScTermSymbol;
 
 // Type symbols
 edge class AssignTypeSymbol extends ScTypeSymbol;

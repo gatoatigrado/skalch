@@ -73,4 +73,22 @@ rule deleteUnitConstants {
 
     modify { exec(listDelete(x)); }
 }
+
+rule detachBinaryFcns {
+    x:FcnBinaryCall -e:FcnCallSymbol-> .;
+    modify { delete(e); }
+}
+
+rule deleteAssertSymbolEdges {
+    :SKAssertCall -e:FcnCallSymbol-> :AssertFcnSymbol;
+    modify { delete(e); }
+}
+
+rule deleteSketchThisSymbol {
+    x:MemberFcn -:FcnDefSymbol-> sym:Symbol
+        -:SymbolOwner-> :SketchClassSymbol;
+    negative { . -:FcnCallSymbol-> sym; }
+    if { sym.symbolName == "<init>"; }
+    modify { delete(x); }
+}
 {% endblock %}

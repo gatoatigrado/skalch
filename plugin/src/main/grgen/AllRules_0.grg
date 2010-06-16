@@ -1,6 +1,8 @@
 using ScalaAstModel;
 
 #include "rules/common.grg"
+#include "rules/gen/template_util.grg"
+
 #include "rules/gen/warn_unsupported.grg"
 #include "rules/gen/decorate_nodes.grg"
 #include "rules/delete_bridge_functions.grg"
@@ -37,4 +39,5 @@ using ScalaAstModel;
 #include "rules/gen/emit_required_imports.grg"
 #include "rules/gen/process_annotations.grg"
 #include "rules/gen/create_templates.grg"
+#include "rules/gen/postimport_union.grg"
 // add unified here

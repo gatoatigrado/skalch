@@ -54,6 +54,7 @@ rule convertFieldsToTmplParams {
     modify {
         delete(e0, e1, e2);
         tmpl_param:TemplateParameter<x>;
+        tmpl_param -:SkTemplateSymbol-> y;
         eval {
             tmpl_param.template = y.simpleName;
             tmpl_param.name = sym.symbolName;

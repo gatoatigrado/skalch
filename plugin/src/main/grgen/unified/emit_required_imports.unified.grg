@@ -36,10 +36,11 @@ rule setCalledMethods {
     modify { y -:CalledMethod-> y; }
 }
 
-{#
 rule unsetDefinedCalledMethods {
+    y:Symbol -e:CalledMethod-> y;
+    z:FcnDef -:FcnDefSymbol-> y;
+    modify { delete(e); }
 }
-#}
 
 rule emitRequiredImports {
     x:FcnCall -:FcnCallSymbol-> y:Symbol

@@ -16,7 +16,7 @@ stagetf_sources_array=($(for i in $(cat "$stagetf"/filelist); do echo "$stagetf"
 export stagetf_sources="${stagetf_sources_array}"
 export MONO_PATH="$libgrg"
 
-function g() { grep -E "$@" **/*(grg|grs) | sed '/\/gen\//d'; }
+function g() { grep -E "$@" **/*(grg|fs) | sed '/\/gen\//d'; }
 function tf() {
     mono "$grgenfiles"/transformer.exe "$@"
 }

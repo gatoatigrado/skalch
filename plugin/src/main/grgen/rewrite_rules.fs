@@ -41,17 +41,20 @@ let RedirectAccessorsToFieldsRules = [
     Xgrs "[deleteGetterEdges]";
     Xgrs "deleteDangling*"]
 
-let CleanSketchConstructsRules = [Xgrs "replaceAssertCalls* & deleteAssertElidableAnnot*";
-    Xgrs "(valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*";
-    Xgrs "replaceConstructCalls*";
-    Xgrs "unboxConstructCalls*";
-    Xgrs "simplifyClassConstruction*";
+let CleanSketchConstructsRules = [
+    Xgrs "replaceAssertCalls* & deleteAssertElidableAnnot*"
+    Xgrs "(valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*"
+    Xgrs "replaceConstructCalls*"
+    Xgrs "unboxConstructCalls*"
+    Xgrs "simplifyClassConstruction*"
     Xgrs "deleteDangling*"]
 
-let BlockifyFcndefsRules = [Xgrs "removeFcnTarget*";
-    Xgrs "(deleteDangling+ | removeNopTypeCast)*";
-    Xgrs "createFunctionBlocks* & retypeBlockSKBlock*";
-    Xgrs "checkOnlyFcnBlocks"]
+let BlockifyFcndefsRules = [
+    Xgrs "removeEmptyFcnTarget* & removeFcnTarget*"
+    Validate "! existsFcnTarget"
+    Xgrs "(deleteDangling+ | removeNopTypeCast)*"
+    Xgrs "createFunctionBlocks* & retypeBlockSKBlock*"
+    Xgrs "checkOnlyFcnBlocks" ]
 
 let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listClassDefsInit*";
@@ -70,9 +73,10 @@ let CleanTypedTmpBlockRules = [
     Xgrs "deleteDangling*"]
 
 let PostImportUnionRules = [
-    Xgrs "instantiateTemplateSymbols";
-    Xgrs "unionRootSymbol*";
-    Xgrs "unionSubSymbol*" ]
+    Xgrs "instantiateTemplateSymbols*"
+    Xgrs "unionRootSymbol*"
+    Xgrs "unionSubSymbol*"
+    Validate "! twoFcnsForSameSymbol" ]
 
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
@@ -99,6 +103,14 @@ let EmitRequiredImportsRules = [
     Xgrs "removeEnclosingLinks* & deleteDangling* & cleanupTmpEdges*"
     ]
 
+let SketchNospecRules = [
+    Xgrs "removeThisVarFromMain*";
+    Xgrs "generateNospec*"
+    Xgrs "doCopy"
+    Xgrs "[setCopySymbolNames]"
+    Xgrs "cleanupCopyTo*"
+    Xgrs "checkNoMainFcns" ]
+
 let LossyReplacementsRules = [
     Xgrs "replaceThrowWithAssertFalse*"
     Xgrs "deleteObjectInitCall*"
@@ -111,23 +123,25 @@ let LossyReplacementsRules = [
 let NewInitializerFcnStubsRules = [
     Xgrs "markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+"]
 
-let CstyleStmtsRules = [Xgrs "deleteDangling*";
-    Xgrs "cfgInit";
-    Xgrs "cfgSkipIf*";
-    Validate "! cfgExistsIncomplete";
-    Xgrs "setAttachableMemberFcns*";
-    Xgrs "setAttachableBlocks*";
-    Xgrs "forwardNonblockifyIntermediatePrologue*";
-    Xgrs "setBlockifyNextForAlreadyBlockified*";
-    Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*";
-    Xgrs "setBlockifyChain*";
-    Xgrs "checkBlockifyLinks";
-    Xgrs "forwardBlockifySkip*";
-    Xgrs "addDummyBlockifyChainEndNodes*";
-    Xgrs "deleteCfgNode*";
-    Xgrs "createTemporaryAssign*";
-    Xgrs "attachNodesToBlockList*";
-    Xgrs "deleteLastAttachables* & deleteLastAttachables2*";
+let CstyleStmtsRules = [
+    Xgrs "deleteDangling*"
+    Xgrs "cfgInit"
+    Xgrs "cfgSkipIf*"
+    Validate "! cfgExistsIncomplete"
+    Xgrs "setAttachableMemberFcns*"
+    Xgrs "setAttachableBlocks*"
+    Xgrs "forwardNonblockifyIntermediatePrologue*"
+    Xgrs "setBlockifyNextForAlreadyBlockified*"
+    Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
+    Xgrs "setBlockifyChain*"
+    Xgrs "checkBlockifyLinks"
+    Xgrs "forwardBlockifySkip*"
+    Xgrs "addDummyBlockifyChainEndNodes*"
+    Xgrs "deleteCfgNode*"
+    Xgrs "deleteCfgAttachable*"
+    Xgrs "createTemporaryAssign*"
+    Xgrs "attachNodesToBlockList*"
+    Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
     Validate "testNoBlockify"]
 
 let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";

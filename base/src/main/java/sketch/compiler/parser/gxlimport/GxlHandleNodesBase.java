@@ -1,17 +1,17 @@
 package sketch.compiler.parser.gxlimport;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
-
 import net.sourceforge.gxl.GXLBool;
 import net.sourceforge.gxl.GXLEdge;
 import net.sourceforge.gxl.GXLInt;
 import net.sourceforge.gxl.GXLNode;
 import net.sourceforge.gxl.GXLString;
 import scala.Tuple2;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
+
 import sketch.compiler.ast.core.FEContext;
 import sketch.compiler.ast.core.Function;
 import sketch.compiler.ast.core.Parameter;
@@ -172,5 +172,13 @@ public class GxlHandleNodesBase {
             // DebugOut.print("sanitized string", next);
             return next;
         }
+    }
+
+    protected <T> T getSingleton(List<T> lst) {
+        if (lst.size() != 1) {
+            DebugOut.assertFalse("getSingleton() error -- list has " + lst.size() +
+                    " elements");
+        }
+        return lst.get(0);
     }
 }

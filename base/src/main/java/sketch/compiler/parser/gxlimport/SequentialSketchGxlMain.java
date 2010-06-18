@@ -7,7 +7,7 @@ import sketch.compiler.solvers.constructs.ValueOracle;
 
 /**
  * run an existing program object.
- * 
+ *
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
  *          http://creativecommons.org/licenses/BSD/. While not required, if you make
@@ -23,6 +23,7 @@ public class SequentialSketchGxlMain extends SequentialSketchMain {
     public void run() {
         this.log(1, "Benchmark = " + this.benchmarkName());
         this.preprocAndSemanticCheck();
+        this.prog.debugDump();
 
         this.oracle = new ValueOracle(new StaticHoleTracker(this.varGen)/*
                                                                          * new

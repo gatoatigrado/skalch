@@ -54,7 +54,7 @@ let CleanSketchConstructs = {
 let BlockifyFcndefs = {
     stageDefault with
         name = "BlockifyFcndefs";
-        description = "Convert function bodies to SKBlock(s)";
+        description = "Function target -> arg, convert function bodies to SKBlock(s)";
         stage = rewriteStage BlockifyFcndefsRules }
 
 let NiceLists = {
@@ -86,6 +86,12 @@ let EmitRequiredImports = {
         name = "EmitRequiredImports";
         description = "Print discrete union requirements";
         stage = rewriteStage EmitRequiredImportsRules }
+
+let SketchNospec = {
+    stageDefault with
+        name = "SketchNospec"
+        description = "Create nospec functions for the sketch"
+        stage = rewriteStage SketchNospecRules }
 
 let LossyReplacements = {
     stageDefault with
@@ -122,9 +128,3 @@ let CreateTemplates = {
         name = "CreateTemplates";
         description = "Transform RewriteTemplates.Template into useable templates"
         stage = rewriteStage CreateTemplatesRules }
-
-let all_stages = [ WarnUnsupported; DeleteMarkedIgnore; DecorateNodes;
-    ConvertThis; BlockifyFcndefs; NiceLists; ProcessAnnotations1;
-    ProcessAnnotations2;
-    ArrayLowering; EmitRequiredImports; LossyReplacements; NewInitializerFcnStubs;
-    CstyleStmts; CstyleAssns; SketchFinalMinorCleanup]

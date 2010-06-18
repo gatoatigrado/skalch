@@ -124,6 +124,8 @@ class JavaSubtreeList(NameASTNode):
         NameASTNode.__init__(self, name)
     def typename(self): return "List<%s>" % (self.name.text)
 class JavaSubtreeSingletonList(JavaSubtreeList): pass
+class JavaSubtreeGetListSingleton(JavaSubtreeList):
+    def typename(self): return self.name.text
 
 
 
@@ -232,11 +234,13 @@ class Parser(spark.GenericASTBuilder):
         JavaArg ::= JavaSubtree
         JavaArg ::= JavaSubtreeList
         JavaArg ::= JavaSubtreeSingletonList
+        JavaArg ::= JavaSubtreeGetListSingleton
         JavaArg ::= JavaImplicitArg
         JavaArg ::= JavaEscapedArg
         JavaSubtree ::= WORD
         JavaSubtreeList ::= List [ WORD ]
         JavaSubtreeSingletonList ::= SingletonList [ WORD ]
+        JavaSubtreeGetListSingleton ::= GetListSingleton [ WORD ]
         JavaImplicitArg ::= < WORD >
         JavaEscapedArg ::= STRING
 

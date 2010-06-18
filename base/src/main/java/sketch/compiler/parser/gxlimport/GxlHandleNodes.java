@@ -237,7 +237,11 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public ExprUnary getExprUnaryFromFcnCallUnaryNegative(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        Expression arg2 = getExpression(followEdge("FcnArgChain", node)); // gen marker 2
+        Vector<Expression> arg2_vec = new Vector<Expression>();
+        for (GXLNode arg2_tmp1 : followEdgeOL("FcnArgList", node)) {
+            arg2_vec.add(getExpression(arg2_tmp1)); // gen marker 4
+        }
+        Expression arg2 = getSingleton(unmodifiableList(arg2_vec));
 
         return new ExprUnary(arg0, ExprUnary.UNOP_NEG, arg2);
     }
@@ -287,7 +291,7 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public ExprStar getExprStarFromHoleCall(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        return new ExprStar(arg0);
+        return new ExprStar(arg0, 10);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.

@@ -17,18 +17,6 @@ create blocks for all function bodies.
 
 
 
-{% block grs %}
-echo "[REWRITE PRODUCTION] local simplifications"
-xgrs removeFcnTarget*
-xgrs (deleteDangling+ | removeNopTypeCast)*
-
-echo "[REWRITE PRODUCTION] local simplifications -- retype unit blocks"
-xgrs createFunctionBlocks* & retypeBlockSKBlock*
-xgrs checkOnlyFcnBlocks
-{% endblock %}
-
-
-
 {% block grg %}
 /// change f(x) = x to f(x) = { x }
 rule createFunctionBlocks {

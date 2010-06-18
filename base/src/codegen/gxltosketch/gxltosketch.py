@@ -78,8 +78,8 @@ EXPRS = r"""
 FcnBinaryCall(FcnBinaryCallLhs, .strop, FcnBinaryCallRhs)
     -> new ExprBinary(<ctxnode>, Expression, String, Expression)
 
-FcnCallUnaryNegative(FcnArgChain)
-    -> new ExprUnary(<ctx>, "ExprUnary.UNOP_NEG", Expression)
+FcnCallUnaryNegative(OL[FcnArgList])
+    -> new ExprUnary(<ctx>, "ExprUnary.UNOP_NEG", GetListSingleton[Expression])
 
 FcnCall(FcnCallSymbol:PrintSymName, OL[FcnArgList])
     -> new ExprFunCall(<ctx>, String, List[Expression])
@@ -90,7 +90,7 @@ SKNew(FcnCallTypeSymbol)
 FieldAccess(FieldAccessObject, FieldAccessSymbol:PrintSymName)
     -> new ExprField(<ctxnode>, Expression, String)
 
-HoleCall() -> new ExprStar(<ctx>)
+HoleCall() -> new ExprStar(<ctx>, "10")
 
 NullTypeConstant() -> new ExprNullPtr(<ctx>)
 

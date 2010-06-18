@@ -47,6 +47,11 @@ import sketch.compiler.ast.scala.exprs.*;
 {%- endif %}
 {%- endmacro %}
 
+{%- macro get_list_singleton(is_singleton) -%}
+    {%- set text = caller() -%}
+    {%- if is_singleton %}getSingleton({{ text }}){% else %}{{ text }}{% endif %}
+{%- endmacro -%}
+
 {%- macro handle_vector() -%}
         Vector<{{ java_arg }}> {{ arg_name }}_vec = new Vector<{{ java_arg }}>();
         for (GXLNode {{ arg_name }}_tmp{{ tmp_idx + 1 }} : followEdge{{ gxl_first.cn[-2:] }}("{{ gxl_first.name.text }}", {{ latest_arg }})) {
@@ -59,7 +64,10 @@ import sketch.compiler.ast.scala.exprs.*;
 {% endfilter %}
 
         }
-        {{ java_arg.typename() }} {{ arg_name }} = unmodifiableList({{ arg_name }}_vec);
+        {{ java_arg.typename() }} {{ arg_name }} ={{ " " }}
+            {%- call get_list_singleton(java_arg.cn == "JavaSubtreeGetListSingleton") -%}
+                unmodifiableList({{ arg_name }}_vec)
+            {%- endcall %};
 {%- endmacro %}
 
 {%- macro handle_attribute() %}

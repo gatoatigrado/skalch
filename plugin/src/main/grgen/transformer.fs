@@ -45,7 +45,7 @@ let export_templates (results:RewriteResult list) graph =
         let graphstack = graph.Impl.getGraphStack()
         graphstack.PushClone()
         let results, e_g = processStage (create_rewrite_stage name) results graph
-        printfn "exporting %s" (Config.template name).value
+        printfn "exporting template %s" (Config.template name).value
         let r_exp = e_g.Export (Config.template name)
         graphstack.Pop() |> ignore
         (r_exp :: results, graph)
@@ -57,7 +57,7 @@ let export_templates (results:RewriteResult list) graph =
 
 let import_templates (results:RewriteResult list) (graph:Graph) =
     let importfcn (results, (graph:Graph)) name =
-        printfn "importing %s" (Config.template name).value
+        printfn "importing template %s" (Config.template name).value
         let r_exp = graph.ImportDUnion (Config.template name)
         (r_exp :: results, graph)
     (getLastStageEmit results).Split '\n'
@@ -86,53 +86,90 @@ let ProcessAnnotations = {
         description = "(metastage) process annotations, esp. those for sketch constructs"
         stage = MetaStage [ProcessAnnotations1; ImportTemplates; ProcessAnnotations2] }
 
+let CstyleMain = {
+    stageDefault with
+        name = "CstyleMain"
+        description = "convert AST to C-style syntax (e.g. if statements aren't expressions)"
+        stage = MetaStage [CstyleStmts; CstyleAssns] }
+
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
 let no_oo_meta = [ ConvertThis ]
 let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements;
-    CleanSketchConstructs; SketchFinalMinorCleanup ]
-let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleStmts; CstyleAssns ]
+    CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec ]
+let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
 let library_meta = [ EmitRequiredImports ]
 let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
     DecorateNodes; CleanSketchConstructs; RedirectAccessorsToFields ]
 
+(* zones -- abstraction of dependencies
+ read concrete dependencies below first
+
+ For each zone, nodes in the list require the first tuple element,
+ and are ordered before all next zones.
+
+ In general, graphs in a zone will have similar types (nodes / edges) *)
+let zone_initial = [
+    DeleteMarkedIgnore
+    WarnUnsupported ]
+let zone_decorated =
+    DecorateNodes,
+    [
+        CleanSketchConstructs
+        RedirectAccessorsToFields
+        ConvertThis
+        BlockifyFcndefs ]
+let zone_nice_lists =
+    NiceLists,
+    [
+        ProcessAnnotations
+        ArrayLowering
+        CreateTemplates
+        ExportTemplates
+        SketchNospec
+        LossyReplacements
+        EmitRequiredImports
+        NewInitializerFcnStubs ]
+let zone_cstyle =
+    CstyleMain,
+    [
+        SketchFinalMinorCleanup ]
+
+let rec depsFromZones (prevDeps:NamedStage list) = function
+    | [] -> []
+    | ((init:NamedStage), (deps:NamedStage list)) :: tail ->
+        (List.map ((<+?) init) deps) @
+        (List.map (fun x -> x <?? init) prevDeps) @
+        (depsFromZones (prevDeps @ (init :: deps)) tail)
+let zone_deps = depsFromZones zone_initial [zone_decorated; zone_nice_lists; zone_cstyle]
+
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
-let deps = [
-    WarnUnsupported <?? DecorateNodes
-    DeleteMarkedIgnore <?? DecorateNodes
-    DeleteMarkedIgnore <?? CleanSketchConstructs
-    DeleteMarkedIgnore <+? CreateTemplates
-    DecorateNodes <+? RedirectAccessorsToFields
-    DecorateNodes <+? ConvertThis
-    DecorateNodes <+? BlockifyFcndefs
-    DecorateNodes <+? CreateTemplates
-    DecorateNodes <+? CleanSketchConstructs
-    DecorateNodes <?? LossyReplacements
-    RedirectAccessorsToFields <?? BlockifyFcndefs
-    RedirectAccessorsToFields <?? NiceLists
-    RedirectAccessorsToFields <?? ConvertThis
-    BlockifyFcndefs <?? NiceLists
-    BlockifyFcndefs <+? CreateTemplates
-    CleanSketchConstructs <?? NiceLists
-    CleanSketchConstructs <?? ProcessAnnotations
-    CleanSketchConstructs <?? LossyReplacements
-    NiceLists <+? ProcessAnnotations
-    NiceLists <+? ArrayLowering
-    NiceLists <+? CstyleStmts
-    NiceLists <+? CreateTemplates
-    CreateTemplates <?? ExportTemplates
-    ProcessAnnotations <?? ArrayLowering
-    ProcessAnnotations <+? CstyleStmts
-    ProcessAnnotations <?? LossyReplacements
-    ArrayLowering <?? EmitRequiredImports
-    LossyReplacements <?? NewInitializerFcnStubs
-    LossyReplacements <+? EmitRequiredImports
-    EmitRequiredImports <?? SketchFinalMinorCleanup
-    EmitRequiredImports <?? CstyleStmts
-    NewInitializerFcnStubs <?? CstyleStmts
-    CstyleStmts <+? CstyleAssns
-    CstyleStmts <?? SketchFinalMinorCleanup
+let deps =
+    zone_deps @
+    [
+        WarnUnsupported <?? DecorateNodes
+        DeleteMarkedIgnore <+? CreateTemplates
+
+        (* interzone dependencies *)
+        BlockifyFcndefs <+? CreateTemplates
+        ProcessAnnotations <+? CstyleMain
+
+        (* most later stages require decorate... *)
+        DecorateNodes <+? NiceLists
+
+        (* zone_decorated intradependencies *)
+        RedirectAccessorsToFields <?? BlockifyFcndefs
+        RedirectAccessorsToFields <?? ConvertThis
+
+        (* zone_nice_lists intradependencies *)
+        ProcessAnnotations <?? ArrayLowering
+        ProcessAnnotations <?? LossyReplacements
+        ArrayLowering <?? EmitRequiredImports
+        CreateTemplates <?? ExportTemplates
+        EmitRequiredImports <?? SketchNospec
+        LossyReplacements <?? EmitRequiredImports
+        LossyReplacements <?? NewInitializerFcnStubs
     ]
 
 (* Goals -- sets of stages *)
@@ -143,6 +180,7 @@ let sketch = { name = "sketch";
     stages=innocuous_meta @ no_oo_meta @ optimize_meta @
         sketch_meta @ cstyle_meta @ library_meta }
 let all_goals = [create_templates; sketch; test]
+let all_stages = List.fold (fun x y -> x @ (y.stages)) [] all_goals
 
 (* Functions for command line parsing. Exposed so you can add aliases, etc. *)
 let goalMap, stageMap = (defaultGoalMap all_goals, defaultStageMap all_stages)

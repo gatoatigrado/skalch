@@ -84,9 +84,6 @@ node class ThisValDef extends ValDef;
 
 
 
-
-
-
 abstract node class CfgAbstractNode;
 abstract node class CfgEvalNode;
 // normal nodes indicate normal control flow.

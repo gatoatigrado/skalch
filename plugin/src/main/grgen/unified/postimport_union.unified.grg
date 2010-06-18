@@ -48,4 +48,9 @@ rule unionSubSymbol {
     }
     modify { delete(y); }
 }
+
+test twoFcnsForSameSymbol {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
+    y:FcnDef -:FcnDefSymbol-> sym;
+}
 {% endblock %}

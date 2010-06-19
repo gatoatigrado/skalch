@@ -229,4 +229,15 @@ rule listInsertBefore(x:ListAbstractNode, y:Node) {
     modify { exec(listDoInsertBefore(x, y) || assertFalse("list insert before failed")); }
 }
 
+pattern IsListLast(lst:List, y:ScAstNode) {
+    lst -:ListLast-> last:ListLastNode;
+    n:ListNode -:ListNext-> last;
+    n -:ListValue-> y;
+}
+
+pattern IsLastListNode(lst:List, y:ListNode) {
+    lst -:ListLast-> last:ListLastNode;
+    y -:ListNext-> last;
+}
+
 {% endblock %}

@@ -105,7 +105,7 @@ edge class CfgSequentialNext extends CfgAbstractNext;
 edge class CfgNext extends CfgSequentialNext;
 edge class CfgSkipSubtreeNext extends CfgSequentialNext;
 // TODO -- implement more CFG edges.
-// edge class CfgConditionalNext extends CfgAbstractNext;
+edge class CfgConditionalNext extends CfgAbstractNext;
 edge class CfgNextFromEval extends CfgAbstractNext;
 
 // edges from the original AST to the CFG
@@ -195,11 +195,6 @@ edge class NodePrinted extends TmpEdge;
 
 
 
-// edge class MyEdge
-// node class MyNode
-
-
-
 
 
 
@@ -239,14 +234,6 @@ node class HLArgEnd;
 
 
 
-// edge class MyEdge
-// node class MyNode
-
-
-
-
-
-
 edge class CalledMethod extends TmpEdge;
 
 
@@ -272,6 +259,9 @@ edge class CreateTemplate;
 // prevents deletion of node
 node class TemplateToExport;
 
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 
 
 // place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
@@ -321,6 +311,10 @@ node class SKAssertCall extends FcnCall;
 edge class SKAssertCallArg extends Subtree, CfgSimpleInner;
 
 edge class PackageDefFcn extends Subtree;
+
+node class SKWhileLoop extends ScAstNode;
+edge class SKWhileLoopCond extends Subtree;
+edge class SKWhileLoopBody extends Subtree;
 
 
 
@@ -464,7 +458,7 @@ node class NullTypeConstant extends Constant;
 node class UnitConstant extends Constant;
 
 node class Bind extends ScAstNode;
-node class GotoCall extends ScAstNode;
+node class GotoCall extends FcnCall;
 node class LabelDef extends ScalaExprStmt;
 node class Match extends ScAstNode;
 node class TypeTree extends ScAstNode;
@@ -543,6 +537,7 @@ edge class TemplateElement extends Subtree;
 edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
 edge class ValDefRhs extends Subtree, CfgSimpleInner;
+edge class LabelDefRhs extends Subtree;
 
 edge class ArrValueLast;
 edge class FcnCallTypeArgsLast;

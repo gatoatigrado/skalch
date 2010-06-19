@@ -68,6 +68,9 @@ Assign(AssignLhs, AssignRhs)
 
 If(IfCond, IfThen, IfElse)
     -> new StmtIfThen(<ctx>, Expression, Statement, Statement)
+
+SKWhileLoop(SKWhileLoopCond, SKWhileLoopBody)
+    -> new StmtWhile(<ctx>, Expression, Statement)
 """
 
 
@@ -149,7 +152,7 @@ def ast_inheritance(rules):
 #        "Class": "ExprBinary",
         "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew",
         "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
-        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile",
         "Type": "TypeStruct TypePrimitive TypeStructRef" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:

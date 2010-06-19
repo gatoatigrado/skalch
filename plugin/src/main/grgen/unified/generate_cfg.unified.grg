@@ -33,7 +33,7 @@ edge class CfgSequentialNext extends CfgAbstractNext;
 edge class CfgNext extends CfgSequentialNext;
 edge class CfgSkipSubtreeNext extends CfgSequentialNext;
 // TODO -- implement more CFG edges.
-// edge class CfgConditionalNext extends CfgAbstractNext;
+edge class CfgConditionalNext extends CfgAbstractNext;
 edge class CfgNextFromEval extends CfgAbstractNext;
 
 // edges from the original AST to the CFG
@@ -141,6 +141,50 @@ rule {{ set_next_fcn("cfgSetSimpleInnerNext") }} {
     modify { prologue -:CfgNext-> y -:CfgNext-> epilogue; }
 }
 
+rule {{ set_next_fcn("cfgSetWhileLoopNext") }} {
+    x:SKWhileLoop -:SKWhileLoopCond-> cond:ScAstNode;
+    x -:SKWhileLoopBody-> body:ScAstNode;
+    x -:CfgPrologue-> prologue:CfgAbstractNode;
+    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
+
+    negative { body -:CfgAbstractNext-> .; }
+    modify {
+        prologue -:CfgNext-> cond;
+        body -:CfgNext-> cond;
+        cond -:CfgConditionalNext-> body;
+        cond -:CfgConditionalNext-> epilogue;
+    }
+}
+
+rule {{ set_next_fcn("cfgSetAssignNext") }} {
+    x:Assign -:AssignLhs-> lhs:ScAstNode;
+    x -:AssignRhs-> rhs:ScAstNode;
+    x -:CfgPrologue-> prologue:CfgAbstractNode;
+    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
+
+    negative { prologue -:CfgNext-> .; }
+    modify {
+        prologue -:CfgNext-> lhs -:CfgNext-> rhs -:CfgNext-> epilogue;
+    }
+}
+
+rule {{ set_next_fcn("cfgSetIfNext") }} {
+    x:If -:IfCond-> cond:ScAstNode;
+    x -:IfThen-> then:ScAstNode;
+    x -:IfElse-> else:ScAstNode;
+    x -:CfgPrologue-> prologue:CfgAbstractNode;
+    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
+
+    negative { prologue -:CfgNext-> .; }
+    modify {
+        prologue -:CfgNext-> cond;
+        cond -:CfgConditionalNext-> then;
+        cond -:CfgConditionalNext-> else;
+        then -:CfgNext-> epilogue;
+        else -:CfgNext-> epilogue;
+    }
+}
+
 // STEP 3: set any edges that are pointing to nodes to their respective
 // epilogues / prologues
 
@@ -179,12 +223,14 @@ rule cfgRedirectOutgoingToEpilogue {
 
 // STEP 4 -- optional "skip internal" edges for conditional blocks
 
+{#
 rule cfgSkipIf {
     x:If -:CfgPrologue-> prologue:CfgNormalNode;
     x -:CfgEpilogue-> epilogue:CfgNormalNode;
     negative { prologue -:CfgAbstractNext-> .; }
     modify { prologue -:CfgSkipSubtreeNext-> epilogue; }
 }
+#}
 
 // STEP 5 -- forward next ptrs from dummy prologues.
 

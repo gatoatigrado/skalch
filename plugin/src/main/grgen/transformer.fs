@@ -90,7 +90,7 @@ let CstyleMain = {
     stageDefault with
         name = "CstyleMain"
         description = "convert AST to C-style syntax (e.g. if statements aren't expressions)"
-        stage = MetaStage [CstyleStmts; CstyleAssns] }
+        stage = MetaStage [CstyleStmts; CstyleAssns; CstyleMinorCleanup] }
 
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
@@ -98,7 +98,7 @@ let no_oo_meta = [ ConvertThis ]
 let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements;
     CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec ]
-let cstyle_meta = [ NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
+let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
 let library_meta = [ EmitRequiredImports ]
 let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
     DecorateNodes; CleanSketchConstructs; RedirectAccessorsToFields ]
@@ -123,6 +123,7 @@ let zone_decorated =
 let zone_nice_lists =
     NiceLists,
     [
+        RaiseSpecialGotos
         ProcessAnnotations
         ArrayLowering
         CreateTemplates
@@ -153,6 +154,7 @@ let deps =
 
         (* interzone dependencies *)
         BlockifyFcndefs <+? CreateTemplates
+        BlockifyFcndefs <?? CleanSketchConstructs
         ProcessAnnotations <+? CstyleMain
 
         (* most later stages require decorate... *)
@@ -204,30 +206,34 @@ let main(args:string[]) =
     initialgraph.Impl.SetDebugLayout "Compilergraph"
     initialgraph.Impl.SetDebugLayoutOption ("CREATE_LOOP_TREE", "false")
     initialgraph.SetNodeColors [
-        "ScalaExprStmt", "lilac";
-        "FcnDef", "green";
-        "ClassDef", "red";
-        "SketchConstructSymbol", "gold";
-        "SketchConstructCall", "orange";
-        "Symbol", "blue";
-        "Annotation", "orchid";
-        "TmpSymbol", "LightRed";
-        "BlockifyValDef", "LightBlue";
-        "TmpVarRef", "LightCyan";
-        "CfgAbstractNode", "LightGreen";
-        "HighlightValDef", "Black";
-        "PrintNode", "DarkBlue";
-        "DebugBadNode", "Red";
-        "List", "Grey";
-        "ListNode", "Grey";
-        "ListFirstNode", "LightGrey";
+        "ScalaExprStmt", "lilac"
+        "FcnDef", "green"
+        "ClassDef", "red"
+        "SketchConstructSymbol", "gold"
+        "SketchConstructCall", "orange"
+        "Symbol", "blue"
+        "Annotation", "orchid"
+        "TmpSymbol", "LightRed"
+        "BlockifyValDef", "LightBlue"
+        "TmpVarRef", "LightCyan"
+        "CfgAbstractNode", "LightGreen"
+        "HighlightValDef", "Black"
+        "PrintNode", "DarkBlue"
+        "DebugBadNode", "Red"
+        "List", "Grey"
+        "ListNode", "Grey"
+        "ListFirstNode", "LightGrey"
         "ListLastNode", "LightGrey"
+        "SKWhileLoop", "DarkBlue"
         ]
     initialgraph.SetEdgeColors [
         "CfgAbstractNext", "DarkGreen"
         "AbstractBlockify", "DarkRed"
         "ListElt", "LightBlue"
         "ListValue", "Lilac"
+        "ScTermSymbol", "gold"
+        "ScTypeSymbol", "khaki"
+        "CfgPrologue", "black"
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"

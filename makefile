@@ -111,7 +111,7 @@ $(libgrg)/fsharp_stage_transformer.dll: $(stagetf_sources)
 	cd $(libgrg)/../FSharpBindings; ./build.zsh
 
 ycomp: gen killall stagetf-compile
-	source ./env; tf-test --debugafter CstyleAssns
+	source ./env; tf-test --debugbefore SketchFinalMinorCleanup
 
 ycomp-intermediate: killall
 	python plugin/src/main/grgen/transform_sketch.py --ycomp --gxl_file=base/src/test/scala/angelic/simple/SugaredTest.intermediate.ast.gxl --grs_template="!/ycomp_intermediate.grs"

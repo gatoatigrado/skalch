@@ -215,8 +215,8 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
                     }
                 }
 
-            // already grabbed the symbol; what else matters?
-            case LabelDef(name, params, rhs) => ()
+            case LabelDef(name, params, rhs) =>
+                subtree("LabelDefRhs", rhs)
 
             case Try(block, catches, finalizer) =>
                 subtree("Try", block)

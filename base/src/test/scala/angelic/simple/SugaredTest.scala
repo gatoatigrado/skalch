@@ -3,10 +3,13 @@ import skalch.{AngelicSketch, SkalchIgnoreClass}
 import sketch.util._
 
 class MySketch() extends AngelicSketch {
-    type Int5 = Int @ Range(-32 to 31)
-
-    def main(x : Int) {
-        assert((?? : Int5) * x == - x - x)
+    def main(xIn : Int) {
+        var x = xIn;
+        x = if (x >= 2 && x <= 10) 0 else x
+        while (x > 10) {
+            x -= (?? : Int @ Range(-32 to 310))
+        }
+        assert(x < 2)
     }
 }
 

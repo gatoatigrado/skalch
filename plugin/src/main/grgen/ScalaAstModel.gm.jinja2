@@ -93,13 +93,13 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/new_initializer_fcn_stubs.gm" %}
 {% include "nodes/gen/lossy_replacements.gm" %}
 {% include "nodes/gen/array_lowering.gm" %}
-{% include "nodes/gen/decorate_calls.gm" %}
 {% include "nodes/gen/emit_required_imports.gm" %}
 {% include "nodes/gen/decorate_nodes.gm" %}
 {% include "nodes/gen/process_annotations.gm" %}
 {% include "nodes/gen/create_templates.gm" %}
 {% include "nodes/gen/postimport_union.gm" %}
 {% include "nodes/gen/template_util.gm" %}
+{% include "nodes/gen/raise_special_gotos.gm" %}
 // add unified here
 
 
@@ -143,6 +143,10 @@ node class SKAssertCall extends FcnCall;
 edge class SKAssertCallArg extends Subtree, CfgSimpleInner;
 
 edge class PackageDefFcn extends Subtree;
+
+node class SKWhileLoop extends ScAstNode;
+edge class SKWhileLoopCond extends Subtree;
+edge class SKWhileLoopBody extends Subtree;
 
 
 
@@ -289,7 +293,7 @@ node class NullTypeConstant extends Constant;
 node class UnitConstant extends Constant;
 
 node class Bind extends ScAstNode;
-node class GotoCall extends ScAstNode;
+node class GotoCall extends FcnCall;
 node class LabelDef extends ScalaExprStmt;
 node class Match extends ScAstNode;
 node class TypeTree extends ScAstNode;
@@ -368,6 +372,7 @@ edge class TemplateElement extends Subtree;
 edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
 edge class ValDefRhs extends Subtree, CfgSimpleInner;
+edge class LabelDefRhs extends Subtree;
 
 edge class ArrValueLast;
 edge class FcnCallTypeArgsLast;

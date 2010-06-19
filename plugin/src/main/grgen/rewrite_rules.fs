@@ -64,6 +64,11 @@ let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listCompleteLast*";
     Xgrs "listCompleteBlockLast*"]
 
+let RaiseSpecialGotosRules = [
+    Xgrs "raiseWhileLoopGotos*"
+    Xgrs "deleteDangling*"
+    Validate "! existsLabelDef" ]
+
 let CleanTypedTmpBlockRules = [
     Xgrs "deleteDangling*";
     Validate "cleanupDummyVarBlocks";
@@ -72,18 +77,18 @@ let CleanTypedTmpBlockRules = [
     Validate "! existsDanglingAnnotation";
     Xgrs "deleteDangling*"]
 
-let PostImportUnionRules = [
-    Xgrs "instantiateTemplateSymbols*"
-    Xgrs "unionRootSymbol*"
-    Xgrs "unionSubSymbol*"
-    Validate "! twoFcnsForSameSymbol" ]
-
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
     [ Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*";
     Xgrs "deleteDangling*";
     Validate "! existsDanglingAnnotation";
     Xgrs "[requestIntHoleTemplate]" ]
+
+let PostImportUnionRules = [
+    Xgrs "instantiateTemplateSymbols*"
+    Xgrs "unionRootSymbol*"
+    Xgrs "unionSubSymbol*"
+    Validate "! twoFcnsForSameSymbol" ]
 
 let ProcessAnnotationsRules2 =
     PostImportUnionRules @
@@ -126,7 +131,7 @@ let NewInitializerFcnStubsRules = [
 let CstyleStmtsRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
-    Xgrs "cfgSkipIf*"
+(*     Xgrs "cfgSkipIf*" *)
     Validate "! cfgExistsIncomplete"
     Xgrs "setAttachableMemberFcns*"
     Xgrs "setAttachableBlocks*"
@@ -146,6 +151,9 @@ let CstyleStmtsRules = [
 
 let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
     Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]
+
+let CstyleMinorCleanupRules = [
+    Xgrs "unitBlocksToSKBlocks" ]
 
 let SketchFinalMinorCleanupRules = [Xgrs "removeEmptyTrees";
     Xgrs "setSymbolNames* & deletePrintRenamer*";

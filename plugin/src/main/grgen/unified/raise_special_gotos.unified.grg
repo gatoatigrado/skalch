@@ -1,0 +1,54 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// DESCRIPTION OF FILE HERE
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+pattern SingleRefLabelSymbol(sym:Symbol) {
+    independent {
+        goto:GotoCall -:FcnCallSymbol-> sym;
+        negative { goto; :GotoCall -:FcnCallSymbol-> sym; }
+    }
+}
+
+rule raiseWhileLoopGotos {
+    // body is a simple if statement
+    parent:Node -e:Replaceable->
+        x:LabelDef -:LabelDefRhs-> if_:If -:IfElse-> :UnitConstant;
+    if_ -:IfThen-> thenblock:Block -:BlockStmtList-> stmts:List;
+    if_ -:IfCond-> cond:ScAstNode;
+
+    // no other gotos
+    x -:LabelDefSymbol-> sym:Symbol;
+    :SingleRefLabelSymbol(sym);
+
+    // goto is last statement
+    goto_node:ListNode -:ListValue-> goto:GotoCall -:FcnCallSymbol-> sym;
+    :IsLastListNode(stmts, goto_node);
+
+    modify {
+        delete(e, if_);
+        parent -:typeof(e)-> w:SKWhileLoop;
+        w -:SKWhileLoopCond-> cond;
+        w -:SKWhileLoopBody-> thenblock;
+        exec(listDelete(goto_node));
+    }
+}
+
+test existsLabelDef {
+    :LabelDef;
+}
+{% endblock %}

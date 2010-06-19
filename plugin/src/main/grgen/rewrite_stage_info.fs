@@ -63,6 +63,12 @@ let NiceLists = {
         description = "Convert all lists to nice ('generic') lists";
         stage = rewriteStage NiceListsRules }
 
+let RaiseSpecialGotos = {
+    stageDefault with
+        name = "RaiseSpecialGotos"
+        description = "Convert certain label-goto patterns into familiar for loops"
+        stage = rewriteStage RaiseSpecialGotosRules }
+
 let ProcessAnnotations1 = {
     stageDefault with
         name = "ProcessAnnotations1"
@@ -116,6 +122,12 @@ let CstyleAssns = {
         name = "CstyleAssns";
         description = "Replace x = { block; expr } with block; x = expr";
         stage = rewriteStage CstyleAssnsRules }
+
+let CstyleMinorCleanup = {
+    stageDefault with
+        name = "CstyleMinorCleanup"
+        description = "change unit blocks to skblocks"
+        stage = rewriteStage CstyleMinorCleanupRules }
 
 let SketchFinalMinorCleanup = {
     stageDefault with

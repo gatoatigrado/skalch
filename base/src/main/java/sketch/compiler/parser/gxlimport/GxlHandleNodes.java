@@ -220,6 +220,18 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public StmtWhile getStmtWhileFromSKWhileLoop(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Expression arg1 = getExpression(followEdge("SKWhileLoopCond", node)); // gen marker 2
+
+        Statement arg2 = getStatement(followEdge("SKWhileLoopBody", node)); // gen marker 2
+
+        return new StmtWhile(arg0, arg1, arg2);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public ExprBinary getExprBinaryFromFcnBinaryCall(final GXLNode node) {
         FENode arg0 = new DummyFENode(create_fe_context(node));
 
@@ -383,7 +395,9 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     public Statement getStatement(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("SKStmtExpr")) {
+        if (typ.equals("SKWhileLoop")) {
+            return getStmtWhileFromSKWhileLoop(node);
+        } else if (typ.equals("SKStmtExpr")) {
             return getStmtExprFromSKStmtExpr(node);
         } else if (typ.equals("If")) {
             return getStmtIfThenFromIf(node);
@@ -548,6 +562,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getStmtVarDeclFromValDef(node);
         } else {
             throw new RuntimeException("no way to return a 'StmtVarDecl' from a node of type " + typ);
+        }
+    }
+
+    public StmtWhile getStmtWhile(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SKWhileLoop")) {
+            return getStmtWhileFromSKWhileLoop(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtWhile' from a node of type " + typ);
         }
     }
 

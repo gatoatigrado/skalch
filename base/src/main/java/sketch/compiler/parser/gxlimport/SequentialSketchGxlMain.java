@@ -23,7 +23,7 @@ public class SequentialSketchGxlMain extends SequentialSketchMain {
     public void run() {
         this.log(1, "Benchmark = " + this.benchmarkName());
         this.preprocAndSemanticCheck();
-        this.prog.debugDump();
+        this.prog.debugDump("After preprocessing");
 
         this.oracle = new ValueOracle(new StaticHoleTracker(this.varGen)/*
                                                                          * new

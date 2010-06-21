@@ -3,13 +3,12 @@ import skalch.{AngelicSketch, SkalchIgnoreClass}
 import sketch.util._
 
 class MySketch() extends AngelicSketch {
-    def main(xIn : Int) {
-        var x = xIn;
-        x = if (x >= 2 && x <= 10) 0 else x
-        while (x > 10) {
-            x -= (?? : Int @ Range(-32 to 310))
-        }
-        assert(x < 2)
+    type Int5 = Int @ Range(-32 until 32)
+
+    def myfcn(z : Int) = (z * 5)
+    def main(x : Int) {
+        val myvalue = myfcn({ var x = 3; x += (?? : Int5); x; })
+        assert(myvalue == 20)
     }
 }
 

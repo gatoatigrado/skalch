@@ -11,8 +11,3 @@ rule deleteCfgNode {
     x:CfgAbstractNode;
     modify { delete(x); }
 }
-
-rule deleteCfgAttachable {
-    x:CfgAbstractAttachable;
-    modify { delete(x); }
-}

@@ -135,6 +135,7 @@ let CstyleStmtsRules = [
     Validate "! cfgExistsIncomplete"
     Xgrs "setAttachableMemberFcns*"
     Xgrs "setAttachableBlocks*"
+    Xgrs "blockifyDefault* & blockifyLists*"
     Xgrs "forwardNonblockifyIntermediatePrologue*"
     Xgrs "setBlockifyNextForAlreadyBlockified*"
     Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
@@ -143,11 +144,10 @@ let CstyleStmtsRules = [
     Xgrs "forwardBlockifySkip*"
     Xgrs "addDummyBlockifyChainEndNodes*"
     Xgrs "deleteCfgNode*"
-    Xgrs "deleteCfgAttachable*"
     Xgrs "createTemporaryAssign*"
     Xgrs "attachNodesToBlockList*"
     Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
-    Validate "testNoBlockify"]
+    Validate "! existsBlockify"]
 
 let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
     Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]
@@ -155,20 +155,24 @@ let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
 let CstyleMinorCleanupRules = [
     Xgrs "unitBlocksToSKBlocks" ]
 
-let SketchFinalMinorCleanupRules = [Xgrs "removeEmptyTrees";
-    Xgrs "setSymbolNames* & deletePrintRenamer*";
-    Xgrs "setSymbolSketchType*";
-    Xgrs "setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit";
-    Xgrs "connectFunctions*";
-    Xgrs "removeEmptyChains*";
-    Xgrs "setAssertCalls* & deleteDangling*";
-    Xgrs "setFcnBinaryCallBaseType*";
-    Xgrs "setFcnBinaryCallArgs*";
-    Xgrs "setSymbolBaseType*";
-    Xgrs "setValDefBaseType*";
-    Xgrs "setVarRefBaseType*";
-    Xgrs "setFcnDefBaseType*";
-    Xgrs "addSkExprStmts*"]
+let SketchFinalMinorCleanupRules = [
+    Xgrs "removeEmptyTrees"
+    Xgrs "[setTmpSymbolNames]"
+    Xgrs "[initSymbolNames]"
+    Xgrs "uniqueSymbolNames*"
+    Xgrs "[finalizeSymbolNames]"
+    Xgrs "setSymbolSketchType*"
+    Xgrs "setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit"
+    Xgrs "connectFunctions*"
+    Xgrs "removeEmptyChains*"
+    Xgrs "setAssertCalls* & deleteDangling*"
+    Xgrs "setFcnBinaryCallBaseType*"
+    Xgrs "setFcnBinaryCallArgs*"
+    Xgrs "setSymbolBaseType*"
+    Xgrs "setValDefBaseType*"
+    Xgrs "setVarRefBaseType*"
+    Xgrs "setFcnDefBaseType*"
+    Xgrs "addSkExprStmts*" ]
 
 let CreateTemplatesRules =
     [ Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*";

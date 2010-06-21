@@ -8,42 +8,30 @@
 // generate unique symbol names with PrintRenamer nodes, which have a counter
 // for each symbol.
 
-rule avoidNameConflict(name : PrintName) {
-    renamer:PrintRenamer;
-    if { renamer.base == name.name; }
-    modify {
-        eval {
-            name.name = name.name + renamer.suffixCtr;
-            renamer.suffixCtr = renamer.suffixCtr + 1;
-        }
-    }
+rule setTmpSymbolNames {
+    x:TmpSymbol;
+    modify { eval { x.symbolName = "tmp"; x.fullSymbolName = "tmp"; } }
 }
 
-rule addRenameNode(name : PrintName) {
-    modify {
-        renamer:PrintRenamer;
-        eval { renamer.base = name.name; }
-    }
-}
-
-rule setSymbolNames {
+rule initSymbolNames {
     x:Symbol;
-    negative { x -:PrintSymName-> .; }
     modify {
         x -:PrintSymName-> name:PrintName;
         eval { name.name = x.symbolName; }
-        exec(avoidNameConflict(name) || addRenameNode(name));
     }
 }
 
-rule printRandomSymbolName {
-    x:Symbol -:PrintSymName-> name:PrintName;
-    modify { emit(name.name); }
-}
-
-rule deletePrintRenamer {
-    x:PrintRenamer;
+rule uniqueSymbolNames {
+    x:PrintName;
+    y:PrintName;
+    if { x.name == y.name && x.uid == y.uid; }
     modify {
-        delete(x);
+        eval { x.uid = x.uid + 1; }
     }
+}
+
+rule finalizeSymbolNames {
+    x:PrintName;
+    if { x.uid > 0; }
+    modify { eval { x.name = x.name + x.uid; } }
 }

@@ -250,9 +250,12 @@ rule createTemporaryAssign {
     prev:Node -e1:BlockifyNext->
         x:ScAstNode -e2:BlockifyExpr-> x
         -e3:BlockifyNext-> post:Node;
+    x -:ScTypeSymbol-> typ_sym:Symbol;
+
     modify {
         tmp_assign:BlockifyValDef -:ValDefSymbol-> tmp_sym:TmpSymbol;
         var_ref:TmpVarRef -:VarRefSymbol-> tmp_sym;
+        tmp_sym -:TypeSymbol-> typ_sym;
 
         // new blockify links
         delete(e1, e2, e3);
@@ -291,10 +294,8 @@ rule deleteLastAttachables2 {
     modify { delete(x); }
 }
 
-test testNoBlockify {
-    negative {
-        x:Node -:AbstractBlockify-> x;
-    }
+test existsBlockify {
+    x:Node -:AbstractBlockify-> x;
 }
 
 {% endblock %}

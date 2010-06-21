@@ -158,12 +158,9 @@ edge class CfgIsConnected;
 
 // === Print nodes ===
 edge class PrintSymName;
-
-node class PrintRenamer { base : string; suffixCtr : int; }
-node class PrintName { name : string; }
+node class PrintName { name : string; uid : int; }
 
 node class PrintNoName extends PrintName; // no name
-node class PrintNameFactory;
 
 edge class PrintRep;
 abstract node class PrintNode;

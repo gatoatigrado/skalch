@@ -81,6 +81,7 @@ killall:
 	@killall mono 2>/dev/null; true
 
 gen:
+	@mkdir -p plugin/src/main/resources/skalch/plugins
 	base/src/codegen/generate_files.py plugin/src/main/grgen/ScalaAstModel.gm.jinja2
 	@make --quiet plugin/src/main/resources/skalch/plugins/type_graph.gxl
 	base/src/codegen/generate_files.py --no_rebuild

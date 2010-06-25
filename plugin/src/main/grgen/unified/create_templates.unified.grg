@@ -97,4 +97,34 @@ rule removeToExport {
     modify { delete(x); }
 }
 
+/*
+rule uniqueSymNamesTypesPrecedence {
+    x:Symbol;
+    y:Symbol;
+    if { x.fullSymbolName == y.fullSymbolName; }
+    z:Node -:TypeSymbol-> y;
+    hom(x, z);
+    negative { x; . -:TypeSymbol-> x; }
+
+    modify {
+        x.fullSymbolName = x.fullSymbolName + "-ALTNAME";
+    }
+}
+
+rule uniqueSymNamesFcnPrecedence {
+    x:Symbol;
+    y:Symbol;
+    if { x.fullSymbolName == y.fullSymbolName; }
+
+    // $y is a function symbol, $x is not.
+    // rationale: functions are more likely called in libraries.
+    alternative {
+        A { . -:FcnDefSymbol-> y; }
+        B { . -:FcnCallSymbol-> y; }
+    }
+    negative { . -:FcnDefSymbol-> x; }
+    negative { . -:FcnCallSymbol-> x; }
+}
+*/
+
 {% endblock %}

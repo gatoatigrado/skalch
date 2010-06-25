@@ -14,7 +14,8 @@ help-all: # show uncommon commands as well
 	@grep -iE "^(###.+|[a-zA-Z0-9_-]+:.*(#.+)?)$$" makefile | sed -u -r "s/ #HIDDEN//g; s/^### /\n/g; s/:.+#/#/g; s/^/    /g; s/#/\\n        /g; s/:$$//g"
 
 clean:
-	zsh -c "setopt -G; rm -f **/*timestamp **/*pyc **/*~ **/skalch/plugins/type_graph.gxl"
+	fsc -shutdown || true
+	zsh -c "setopt -G; rm -f **/*timestamp **/*.(pyc|dll|exe|pidb|mdb) **/*~ **/skalch/plugins/type_graph.gxl"
 	zsh -c "setopt -G; rm -rf **/(bin|target) .gen **/gen/"
 
 clean-gxl:
@@ -25,10 +26,9 @@ show-env-vars:
 	@echo "\$$libgrg from $(origin libgrg), value '$(libgrg)'"
 	@echo "\$$stagetf_sources from $(origin stagetf_sources), value '$(stagetf_sources)'"
 
-test: killall
-	echo "TODO -- run mvn test when it works again."
-	(cd plugin/src/test/grgen; make test)
-	@echo "TEST SUCCEEDED"
+tests: gen stagetf-compile $(grgenfiles)/runtests.exe
+	fsc -shutdown || true
+	source env; mono $(grgenfiles)/runtests.exe "$$angelicsimple"/Test0003_WhileLoops.scala "$$angelicsimple"/Test0004_Classes.scala > test-output.txt 2>&1 || { grep -E "\\[ERROR\\]" test-output.txt; false; }
 
 
 
@@ -105,7 +105,10 @@ grgen: gen killall stagetf-compile
 stagetf-compile: $(libgrg)/fsharp_stage_transformer.dll $(grgenfiles)/transformer.exe # compile the stage transformer (computes changes in transformer.fs and its library)
 
 $(grgenfiles)/transformer.exe: $(grgenfiles)/rewrite_rules.fs $(grgenfiles)/rewrite_stage_info.fs $(grgenfiles)/transformer.fs
-	fsharpc --optimize+ -r:"$$libgrg"/fsharp_stage_transformer.dll -r:"$$libgrg"/GrIO.dll -r:"$$libgrg"/GrShell.dll -r:"$$libgrg"/lgspBackend.dll -r:"$$libgrg"/libGr.dll --out:"$$grgenfiles"/transformer.exe "$$grgenfiles"/rewrite_rules.fs "$$grgenfiles"/rewrite_stage_info.fs "$$grgenfiles"/transformer.fs
+	fsharpc --optimize+ -r:"$$libgrg"/fsharp_stage_transformer.dll -r:"$$libgrg"/GrIO.dll -r:"$$libgrg"/GrShell.dll -r:"$$libgrg"/lgspBackend.dll -r:"$$libgrg"/libGr.dll "--out:$@" $^
+
+$(grgenfiles)/runtests.exe: $(grgenfiles)/transformer.exe $(grgenfiles)/runtests.fs
+	fsharpc --optimize+ -r:"$$libgrg"/fsharp_stage_transformer.dll -r:"$$libgrg"/GrIO.dll -r:"$$libgrg"/GrShell.dll -r:"$$libgrg"/lgspBackend.dll -r:"$$libgrg"/libGr.dll -r:$(grgenfiles)/transformer.exe "--out:$@" $(grgenfiles)/runtests.fs
 
 $(libgrg)/fsharp_stage_transformer.dll: $(stagetf_sources)
 	@echo -e "\n\nNOTE -- compiling stage transformer library..."

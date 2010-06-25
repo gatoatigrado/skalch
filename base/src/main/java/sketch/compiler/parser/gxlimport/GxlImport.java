@@ -1,6 +1,5 @@
 package sketch.compiler.parser.gxlimport;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -34,7 +33,9 @@ public class GxlImport {
     public Vector<TypeStruct> structs;
     public Vector<StreamSpec> streams;
     public GxlHandleNodes handler;
+    protected final GxlSketchOptions args;
 
+    /** import, the start the SequentialSketchGxlMain */
     protected void init(final GXLGraph graph) {
         DebugOut.print("    initializing...");
         this.handler = new GxlHandleNodes(this);
@@ -68,19 +69,24 @@ public class GxlImport {
         for (GXLNode pkg : this.nodes_by_type.get("PackageDef")) {
             Program prog = this.handler.getProgram(pkg);
             // (new SimpleCodePrinter()).visitProgram(prog);
-            String[] args = { "--fe-keep-tmp", "__from_gxl__" };
-            (new SequentialSketchGxlMain(args, prog)).run();
+            if (!this.args.gxlOpts.noDefaults) {
+                this.args.feOpts.keepTmp = true;
+                this.args.feOpts.keepAsserts = true;
+            }
+            (new SequentialSketchGxlMain(this.args, prog)).run();
         }
     }
 
-    public GxlImport(final GXLGraph graph) {
+    public GxlImport(final GXLGraph graph, final GxlSketchOptions args) {
+        this.args = args;
         this.init(graph);
     }
 
-    public GxlImport(final File graph_file) {
+    public GxlImport(final GxlSketchOptions args) {
+        this.args = args;
         GXLDocument doc = null;
         try {
-            doc = new GXLDocument(graph_file);
+            doc = new GXLDocument(args.sketchFile);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -116,14 +122,12 @@ public class GxlImport {
         return result;
     }
 
-    /** tmp main fcn */
     public static void main(final String[] args) {
-        if (args.length != 1) {
-            System.err.println("usage: gxlimport gxlfile");
-        } else {
-            System.out.println("creating program from file " + args[0]);
-            new GxlImport(new File(args[0]));
+        final GxlSketchOptions options = new GxlSketchOptions(args);
+        if (options.args.length != 1) {
+            DebugOut.assertFalse("wrong usage: only 1 argument expected");
         }
+        new GxlImport(options);
     }
 
     public void debugPrintNode(final String msg, final GXLNode node) {

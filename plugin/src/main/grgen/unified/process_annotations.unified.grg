@@ -57,8 +57,10 @@ test existsDanglingAnnotation {
 rule replacePrimitiveRanges {
     x:FcnCall -e1:FcnCallTypeSymbol-> richint:ScalaSymbol;
     x -e2:FcnCallSymbol-> tomethod:ScalaSymbol;
-    x -e3:FcnArgList -> {{ macros.finiteList(["view:ApplyImplicitView", "z:IntConstant"]) }}
-    view -:FcnArgList-> {{ macros.finiteList([":ScAstNode", "y:IntConstant"], lstname="lst2") }}
+    x -e3:FcnArgList -> {{ macros.finiteList(
+        ["view:ApplyImplicitView", "z:IntConstant"]) }}
+    view -:FcnArgList-> {{ macros.finiteList(
+        [":ScAstNode", "y:IntConstant"], lstname="lst2") }}
 
     if { richint.symbolName.indexOf("RichInt") == 0; }
 

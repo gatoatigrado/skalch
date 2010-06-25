@@ -28,42 +28,9 @@ node class TmpVarRef extends VarRef, BlockifySafe;
 
 node class DummyBlockifyChainEndNode extends ScAstNode;
 {% endblock %}
-{% block grs %}
-# dump set edge CfgNextForEval color Green
-dump set edge BlockifyNext color Blue
-# xgrs markMainMethod
-# xgrs deleteNonmainMethods*
-xgrs deleteDangling*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- init cfg"
-xgrs cfgInit
-xgrs cfgSkipIf*
-debug xgrs cfgExistsIncomplete
-validate exitonfailure xgrs ! cfgExistsIncomplete
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- set attachable"
-# these must be executed before the prologues are erased.
-xgrs setAttachableMemberFcns*
-xgrs setAttachableBlocks*
 
-echo "[REWRITE PRODUCTION] cstyle_stmts -- blockify req, forward cfg prologues, propagate req"
-debug xgrs blockifyDefault* & blockifyLists*
-xgrs forwardNonblockifyIntermediatePrologue*
-xgrs setBlockifyNextForAlreadyBlockified*
-xgrs (propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*
-xgrs setBlockifyChain*
-xgrs checkBlockifyLinks
-xgrs forwardBlockifySkip*
-xgrs addDummyBlockifyChainEndNodes*
-
-echo "[REWRITE PRODUCTION] cstyle_stmts -- delete all cfg nodes"
-xgrs deleteCfgNode*
-xgrs createTemporaryAssign*
-xgrs attachNodesToBlockList*
-xgrs deleteLastAttachables* & deleteLastAttachables2*
-validate exitonfailure xgrs testNoBlockify
-echo "[REWRITE PRODUCTION] cstyle_stmts done"
-{% endblock %}
 {% block grg %}
 rule connectAttachPt (attach_pt:CfgAbstractAttachable,
         prologue:CfgAbstractNode, x:Node)
@@ -186,6 +153,12 @@ rule propagateBlockifyMarkSafe {
     modify {
         x -:BlockifySkip-> x -:BlockifyNext-> y;
     }
+}
+
+rule convertNodesAlreadyStmtsToBlockifySafe {
+    x:Block -:BlockStmtList-> lst:List -:ListElt-> :ListNode -:ListValue-> y:ScAstNode;
+    y -e:BlockifyExpr-> y;
+    modify { delete(e); y -:BlockifySkip-> y; }
 }
 
 rule setBlockifyChain {

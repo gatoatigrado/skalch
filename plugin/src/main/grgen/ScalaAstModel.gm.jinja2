@@ -21,6 +21,7 @@ node class Symbol {
     simpleName : string;
     symbolName : string;
     fullSymbolName : string;
+    uniqueSymbolName : string;
 }
 edge class SymbolOwner;
 edge class EnclosingFcn;
@@ -100,6 +101,7 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/postimport_union.gm" %}
 {% include "nodes/gen/template_util.gm" %}
 {% include "nodes/gen/raise_special_gotos.gm" %}
+{% include "nodes/gen/simplify_constants.gm" %}
 // add unified here
 
 
@@ -324,7 +326,7 @@ edge class FcnArgNext extends FcnArg, OldChainNext;
 edge class FcnArgList extends Subtree, CstyleExprTarget, CfgSimpleInner;
 edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree, CfgSimpleInner;
-edge class ArrValueList extends Subtree;
+edge class ArrValueList extends Subtree, CfgSimpleInner;
 edge class AnnotationArgsList extends Subtree;
 
 // Sibling edges indicate argument parameters
@@ -355,14 +357,14 @@ edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
 edge class FcnDefParamsLast;
 edge class FcnTarget extends Subtree, CstyleExprTarget;
-edge class FieldAccessObject extends Subtree;
+edge class FieldAccessObject extends Subtree, CfgSimpleInner;
 edge class IfCond extends Subtree;
 edge class IfElse extends Subtree;
 edge class IfThen extends Subtree;
 edge class MatchCaseChain extends Subtree;
 edge class MatchTarget extends Subtree;
 edge class PackageDefElement extends Subtree;
-edge class ReturnExpr extends Subtree, CfgSimpleInner;
+edge class ReturnExpr extends Subtree, CfgSimpleInner, CstyleExprTarget;
 edge class StaticMember extends Subtree;
 edge class SymbolAnnotation extends Subtree;
 edge class TemplateElement extends Subtree;

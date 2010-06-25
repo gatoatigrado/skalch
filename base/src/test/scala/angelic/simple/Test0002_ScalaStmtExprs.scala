@@ -2,7 +2,7 @@ package angelic.simple
 import skalch.{AngelicSketch, SkalchIgnoreClass}
 import sketch.util._
 
-class MySketch() extends AngelicSketch {
+class TestScalaExprStmts() extends AngelicSketch {
     type Int7 = Int @ Range(-(1 << 6) until (1 << 6))
 
     /*

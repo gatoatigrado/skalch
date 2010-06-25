@@ -163,7 +163,7 @@ public class GxlHandleNodesBase {
         } else {
             String next =
                     arg0.replaceAll("\\$", "").replaceAll("<", "LT_").replaceAll(">",
-                            "_RT");
+                            "_GT");
             // very unlikely
             while (this.names.containsValue(next)) {
                 next += "_";

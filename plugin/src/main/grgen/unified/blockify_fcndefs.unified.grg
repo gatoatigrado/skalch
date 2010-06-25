@@ -64,10 +64,17 @@ rule retypeBlockSKBlock {
     modify { delete(e, e2); }
 }
 
-rule checkOnlyFcnBlocks {
-    x:FcnDef -:FcnBody-> y:ScAstNode;
-    x -:FcnDefSymbol-> fcn_sym:Symbol;
-    if { typeof(y) != SKBlock; }
-    modify { exec(printn(x) & printn(y) & assertFalse("not sketch block.")); }
+rule deleteFcnBlockEmptyTrees {
+    x:FcnDef -:FcnBody-> blk:SKBlock;
+    blk -:BlockStmtChain-> et:EmptyTree
+        -:BlockStmtNext-> y:ScAstNode;
+    modify {
+        delete(et);
+        blk -:BlockStmtChain-> y;
+    }
+}
+
+test existsFcnNonBlockBody {
+    x:FcnDef -:FcnBody-> y:ScAstNode \ SKBlock;
 }
 {% endblock %}

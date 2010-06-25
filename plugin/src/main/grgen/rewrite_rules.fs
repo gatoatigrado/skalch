@@ -18,13 +18,21 @@ let DeleteMarkedIgnoreRules = [Xgrs "setIgnoreAnnotationType*";
     Xgrs "deleteIgnoreAnnotated* & deleteDangling*"]
 
 let DecorateNodesRules = [
-    Xgrs "[setRootSymbol]";
-    Validate "existsRootSymbol && ! multipleRootSymbols";
-    Xgrs "replaceAngelicSketchSymbol*";
-    Xgrs "runAllSymbolRetypes";
-    Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]";
-    Xgrs "setScalaRoot & setScalaSubtypes*";
-    Xgrs "setSketchClasses*"]
+    Xgrs "[setRootSymbol]"
+    Validate "existsRootSymbol && ! multipleRootSymbols"
+    Xgrs "replaceAngelicSketchSymbol*"
+    Xgrs "runAllSymbolRetypes"
+    Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]"
+    Xgrs "setScalaRoot & setScalaSubtypes*"
+    Xgrs "setSketchClasses*"
+    Xgrs "[setDefaultSymbolUniqueName]"
+    Xgrs "[setTypeSymbolUniqueName]"
+    Xgrs "[setFieldSymbolUniqueName]"
+    Xgrs "[setPackageDefSymbolUniqueName]"
+    Xgrs "[setFcnSymbolUniqueName]"
+    Xgrs "unionSubSymbol*"
+    (* see note in grg file; Validate "! existSymbolsWithSameUniqueName" *)
+    ]
 
 let ConvertThisRules = [Xgrs "setEnclosingFunctionInitial+";
     Xgrs "deleteBridgeFunctions";
@@ -39,7 +47,7 @@ let RedirectAccessorsToFieldsRules = [
     Xgrs "[setGetterFcnFieldEdges]";
     Xgrs "replaceGetterFcnCalls*";
     Xgrs "[deleteGetterEdges]";
-    Xgrs "deleteDangling*"]
+    Xgrs "deleteDangling*" ]
 
 let CleanSketchConstructsRules = [
     Xgrs "replaceAssertCalls* & deleteAssertElidableAnnot*"
@@ -54,7 +62,8 @@ let BlockifyFcndefsRules = [
     Validate "! existsFcnTarget"
     Xgrs "(deleteDangling+ | removeNopTypeCast)*"
     Xgrs "createFunctionBlocks* & retypeBlockSKBlock*"
-    Xgrs "checkOnlyFcnBlocks" ]
+    Xgrs "deleteFcnBlockEmptyTrees*"
+    Validate "! existsFcnNonBlockBody" ]
 
 let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listClassDefsInit*";
@@ -64,6 +73,10 @@ let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listCompleteLast*";
     Xgrs "listCompleteBlockLast*"]
 
+(* TODO (x+ | y+)+ *)
+let SimplifyConstantsRules = [
+    Xgrs "replaceUnaryNeg+" ]
+
 let RaiseSpecialGotosRules = [
     Xgrs "raiseWhileLoopGotos*"
     Xgrs "deleteDangling*"
@@ -71,7 +84,6 @@ let RaiseSpecialGotosRules = [
 
 let CleanTypedTmpBlockRules = [
     Xgrs "deleteDangling*";
-    Validate "cleanupDummyVarBlocks";
     Xgrs "cleanupDummyVarBlocks*";
     Xgrs "deleteAnnotationLink";
     Validate "! existsDanglingAnnotation";
@@ -79,10 +91,11 @@ let CleanTypedTmpBlockRules = [
 
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
-    [ Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*";
-    Xgrs "deleteDangling*";
-    Validate "! existsDanglingAnnotation";
-    Xgrs "[requestIntHoleTemplate]" ]
+    [
+        Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*"
+        Xgrs "deleteDangling*"
+        Validate "! existsDanglingAnnotation"
+        Xgrs "[requestIntHoleTemplate]" ]
 
 let PostImportUnionRules = [
     Xgrs "instantiateTemplateSymbols*"
@@ -114,7 +127,8 @@ let SketchNospecRules = [
     Xgrs "doCopy"
     Xgrs "[setCopySymbolNames]"
     Xgrs "cleanupCopyTo*"
-    Xgrs "checkNoMainFcns" ]
+    Xgrs "checkNoMainFcns"
+    Xgrs "deleteDangling*" ]
 
 let LossyReplacementsRules = [
     Xgrs "replaceThrowWithAssertFalse*"
@@ -128,10 +142,14 @@ let LossyReplacementsRules = [
 let NewInitializerFcnStubsRules = [
     Xgrs "markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+"]
 
+let SSAFormRules = [
+    ]
+
 let CstyleStmtsRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
 (*     Xgrs "cfgSkipIf*" *)
+    Xgrs "deleteCfgNodesOnFields*"
     Validate "! cfgExistsIncomplete"
     Xgrs "setAttachableMemberFcns*"
     Xgrs "setAttachableBlocks*"
@@ -139,6 +157,7 @@ let CstyleStmtsRules = [
     Xgrs "forwardNonblockifyIntermediatePrologue*"
     Xgrs "setBlockifyNextForAlreadyBlockified*"
     Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
+    Xgrs "convertNodesAlreadyStmtsToBlockifySafe*"
     Xgrs "setBlockifyChain*"
     Xgrs "checkBlockifyLinks"
     Xgrs "forwardBlockifySkip*"
@@ -174,10 +193,8 @@ let SketchFinalMinorCleanupRules = [
     Xgrs "setFcnDefBaseType*"
     Xgrs "addSkExprStmts*" ]
 
-let CreateTemplatesRules =
-    [ Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*";
-    Xgrs "convertFieldsToTmplParams*";
-    Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*";
-    Xgrs "[printAndRetypeTemplates]"
-    ] @
-    CleanTypedTmpBlockRules
+let CreateTemplatesRules = [
+    Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*"
+    Xgrs "convertFieldsToTmplParams*"
+    Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*"
+    Xgrs "[printAndRetypeTemplates]" ] @ CleanTypedTmpBlockRules

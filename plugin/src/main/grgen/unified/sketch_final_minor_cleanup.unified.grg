@@ -26,30 +26,6 @@ edge class FcnBinaryCallRhs;
 
 
 
-{% block grs %}
-dump set node SKAssertCall color LightBlue
-dump set node SKStmtExpr color Red
-
-echo "[REWRITE PRODUCTION] Final minor cleanup (information loss stage)"
-xgrs removeEmptyTrees
-xgrs setSymbolNames* & deletePrintRenamer*
-xgrs setSymbolSketchType*
-xgrs setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit
-xgrs connectFunctions*
-xgrs removeEmptyChains*
-xgrs setAssertCalls* & deleteDangling*
-xgrs setFcnBinaryCallBaseType*
-xgrs setFcnBinaryCallArgs*
-xgrs setSymbolBaseType*
-xgrs setValDefBaseType*
-xgrs setVarRefBaseType*
-xgrs setFcnDefBaseType*
-xgrs addSkExprStmts*
-
-{% endblock %}
-
-
-
 {% block grg %}
 {% import "macros.grg" as macros %}
 

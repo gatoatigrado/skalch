@@ -14,8 +14,11 @@ import sketch.compiler.solvers.constructs.ValueOracle;
  *          changes, please consider contributing back!
  */
 public class SequentialSketchGxlMain extends SequentialSketchMain {
-    public SequentialSketchGxlMain(final String[] args, final Program prog) {
+    protected final GxlSketchOptions args;
+
+    public SequentialSketchGxlMain(final GxlSketchOptions args, final Program prog) {
         super(args);
+        this.args = args;
         this.prog = prog;
     }
 
@@ -25,11 +28,7 @@ public class SequentialSketchGxlMain extends SequentialSketchMain {
         this.preprocAndSemanticCheck();
         this.prog.debugDump("After preprocessing");
 
-        this.oracle = new ValueOracle(new StaticHoleTracker(this.varGen)/*
-                                                                         * new
-                                                                         * SequentialHoleTracker
-                                                                         * (varGen)
-                                                                         */);
+        this.oracle = new ValueOracle(new StaticHoleTracker(this.varGen));
         this.partialEvalAndSolve();
         this.eliminateStar();
 

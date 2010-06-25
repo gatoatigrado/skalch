@@ -108,18 +108,30 @@ rule {{ init_fcn("cfgDeleteParamsNodes") }} {
     modify { delete(z); }
 }
 
-// STEP 2a: Set a few lists as sequential, for cfgSetNextForLists
-
-rule cfgAnnotateSequentialLists {
-    x:ScAstNode -e:Edge-> lst:List;
-    if { typeof(e) == FcnArgList || typeof(e) == BlockStmtList; }
-    modify { lst -:CfgSequentialList-> lst; }
-}
-
 // STEP 2: Edges from CFG to CFG nodes
 // based on AST edge types
 // Temporary edges are created from AST nodes to other AST nodes
 // These are then rewritten to CFG edges.
+
+rule {{ set_next_fcn("cfgSetSimpleInnerNext") }} {
+    x:ScAstNode -:CfgSimpleInner-> y:Node;
+    x -:CfgPrologue-> prologue:CfgAbstractNode;
+    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
+
+//     optional {
+//         if { typeof(y) >= List; }
+//         modify { y -:CfgSequentialList-> y; }
+//     }
+
+    negative { prologue -:CfgNext-> .; }
+    modify { prologue -:CfgNext-> y -:CfgNext-> epilogue; }
+}
+
+rule {{ set_next_fcn("cfgSetSeqLists") }} {
+    x:ScAstNode -:CfgSimpleInner-> y:List;
+    negative { y -:CfgSequentialList-> y; }
+    modify { y -:CfgSequentialList-> y; }
+}
 
 rule {{ set_next_fcn("cfgSetNextForLists") }} {
     lst_x:ListNode -:ListNext-> lst_y:ListNode
@@ -131,14 +143,6 @@ rule {{ set_next_fcn("cfgSetNextForLists") }} {
     modify {
         x_value -:CfgNext-> y_value;
     }
-}
-
-rule {{ set_next_fcn("cfgSetSimpleInnerNext") }} {
-    x:ScAstNode -:CfgSimpleInner-> y:Node;
-    x -:CfgPrologue-> prologue:CfgAbstractNode;
-    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
-    negative { prologue -:CfgNext-> .; }
-    modify { prologue -:CfgNext-> y -:CfgNext-> epilogue; }
 }
 
 rule {{ set_next_fcn("cfgSetWhileLoopNext") }} {
@@ -283,7 +287,6 @@ rule cfgInit {
         {{ name }}* |
 {% endfor %}
 
-        [cfgAnnotateSequentialLists] |
 {% for name in set_next_fcns %}
         {{name}}* |
 {% endfor %}
@@ -295,6 +298,23 @@ rule cfgInit {
             cfgListOutgoing+
         )*
         ); }
+}
+
+pattern DeleteAttachedCfgNodes(x:Node) {
+    multiple {
+        x --> y:CfgAbstractNode;
+        modify { delete(y); }
+    }
+    modify { }
+}
+
+rule deleteCfgNodesOnFields {
+    :Template -:TemplateElement-> x:ValDef
+        -:ValDefRhs-> y:EmptyTree;
+    d1:DeleteAttachedCfgNodes(x);
+    d2:DeleteAttachedCfgNodes(y);
+
+    modify { d1(); d2(); }
 }
 
 test cfgExistsIncomplete {

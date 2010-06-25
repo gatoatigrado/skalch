@@ -63,6 +63,12 @@ let NiceLists = {
         description = "Convert all lists to nice ('generic') lists";
         stage = rewriteStage NiceListsRules }
 
+let SimplifyConstants = {
+    stageDefault with
+        name = "SimplifyConstants"
+        description = "Simplify any constants Scala hasn't"
+        stage = rewriteStage SimplifyConstantsRules }
+
 let RaiseSpecialGotos = {
     stageDefault with
         name = "RaiseSpecialGotos"
@@ -110,6 +116,12 @@ let NewInitializerFcnStubs = {
         name = "NewInitializerFcnStubs";
         description = "Create a function that both calls \"new obj()\" and \"obj.<init>()\"";
         stage = rewriteStage NewInitializerFcnStubsRules }
+
+let SSAForm = {
+    stageDefault with
+        name = "SSAForm";
+        description = "Convert assignments to SSA form";
+        stage = rewriteStage SSAFormRules }
 
 let CstyleStmts = {
     stageDefault with

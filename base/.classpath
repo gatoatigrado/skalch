@@ -5,5 +5,38 @@
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/gatoatigrado/.m2/repository/net/sourceforge/gxl/0.92/gxl-0.92.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="net.sourceforge"/>
+			<attribute name="maven.artifactId" value="gxl"/>
+			<attribute name="maven.version" value="0.92"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/sketch-frontend"/>
+	<classpathentry kind="lib" path="/home/gatoatigrado/.m2/repository/org/scala-lang/scala-library/2.8.0.RC2/scala-library-2.8.0.RC2.jar" sourcepath="/home/gatoatigrado/.m2/repository/org/scala-lang/scala-library/2.8.0.RC2/scala-library-2.8.0.RC2-sources.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="org.scala-lang"/>
+			<attribute name="maven.artifactId" value="scala-library"/>
+			<attribute name="maven.version" value="2.8.0.RC2"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/gatoatigrado/.m2/repository/xom/xom/1.1/xom-1.1.jar" sourcepath="/home/gatoatigrado/.m2/repository/xom/xom/1.1/xom-1.1-sources.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="xom"/>
+			<attribute name="maven.artifactId" value="xom"/>
+			<attribute name="maven.version" value="1.1"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/home/gatoatigrado/.m2/repository/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3.jar" sourcepath="/home/gatoatigrado/.m2/repository/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3-sources.jar">
+		<attributes>
+			<attribute name="maven.groupId" value="org.swinglabs"/>
+			<attribute name="maven.artifactId" value="swing-layout"/>
+			<attribute name="maven.version" value="1.0.3"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

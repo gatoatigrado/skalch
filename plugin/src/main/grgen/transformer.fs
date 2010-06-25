@@ -123,6 +123,7 @@ let zone_decorated =
 let zone_nice_lists =
     NiceLists,
     [
+        SimplifyConstants
         RaiseSpecialGotos
         ProcessAnnotations
         ArrayLowering
@@ -132,6 +133,10 @@ let zone_nice_lists =
         LossyReplacements
         EmitRequiredImports
         NewInitializerFcnStubs ]
+let zone_ssa =
+    SSAForm,
+    [
+        ]
 let zone_cstyle =
     CstyleMain,
     [
@@ -150,11 +155,13 @@ let deps =
     zone_deps @
     [
         WarnUnsupported <?? DecorateNodes
+        DecorateNodes <+? CreateTemplates (* unique sym names *)
         DeleteMarkedIgnore <+? CreateTemplates
 
         (* interzone dependencies *)
         BlockifyFcndefs <+? CreateTemplates
         BlockifyFcndefs <?? CleanSketchConstructs
+        SimplifyConstants <+? ProcessAnnotations
         ProcessAnnotations <+? CstyleMain
 
         (* most later stages require decorate... *)
@@ -188,7 +195,7 @@ let all_stages = List.fold (fun x y -> x @ (y.stages)) [] all_goals
 let goalMap, stageMap = (defaultGoalMap all_goals, defaultStageMap all_stages)
 
 [<EntryPoint>]
-let main(args:string[]) =
+let transformerMain(args:string[]) =
     (* Basic parsing of the command line *)
     let cmdline = args |> Seq.toList |> parseCommandLine
 

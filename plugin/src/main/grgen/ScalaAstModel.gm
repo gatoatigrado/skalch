@@ -21,6 +21,7 @@ node class Symbol {
     simpleName : string;
     symbolName : string;
     fullSymbolName : string;
+    uniqueSymbolName : string;
 }
 edge class SymbolOwner;
 edge class EnclosingFcn;
@@ -139,6 +140,9 @@ node class BlockifySkipNode; // dummy node to maintain chain
 node class TmpVarRef extends VarRef, BlockifySafe;
 
 node class DummyBlockifyChainEndNode extends ScAstNode;
+
+
+
 // created by the plugin
 edge class GetterFcn;
 edge class SetterFcn;
@@ -160,9 +164,6 @@ edge class SketchType;
 
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
-
-
-
 
 
 edge class SKImplements;
@@ -259,6 +260,9 @@ edge class CreateTemplate;
 // prevents deletion of node
 node class TemplateToExport;
 
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 
 
 // place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
@@ -489,7 +493,7 @@ edge class FcnArgNext extends FcnArg, OldChainNext;
 edge class FcnArgList extends Subtree, CstyleExprTarget, CfgSimpleInner;
 edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree, CfgSimpleInner;
-edge class ArrValueList extends Subtree;
+edge class ArrValueList extends Subtree, CfgSimpleInner;
 edge class AnnotationArgsList extends Subtree;
 
 // Sibling edges indicate argument parameters
@@ -520,14 +524,14 @@ edge class FcnCallTypeArgsChain extends Subtree;
 edge class FcnDefParamsChain extends Subtree;
 edge class FcnDefParamsLast;
 edge class FcnTarget extends Subtree, CstyleExprTarget;
-edge class FieldAccessObject extends Subtree;
+edge class FieldAccessObject extends Subtree, CfgSimpleInner;
 edge class IfCond extends Subtree;
 edge class IfElse extends Subtree;
 edge class IfThen extends Subtree;
 edge class MatchCaseChain extends Subtree;
 edge class MatchTarget extends Subtree;
 edge class PackageDefElement extends Subtree;
-edge class ReturnExpr extends Subtree, CfgSimpleInner;
+edge class ReturnExpr extends Subtree, CfgSimpleInner, CstyleExprTarget;
 edge class StaticMember extends Subtree;
 edge class SymbolAnnotation extends Subtree;
 edge class TemplateElement extends Subtree;

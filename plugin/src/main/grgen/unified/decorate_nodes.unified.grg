@@ -167,4 +167,40 @@ rule setSketchMainFcn {
     modify { next:SketchMainFcnDef<x>; }
 }
 
+rule setDefaultSymbolUniqueName {
+    x:Symbol;
+    modify { eval { x.uniqueSymbolName = x.fullSymbolName; } }
+}
+
+rule setTypeSymbolUniqueName {
+    x:Symbol -:TypeSymbol-> x;
+    modify { eval { x.uniqueSymbolName = x.uniqueSymbolName + "-typ"; } }
+}
+
+rule setFieldSymbolUniqueName {
+    . -:ClassDefFieldSymbol-> x:Symbol;
+    modify { eval { x.uniqueSymbolName = x.uniqueSymbolName + "-fld"; } }
+}
+
+rule setPackageDefSymbolUniqueName {
+    . -:PackageDefSymbol-> x:Symbol;
+    modify { eval { x.uniqueSymbolName = x.uniqueSymbolName + "-pkg"; } }
+}
+
+rule setFcnSymbolUniqueName {
+    x:Symbol -:ClsMethod-> x;
+    modify { eval { x.uniqueSymbolName = x.uniqueSymbolName + "-clsmethod"; } }
+}
+
+/**
+NOTE -- the scala symbol naming is very messed up
+just hoping the above are sufficient, and taking the union of everything else
+
+test existSymbolsWithSameUniqueName {
+    x:Symbol;
+    y:Symbol;
+    if { x.uniqueSymbolName == y.uniqueSymbolName; }
+}
+*/
+
 {% endblock %}

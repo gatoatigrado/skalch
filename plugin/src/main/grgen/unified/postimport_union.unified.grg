@@ -41,7 +41,7 @@ rule unionRootSymbol {
 rule unionSubSymbol {
     x:Symbol -:SymbolOwner-> z:Symbol;
     y:Symbol -:SymbolOwner-> z;
-    if { x.fullSymbolName == y.fullSymbolName; }
+    if { x.uniqueSymbolName == y.uniqueSymbolName; }
     iterated {
         w:Node -e:Edge-> y;
         modify { delete(e); w -:typeof(e)-> x; }

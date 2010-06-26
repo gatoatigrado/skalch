@@ -5,8 +5,6 @@
 // not use this file except in compliance with the License. You may obtain a
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
-node class HighlightValDef extends ValDef;
-
 node class ScAstNode {
     sourceFile : string;
     scalaSource : string;
@@ -29,6 +27,12 @@ edge class BridgeFcn;
 node class EmptyChain extends ScAstNode;
 node class Annotation;
 
+
+// === Abstract node types ===
+abstract node class ValDefOrAssign;
+abstract edge class ValDefOrAssignRhs;
+// NOTE -- since assigns are more complicated, subpatterns must be used to grab
+// symbols (probably only implemented for simple cases)
 
 // === SKETCH constructs ===
 // special symbols. Use these!
@@ -75,6 +79,46 @@ node class ThisVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
 node class ThisValDef extends ValDef;
 
+
+
+// ==== cfg nodes ====
+
+abstract node class CfgAbstractNode;
+abstract node class CfgEvalNode;
+// normal nodes indicate normal control flow.
+// further subtypes indicate how computation is carried out
+// (for example, for functions, in the epilogue node).
+abstract node class CfgNormalNode extends CfgAbstractNode;
+abstract node class CfgDummyNode extends CfgNormalNode;
+node class CfgDummyPrologueNode extends CfgDummyNode;
+node class CfgEvalNormalNode extends CfgNormalNode, CfgEvalNode;
+// don't create next ptrs from return stmts.
+// Only for the epilogue of the return statement.
+node class CfgReturnNode extends CfgAbstractNode;
+
+edge class CfgSequentialList;
+
+// edges from CFG nodes to CFG nodes
+edge class CfgAbstractNext;
+edge class CfgSequentialNext extends CfgAbstractNext;
+edge class CfgNext extends CfgSequentialNext;
+edge class CfgSkipSubtreeNext extends CfgSequentialNext;
+// TODO -- implement more CFG edges.
+edge class CfgConditionalNext extends CfgAbstractNext;
+edge class CfgNextFromEval extends CfgAbstractNext;
+
+// edges from the original AST to the CFG
+abstract edge class AstCfgEdge;
+edge class CfgPrologue extends AstCfgEdge;
+edge class CfgEpilogue extends AstCfgEdge;
+edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
+
+// a node with [only] one CfgSequentialNext out edge,
+// and only one CfgSequentialNext in edge.
+edge class CfgStrictlySequentialNode;
+
+
+
 // ==== Scala statement-expressions to blocks ====
 
 
@@ -102,6 +146,7 @@ node class ThisValDef extends ValDef;
 {% include "nodes/gen/template_util.gm" %}
 {% include "nodes/gen/raise_special_gotos.gm" %}
 {% include "nodes/gen/simplify_constants.gm" %}
+{% include "nodes/gen/ssa_form.gm" %}
 // add unified here
 
 
@@ -213,7 +258,7 @@ edge class DebugBadEdge;
 // other c-style languages
 node class ScalaExprStmt extends ScAstNode;
 
-node class Assign extends ScAstNode;
+node class Assign extends ScAstNode, ValDefOrAssign;
 node class Block extends ScalaExprStmt;
 node class CaseDef extends ScAstNode;
 node class ClassDef extends ScAstNode;
@@ -268,7 +313,7 @@ node class This extends ScAstNode;
 node class Throw extends ScAstNode;
 node class Try extends ScalaExprStmt;
 node class Typed extends ScAstNode;
-node class ValDef extends ScAstNode;
+node class ValDef extends ScAstNode, ValDefOrAssign;
 node class VarRef extends ScAstNode;
 
 abstract node class Constant extends BlockifySafe, ScAstNode;
@@ -342,7 +387,7 @@ edge class AnnotationArgsChain extends Subtree;
 edge class AnnotationArgsLast;
 edge class ArrValueChain extends Subtree;
 edge class AssignLhs extends Subtree;
-edge class AssignRhs extends Subtree;
+edge class AssignRhs extends Subtree, ValDefOrAssignRhs;
 edge class BlockExpr extends Subtree;
 edge class BlockStmtLast;
 edge class CaseBody extends Subtree;
@@ -370,7 +415,7 @@ edge class SymbolAnnotation extends Subtree;
 edge class TemplateElement extends Subtree;
 edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
-edge class ValDefRhs extends Subtree, CfgSimpleInner;
+edge class ValDefRhs extends Subtree, CfgSimpleInner, ValDefOrAssignRhs;
 edge class LabelDefRhs extends Subtree;
 
 edge class ArrValueLast;

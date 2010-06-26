@@ -42,4 +42,5 @@ using ScalaAstModel;
 #include "rules/gen/postimport_union.grg"
 #include "rules/gen/raise_special_gotos.grg"
 #include "rules/gen/simplify_constants.grg"
+#include "rules/gen/ssa_form.grg"
 // add unified here

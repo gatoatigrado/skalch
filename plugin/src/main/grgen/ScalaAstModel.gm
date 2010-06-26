@@ -5,8 +5,6 @@
 // not use this file except in compliance with the License. You may obtain a
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
-node class HighlightValDef extends ValDef;
-
 node class ScAstNode {
     sourceFile : string;
     scalaSource : string;
@@ -29,6 +27,12 @@ edge class BridgeFcn;
 node class EmptyChain extends ScAstNode;
 node class Annotation;
 
+
+// === Abstract node types ===
+abstract node class ValDefOrAssign;
+abstract edge class ValDefOrAssignRhs;
+// NOTE -- since assigns are more complicated, subpatterns must be used to grab
+// symbols (probably only implemented for simple cases)
 
 // === SKETCH constructs ===
 // special symbols. Use these!
@@ -75,15 +79,9 @@ node class ThisVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
 node class ThisValDef extends ValDef;
 
-// ==== Scala statement-expressions to blocks ====
 
 
-// ==== unified modules ====
-
-// edge class MyEdge
-// node class MyNode
-
-
+// ==== cfg nodes ====
 
 abstract node class CfgAbstractNode;
 abstract node class CfgEvalNode;
@@ -118,6 +116,18 @@ edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
 // a node with [only] one CfgSequentialNext out edge,
 // and only one CfgSequentialNext in edge.
 edge class CfgStrictlySequentialNode;
+
+
+
+// ==== Scala statement-expressions to blocks ====
+
+
+// ==== unified modules ====
+
+// edge class MyEdge
+// node class MyNode
+
+
 // edge class MyEdge
 // node class MyNode
 
@@ -227,13 +237,6 @@ node class HLArgEnd;
 
 
 
-// edge class MyEdge
-// node class MyNode
-
-
-
-
-
 
 edge class CalledMethod extends TmpEdge;
 
@@ -272,6 +275,20 @@ node class TemplateToExport;
 
 
 // place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+
+
+// important to keep these separate from assignments, because
+// * eventually, multiple symbols may be assigned / reachable
+node class CfgAssign;
+
+edge class CfgAbstractAssign;
+edge class CfgAssignThisStep extends CfgAbstractAssign;
+// propagated -- yield to assign this step
+edge class CfgAssignPrevStep extends CfgAbstractAssign;
+
+// valdef or assign that initialized the assignment
+edge class CfgAssignAstNode;
+edge class CfgAssignPossibleSymbol;
 // add unified here
 
 
@@ -383,7 +400,7 @@ edge class DebugBadEdge;
 // other c-style languages
 node class ScalaExprStmt extends ScAstNode;
 
-node class Assign extends ScAstNode;
+node class Assign extends ScAstNode, ValDefOrAssign;
 node class Block extends ScalaExprStmt;
 node class CaseDef extends ScAstNode;
 node class ClassDef extends ScAstNode;
@@ -435,7 +452,7 @@ node class This extends ScAstNode;
 node class Throw extends ScAstNode;
 node class Try extends ScalaExprStmt;
 node class Typed extends ScAstNode;
-node class ValDef extends ScAstNode;
+node class ValDef extends ScAstNode, ValDefOrAssign;
 node class VarRef extends ScAstNode;
 
 abstract node class Constant extends BlockifySafe, ScAstNode;
@@ -509,7 +526,7 @@ edge class AnnotationArgsChain extends Subtree;
 edge class AnnotationArgsLast;
 edge class ArrValueChain extends Subtree;
 edge class AssignLhs extends Subtree;
-edge class AssignRhs extends Subtree;
+edge class AssignRhs extends Subtree, ValDefOrAssignRhs;
 edge class BlockExpr extends Subtree;
 edge class BlockStmtLast;
 edge class CaseBody extends Subtree;
@@ -537,7 +554,7 @@ edge class SymbolAnnotation extends Subtree;
 edge class TemplateElement extends Subtree;
 edge class ThrowExpr extends Subtree;
 edge class TypedExpression extends Subtree;
-edge class ValDefRhs extends Subtree, CfgSimpleInner;
+edge class ValDefRhs extends Subtree, CfgSimpleInner, ValDefOrAssignRhs;
 edge class LabelDefRhs extends Subtree;
 
 edge class ArrValueLast;

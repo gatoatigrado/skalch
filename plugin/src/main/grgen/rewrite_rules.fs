@@ -142,31 +142,35 @@ let LossyReplacementsRules = [
 let NewInitializerFcnStubsRules = [
     Xgrs "markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+"]
 
-let SSAFormRules = [
-    ]
-
-let CstyleStmtsRules = [
+let CfgInitRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
-(*     Xgrs "cfgSkipIf*" *)
-    Xgrs "deleteCfgNodesOnFields*"
-    Validate "! cfgExistsIncomplete"
-    Xgrs "setAttachableMemberFcns*"
-    Xgrs "setAttachableBlocks*"
-    Xgrs "blockifyDefault* & blockifyLists*"
-    Xgrs "forwardNonblockifyIntermediatePrologue*"
-    Xgrs "setBlockifyNextForAlreadyBlockified*"
-    Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
-    Xgrs "convertNodesAlreadyStmtsToBlockifySafe*"
-    Xgrs "setBlockifyChain*"
-    Xgrs "checkBlockifyLinks"
-    Xgrs "forwardBlockifySkip*"
-    Xgrs "addDummyBlockifyChainEndNodes*"
-    Xgrs "deleteCfgNode*"
-    Xgrs "createTemporaryAssign*"
-    Xgrs "attachNodesToBlockList*"
-    Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
-    Validate "! existsBlockify"]
+    Xgrs "deleteCfgNodesOnClassFields*"
+    Validate "! cfgExistsIncomplete" ]
+
+let SSAFormRules =
+    CfgInitRules @ [
+        Xgrs "initCfgPossibleAssign*"
+        Xgrs "propagateCfgPossibleAssignment*" ]
+
+let CstyleStmtsRules =
+    CfgInitRules @ [
+        Xgrs "setAttachableMemberFcns*"
+        Xgrs "setAttachableBlocks*"
+        Xgrs "blockifyDefault* & blockifyLists*"
+        Xgrs "forwardNonblockifyIntermediatePrologue*"
+        Xgrs "setBlockifyNextForAlreadyBlockified*"
+        Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
+        Xgrs "convertNodesAlreadyStmtsToBlockifySafe*"
+        Xgrs "setBlockifyChain*"
+        Xgrs "checkBlockifyLinks"
+        Xgrs "forwardBlockifySfkip*"
+        Xgrs "addDummyBlockifyChainEndNodes*"
+        Xgrs "deleteCfgNode*"
+        Xgrs "createTemporaryAssign*"
+        Xgrs "attachNodesToBlockList*"
+        Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
+        Validate "! existsBlockify"]
 
 let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
     Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]

@@ -95,7 +95,7 @@ let CstyleMain = {
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
 let no_oo_meta = [ ConvertThis ]
-let optimize_meta = [ ArrayLowering ]
+let optimize_meta = [ ArrayLowering; SSAForm ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements;
     CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
@@ -148,7 +148,12 @@ let rec depsFromZones (prevDeps:NamedStage list) = function
         (List.map ((<+?) init) deps) @
         (List.map (fun x -> x <?? init) prevDeps) @
         (depsFromZones (prevDeps @ (init :: deps)) tail)
-let zone_deps = depsFromZones zone_initial [zone_decorated; zone_nice_lists; zone_cstyle]
+let zone_deps =
+    depsFromZones zone_initial [
+        zone_decorated
+        zone_nice_lists
+        zone_ssa
+        zone_cstyle ]
 
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
 let deps =
@@ -201,7 +206,7 @@ let transformerMain(args:string[]) =
 
     (* This transformation system doesn't generate a graph, so we expect an initial import *)
     if cmdline |> List.filter (function | CmdSourceFile _ -> true | _ -> false) |> List.isEmpty then
-        failwith "No source graph specified!"
+        uifail "No source graph specified!"
 
     (* Load the actual stages and dependencies specified by the command line.
      If necessary, it's probably cleaner to modify these later (e.g. if custom dep rules are necessary) *)
@@ -224,7 +229,6 @@ let transformerMain(args:string[]) =
         "BlockifyValDef", "LightBlue"
         "TmpVarRef", "LightCyan"
         "CfgAbstractNode", "LightGreen"
-        "HighlightValDef", "Black"
         "PrintNode", "DarkBlue"
         "DebugBadNode", "Red"
         "List", "Grey"
@@ -232,6 +236,7 @@ let transformerMain(args:string[]) =
         "ListFirstNode", "LightGrey"
         "ListLastNode", "LightGrey"
         "SKWhileLoop", "DarkBlue"
+        "CfgAssign", "LightRed"
         ]
     initialgraph.SetEdgeColors [
         "CfgAbstractNext", "DarkGreen"
@@ -241,6 +246,9 @@ let transformerMain(args:string[]) =
         "ScTermSymbol", "gold"
         "ScTypeSymbol", "khaki"
         "CfgPrologue", "black"
+        "CfgAssignThisStep", "LightRed"
+        "CfgAssignPrevStep", "orange"
+        "CfgAssignPossibleSymbol", "LightRed"
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"

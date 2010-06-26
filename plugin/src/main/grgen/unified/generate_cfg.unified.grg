@@ -11,42 +11,6 @@
 // is moved back to the AST.
 {% endblock %}
 
-{% block gm %}
-abstract node class CfgAbstractNode;
-abstract node class CfgEvalNode;
-// normal nodes indicate normal control flow.
-// further subtypes indicate how computation is carried out
-// (for example, for functions, in the epilogue node).
-abstract node class CfgNormalNode extends CfgAbstractNode;
-abstract node class CfgDummyNode extends CfgNormalNode;
-node class CfgDummyPrologueNode extends CfgDummyNode;
-node class CfgEvalNormalNode extends CfgNormalNode, CfgEvalNode;
-// don't create next ptrs from return stmts.
-// Only for the epilogue of the return statement.
-node class CfgReturnNode extends CfgAbstractNode;
-
-edge class CfgSequentialList;
-
-// edges from CFG nodes to CFG nodes
-edge class CfgAbstractNext;
-edge class CfgSequentialNext extends CfgAbstractNext;
-edge class CfgNext extends CfgSequentialNext;
-edge class CfgSkipSubtreeNext extends CfgSequentialNext;
-// TODO -- implement more CFG edges.
-edge class CfgConditionalNext extends CfgAbstractNext;
-edge class CfgNextFromEval extends CfgAbstractNext;
-
-// edges from the original AST to the CFG
-abstract edge class AstCfgEdge;
-edge class CfgPrologue extends AstCfgEdge;
-edge class CfgEpilogue extends AstCfgEdge;
-edge class CfgPrologueEpilogue extends CfgPrologue, CfgEpilogue;
-
-// a node with [only] one CfgSequentialNext out edge,
-// and only one CfgSequentialNext in edge.
-edge class CfgStrictlySequentialNode;
-{% endblock %}
-
 {% block grg %}
 {% set init_fcns = [] %}
 {% set set_next_fcns = [] %}
@@ -168,7 +132,7 @@ rule {{ set_next_fcn("cfgSetAssignNext") }} {
 
     negative { prologue -:CfgNext-> .; }
     modify {
-        prologue -:CfgNext-> lhs -:CfgNext-> rhs -:CfgNext-> epilogue;
+        prologue -:CfgNext-> rhs -:CfgNext-> lhs -:CfgNext-> epilogue;
     }
 }
 
@@ -308,7 +272,7 @@ pattern DeleteAttachedCfgNodes(x:Node) {
     modify { }
 }
 
-rule deleteCfgNodesOnFields {
+rule deleteCfgNodesOnClassFields {
     :Template -:TemplateElement-> x:ValDef
         -:ValDefRhs-> y:EmptyTree;
     d1:DeleteAttachedCfgNodes(x);

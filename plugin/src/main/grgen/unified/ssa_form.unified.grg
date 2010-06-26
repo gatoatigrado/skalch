@@ -1,0 +1,70 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// Functions to linearize the cfg, and
+{% endblock %}
+
+{% block gm %}
+// important to keep these separate from assignments, because
+// * eventually, multiple symbols may be assigned / reachable
+node class CfgAssign;
+
+edge class CfgAbstractAssign;
+edge class CfgAssignThisStep extends CfgAbstractAssign;
+// propagated -- yield to assign this step
+edge class CfgAssignPrevStep extends CfgAbstractAssign;
+
+// valdef or assign that initialized the assignment
+edge class CfgAssignAstNode;
+edge class CfgAssignPossibleSymbol;
+{% endblock %}
+
+{% block grg %}
+
+rule initCfgPossibleAssign {
+    x:ValDefOrAssign -:CfgEpilogue-> epilogue:CfgAbstractNode;
+    sym:Symbol;
+
+    independent {
+        alternative {
+            A { x -:ValDefSymbol-> sym; }
+            B { x -:AssignLhs-> :VarRef -:VarRefSymbol-> sym; }
+        }
+    }
+
+    negative { epilogue -:CfgAssignThisStep-> .; }
+    modify {
+        epilogue -:CfgAssignThisStep-> assn:CfgAssign
+            -:CfgAssignPossibleSymbol-> sym;
+    }
+}
+
+rule propagateCfgPossibleAssignment {
+    from:CfgAbstractNode -:CfgAbstractAssign-> assn:CfgAssign;
+    from -:CfgAbstractNext-> to:CfgAbstractNode;
+    negative { to -:CfgAbstractAssign-> assn; }
+    negative {
+        // don't copy over a current assignment or else all assigns
+        // would be visible at the end...
+        to -:CfgAssignThisStep-> other:CfgAssign;
+        negative {
+            // ... unless, of course, the assigns they contain different symbols;
+            assn -:CfgAssignPossibleSymbol-> x:Symbol;
+            negative { other -:CfgAssignPossibleSymbol-> x; }
+        }
+    }
+
+    modify {
+        to -:CfgAssignPrevStep-> assn;
+    }
+}
+
+
+
+{% endblock %}

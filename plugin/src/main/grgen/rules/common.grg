@@ -7,12 +7,6 @@ rule assertFalseNoNewline(var msg : string) {
     modify { emit("[GRG ASSERT FAILURE] " + msg); }
 }
 
-rule highlightValDef {
-    vd:ValDef;
-    if { vd.startLine == 10 && vd.startCol == 20; }
-    modify { next:HighlightValDef<vd>; }
-}
-
 /// use in xgrs rules
 rule print(var x : string) { modify { emit(x); } }
 

@@ -11,6 +11,10 @@ public class Trace {
         events = new ArrayList<Event>();
     }
 
+    public Trace(List<Event> e) {
+        events = new ArrayList<Event>(e);
+    }
+
     public void addEvent(int holeId, int numHoleExec, int numValues, int valueChosen) {
         events.add(new Event(holeId, numHoleExec, numValues, valueChosen));
     }
@@ -61,5 +65,9 @@ public class Trace {
 
     public List<Event> getEvents() {
         return new ArrayList<Event>(events);
+    }
+
+    public int size() {
+        return events.size();
     }
 }

@@ -5,7 +5,7 @@ import java.util.Set;
 import sketch.dyn.main.ScSynthesisMainBase;
 import sketch.dyn.stats.ScStatsMT;
 import sketch.dyn.synth.ScSynthesis;
-import sketch.entanglement.EntanglementConsole;
+import sketch.entanglement.ui.EntanglementConsole;
 import sketch.result.ScSynthesisResults;
 import sketch.ui.ScUserInterface;
 import sketch.ui.ScUserInterfaceManager;

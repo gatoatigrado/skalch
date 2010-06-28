@@ -9,10 +9,11 @@ import sketch.util.wrapper.ScRichString;
 
 /**
  * The base field type for ScStatsMT; it uses an atomic long counter.
+ * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScStatEntry {
     protected AtomicLong ctr = new AtomicLong();
@@ -35,8 +36,8 @@ public class ScStatEntry {
     }
 
     public String formatString(int align) {
-        return (new ScRichString(name)).lpad(align) + ": "
-                + String.format("%9.1f", value);
+        return (new ScRichString(name)).lpad(align) + ": " +
+                String.format("%9.1f", value);
     }
 
     public float rate(ScStatEntry base) {
@@ -62,4 +63,5 @@ public class ScStatEntry {
     public void add(long v) {
         ctr.addAndGet(v);
     }
+
 }

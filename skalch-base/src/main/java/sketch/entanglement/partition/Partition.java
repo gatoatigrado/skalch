@@ -24,6 +24,10 @@ public class Partition {
         return name;
     }
 
+    public boolean hasSameTraces(Partition p) {
+        return traces.containsAll(p.getTraces());
+    }
+
     @Override
     public String toString() {
         String returnString = "";

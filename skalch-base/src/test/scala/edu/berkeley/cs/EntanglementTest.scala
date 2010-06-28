@@ -10,13 +10,13 @@ class EntanglementTest() extends AngelicSketch {
   val tests = Array( () )
 
   def main() = {
-    var x : Int = 5;
+    var x : Int = 0;
     
-    for(i <- 0 to !!(3)) {
-      x = x - !!(10)
+    for(i <- 0 to 4) {
+      x = x + !!(3)
     }
     
-    synthAssert(x == 1)
+    synthAssert(x == 5)
   }
 }
 

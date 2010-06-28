@@ -10,6 +10,7 @@ import sketch.dyn.synth.stack.ScStack;
 
 public class ScSynthesisResults implements ScResultsObserver {
 
+    // threadsafe
     private Vector<ScStack> solutions;
     private Vector<ScLocalStackSynthesis> localSynths;
     private boolean synthesisComplete;

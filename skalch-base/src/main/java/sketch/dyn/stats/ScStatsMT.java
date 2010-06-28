@@ -17,7 +17,7 @@ import sketch.ui.ScUserInterface;
  */
 public class ScStatsMT {
     public LinkedList<ScStatEntry> allStats = new LinkedList<ScStatEntry>();
-    public final ScStatEntry nruns, ncounterexamples, nsolutions, gaRepeated,
+    public final ScStatEntry nruns, ncounterexamples, nsolutions, ntraces, gaRepeated,
             gaRepeatedRecent, gaNMutate, gaNCrossover, gaSelectindOtherSame,
             gaSelectindOtherOptimal, gaSelectindSelectedOptimal;
     private ArtificalStatEntry gaTotalSelectind;
@@ -39,6 +39,7 @@ public class ScStatsMT {
         nruns = addStat(new ScStatEntry("num_tests", "tests"));
         ncounterexamples = addStat(new ScStatEntry("num counterexamples"));
         nsolutions = addStat(new ScStatEntry("num solutions"));
+        ntraces = addStat(new ScStatEntry("num_traces", "traces"));
         gaRepeated = addStat(new ScStatEntry("[ga] num same evaluated"));
         gaRepeatedRecent = addStat(new ScStatEntry("[ga] num same evaluated recent"));
         gaNMutate = addStat(new ScStatEntry("[ga] created from mutate only"));
@@ -87,7 +88,7 @@ public class ScStatsMT {
     }
 
     public void showStats(ScStatEntry time, ScStatsModifier modifier) {
-        modifier.printEntries(nruns, ncounterexamples, nsolutions, gaRepeated,
+        modifier.printEntries(nruns, ncounterexamples, nsolutions, ntraces, gaRepeated,
                 gaRepeatedRecent, gaNMutate, gaNCrossover);
         if (showZero || gaTotalSelectind.value > 0) {
             modifier.printEntries(gaTotalSelectind, gaSelectindOtherSame,

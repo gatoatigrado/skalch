@@ -11,12 +11,10 @@ import sketch.entanglement.EntanglementAnalysis;
 import sketch.entanglement.Event;
 import sketch.entanglement.Trace;
 
-public class FirstEntanglementPartitioner extends TraceListPartitioner {
-
-    public FirstEntanglementPartitioner() {}
+public class FirstEntanglementPartitioner extends TracePartitioner {
 
     @Override
-    public List<Partition> getTraceListPartition(Partition p) {
+    public List<Partition> getPartitions(Partition p, String args[]) {
         List<Trace> traces = p.getTraces();
 
         EntanglementAnalysis ea = new EntanglementAnalysis(traces);
@@ -66,5 +64,10 @@ public class FirstEntanglementPartitioner extends TraceListPartitioner {
             }
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "First Entanglement Partitioner";
     }
 }

@@ -26,6 +26,10 @@ public class SubsetIterator {
             minSubsetSize = 1;
         }
 
+        if (maxSubsetSize < minSubsetSize) {
+            maxSubsetSize = minSubsetSize;
+        }
+
         this.minSubsetSize = minSubsetSize;
         this.maxSubsetSize = maxSubsetSize;
         this.totalSize = totalSize;
@@ -36,17 +40,14 @@ public class SubsetIterator {
         }
     }
 
-    public void next() {
+    public List<Integer> next() {
         curFirstSubset = nextFirstSubset;
         updateNext();
+        return new ArrayList<Integer>(curFirstSubset);
     }
 
     public boolean hasNext() {
         return nextFirstSubset != null;
-    }
-
-    public List<Integer> firstSubset() {
-        return new ArrayList<Integer>(curFirstSubset);
     }
 
     private void updateNext() {

@@ -3,8 +3,8 @@ package sketch.entanglement;
 public class Event {
 
     public final DynAngel dynAngel;
-    final int numValues;
-    final int valueChosen;
+    public final int numValues;
+    public final int valueChosen;
 
     public Event(int holeId, int numHoleExec, int numValues, int valueChosen) {
         dynAngel = new DynAngel(holeId, numHoleExec);

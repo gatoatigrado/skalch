@@ -21,3 +21,4 @@ skalch-base/.settings/*
 *.manager*
 *.log
 *.diff
+*.out

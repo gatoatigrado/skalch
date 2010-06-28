@@ -10,7 +10,7 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite
  * 330, Boston, MA 02111-1307 USA
  */
-package sketch.entanglement;
+package sketch.entanglement.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -34,6 +34,11 @@ import org.jgraph.graph.DefaultGraphModel;
 import org.jgraph.graph.GraphConstants;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.Port;
+
+import sketch.entanglement.DynAngel;
+import sketch.entanglement.DynAngelPair;
+import sketch.entanglement.EntanglementAnalysis;
+import sketch.entanglement.Trace;
 
 import com.jgraph.layout.JGraphFacade;
 import com.jgraph.layout.organic.JGraphFastOrganicLayout;
@@ -87,7 +92,7 @@ public class EntanglementGui {
 
     public void addNodesVertices(EntanglementAnalysis ea, JGraph jgraph) {
         if (ea != null) {
-            Set<DynAngel> allAngels = ea.getAllAngels();
+            Set<DynAngel> allAngels = ea.getAngels();
             for (DynAngel angel : allAngels) {
                 DefaultGraphCell cell =
                         new DefaultGraphCell(angel.toString(), new AttributeMap(
@@ -98,7 +103,7 @@ public class EntanglementGui {
                 angelToVertex.put(angel, cell);
             }
 
-            Set<DynAngelPair> entangledPairs = ea.getAllEntangledPairs();
+            Set<DynAngelPair> entangledPairs = ea.getEntangledPairs();
             Set<DefaultEdge> edges = new HashSet<DefaultEdge>();
             for (DynAngelPair pair : entangledPairs) {
                 // Create Edge
@@ -198,7 +203,7 @@ public class EntanglementGui {
         traces.add(t);
         EntanglementAnalysis ea = new EntanglementAnalysis(traces);
 
-        EntanglementGui gui = new EntanglementGui(ea);
+        new EntanglementGui(ea);
 
     }
 }

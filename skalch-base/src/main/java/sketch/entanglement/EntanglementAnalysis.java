@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import sketch.entanglement.graph.ScGraph;
@@ -12,65 +13,35 @@ import sketch.entanglement.graph.ScGraph;
 public class EntanglementAnalysis {
 
     private final List<Trace> traces;
-    private HashMap<DynAngel, ArrayList<Integer>> angelsToValueMap;
-    private Set<DynAngelPair> entangledAngelPairs;
+    private final Set<DynAngelPair> entangledAngelPairs;
+    private final Set<DynAngel> angels;
+    private final Map<Set<DynAngel>, Set<Trace>> projValues;
 
     public EntanglementAnalysis(Collection<Trace> traces) {
         this.traces = new ArrayList<Trace>(traces);
-        angelsToValueMap = getAngelsToValuesMap(this.traces);
-        entangledAngelPairs = getEntangledPairs();
+        projValues = new HashMap<Set<DynAngel>, Set<Trace>>();
+        angels = findAngels();
+        entangledAngelPairs = findEntangledPairs();
     }
 
-    private HashMap<DynAngel, ArrayList<Integer>> getAngelsToValuesMap(List<Trace> traces)
-    {
-        HashMap<DynAngel, ArrayList<Integer>> dynamicAngelsToValues =
-                new HashMap<DynAngel, ArrayList<Integer>>();
-
-        // go through every trace
-        for (int i = 0; i < traces.size(); i++) {
-            // go through every dynamic angelic call
-            Trace trace = traces.get(i);
-            for (Event event : trace.events) {
-                DynAngel dynAngel = event.dynAngel;
-                ArrayList<Integer> values;
-                // add valueChosen to correct list
-                if (dynamicAngelsToValues.containsKey(dynAngel)) {
-                    values = dynamicAngelsToValues.get(dynAngel);
-                } else {
-                    values = new ArrayList<Integer>();
-                    dynamicAngelsToValues.put(dynAngel, values);
-                }
-                // if the dynamic angel was not accessed in the previous traces,
-                // then we need to pad the list until the index
-                while (values.size() < i) {
-                    values.add(-1);
-                }
-                values.add(event.valueChosen);
+    private Set<DynAngel> findAngels() {
+        HashSet<DynAngel> angelSet = new HashSet<DynAngel>();
+        for (Trace trace : traces) {
+            for (Event event : trace.getEvents()) {
+                angelSet.add(event.dynAngel);
             }
         }
-
-        // pad all the lists so they are the same size
-        for (DynAngel dynamicAngel : dynamicAngelsToValues.keySet()) {
-            ArrayList<Integer> values = dynamicAngelsToValues.get(dynamicAngel);
-            while (values.size() < traces.size()) {
-                values.add(-1);
-            }
-        }
-
-        return dynamicAngelsToValues;
+        return angelSet;
     }
 
-    private Set<DynAngelPair> getEntangledPairs() {
+    private Set<DynAngelPair> findEntangledPairs() {
         // list of all dynamic angels
         ArrayList<DynAngel> dynamicAngels = new ArrayList<DynAngel>();
-        dynamicAngels.addAll(angelsToValueMap.keySet());
+        dynamicAngels.addAll(angels);
         HashSet<DynAngelPair> entangledPairs = new HashSet<DynAngelPair>();
 
         for (int i = 0; i < dynamicAngels.size(); i++) {
-            for (int j = 0; j < dynamicAngels.size(); j++) {
-                if (i == j) {
-                    continue;
-                }
+            for (int j = i + 1; j < dynamicAngels.size(); j++) {
 
                 Set<DynAngel> proj1 = new HashSet<DynAngel>();
                 proj1.add(dynamicAngels.get(i));
@@ -78,7 +49,7 @@ public class EntanglementAnalysis {
                 Set<DynAngel> proj2 = new HashSet<DynAngel>();
                 proj2.add(dynamicAngels.get(j));
 
-                if (compareTwoSubtraces(proj1, proj2).isEntangled) {
+                if (isEntangled(proj1, proj2)) {
                     entangledPairs.add(new DynAngelPair(dynamicAngels.get(i),
                             dynamicAngels.get(j)));
                 }
@@ -87,46 +58,53 @@ public class EntanglementAnalysis {
         return entangledPairs;
     }
 
-    public Set<DynAngelPair> getAllEntangledPairs() {
+    public Set<DynAngelPair> getEntangledPairs() {
         return new HashSet<DynAngelPair>(entangledAngelPairs);
     }
 
+    public boolean isEntangled(Set<DynAngel> proj1, Set<DynAngel> proj2) {
+        return compareTwoSubtraces(proj1, proj2, false).isEntangled;
+    }
+
     public EntanglementComparison compareTwoSubtraces(Set<DynAngel> proj1,
-            Set<DynAngel> proj2)
+            Set<DynAngel> proj2, boolean verbose)
     {
-        Set<DynAngel> projUnion = new HashSet<DynAngel>();
-        projUnion.addAll(proj1);
-        projUnion.addAll(proj2);
 
-        Set<Trace> proj1TraceSet = new HashSet<Trace>();
-        Set<Trace> proj2TraceSet = new HashSet<Trace>();
-        List<Trace> projUnionTraceList = new ArrayList<Trace>();
-
-        for (Trace trace : traces) {
-            proj1TraceSet.add(trace.getSubTrace(proj1));
-            proj2TraceSet.add(trace.getSubTrace(proj2));
-            projUnionTraceList.add(trace.getSubTrace(projUnion));
+        List<Trace> proj1TraceList = new ArrayList<Trace>(getPossibleValues(proj1));
+        HashMap<Trace, Integer> proj1ToIndex = new HashMap<Trace, Integer>();
+        for (int i = 0; i < proj1TraceList.size(); i++) {
+            proj1ToIndex.put(proj1TraceList.get(i), i);
         }
 
-        List<Trace> proj1TraceList = new ArrayList<Trace>(proj1TraceSet);
-        List<Trace> proj2TraceList = new ArrayList<Trace>(proj2TraceSet);
+        List<Trace> proj2TraceList = new ArrayList<Trace>(getPossibleValues(proj2));
+        HashMap<Trace, Integer> proj2ToIndex = new HashMap<Trace, Integer>();
+        for (int i = 0; i < proj2TraceList.size(); i++) {
+            proj2ToIndex.put(proj2TraceList.get(i), i);
+        }
 
-        // default value is false
+        // default value is 0
         int[][] correlationMap = new int[proj1TraceList.size()][proj2TraceList.size()];
 
-        for (int i = 0; i < correlationMap.length; i++) {
-            for (int j = 0; j < correlationMap[0].length; j++) {
-                correlationMap[i][j] = 0;
-            }
-        }
+        if (verbose) {
+            for (Trace trace : traces) {
+                int i = proj1ToIndex.get(trace.getSubTrace(proj1));
+                int j = proj2ToIndex.get(trace.getSubTrace(proj2));
 
-        for (int i = 0; i < proj1TraceList.size(); i++) {
-            for (int j = 0; j < proj2TraceList.size(); j++) {
-                for (Trace unionTrace : projUnionTraceList) {
-                    if (unionTrace.getSubTrace(proj1).equals(proj1TraceList.get(i)) &&
-                            unionTrace.getSubTrace(proj2).equals(proj2TraceList.get(j)))
-                    {
-                        correlationMap[i][j]++;
+                correlationMap[i][j]++;
+            }
+        } else {
+            int numSeen = 0;
+            int numGoal = proj1TraceList.size() * proj2TraceList.size();
+
+            for (Trace trace : traces) {
+                int i = proj1ToIndex.get(trace.getSubTrace(proj1));
+                int j = proj2ToIndex.get(trace.getSubTrace(proj2));
+
+                if (correlationMap[i][j] == 0) {
+                    correlationMap[i][j] = 1;
+                    numSeen++;
+                    if (numSeen == numGoal) {
+                        break;
                     }
                 }
             }
@@ -142,33 +120,27 @@ public class EntanglementAnalysis {
         HashMap<DynAngel, Boolean> isConstantAngel = new HashMap<DynAngel, Boolean>();
         HashMap<DynAngel, Integer> angelValues = new HashMap<DynAngel, Integer>();
 
-        // go through every trace
+        // go through every trace and event
         for (Trace trace : traces) {
-            // go through every angelic call
-            for (Event angelicCall : trace.events) {
-                DynAngel location = angelicCall.dynAngel;
+            for (Event event : trace.events) {
+                DynAngel location = event.dynAngel;
                 // if the location is already visited and is said to be constant
-                if (isConstantAngel.keySet().contains(location) &&
-                        isConstantAngel.get(location))
-                {
+                if (isConstantAngel.keySet().contains(location)) {
                     // check if location is still constant
-                    if (!angelValues.get(location).equals(angelicCall.valueChosen)) {
+                    if (isConstantAngel.get(location) &&
+                            !angelValues.get(location).equals(event.valueChosen))
+                    {
                         isConstantAngel.put(location, false);
                     }
                 } else {
-                    // check if first time visiting location
-                    if (!isConstantAngel.keySet().contains(location)) {
-                        isConstantAngel.put(location, true);
-                        angelValues.put(location, angelicCall.valueChosen);
-                    }
+                    isConstantAngel.put(location, true);
+                    angelValues.put(location, event.valueChosen);
                 }
             }
         }
         Set<DynAngel> constantAngels = new HashSet<DynAngel>();
         for (DynAngel angel : isConstantAngel.keySet()) {
             if (isConstantAngel.get(angel)) {
-                HashSet<DynAngel> singletonSet = new HashSet<DynAngel>();
-                singletonSet.add(angel);
                 constantAngels.add(angel);
             }
         }
@@ -184,21 +156,26 @@ public class EntanglementAnalysis {
         return entangledAngels;
     }
 
-    public Set<DynAngel> getAllAngels() {
-        return angelsToValueMap.keySet();
+    public Set<DynAngel> getAngels() {
+        return angels;
     }
 
-    public Set<Trace> getPossibleValues(HashSet<DynAngel> proj) {
+    public Set<Trace> getPossibleValues(Set<DynAngel> proj) {
+        if (projValues.containsKey(proj)) {
+            return new HashSet<Trace>(projValues.get(proj));
+        }
+
         Set<Trace> projTraceSet = new HashSet<Trace>();
         for (Trace trace : traces) {
             projTraceSet.add(trace.getSubTrace(proj));
         }
+        projValues.put(new HashSet<DynAngel>(proj), new HashSet<Trace>(projTraceSet));
         return projTraceSet;
     }
 
-    public Set<Set<DynAngel>> getOneEntangledSubsets() {
+    private Set<Set<DynAngel>> getOneEntangledSubsets() {
         ScGraph<DynAngel> entanglementGraph = new ScGraph<DynAngel>();
-        for (DynAngel angel : angelsToValueMap.keySet()) {
+        for (DynAngel angel : angels) {
             entanglementGraph.addVertex(angel);
         }
 
@@ -213,40 +190,51 @@ public class EntanglementAnalysis {
                 new ArrayList<Set<DynAngel>>(getOneEntangledSubsets());
         Set<Set<DynAngel>> unentangledSubsets = new HashSet<Set<DynAngel>>();
 
-        Set<DynAngel> entangledAngels = new HashSet<DynAngel>(angelsToValueMap.keySet());
+        Set<DynAngel> entangledAngels = new HashSet<DynAngel>(angels);
 
         for (Set<DynAngel> subset : entangledSubsets) {
-            if (!isEntangled(entangledAngels, new HashSet<DynAngel>(subset))) {
+            if (!isBetaEntangled(subset, entangledAngels)) {
                 unentangledSubsets.add(subset);
                 entangledAngels.removeAll(subset);
             }
         }
         entangledSubsets.removeAll(unentangledSubsets);
 
+        HashSet<Integer> ignoreList = new HashSet<Integer>();
         SubsetIterator iterator = new SubsetIterator(2, n, entangledSubsets.size());
-        while (iterator.hasNext()) {
-            iterator.next();
-            HashSet<DynAngel> firstSubset = new HashSet<DynAngel>();
-            HashSet<Set<DynAngel>> firstSubsetSubsets = new HashSet<Set<DynAngel>>();
-            for (Integer index : iterator.firstSubset()) {
-                firstSubset.addAll(entangledSubsets.get(index));
-                firstSubsetSubsets.add(entangledSubsets.get(index));
+        subsets: for (; iterator.hasNext();) {
+            List<Integer> subsetIndexes = iterator.next();
+            HashSet<DynAngel> unionSubset = new HashSet<DynAngel>();
+            for (Integer index : subsetIndexes) {
+                if (ignoreList.contains(index)) {
+                    continue subsets;
+                }
+                unionSubset.addAll(entangledSubsets.get(index));
             }
 
-            if (!isEntangled(entangledAngels, firstSubset)) {
-                unentangledSubsets.add(new HashSet<DynAngel>(firstSubset));
-                entangledAngels.removeAll(firstSubset);
-                entangledSubsets.removeAll(firstSubsetSubsets);
+            if (!isBetaEntangled(unionSubset, entangledAngels)) {
+                unentangledSubsets.add(new HashSet<DynAngel>(unionSubset));
+                entangledAngels.removeAll(unionSubset);
+                ignoreList.addAll(subsetIndexes);
+                if (ignoreList.size() == entangledSubsets.size()) {
+                    break;
+                }
             }
         }
 
+        List<Set<DynAngel>> subsetsToRemove = new ArrayList<Set<DynAngel>>();
+
+        for (Integer index : ignoreList) {
+            subsetsToRemove.add(entangledSubsets.get(index));
+        }
+        entangledSubsets.removeAll(subsetsToRemove);
         return new EntanglementSubsets(unentangledSubsets, new HashSet<Set<DynAngel>>(
                 entangledSubsets));
     }
 
-    private boolean isEntangled(Set<DynAngel> allAngels, Set<DynAngel> subset) {
-        Set<DynAngel> complementAngels = new HashSet<DynAngel>(allAngels);
+    private boolean isBetaEntangled(Set<DynAngel> subset, Set<DynAngel> entangledAngels) {
+        Set<DynAngel> complementAngels = new HashSet<DynAngel>(entangledAngels);
         complementAngels.removeAll(subset);
-        return compareTwoSubtraces(subset, complementAngels).isEntangled;
+        return isEntangled(subset, complementAngels);
     }
 }

@@ -6,17 +6,15 @@ import java.util.List;
 
 import sketch.entanglement.Trace;
 
-public class SizePartitioner extends TraceListPartitioner {
-
-    public SizePartitioner() {}
+public class SizePartitioner extends TracePartitioner {
 
     @Override
-    public List<Partition> getTraceListPartition(Partition p) {
+    public List<Partition> getPartitions(Partition p, String args[]) {
         List<Trace> traces = p.getTraces();
         HashMap<Integer, List<Trace>> sizePartitions =
                 new HashMap<Integer, List<Trace>>();
         for (Trace trace : traces) {
-            int size = traces.size();
+            int size = trace.size();
             List<Trace> partition;
             if (sizePartitions.containsKey(size)) {
                 partition = sizePartitions.get(size);
@@ -34,5 +32,10 @@ public class SizePartitioner extends TraceListPartitioner {
             partitions.add(partition);
         }
         return partitions;
+    }
+
+    @Override
+    public String toString() {
+        return "Size Partitioner";
     }
 }

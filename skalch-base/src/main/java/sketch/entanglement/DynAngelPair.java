@@ -1,7 +1,7 @@
 package sketch.entanglement;
 
 public class DynAngelPair implements Comparable<DynAngelPair> {
-    final DynAngel loc1, loc2;
+    final public DynAngel loc1, loc2;
 
     public DynAngelPair(DynAngel loc1, DynAngel loc2) {
         if (loc1.compareTo(loc2) < 0) {

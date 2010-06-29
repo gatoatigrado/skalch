@@ -77,6 +77,29 @@
                     </includes>
                 </configuration>
             </plugin>
+            
+             <plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>exec-maven-plugin</artifactId>
+		        <version>1.1</version>
+		        <executions>
+		          <execution>
+		            <goals>
+		              <goal>java</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		        <configuration>
+		          <systemProperties>
+		            <systemProperty>
+		              <key>java.library.path</key>
+		              <value>/home/</value>
+		            </systemProperty>
+		            ...
+		          </systemProperties>
+		        </configuration>
+		      </plugin>
+            
         </plugins>
     </build>
 

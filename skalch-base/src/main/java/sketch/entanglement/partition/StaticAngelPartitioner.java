@@ -10,14 +10,14 @@ import sketch.entanglement.Trace;
 public class StaticAngelPartitioner extends TracePartitioner {
 
     @Override
-    public List<Partition> getPartitions(Partition p, String args[]) {
+    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String args[]) {
         List<Trace> traces = p.getTraces();
 
         int staticAngel;
         if (args.length == 1) {
             staticAngel = Integer.parseInt(args[0]);
         } else {
-            ArrayList<Partition> returnPartition = new ArrayList<Partition>();
+            ArrayList<SubsetOfTraces> returnPartition = new ArrayList<SubsetOfTraces>();
             return returnPartition;
         }
 
@@ -49,17 +49,17 @@ public class StaticAngelPartitioner extends TracePartitioner {
             }
         }
 
-        List<Partition> partitions = new ArrayList<Partition>();
+        List<SubsetOfTraces> partitions = new ArrayList<SubsetOfTraces>();
         if (!valuePartitions.get(noSameValue).isEmpty()) {
-            Partition partition =
-                    new Partition(valuePartitions.get(noSameValue), "sa" + staticAngel +
+            SubsetOfTraces partition =
+                    new SubsetOfTraces(valuePartitions.get(noSameValue), "sa" + staticAngel +
                             "=diff", p);
             partitions.add(partition);
         }
         valuePartitions.remove(noSameValue);
         for (Integer value : valuePartitions.keySet()) {
-            Partition partition =
-                    new Partition(valuePartitions.get(value), "sa" + staticAngel + "=" +
+            SubsetOfTraces partition =
+                    new SubsetOfTraces(valuePartitions.get(value), "sa" + staticAngel + "=" +
                             value, p);
             partitions.add(partition);
         }

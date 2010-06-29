@@ -4,13 +4,13 @@ import java.util.List;
 
 import sketch.entanglement.Trace;
 
-public class Partition {
+public class SubsetOfTraces {
 
     private List<Trace> traces;
-    private Partition parent;
+    private SubsetOfTraces parent;
     private String name;
 
-    public Partition(List<Trace> traces, String name, Partition parent) {
+    public SubsetOfTraces(List<Trace> traces, String name, SubsetOfTraces parent) {
         this.traces = traces;
         this.name = name;
         this.parent = parent;
@@ -20,11 +20,11 @@ public class Partition {
         return traces;
     }
 
-    public String getParitionName() {
+    public String getPartitionName() {
         return name;
     }
 
-    public boolean hasSameTraces(Partition p) {
+    public boolean hasSameTraces(SubsetOfTraces p) {
         return traces.containsAll(p.getTraces());
     }
 

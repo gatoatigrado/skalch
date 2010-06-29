@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Trace {
-    final List<Event> events;
+    public final List<Event> events;
 
     public Trace() {
         events = new ArrayList<Event>();

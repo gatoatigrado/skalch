@@ -55,51 +55,9 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 
 ### Sketch tests; use EXEC_ARGS=args to pass arguments
 
-angelic_sketch: plugin_angelic_sketch # new angelic sketch base
-	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=angelic.simple.SugaredTest" -Dexec.args="$(EXEC_ARGS)"
-
 run_test: plugin_dev # run TEST_CLASS=<canonical java class name> EXEC_ARGS=<args>	
 	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
 run_test_debug: plugin_dev # run debug TEST_CLASS=<canonical java class name> EXEC_ARGS=<args>	
 	cd skalch-base; export MAVEN_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=y"; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
-
-
-
-### developer-specific commands
-
-buildutil/build_info.pickle:
-	buildutil/get_sources.zsh
-
-fsc-plugin: buildutil/build_info.pickle
-	buildutil/run_fsc.py --compile_plugin
-
-fsc-base: buildutil/build_info.pickle
-	buildutil/run_fsc.py --compile_base
-
-fsc-test: buildutil/build_info.pickle
-	buildutil/run_fsc.py --compile_test
-
-gatoatigrado-build-plugin-deps: # build dependencies for the plugin, use skipdeps=1 to skip
-ifndef skipdeps
-	cd ../sketch-frontend; make g_inst
-endif
-
-# gatoatigrado's plugin development trying the red-black tree sketch
-gatoatigrado-plugin-rbtree: gatoatigrado-build-plugin-deps
-	@make plugin_dev testfile=RedBlackTreeTest.scala
-
-# dws sketch (lots of syntax)
-gatoatigrado-plugin-dws: gatoatigrado-build-plugin-deps
-	@make plugin_dev testfile=Dfs.scala
-
-# roman numerals (match stmt)
-gatoatigrado-plugin-roman-numeral: gatoatigrado-build-plugin-deps
-	@make plugin_dev testfile=RomanNumerals.scala
-
-# rev list test (catch stmt)
-gatoatigrado-plugin-rev-list: gatoatigrado-build-plugin-deps
-	@make plugin_dev testfile=RevListTest.scala
-
-g: gatoatigrado-build-plugin-deps plugin_angelic_sketch # whatever gatoatigrado's currently working on

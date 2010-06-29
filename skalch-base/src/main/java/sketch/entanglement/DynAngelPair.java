@@ -22,7 +22,6 @@ public class DynAngelPair implements Comparable<DynAngelPair> {
         return loc2;
     }
 
-    @Override
     public int compareTo(DynAngelPair otherPair) {
         int firstComp = loc1.compareTo(otherPair.loc1);
         if (firstComp != 0) {

@@ -5,10 +5,10 @@ import java.util.List;
 public abstract class TracePartitioner {
 
     public static TracePartitioner partitionTypes[] =
-            { new FirstEntanglementPartitioner(), new SizePartitioner(),
-                    new StaticAngelPartitioner() };
+            { new SizePartitioner(), new StaticAngelPartitioner(),
+                    new EntanglementPartitioner() };
 
-    public abstract List<Partition> getPartitions(Partition p, String args[]);
+    public abstract List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String args[]);
 
     @Override
     public abstract String toString();

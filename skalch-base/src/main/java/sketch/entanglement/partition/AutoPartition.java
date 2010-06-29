@@ -8,16 +8,16 @@ import java.util.List;
 import java.util.Set;
 
 import sketch.entanglement.DynAngel;
-import sketch.entanglement.EntanglementAnalysis;
-import sketch.entanglement.EntanglementSubsets;
+import sketch.entanglement.EntangledPartitions;
 import sketch.entanglement.Trace;
+import sketch.entanglement.sat.SATEntanglementAnalysis;
 
 public class AutoPartition extends TracePartitioner {
 
     @Override
-    public List<Partition> getPartitions(Partition p, String[] args) {
+    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String[] args) {
         if (args.length < 3) {
-            ArrayList<Partition> singletonList = new ArrayList<Partition>();
+            ArrayList<SubsetOfTraces> singletonList = new ArrayList<SubsetOfTraces>();
             singletonList.add(p);
             return singletonList;
         }
@@ -28,17 +28,17 @@ public class AutoPartition extends TracePartitioner {
         BinaryHeap<PartitionInfo> curSolutionHeap = new BinaryHeap<PartitionInfo>();
         BinaryHeap<PartitionInfo> allSolutionHeap = new BinaryHeap<PartitionInfo>();
 
-        HashMap<Integer, List<Partition>> seenPartitions =
-                new HashMap<Integer, List<Partition>>();
+        HashMap<Integer, List<SubsetOfTraces>> seenPartitions =
+                new HashMap<Integer, List<SubsetOfTraces>>();
 
-        List<Partition> newSolutionList = new ArrayList<Partition>();
+        List<SubsetOfTraces> newSolutionList = new ArrayList<SubsetOfTraces>();
         newSolutionList.add(p);
         addToSeenPartitions(seenPartitions, p);
 
         for (int i = 0; i < depth; i++) {
             System.out.println("Depth " + i);
 
-            for (Partition newSolution : newSolutionList) {
+            for (SubsetOfTraces newSolution : newSolutionList) {
                 curSolutionHeap.add(new PartitionInfo(newSolution, subsetSize));
             }
             newSolutionList.clear();
@@ -48,16 +48,17 @@ public class AutoPartition extends TracePartitioner {
             while (curSolutionHeap.size() > 0 && numSolutionsProcessed < branching) {
                 numSolutionsProcessed++;
                 PartitionInfo solution = curSolutionHeap.remove();
-                System.out.println("Partitioning " + solution.partition.getParitionName());
+                System.out.println("Partitioning " +
+                        solution.partition.getPartitionName());
                 allSolutionHeap.add(solution);
 
                 List<TracePartitioner> partitioners = getAllTracePartitioners(solution);
                 // go through partitioners suitable for this partition
                 for (TracePartitioner partitioner : partitioners) {
-                    List<Partition> partitions =
-                            partitioner.getPartitions(solution.partition, null);
+                    List<SubsetOfTraces> partitions =
+                            partitioner.getSubsets(solution.partition, null);
                     // add each new partition to solutions list
-                    for (Partition partition : partitions) {
+                    for (SubsetOfTraces partition : partitions) {
                         if (!hasBeenSeenPartition(seenPartitions, partition)) {
                             System.out.println("New partition " + partition);
                             addToSeenPartitions(seenPartitions, partition);
@@ -74,7 +75,7 @@ public class AutoPartition extends TracePartitioner {
 
         }
 
-        ArrayList<Partition> returnList = new ArrayList<Partition>();
+        ArrayList<SubsetOfTraces> returnList = new ArrayList<SubsetOfTraces>();
         while (curSolutionHeap.size() > 0) {
             returnList.add(curSolutionHeap.remove().partition);
         }
@@ -83,11 +84,11 @@ public class AutoPartition extends TracePartitioner {
     }
 
     private boolean hasBeenSeenPartition(
-            HashMap<Integer, List<Partition>> seenPartitions, Partition partition)
+            HashMap<Integer, List<SubsetOfTraces>> seenPartitions, SubsetOfTraces partition)
     {
         int size = partition.getTraces().size();
         if (seenPartitions.containsKey(size)) {
-            for (Partition sameSizedPartition : seenPartitions.get(size)) {
+            for (SubsetOfTraces sameSizedPartition : seenPartitions.get(size)) {
                 if (partition.hasSameTraces(sameSizedPartition)) {
                     return true;
                 }
@@ -96,14 +97,14 @@ public class AutoPartition extends TracePartitioner {
         return false;
     }
 
-    private void addToSeenPartitions(HashMap<Integer, List<Partition>> seenPartitions,
-            Partition partition)
+    private void addToSeenPartitions(HashMap<Integer, List<SubsetOfTraces>> seenPartitions,
+            SubsetOfTraces partition)
     {
         int size = partition.getTraces().size();
         if (seenPartitions.containsKey(size)) {
             seenPartitions.get(size).add(partition);
         } else {
-            List<Partition> sameSizePartitions = new ArrayList<Partition>();
+            List<SubsetOfTraces> sameSizePartitions = new ArrayList<SubsetOfTraces>();
             sameSizePartitions.add(partition);
             seenPartitions.put(size, sameSizePartitions);
         }
@@ -116,8 +117,8 @@ public class AutoPartition extends TracePartitioner {
 
     private List<TracePartitioner> getAllTracePartitioners(PartitionInfo info) {
         List<Trace> traces = info.partition.getTraces();
-        EntanglementSubsets es = info.entanglementSubsets;
-        EntanglementAnalysis ea = info.entanglementAnalysis;
+        EntangledPartitions es = info.entanglementSubsets;
+        SATEntanglementAnalysis ea = info.entanglementAnalysis;
 
         List<TracePartitioner> partitioners = new ArrayList<TracePartitioner>();
 
@@ -164,23 +165,24 @@ public class AutoPartition extends TracePartitioner {
 }
 
 class PartitionInfo implements Comparable<PartitionInfo> {
-    public EntanglementAnalysis entanglementAnalysis;
-    public EntanglementSubsets entanglementSubsets;
-    public final Partition partition;
+    public SATEntanglementAnalysis entanglementAnalysis;
+    public EntangledPartitions entanglementSubsets;
+    public final SubsetOfTraces partition;
     public final int entanglementScore;
 
-    public PartitionInfo(Partition p, int subsetSize) {
+    public PartitionInfo(SubsetOfTraces p, int subsetSize) {
         System.out.println("Calculating entanglement score for partition " +
-                p.getParitionName() + " (" + new Time(System.currentTimeMillis()) + ")");
+                p.getPartitionName() + " (" + new Time(System.currentTimeMillis()) + ")");
 
         partition = p;
-        entanglementAnalysis = new EntanglementAnalysis(p.getTraces());
-        entanglementSubsets = entanglementAnalysis.getNEntangledSubsets(subsetSize);
+        entanglementAnalysis =
+                new SATEntanglementAnalysis(new HashSet<Trace>(p.getTraces()));
+        entanglementSubsets = entanglementAnalysis.getEntangledPartitions(subsetSize);
         entanglementScore = computeEntanglementScore(entanglementSubsets);
         System.out.println("Score is " + entanglementScore);
     }
 
-    public int computeEntanglementScore(EntanglementSubsets subsets) {
+    public int computeEntanglementScore(EntangledPartitions subsets) {
         int score = 0;
         for (Set<DynAngel> subset : subsets.entangledSubsets) {
             score += subset.size() * subset.size();

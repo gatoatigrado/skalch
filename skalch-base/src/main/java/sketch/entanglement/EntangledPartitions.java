@@ -2,11 +2,11 @@ package sketch.entanglement;
 
 import java.util.Set;
 
-public class EntanglementSubsets {
+public class EntangledPartitions {
     final public Set<Set<DynAngel>> unentangledSubsets;
     final public Set<Set<DynAngel>> entangledSubsets;
 
-    public EntanglementSubsets(Set<Set<DynAngel>> unentangledSubsets,
+    public EntangledPartitions(Set<Set<DynAngel>> unentangledSubsets,
             Set<Set<DynAngel>> entangledSubsets)
     {
         this.unentangledSubsets = unentangledSubsets;

@@ -123,8 +123,8 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
     object GxlGeneratorComponent extends PluginComponent {
         val global : ExternalGxlTransformer.this.global.type =
             ExternalGxlTransformer.this.global
-        val runsAfter = List("icode")
-        override val runsBefore = List("jvm")
+        val runsAfter = List("jvm")
+//         override val runsBefore = List("jvm")
         val phaseName = "sketch_static_ast_gen"
         def newPhase(prev: Phase) = new SketchRewriterPhase(prev)
 

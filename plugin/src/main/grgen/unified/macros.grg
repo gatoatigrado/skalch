@@ -47,11 +47,28 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
 {# various utility things #}
 {# place this in an eval block #}
 
+{% macro copySymbolAttrs(from_, to_arr) %}
+{%- for to_ in to_arr -%}
+        {{ to_ }}.uniqueSymbolName = {{ from_ }}.uniqueSymbolName;
+        {{ to_ }}.simpleName = {{ from_ }}.simpleName;
+        {{ to_ }}.fullSymbolName = {{ from_ }}.fullSymbolName;
+        {{ to_ }}.symbolName = {{ from_ }}.symbolName;
+{% endfor -%}
+{% endmacro %}
+
 {% macro copySrcPosition(from_, to_arr) %}
-{% for to_ in to_arr %}
-    {{ to_ }}.startLine = {{ from_ }}.startLine;
-    {{ to_ }}.startCol = {{ from_ }}.startCol;
-    {{ to_ }}.endLine = {{ from_ }}.endLine;
-    {{ to_ }}.endCol = {{ from_ }}.endCol;
+{%- for to_ in to_arr -%}
+        {{ to_ }}.sourceFile = {{ from_ }}.sourceFile + "-COMPILER_INTERNAL";
+        {{ to_ }}.startLine = {{ from_ }}.startLine;
+        {{ to_ }}.startCol = {{ from_ }}.startCol;
+        {{ to_ }}.endLine = {{ from_ }}.endLine;
+        {{ to_ }}.endCol = {{ from_ }}.endCol;
+{% endfor -%}
+{% endmacro %}
+
+{% macro copySrcInfo(from_, to_arr) -%}
+{{ copySrcPosition(from_, to_arr) }}
+{%- for to_ in to_arr %}
+        {{ to_ }}.scalaSource = {{ from_ }}.scalaSource;
 {% endfor %}
 {% endmacro %}

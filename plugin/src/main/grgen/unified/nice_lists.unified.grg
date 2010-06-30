@@ -229,6 +229,11 @@ rule listInsertBefore(x:ListAbstractNode, y:Node) {
     modify { exec(listDoInsertBefore(x, y) || assertFalse("list insert before failed")); }
 }
 
+rule listInsertFirst(lst:List, y:Node) {
+    lst -:ListFirst-> first:ListFirstNode;
+    modify { exec(listInsertAfter(first, y)); }
+}
+
 pattern IsListLast(lst:List, y:ScAstNode) {
     lst -:ListLast-> last:ListLastNode;
     n:ListNode -:ListNext-> last;
@@ -238,6 +243,21 @@ pattern IsListLast(lst:List, y:ScAstNode) {
 pattern IsLastListNode(lst:List, y:ListNode) {
     lst -:ListLast-> last:ListLastNode;
     y -:ListNext-> last;
+}
+
+rule countListInner(x:ListAbstractNode, y:IntConstant) {
+    x -:ListNext-> z:ListNode;
+    modify {
+        eval { y.value = y.value + 1; }
+        exec(countListInner(z, y));
+    }
+}
+
+rule countList(lst:List, y:IntConstant) {
+    lst -:ListFirst-> x:ListFirstNode;
+    modify {
+        exec(countListInner(x, y));
+    }
 }
 
 {% endblock %}

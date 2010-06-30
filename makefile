@@ -15,11 +15,10 @@ help-all: # show uncommon commands as well
 
 clean:
 	fsc -shutdown || true
+	zsh -c "setopt -G; rm -rf base/target/test-classes base/**/*.gxl"
 	zsh -c "setopt -G; rm -f **/*timestamp **/*.(pyc|dll|exe|pidb|mdb) **/*~ **/skalch/plugins/type_graph.gxl"
 	zsh -c "setopt -G; rm -rf **/(bin|target) .gen **/gen/"
-
-clean-gxl:
-	zsh -c "setopt -G; rm -rf base/target/test-classes base/**/*.gxl"
+	zsh -c "setopt -G; rm -rf ~/.m2/repository/edu/berkeley/cs/sketch/skalch-plugin"
 
 show-env-vars:
 	@echo "\$$grgenfiles from $(origin grgenfiles), value '$(grgenfiles)'"

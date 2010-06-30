@@ -22,13 +22,19 @@ edge class CfgAssignPrevStep extends CfgAbstractAssign;
 
 // valdef or assign that initialized the assignment
 edge class CfgAssignAstNode;
-edge class CfgAssignPossibleSymbol;
+edge class CfgAssignPossibleSymbol connect CfgAssign --> CfgAssign;
+edge class CfgAssignNewSymbol;
+
+edge class ValDefSSADefine;
+
+edge class SSAParent connect Symbol[0:1] --> Symbol[*] { idx : int; }
+edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
 {% endblock %}
 
 {% block grg %}
 
 rule initCfgPossibleAssign {
-    x:ValDefOrAssign -:CfgEpilogue-> epilogue:CfgAbstractNode;
+    x:ValDefOrAssign -:AstCfgEdge-> cfgeval:CfgEvalNode;
     sym:Symbol;
 
     independent {
@@ -38,9 +44,9 @@ rule initCfgPossibleAssign {
         }
     }
 
-    negative { epilogue -:CfgAssignThisStep-> .; }
+    negative { cfgeval -:CfgAssignThisStep-> .; }
     modify {
-        epilogue -:CfgAssignThisStep-> assn:CfgAssign
+        cfgeval -:CfgAssignThisStep-> assn:CfgAssign
             -:CfgAssignPossibleSymbol-> sym;
     }
 }
@@ -65,6 +71,175 @@ rule propagateCfgPossibleAssignment {
     }
 }
 
+rule CopySymbolType(from:Symbol, to:Symbol) {
+    from -:TypeSymbol-> typ:Symbol;
+    modify { to -:TypeSymbol-> typ; }
+}
 
+rule CopySymbolTypeArgs(from:Symbol, to:Symbol) {
+    from -:SymbolTypeArgsList-> lst:List;
+    modify { to -:SymbolTypeArgsList-> lst; }
+}
+
+/** each assignment should have a symbol */
+rule createNewAssignSymbols {
+    x:CfgAssign -:CfgAssignPossibleSymbol-> sym:Symbol;
+    negative { x -:CfgAssignNewSymbol-> . -:SSAParent-> sym; }
+    negative { sym -:SSAParent-> .; } // overcautious?
+
+    modify {
+        x -:CfgAssignNewSymbol-> newsymbol:Symbol
+            -e:SSAParent-> sym;
+        eval {
+            {{ macros.copySymbolAttrs("sym", ["newsymbol"]) }}
+            e.idx = 0;
+        }
+        exec(CopySymbolType(sym, newsymbol) & CopySymbolTypeArgs(sym, newsymbol));
+    }
+}
+
+rule uniquelyNameSymbols {
+    x:Symbol -e1:SSAParent-> y:Symbol;
+    z:Symbol -e2:SSAParent-> y;
+    if { e1.idx == e2.idx; }
+
+    modify { eval { e1.idx = e1.idx + 1; } }
+}
+
+rule setUniqueSSANamesInner(x:Symbol) {
+    x -e:SSAParent-> y:Symbol;
+
+    modify {
+        eval {
+            x.uniqueSymbolName = x.uniqueSymbolName + "_" + e.idx;
+            x.simpleName = x.simpleName + "_" + e.idx;
+            x.fullSymbolName = x.fullSymbolName + "_" + e.idx;
+            x.symbolName = x.symbolName + "_" + e.idx;
+        }
+    }
+}
+
+// so it can be run with [rulename]
+rule setUniqueSSANames {
+    x:Symbol;
+    modify { exec(setUniqueSSANamesInner(x)); }
+}
+
+pattern CfgAssignSSASymbol(assn:CfgAssign, x:Symbol, sym:Symbol) {
+    assn -:CfgAssignNewSymbol-> x -:SSAParent-> sym;
+}
+
+/// create phi functions for 2 possible SSA vars. Need to add others in next step!
+rule createHLPhiFcns {
+    // this is a little hard to read: the "\"'s mean "exclude the given subtypes"
+    parent:Node \ Assign -e:Replaceable \ AssignLhs-> x:VarRef
+        -:CfgPrologueEpilogue-> cfgassn:CfgEvalNode;
+    cfgassn -:CfgAbstractAssign-> y:CfgAssign;
+    cfgassn -:CfgAbstractAssign-> z:CfgAssign;
+
+    x -:VarRefTypeSymbol-> typ:Symbol;
+    x -:VarRefSymbol-> sym:Symbol;
+    y_sym:Symbol;
+    z_sym:Symbol;
+    :CfgAssignSSASymbol(y, y_sym, sym);
+    :CfgAssignSSASymbol(z, z_sym, sym);
+
+    modify {
+        delete(e);
+        parent -:typeof(e)-> phi:PhiFcn;
+        phi -:CfgPrologueEpilogue-> cfgassn;
+        phi -:PhiSSAParentSymbol-> sym;
+        phi -:FcnArgList-> {{ macros.finiteListInit(["y_vr:VarRef", "z_vr:VarRef"]) }}
+        y_vr -:VarRefSymbol-> y_sym;
+        z_vr -:VarRefSymbol-> z_sym;
+        eval {
+            {{ macros.copySrcInfo("x", ["phi", "y_vr", "z_vr"]) }}
+        }
+    }
+}
+
+/// for all phi functions of arity 3 and above
+rule addAdditionalSymbolToPhiFcn {
+    x:PhiFcn -:CfgPrologueEpilogue-> cfgphi:CfgEvalNode;
+    cfgphi -:CfgAbstractAssign-> y:CfgAssign;
+    x -:FcnArgList-> lst:List -:ListFirst-> lstfirst:ListFirstNode;
+
+    // match a new symbol
+    x -:PhiSSAParentSymbol-> sym:Symbol;
+    y_sym:Symbol;
+    :CfgAssignSSASymbol(y, y_sym, sym);
+    negative { lst -:ListElt-> . -:ListValue-> . -:VarRefSymbol-> y_sym; }
+
+    modify {
+        y_vr:VarRef -:VarRefSymbol-> y_sym;
+        exec(listInsertAfter(lstfirst, y_vr));
+    }
+}
+
+/// use appropriate SSA symbols. Must be applied after the above.
+rule redirectSingleVarRefs {
+    x:VarRef -:CfgPrologueEpilogue-> cfgassn:CfgEvalNormalNode;
+    cfgassn -:CfgAbstractAssign-> y:CfgAssign;
+
+    x -e:VarRefSymbol-> sym:Symbol;
+    y_sym:Symbol;
+    :CfgAssignSSASymbol(y, y_sym, sym);
+
+    modify {
+        delete(e);
+        x -:VarRefSymbol-> y_sym;
+    }
+}
+
+rule convertValDefsToInits_0 {
+//     blk:Block -:BlockStmtList-> lst:List
+//         -:ListElt-> lstnode:ListNode
+//         -:ListValue->
+    x:ValDef -:ValDefSymbol-> sym:Symbol;
+    multiple {
+        assn:CfgAssign;
+        ssa_sym:Symbol;
+        :CfgAssignSSASymbol(assn, ssa_sym, sym);
+        modify {
+            x -:ValDefSSADefine-> ssa_sym;
+        }
+    }
+    negative { x -:ValDefSSADefine-> .; }
+    modify { }
+}
+
+rule convertFirstVDToSSAAssign {
+    x:ValDef -e0:ValDefSymbol-> sym:Symbol;
+    x -:ValDefSSADefine-> ssa_sym:Symbol -:SSAParent-> sym;
+    x -e1:ValDefRhs-> rhs:ScAstNode;
+    sym -:TypeSymbol-> typ:Symbol;
+
+    modify {
+        delete(e0, e1);
+        next:Assign<x> -:AssignRhs-> rhs;
+        next -:AssignLhs-> vr:VarRef -:VarRefSymbol-> ssa_sym;
+        vr -:VarRefTypeSymbol-> typ;
+    }
+}
+
+rule convertValDefsToInits_1 {
+    blk:Block -:BlockStmtList-> lst:List -:ListElt->
+        lstnode:ListNode -:ListValue->
+        x:Assign -e:ValDefSSADefine-> ssa_sym:Symbol;
+    modify {
+        delete(e);
+        vd:ValDef -:ValDefSymbol-> ssa_sym;
+        vd -:ValDefRhs-> :EmptyTree;
+        exec(listInsertBefore(lstnode, vd));
+        eval {
+            vd.scalaSource = "ARTIFICAL(var " + ssa_sym.symbolName + ")";
+        }
+    }
+}
+
+test existsSSAParentNotOkToDelete {
+    . -:SSAParent-> x:Symbol;
+    . -:ScTermSymbol-> x;
+}
 
 {% endblock %}

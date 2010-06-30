@@ -1,0 +1,128 @@
+diff --git a/plugin/src/main/scala/skalch/plugins/GraphTypes.scala b/plugin/src/main/scala/skalch/plugins/GraphTypes.scala
+index cf4d267..0b2199d 100644
+--- a/plugin/src/main/scala/skalch/plugins/GraphTypes.scala
++++ b/plugin/src/main/scala/skalch/plugins/GraphTypes.scala
+@@ -81,57 +81,78 @@ abstract class NodeFactory {
+         }
+     }
+ 
++    case class SymbolInfo(val fullName : String, val name : String,
++        val simpleName : String, val flags : Long, val attrs: Set[String])
++
+     /** symbol table map; shows usefulness of using graphs vs only trees
+      * In lowering, will want to remove the symbol table and replace
+      * it with more semantic edges, like "FunctionDefinition" or
+      * "VariableDeclaration" or "EnclosingClassDefinition" */
+-    val sym_to_gr_map = new HashMap[Symbol, GrNode]()
+-    def getsym(sym : Symbol) : GrNode = sym_to_gr_map.get(sym) match {
+-        case None =>
+-            val node = new GrNode("Symbol", "symbol_" + sym.name + "_" + id_ctr())
+-            val simplename = nme.originalName(sym.simpleName).toString().trim()
+-            node.append_str_attr("simpleName",
+-                simplename.substring(simplename.indexOf("$") + 1))
+-            node.append_str_attr("symbolName", sym.name.toString().trim())
+-            node.append_str_attr("fullSymbolName", sym.fullName.trim())
+-            sym_to_gr_map.put(sym, node)
+-
+-            val node_fcns = new BoundNodeFcns(node, "Symbol")
+-            import node_fcns._
+-            symlink("Type", sym.tpe.typeSymbol)
+-
+-            def attr_edge(name : String) = GrEdge(node, name, node)
+-            if (sym != NoSymbol) {
+-                GrEdge(node, "SymbolOwner", getsym(sym.owner))
+-
+-                // attribute edges
+-                if (sym.hasFlag(Flags.BRIDGE)) attr_edge("BridgeFcn")
+-                if (sym.isGetter) attr_edge("GetterFcn")
+-                if (sym.isSetter) attr_edge("SetterFcn")
+-                if (sym.isStaticMember) attr_edge("StaticMember")
+-                else if (sym.isMethod) attr_edge("ClsMethod")
+-
+-                sym.tpe match {
+-                    case ClassInfoType(parents, decls, type_sym) =>
+-                        parents foreach ( (x : Type) => symlink("ParentType", x.typeSymbol) )
+-
+-                    case TypeRef(pre, sym, args) =>
+-                        sym.tpe.parents.foreach( (x : Type) =>
+-                            symlink("ParentType", x.typeSymbol) )
+-
+-                    case _ => ()
+-                }
++    val sym_to_gr_map = new HashMap[SymbolInfo, GrNode]()
++
++    def getsym(sym : Symbol) : GrNode = {
++        val simpleName0 = nme.originalName(sym.simpleName).toString().trim()
++        val simpleName = simpleName0.substring(simpleName0.indexOf("$") + 1)
++        val name = sym.name.toString().trim()
++        val fullName = sym.fullName.trim()
++
++        val attrs = if (sym != NoSymbol) {
++            var rv = Set[String]()
++            // attribute edges
++            rv = if (sym.isBridge) rv + "BridgeFcn" else rv
++            rv = if (sym.isGetter) rv + "GetterFcn" else rv
++            rv = if (sym.isSetter) rv + "SetterFcn" else rv
++
++            if (sym.isBridge) println (">>> GOT A BRIDGE FUNCTION " + name)
++
++            if (sym.isStaticMember) rv + "StaticMember"
++            else if (sym.isMethod) rv + "ClsMethod"
++            else rv
++        } else Set[String]()
++
++        val syminfo = SymbolInfo(fullName, name, simpleName, sym.flags, attrs)
++
++        sym_to_gr_map.get(syminfo) match {
++            case None =>
++                val node = new GrNode("Symbol", "symbol_" + name + "_" + id_ctr())
++                node.append_str_attr("simpleName", simpleName)
++                node.append_str_attr("symbolName", name)
++                node.append_str_attr("fullSymbolName", fullName)
++                sym_to_gr_map.put(syminfo, node)
++
++                val node_fcns = new BoundNodeFcns(node, "Symbol")
++                import node_fcns._
++                symlink("Type", sym.tpe.typeSymbol)
++
++                def attr_edge(name : String) = GrEdge(node, name, node)
++                if (sym != NoSymbol) {
++                    GrEdge(node, "SymbolOwner", getsym(sym.owner))
++
++                    // attribute edges
++                    for (attr <- attrs) { attr_edge(attr) }
++
++                    sym.tpe match {
++                        case ClassInfoType(parents, decls, type_sym) =>
++                            parents foreach ( (x : Type) => symlink("ParentType", x.typeSymbol) )
++
++                        case TypeRef(pre, sym, args) =>
++                            sym.tpe.parents.foreach( (x : Type) =>
++                                symlink("ParentType", x.typeSymbol) )
++
++                        case _ => ()
++                    }
+ 
+-                // static symbol annotations
+-                val symname = sym.fullName.replace("$", ".")
+-                annotations.get(symname) match {
+-                    case None => ()
+-                    case Some(lst) => lst foreach (x =>
+-                        GrEdge(node, "SymbolAnnotation", x))
++                    // static symbol annotations
++                    val symname = sym.fullName.replace("$", ".")
++                    annotations.get(symname) match {
++                        case None => ()
++                        case Some(lst) => lst foreach (x =>
++                            GrEdge(node, "SymbolAnnotation", x))
++                    }
+                 }
+-            }
+-            node
+-        case Some(node) => node
++                node
++            case Some(node) => node
++        }
+     }
+ 
+     /** name is currently the unique name of the node; not to

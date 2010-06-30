@@ -29,8 +29,6 @@ def get_srcdirs(file_list):
 sketch_jars = list(Path("~/.m2/repository/edu/berkeley").walk_files(["jar"]))
 def get_latest_jar(name):
     jars = sort_desc([v for v in sketch_jars if name in v])
-    if not jars:
-        import ipdb; ipdb.set_trace()
     assert jars, "couldn't find sketch project dependency '%s' in ~/.m2; try building with Maven" % (name)
     return jars[0]
 

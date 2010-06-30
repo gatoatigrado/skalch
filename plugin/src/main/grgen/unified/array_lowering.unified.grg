@@ -1,21 +1,24 @@
 {% import "macros.grg" as macros with context %}
 
 {% block comment %}
-author: gatoatigrado (nicholas tung) [ntung at ntung]
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may
-not use this file except in compliance with the License. You may obtain a
-copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
-
-desugar scala arrays
-
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+// 
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+// 
+// desugar scala arrays. they have strange forms, like
+// scala.Array.apply(1, scala.this.Predef.wrapIntArray(Array[Int]{2, 4}))
 {% endblock %}
+
 {% block gm %}
 {% endblock %}
 
 
 
 {% block grg %}
+
+{# old scala output (simpler)
 rule replaceArrayInit {
     x:FcnCallTypeApply -:FcnArgChain-> :FieldAccess -:FieldAccessObject-> :ApplyToImplicitArgs
         -:FcnArgChain-> wrapArrayCall:FcnCall -:FcnArgList->
@@ -26,7 +29,110 @@ rule replaceArrayInit {
 
     modify { r(newArray); }
 }
+#}
 
-// rule retypeBoxedArrays {
-// }
+rule countNewArrayElts {
+    x:NewArray -:ArrValueList-> lst:List;
+    negative { x -:ArrayLengthExpr-> .; }
+    modify {
+        x -:ArrayLengthExpr-> y:IntConstant;
+        eval { y.value = 0; }
+        exec(countList(lst, y));
+    }
+}
+
+rule deleteWrapNewArray {
+    parent:Node -e:Replaceable->
+        x:FcnCall -:FcnCallTypeSymbol-> wrappedsym:Symbol;
+    if { wrappedsym.symbolName == "WrappedArray"; }
+    x -:FcnArgList-> {{ macros.finiteList([":QualifiedClassRef", "z:NewArray"]) }}
+    modify { delete(e); parent -:typeof(e)-> z; }
+}
+
+rule simplifyArrayConstructors {
+    parent:Node -e:Replaceable->
+        x:FcnCall -:FcnCallSymbol-> sym:Symbol
+        -:SymbolOwner-> arrobj:Symbol;
+    arrobj -:ObjectSymbol-> arrobj;
+
+    x -:FcnArgList-> {{ macros.finiteList([":QualifiedClassRef",
+        "y:ScAstNode", "z:NewArray"]) }}
+    z -:ArrValueList-> prev_lst:List;
+    z -:ArrayLengthExpr-> lenexpr:IntConstant;
+
+    if { sym.fullSymbolName == "scala.Array.apply"; }
+
+    modify {
+        delete(e);
+        parent -:typeof(e)-> z;
+        eval { lenexpr.value = lenexpr.value + 1; }
+        exec(listInsertFirst(prev_lst, y));
+    }
+}
+
+/// replace FcnCallArrayGet with SketchArrayAccess
+/// so it's distinguished from function calls, since
+/// SKETCH differentiates between function calls and array
+/// accesses. No information loss, so it should be easy to reverse.
+rule decorateArrayGet {
+    parent:Node -e:Replaceable->
+        x:FcnCallArrayGet -:FcnArgList->
+        {{ macros.finiteList(["array:ScAstNode", "idx:ScAstNode"]) }}
+
+    modify {
+        delete(e);
+        parent -:typeof(e)-> access:SketchArrayAccess;
+        access -:SketchArrayAccessArray-> array;
+        access -:SketchArrayAccessIndex-> idx;
+    }
+}
+
+/// create symbols representing specialized array lengths,
+/// e.g. "int[3]"
+rule createArrayLengthSyms {
+    . -:ArrayLengthExpr-> y:IntConstant;
+    x:ScalaArraySymbol -:ClassSymbol-> x;
+    x -:TypeSymbol-> x;
+
+    negative {
+        z:FixedArraySymbol;
+        if { z.value == y.value; }
+    }
+
+    modify {
+        z:FixedArraySymbol -:SymbolOwner-> x;
+        z -:SpecializedSymbolBase-> x;
+        eval { z.value = y.value; }
+    }
+}
+
+/// redirect type symbols from new arrays to their
+/// specialized versions
+rule typifyConstLenArrays {
+    x:NewArray -e:NewArrayTypeSymbol-> sym:ScalaArraySymbol;
+    x -:ArrayLengthExpr-> y:IntConstant;
+    z:FixedArraySymbol;
+    if { z.value == y.value; }
+
+    modify {
+        delete(e);
+        x -:NewArrayTypeSymbol-> z;
+    }
+}
+
+/// TODO -- move to another file
+rule updateAssignLhsTypes {
+    x:Assign -:AssignRhs-> y:ScAstNode;
+    y -:ScTypeSymbol-> newsym:Symbol;
+
+    x -:AssignLhs-> z:ScAstNode;
+    z -e:ScTypeSymbol-> oldsym:Symbol;
+    // automatically different from isomorphic matching
+
+    modify {
+        delete(e);
+        z -:typeof(e)-> newsym;
+    }
+}
+
 {% endblock %}

@@ -95,7 +95,8 @@ let CstyleMain = {
 (* metastages *)
 let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
 let no_oo_meta = [ ConvertThis ]
-let optimize_meta = [ ArrayLowering; SSAForm ]
+(* add ssa to below *)
+let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements;
     CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
@@ -126,17 +127,19 @@ let zone_nice_lists =
         SimplifyConstants
         RaiseSpecialGotos
         ProcessAnnotations
-        ArrayLowering
         CreateTemplates
         ExportTemplates
-        SketchNospec
         LossyReplacements
-        EmitRequiredImports
         NewInitializerFcnStubs ]
 let zone_ssa =
-    SSAForm,
+    nullStage "ssa",
     [
+        ArrayLowering
+        EmitRequiredImports
+        SketchNospec
         ]
+(*let zone_ll_ssa =
+    LowerPhiFunctions, []*)
 let zone_cstyle =
     CstyleMain,
     [
@@ -177,13 +180,13 @@ let deps =
         RedirectAccessorsToFields <?? ConvertThis
 
         (* zone_nice_lists intradependencies *)
-        ProcessAnnotations <?? ArrayLowering
         ProcessAnnotations <?? LossyReplacements
-        ArrayLowering <?? EmitRequiredImports
         CreateTemplates <?? ExportTemplates
-        EmitRequiredImports <?? SketchNospec
-        LossyReplacements <?? EmitRequiredImports
         LossyReplacements <?? NewInitializerFcnStubs
+
+        (* SSA form intradependencies *)
+        ArrayLowering <?? EmitRequiredImports
+        EmitRequiredImports <?? SketchNospec
     ]
 
 (* Goals -- sets of stages *)
@@ -262,7 +265,7 @@ let transformerMain(args:string[]) =
 
         (* Error case -- no next stages were found, despite having a nonempty stage set *)
         | (_, []) ->
-            printfn "\n\n[ERROR] Remaining stages:\n    %s" (printstages "\n    " stages)
+            printfn "\n\n[ERROR] Remaining stages:\n    %s" (printstagedeps "\n    " stages deps)
             failwith "[ERROR] no next stage -- maybe there is a cyclic dependency?"
 
         (* Process a stage *)

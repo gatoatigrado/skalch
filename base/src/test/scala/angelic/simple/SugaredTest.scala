@@ -4,11 +4,8 @@ import sketch.util._
 
 class MySketch() extends AngelicSketch {
     def main() {
-        var x = 0
-        if (x > 3)
-            x = 4
-        assert (x == 0)
-        x = 2
-        assert(x + (?? : Int) == 4)
+        val a = Array(1, 2, 4)
+        assert(a(1) == 2)
+//         assert(a.exists((2 ==):(Int => Boolean)))
     }
 }

@@ -49,18 +49,31 @@ abstract class NodeFactory {
         /** closure functions */
         def subtree(edge_typ : String, subtree : Tree) =
             GrEdge(node, edge_typ, getGxlAST(subtree))
+
         def subarr(edge_typ : String, arr : List[Tree]) =
             arr map (x => GrEdge(node, edge_typ, getGxlAST(x)))
+
         def subchain(edge_typ : String, arr : List[Tree]) = if (arr != Nil) {
             var nodes = arr map getGxlAST
             GrEdge(node, edge_typ + "Chain", nodes(0))
             GrEdge(node, edge_typ + "Last", nodes(nodes.length - 1))
             nodes.reduceLeft((x, y) => { GrEdge(x, edge_typ + "Next", y); y })
         } else GrEdge(node, edge_typ + "Chain", emptychainnode())
+
         def symlink(nme : String, sym : Symbol) = {
             if ((sym != null) && (sym != NoSymbol)) {
                 GrEdge(node, nme + "Symbol", getsym(sym))
             } else (null)
+        }
+
+        def nice_list(edge_name : String, value_lst:List[GrNode]) {
+            assert(edge_name.endsWith("List"), "INTERNAL -- nice list edges must be named _List")
+            val lst = node -- edge_name -> "List"
+            val first = lst -- "ListFirst" -> "ListFirstNode"
+            val last = lst -- "ListLast" -> "ListLastNode"
+            val node_lst = value_lst map {(x:GrNode) =>
+                val n = lst -- "ListElt" -> "ListNode"; n -- "ListValue" -> x; n }
+            (first /: (node_lst :+ last)) ((x, y) => x -- "ListNext" -> y)
         }
     }
 
@@ -96,28 +109,36 @@ abstract class NodeFactory {
             node.append_str_attr("fullSymbolName", sym.fullName.trim())
             sym_to_gr_map.put(sym, node)
 
-            val node_fcns = new BoundNodeFcns(node, "Symbol")
-            import node_fcns._
-            symlink("Type", sym.tpe.typeSymbol)
+            val ntyp = sym.tpe.normalize
 
             def attr_edge(name : String) = GrEdge(node, name, node)
             if (sym != NoSymbol) {
+                val node_fcns = new BoundNodeFcns(node, "Symbol")
+                import node_fcns._
+                symlink("Type", ntyp.typeSymbol)
+
                 GrEdge(node, "SymbolOwner", getsym(sym.owner))
 
                 // attribute edges
-                if (sym.hasFlag(Flags.BRIDGE)) attr_edge("BridgeFcn")
+                if (sym.isBridge) attr_edge("BridgeFcn")
                 if (sym.isGetter) attr_edge("GetterFcn")
                 if (sym.isSetter) attr_edge("SetterFcn")
                 if (sym.isStaticMember) attr_edge("StaticMember")
                 else if (sym.isMethod) attr_edge("ClsMethod")
+                if (sym.isModuleClass) attr_edge("ObjectSymbol")
+                if (sym.isClass) attr_edge("ClassSymbol")
 
-                sym.tpe match {
+                ntyp match {
                     case ClassInfoType(parents, decls, type_sym) =>
                         parents foreach ( (x : Type) => symlink("ParentType", x.typeSymbol) )
 
                     case TypeRef(pre, sym, args) =>
-                        sym.tpe.parents.foreach( (x : Type) =>
+                        ntyp.parents.foreach( (x : Type) =>
                             symlink("ParentType", x.typeSymbol) )
+                        args match {
+                            case Nil => ()
+                            case x => nice_list("SymbolTypeArgsList", (args map ((x:Type) => getsym(x.typeSymbol))))
+                        }
 
                     case _ => ()
                 }
@@ -132,6 +153,11 @@ abstract class NodeFactory {
             }
             node
         case Some(node) => node
+    }
+
+    case class EdgeCreator(x:GrNode, etyp:String) {
+        def -> (y:GrNode) = { GrEdge(x, etyp, y); y }
+        def -> (ntyp:String) : GrNode = this.->(new GrNode(ntyp))
     }
 
     /** name is currently the unique name of the node; not to
@@ -183,6 +209,8 @@ abstract class NodeFactory {
         /** whether this node has been printed to the grshell script (or gxl) yet */
         var output : GXLNode = null
 
+        def -- (etyp:String) = EdgeCreator(this, etyp)
+
         def this(typ : String, name : String,
             start : SimplePosition, end : SimplePosition) =
         {
@@ -195,6 +223,8 @@ abstract class NodeFactory {
                 get_nn_tuple("endLine", new GXLInt(end.line)),
                 get_nn_tuple("endCol", new GXLInt(end.col)) )
         }
+
+        def this(typ : String) = this(typ, typ + "_" + id_ctr())
     }
 
     def emptychainnode() = new GrNode("EmptyChain", "empty_chain_" + id_ctr())

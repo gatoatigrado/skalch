@@ -99,6 +99,7 @@ rule {{ fcnName }} {
 {{ retype_syms(["scala.Int.unbox", "scala.Boolean.unbox",
    "scala.Float.unbox", "scala.Double.unbox"], "ScalaUnboxSymbol") }}
 {{ retype_syms(["scala.Unit"], "ScalaUnitTypeSymbol") }}
+{{ retype_syms(["scala.Array"], "ScalaArraySymbol") }}
 
 rule runAllSymbolRetypes {
     modify {
@@ -190,6 +191,18 @@ rule setPackageDefSymbolUniqueName {
 rule setFcnSymbolUniqueName {
     x:Symbol -:ClsMethod-> x;
     modify { eval { x.uniqueSymbolName = x.uniqueSymbolName + "-clsmethod"; } }
+}
+
+rule setObjectSymbolUniqueName {
+    x:Symbol -:ObjectSymbol-> x;
+    modify { eval { x.uniqueSymbolName = x.uniqueSymbolName + "-obj"; } }
+}
+
+rule warnSameSymbolName {
+    x:Symbol -:SymbolOwner-> z:Symbol;
+    y:Symbol -:SymbolOwner-> z;
+    if { x.uniqueSymbolName == y.uniqueSymbolName; }
+    modify { emit("merging symbols with same name: " + x.uniqueSymbolName + "\n"); }
 }
 
 /**

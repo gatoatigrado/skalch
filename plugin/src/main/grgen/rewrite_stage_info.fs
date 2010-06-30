@@ -87,12 +87,6 @@ let ProcessAnnotations2 = {
         description = "Replace annotations with their literal"
         stage = rewriteStage ProcessAnnotationsRules2 }
 
-let ArrayLowering = {
-    stageDefault with
-        name = "ArrayLowering";
-        description = "Remove sugar from array calls, and retype boxed arrays";
-        stage = rewriteStage ArrayLoweringRules }
-
 let EmitRequiredImports = {
     stageDefault with
         name = "EmitRequiredImports";
@@ -122,6 +116,12 @@ let SSAForm = {
         name = "SSAForm";
         description = "Convert assignments to SSA form";
         stage = rewriteStage SSAFormRules }
+
+let ArrayLowering = {
+    stageDefault with
+        name = "ArrayLowering";
+        description = "Remove sugar from array calls, and retype boxed arrays";
+        stage = rewriteStage ArrayLoweringRules }
 
 let CstyleStmts = {
     stageDefault with

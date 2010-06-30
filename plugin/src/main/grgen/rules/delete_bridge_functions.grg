@@ -7,15 +7,7 @@
 
 // overly verbose method to delete all bridge-function related nodes
 
-rule deleteBridgeFunctions1 {
-    x:ScAstNode -:EnclosingFcn-> :FcnDef -:FcnDefSymbol-> sym:Symbol;
-    sym -:BridgeFcn-> sym;
-    modify {
-        delete(x);
-    }
-}
-
-rule deleteBridgeFunctions2 {
+rule deleteBridgeFunctions {
     x:FcnDef -:FcnDefSymbol-> sym:Symbol;
     sym -:BridgeFcn-> sym;
     modify {
@@ -23,19 +15,6 @@ rule deleteBridgeFunctions2 {
     }
 }
 
-rule deleteBridgeFunctions3 {
+test existsBridgeFcnSymbol {
     sym:Symbol -:BridgeFcn-> sym;
-    modify { delete(sym); }
-}
-
-rule deleteBridgeFunctions {
-    modify { exec(deleteBridgeFunctions1* &
-        deleteBridgeFunctions2* &
-        deleteBridgeFunctions3*); }
-}
-
-test testNoBridgeFunctions {
-    negative {
-        sym:Symbol -:BridgeFcn-> sym;
-    }
 }

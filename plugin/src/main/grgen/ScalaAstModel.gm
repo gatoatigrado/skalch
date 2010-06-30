@@ -50,21 +50,31 @@ node class HoleCall extends SketchConstructCall;
 
 edge class PackageDefGlobal extends Subtree;
 
+node class SketchArrayAccess extends ScAstNode;
+edge class SketchArrayAccessArray extends Subtree;
+edge class SketchArrayAccessIndex extends Subtree;
+
 
 
 // === Symbol type annotations ===
 abstract node class SketchAnnotation extends Annotation;
 node class StaticSketchAnnotation extends SketchAnnotation;
 node class IgnoreClassAnnotation extends Annotation;
-node class OuterSymbol extends Symbol;
+node class OuterSymbol extends Symbol; // $outer var in inner classes
+
+// all symbols in the "scala" package become ScalaSymbols
+node class ScalaSymbol extends Symbol;
 node class ScalaUnboxSymbol extends ScalaSymbol;
 node class ScalaUnitTypeSymbol extends ScalaSymbol;
+node class ScalaArraySymbol extends ScalaSymbol;
+
 node class TemplateClassSymbol extends Symbol { number : int; }
 // can be LHS target of a sketch construct assignment
 edge class CanBeConstructAssigned;
-// all symbols in the "scala" package become ScalaSymbols
-node class ScalaSymbol extends Symbol;
 node class RootSymbol extends Symbol;
+
+node class FixedArraySymbol extends Symbol { value : int; }
+edge class SpecializedSymbolBase;
 
 
 
@@ -78,6 +88,28 @@ node class BlockifyValDef extends ValDef;
 node class ThisVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
 node class ThisValDef extends ValDef;
+edge class ObjectSymbol;
+edge class ClassSymbol;
+
+node class PhiFcn extends FcnCall;
+
+node class List;
+abstract node class ListAbstractNode;
+node class ListNode extends ListAbstractNode;
+node class ListFirstNode extends ListAbstractNode;
+node class ListLastNode extends ListAbstractNode;
+edge class ListElt;
+edge class ListFirst extends ListElt;
+edge class ListLast extends ListElt;
+edge class ListNext;
+edge class ListValue extends Replaceable;
+edge class ListTmpLast;
+
+abstract edge class TmpEdge; // for doing calculations, erase them w/ a single rewrite
+abstract edge class CfgSimpleInner; // prologue connected to child's prolog, same with epil.
+
+edge class ArrayLengthExpr extends Subtree;
+
 
 
 
@@ -126,6 +158,7 @@ edge class CfgStrictlySequentialNode;
 
 // edge class MyEdge
 // node class MyNode
+
 
 
 // edge class MyEdge
@@ -238,6 +271,7 @@ node class HLArgEnd;
 
 
 
+
 edge class CalledMethod extends TmpEdge;
 
 
@@ -288,25 +322,15 @@ edge class CfgAssignPrevStep extends CfgAbstractAssign;
 
 // valdef or assign that initialized the assignment
 edge class CfgAssignAstNode;
-edge class CfgAssignPossibleSymbol;
+edge class CfgAssignPossibleSymbol connect CfgAssign --> CfgAssign;
+edge class CfgAssignNewSymbol;
+
+edge class ValDefSSADefine;
+
+edge class SSAParent connect Symbol[0:1] --> Symbol[*] { idx : int; }
+edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
 // add unified here
 
-
-
-// === Intermediate nodes ===
-node class List;
-abstract node class ListAbstractNode;
-node class ListNode extends ListAbstractNode;
-node class ListFirstNode extends ListAbstractNode;
-node class ListLastNode extends ListAbstractNode;
-edge class ListElt;
-edge class ListFirst extends ListElt;
-edge class ListLast extends ListElt;
-edge class ListNext;
-edge class ListValue extends Replaceable;
-edge class ListTmpLast;
-abstract edge class TmpEdge; // for doing calculations
-abstract edge class CfgSimpleInner; // prologue connected to child's prolog, same with epil.
 
 
 
@@ -433,12 +457,14 @@ node class FcnCallTypeApply extends FcnCall;
 node class FcnCallUnaryIntCast extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
 node class FcnCallUnaryNegative extends FcnCall;
+// ctor new Array(length); cf below
 node class NewArrayCall extends FcnCall;
 
 node class FcnDef extends ScAstNode;
 node class FcnSuperCall extends FcnCall;
 node class FieldAccess extends ScAstNode;
 node class If extends ScalaExprStmt;
+// ctor Array(a, b, c, d); cf above
 node class NewArray extends ScAstNode;
 node class NewConstructor extends FcnCall;
 node class SKNew extends ScAstNode;
@@ -512,6 +538,7 @@ edge class FcnDefParamsList extends Subtree;
 edge class BlockStmtList extends Subtree, CfgSimpleInner;
 edge class ArrValueList extends Subtree, CfgSimpleInner;
 edge class AnnotationArgsList extends Subtree;
+edge class SymbolTypeArgsList;
 
 // Sibling edges indicate argument parameters
 edge class AnnotationArgsNext extends OldChainNext;

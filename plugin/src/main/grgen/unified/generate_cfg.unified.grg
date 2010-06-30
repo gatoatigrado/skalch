@@ -1,3 +1,5 @@
+{% import "macros.grg" as macros with context %}
+
 {% block comment %}
 // -*- coding: utf-8 -*-
 // author: gatoatigrado (nicholas tung) [ntung at ntung]
@@ -136,6 +138,19 @@ rule {{ set_next_fcn("cfgSetAssignNext") }} {
     }
 }
 
+rule {{ set_next_fcn("cfgSetArrayAccessNext") }} {
+    x:SketchArrayAccess
+        -:SketchArrayAccessArray-> arr:ScAstNode;
+    x -:SketchArrayAccessIndex-> arridx:ScAstNode;
+    x -:CfgPrologue-> prologue:CfgAbstractNode;
+    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
+
+    negative { prologue -:CfgNext-> .; }
+    modify {
+        prologue -:CfgNext-> arridx -:CfgNext-> arr -:CfgNext-> epilogue;
+    }
+}
+
 rule {{ set_next_fcn("cfgSetIfNext") }} {
     x:If -:IfCond-> cond:ScAstNode;
     x -:IfThen-> then:ScAstNode;
@@ -156,17 +171,17 @@ rule {{ set_next_fcn("cfgSetIfNext") }} {
 // STEP 3: set any edges that are pointing to nodes to their respective
 // epilogues / prologues
 
-{% macro redirect_edge(from, to) %}
+{% macro redirect_edge(e, from, to) %}
 modify {
-        delete(e);
-        {{ from }} -:typeof(e)-> {{ to }};
+        delete({{ e }});
+        {{ from }} -:typeof({{ e }})-> {{ to }};
     }
 {% endmacro %}
 
 rule cfgListIncoming {
     x:Node -e:CfgAbstractNext-> lst:List -:ListFirst-> :ListFirstNode
         -:ListNext-> lst_first:ListNode -:ListValue-> first_ast:ScAstNode;
-    {{ redirect_edge("x", "first_ast") }}
+    {{ redirect_edge("e", "x", "first_ast") }}
 }
 
 rule cfgListOutgoing {
@@ -174,19 +189,38 @@ rule cfgListOutgoing {
     lst -:ListLast-> last_node:ListLastNode;
     second_last:ListNode -:ListNext-> last_node;
     second_last -:ListValue-> last_ast:ScAstNode;
-    {{ redirect_edge("last_ast", "y") }}
+    {{ redirect_edge("e", "last_ast", "y") }}
+}
+
+/// will throw an exception if typeof(e1) != typeof(e2) and it's not rewritten
+rule cfgEmptyListIncomingOutgoing {
+    x:Node -e1:CfgAbstractNext-> {{ macros.finiteList([]) }}
+    lst -e2:CfgAbstractNext-> y:Node;
+    if { typeof(e1) == typeof(e2); }
+    modify {
+        delete(e1, e2);
+        x -:typeof(e1)-> y;
+    }
 }
 
 rule cfgRedirectIncomingToPrologue {
     x:Node -e:CfgAbstractNext-> ast_node:ScAstNode
         -:CfgPrologue-> prologue:CfgAbstractNode;
-    {{ redirect_edge("x", "prologue") }}
+    {{ redirect_edge("e", "x", "prologue") }}
 }
 
 rule cfgRedirectOutgoingToEpilogue {
     ast_node:ScAstNode -e:CfgAbstractNext-> y:Node;
     ast_node -:CfgEpilogue-> epilogue:CfgAbstractNode;
-    {{ redirect_edge("epilogue", "y") }}
+    {{ redirect_edge("e", "epilogue", "y") }}
+}
+
+test existsCfgNextFromAst {
+    x:Node \ CfgAbstractNode -:CfgAbstractNext-> y:Node;
+}
+
+test existsCfgNextToAst {
+    x:Node -:CfgAbstractNext-> y:Node \ CfgAbstractNode;
 }
 
 // STEP 4 -- optional "skip internal" edges for conditional blocks
@@ -259,7 +293,8 @@ rule cfgInit {
             cfgRedirectIncomingToPrologue+ |
             cfgRedirectOutgoingToEpilogue+ |
             cfgListIncoming+ |
-            cfgListOutgoing+
+            cfgListOutgoing+ |
+            cfgEmptyListIncomingOutgoing+
         )*
         ); }
 }

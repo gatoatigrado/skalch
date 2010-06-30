@@ -17,28 +17,32 @@ let WarnUnsupportedRules = [Xgrs "unsupportedWarnAll"]
 let DeleteMarkedIgnoreRules = [Xgrs "setIgnoreAnnotationType*";
     Xgrs "deleteIgnoreAnnotated* & deleteDangling*"]
 
-let DecorateNodesRules = [
-    Xgrs "[setRootSymbol]"
-    Validate "existsRootSymbol && ! multipleRootSymbols"
-    Xgrs "replaceAngelicSketchSymbol*"
-    Xgrs "runAllSymbolRetypes"
-    Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]"
-    Xgrs "setScalaRoot & setScalaSubtypes*"
-    Xgrs "setSketchClasses*"
+let CleanupNonuniqueSymbolsRules = [
     Xgrs "[setDefaultSymbolUniqueName]"
     Xgrs "[setTypeSymbolUniqueName]"
     Xgrs "[setFieldSymbolUniqueName]"
     Xgrs "[setPackageDefSymbolUniqueName]"
     Xgrs "[setFcnSymbolUniqueName]"
-    Xgrs "unionSubSymbol*"
-    (* see note in grg file; Validate "! existSymbolsWithSameUniqueName" *)
-    ]
+    Xgrs "[setObjectSymbolUniqueName]"
+    Xgrs "[warnSameSymbolName]"
+    Xgrs "unionSubSymbol*" ]
+
+let DecorateNodesRules = [
+    Xgrs "[setRootSymbol]"
+    ValidateXgrs "existsRootSymbol && ! multipleRootSymbols"
+    Xgrs "replaceAngelicSketchSymbol*"
+    Xgrs "runAllSymbolRetypes"
+    Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]"
+    Xgrs "setScalaRoot & setScalaSubtypes*"
+    Xgrs "setSketchClasses*"
+    (* see note in grg file; ValidateXgrs "! existSymbolsWithSameUniqueName" *)
+    Xgrs "deleteBridgeFunctions*"
+    Xgrs "deleteDangling*"
+    ValidateNeg "existsBridgeFcnSymbol" ] @ CleanupNonuniqueSymbolsRules
 
 let ConvertThisRules = [Xgrs "setEnclosingFunctionInitial+";
-    Xgrs "deleteBridgeFunctions";
-    Validate "testNoBridgeFunctions";
     Xgrs "[transformFcnWrapper]";
-    Validate "testNoThisNodes";
+    ValidateXgrs "testNoThisNodes";
     Xgrs "removeEnclosingLinks* & deleteDangling*";
     Xgrs "setSketchMainFcn*"]
 
@@ -59,11 +63,11 @@ let CleanSketchConstructsRules = [
 
 let BlockifyFcndefsRules = [
     Xgrs "removeEmptyFcnTarget* & removeFcnTarget*"
-    Validate "! existsFcnTarget"
+    ValidateXgrs "! existsFcnTarget"
     Xgrs "(deleteDangling+ | removeNopTypeCast)*"
     Xgrs "createFunctionBlocks* & retypeBlockSKBlock*"
     Xgrs "deleteFcnBlockEmptyTrees*"
-    Validate "! existsFcnNonBlockBody" ]
+    ValidateXgrs "! existsFcnNonBlockBody" ]
 
 let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listClassDefsInit*";
@@ -80,13 +84,13 @@ let SimplifyConstantsRules = [
 let RaiseSpecialGotosRules = [
     Xgrs "raiseWhileLoopGotos*"
     Xgrs "deleteDangling*"
-    Validate "! existsLabelDef" ]
+    ValidateXgrs "! existsLabelDef" ]
 
 let CleanTypedTmpBlockRules = [
     Xgrs "deleteDangling*";
     Xgrs "cleanupDummyVarBlocks*";
     Xgrs "deleteAnnotationLink";
-    Validate "! existsDanglingAnnotation";
+    ValidateXgrs "! existsDanglingAnnotation";
     Xgrs "deleteDangling*"]
 
 let ProcessAnnotationsRules1 =
@@ -94,24 +98,22 @@ let ProcessAnnotationsRules1 =
     [
         Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*"
         Xgrs "deleteDangling*"
-        Validate "! existsDanglingAnnotation"
+        ValidateXgrs "! existsDanglingAnnotation"
         Xgrs "[requestIntHoleTemplate]" ]
 
 let PostImportUnionRules = [
     Xgrs "instantiateTemplateSymbols*"
     Xgrs "unionRootSymbol*"
     Xgrs "unionSubSymbol*"
-    Validate "! twoFcnsForSameSymbol" ]
+    ValidateXgrs "! twoFcnsForSameSymbol" ]
 
 let ProcessAnnotationsRules2 =
     PostImportUnionRules @
     [ Xgrs "attachAnnotationsToTemplates*";
     Xgrs "setTemplateParameter*";
     Xgrs "createFcnCallTemplates*";
-    Validate "! existsUnreplacedCall";
-    Validate "! existsDanglingTemplateFcn" ]
-
-let ArrayLoweringRules = [Xgrs "replaceArrayInit+"]
+    ValidateXgrs "! existsUnreplacedCall";
+    ValidateXgrs "! existsDanglingTemplateFcn" ]
 
 let EmitRequiredImportsRules = [
     Xgrs "[setEnclosingFunctionInitial]"
@@ -145,13 +147,44 @@ let NewInitializerFcnStubsRules = [
 let CfgInitRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
+    ValidateNeg "existsCfgNextFromAst"
+    ValidateNeg "existsCfgNextToAst"
     Xgrs "deleteCfgNodesOnClassFields*"
-    Validate "! cfgExistsIncomplete" ]
+    ValidateXgrs "! cfgExistsIncomplete" ]
 
 let SSAFormRules =
     CfgInitRules @ [
         Xgrs "initCfgPossibleAssign*"
-        Xgrs "propagateCfgPossibleAssignment*" ]
+        Xgrs "propagateCfgPossibleAssignment*"
+        Xgrs "createNewAssignSymbols*"
+        Xgrs "uniquelyNameSymbols*"
+        Xgrs "[setUniqueSSANames]"
+        ValidateConnect
+
+        Xgrs "createHLPhiFcns*"
+        Xgrs "addAdditionalSymbolToPhiFcn*"
+        Xgrs "redirectSingleVarRefs*"
+
+        Xgrs "convertValDefsToInits_0*"
+        Xgrs "convertFirstVDToSSAAssign*"
+        Xgrs "convertValDefsToInits_1*"
+        ValidateNeg "existsSSAParentNotOkToDelete"
+        Xgrs "deleteCfgNode*"
+        Xgrs "deleteDangling*" ]
+        (* todo convertFirstVDToSSAAssign *)
+
+let ArrayLoweringRules = [
+    Xgrs "countNewArrayElts*"
+    Xgrs "deleteWrapNewArray*"
+    Xgrs "simplifyArrayConstructors*"
+    Xgrs "decorateArrayGet*"
+    Xgrs "deleteDangling*"
+    Xgrs "createArrayLengthSyms*"
+    Xgrs "typifyConstLenArrays*" ]
+
+let LowerPhiFunctionsRules = [
+    Xgrs "markPhiSyms* & createCounterVars*"
+    ]
 
 let CstyleStmtsRules =
     CfgInitRules @ [
@@ -164,13 +197,13 @@ let CstyleStmtsRules =
         Xgrs "convertNodesAlreadyStmtsToBlockifySafe*"
         Xgrs "setBlockifyChain*"
         Xgrs "checkBlockifyLinks"
-        Xgrs "forwardBlockifySfkip*"
+        Xgrs "forwardBlockifySkip*"
         Xgrs "addDummyBlockifyChainEndNodes*"
         Xgrs "deleteCfgNode*"
         Xgrs "createTemporaryAssign*"
         Xgrs "attachNodesToBlockList*"
         Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
-        Validate "! existsBlockify"]
+        ValidateXgrs "! existsBlockify"]
 
 let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
     Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]

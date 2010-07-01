@@ -56,8 +56,8 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 ### Sketch tests; use EXEC_ARGS=args to pass arguments
 
 run_test: plugin_dev # run TEST_CLASS=<canonical java class name> EXEC_ARGS=<args>	
-	cd skalch-base; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
+	cd skalch-base; export MAVEN_OPTS="-Djava.library.path=/home/shaon/Research/workspace/angels/lib/"; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 
 run_test_debug: plugin_dev # run debug TEST_CLASS=<canonical java class name> EXEC_ARGS=<args>	
-	cd skalch-base; export MAVEN_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=y"; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
+	cd skalch-base; export MAVEN_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y,suspend=y -Djava.library.path=/home/shaon/Research/workspace/angels/lib/"; mvn -e exec:java "-Dexec.classpathScope=test" "-Dexec.mainClass=$(TEST_CLASS)" "-Dexec.args=$(EXEC_ARGS)"
 

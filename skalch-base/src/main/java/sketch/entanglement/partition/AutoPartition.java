@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import sketch.entanglement.DynAngel;
-import sketch.entanglement.EntangledPartitions;
 import sketch.entanglement.Trace;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 
@@ -84,7 +83,8 @@ public class AutoPartition extends TracePartitioner {
     }
 
     private boolean hasBeenSeenPartition(
-            HashMap<Integer, List<SubsetOfTraces>> seenPartitions, SubsetOfTraces partition)
+            HashMap<Integer, List<SubsetOfTraces>> seenPartitions,
+            SubsetOfTraces partition)
     {
         int size = partition.getTraces().size();
         if (seenPartitions.containsKey(size)) {
@@ -97,7 +97,8 @@ public class AutoPartition extends TracePartitioner {
         return false;
     }
 
-    private void addToSeenPartitions(HashMap<Integer, List<SubsetOfTraces>> seenPartitions,
+    private void addToSeenPartitions(
+            HashMap<Integer, List<SubsetOfTraces>> seenPartitions,
             SubsetOfTraces partition)
     {
         int size = partition.getTraces().size();
@@ -117,7 +118,7 @@ public class AutoPartition extends TracePartitioner {
 
     private List<TracePartitioner> getAllTracePartitioners(PartitionInfo info) {
         List<Trace> traces = info.partition.getTraces();
-        EntangledPartitions es = info.entanglementSubsets;
+        Set<Set<DynAngel>> es = info.entanglementSubsets;
         SATEntanglementAnalysis ea = info.entanglementAnalysis;
 
         List<TracePartitioner> partitioners = new ArrayList<TracePartitioner>();
@@ -140,10 +141,8 @@ public class AutoPartition extends TracePartitioner {
 
         // Add static angel partitioners
         List<DynAngel> entangledAngels = new ArrayList<DynAngel>();
-        for (Set<DynAngel> entangledSet : es.entangledSubsets) {
-            entangledAngels.addAll(entangledSet);
-        }
-        for (Set<DynAngel> unentangledSet : es.unentangledSubsets) {
+
+        for (Set<DynAngel> unentangledSet : es) {
             if (unentangledSet.size() > 1) {
                 entangledAngels.addAll(unentangledSet);
             }
@@ -166,7 +165,7 @@ public class AutoPartition extends TracePartitioner {
 
 class PartitionInfo implements Comparable<PartitionInfo> {
     public SATEntanglementAnalysis entanglementAnalysis;
-    public EntangledPartitions entanglementSubsets;
+    public Set<Set<DynAngel>> entanglementSubsets;
     public final SubsetOfTraces partition;
     public final int entanglementScore;
 
@@ -177,19 +176,15 @@ class PartitionInfo implements Comparable<PartitionInfo> {
         partition = p;
         entanglementAnalysis =
                 new SATEntanglementAnalysis(new HashSet<Trace>(p.getTraces()));
-        entanglementSubsets = entanglementAnalysis.getEntangledPartitions(subsetSize);
+        entanglementSubsets = entanglementAnalysis.getEntangledPartitions();
         entanglementScore = computeEntanglementScore(entanglementSubsets);
         System.out.println("Score is " + entanglementScore);
     }
 
-    public int computeEntanglementScore(EntangledPartitions subsets) {
+    public int computeEntanglementScore(Set<Set<DynAngel>> entanglementSubsets) {
         int score = 0;
-        for (Set<DynAngel> subset : subsets.entangledSubsets) {
+        for (Set<DynAngel> subset : entanglementSubsets) {
             score += subset.size() * subset.size();
-        }
-        score *= 2;
-        for (Set<DynAngel> subset : subsets.unentangledSubsets) {
-            score += subset.size();
         }
         return score;
     }

@@ -2,7 +2,9 @@ package sketch.entanglement.ui;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,13 +16,12 @@ import java.util.StringTokenizer;
 
 import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.DynAngel;
-import sketch.entanglement.EntangledPartitions;
 import sketch.entanglement.EntanglementComparison;
 import sketch.entanglement.Event;
 import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
-import sketch.entanglement.partition.TracePartitioner;
 import sketch.entanglement.partition.SubsetOfTraces;
+import sketch.entanglement.partition.TracePartitioner;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.result.ScSynthesisResults;
 import sketch.util.thread.InteractiveThread;
@@ -29,15 +30,22 @@ public class EntanglementConsole extends InteractiveThread {
 
     private SimpleEntanglementAnalysis ea;
     private SATEntanglementAnalysis satEA;
+
     private InputStream input;
+
     private Map<Trace, ScStack> traceToStack;
     private ScSynthesisResults results;
-    private Stack<List<SubsetOfTraces>> partitionsStack;
+
+    private Stack<List<SubsetOfTraces>> subsetsStack;
+
     private HashSet<String> commandSet;
 
+    private Map<Integer, List<SubsetOfTraces>> traceSetStorage;
+
     static String commands[] =
-            { "compare", "constant", "subsets", "pull", "push", "update", "partitioners",
-                    "partitions", "size", "partition", "choose", "reset", "exit",
+            { "compare", "constant", "entanglement", "info", "pull", "push", "store",
+                    "restore", "showstored", "issubset", "update", "partitioners",
+                    "subsets", "size", "partition", "choose", "remove", "reset", "exit",
                     "values", "help" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results) {
@@ -45,24 +53,14 @@ public class EntanglementConsole extends InteractiveThread {
         this.input = input;
         this.results = results;
         traceToStack = new HashMap<Trace, ScStack>();
-        partitionsStack = new Stack<List<SubsetOfTraces>>();
+        subsetsStack = new Stack<List<SubsetOfTraces>>();
         commandSet = new HashSet<String>();
+        traceSetStorage = new HashMap<Integer, List<SubsetOfTraces>>();
+
         for (int i = 0; i < commands.length; i++) {
             commandSet.add(commands[i]);
         }
-        pullFromStore();
-    }
-
-    private void pullFromStore() {
-        traceToStack.clear();
-        ArrayList<ScStack> solutions = results.getSolutions();
-        for (ScStack solution : solutions) {
-            traceToStack.put(solution.getExecutionTrace(), solution);
-        }
-        List<SubsetOfTraces> initialPartition = new ArrayList<SubsetOfTraces>();
-        initialPartition.add(new SubsetOfTraces(
-                new ArrayList<Trace>(traceToStack.keySet()), "init", null));
-        partitionsStack.add(initialPartition);
+        pullFromResults();
     }
 
     public void startConsole() {
@@ -81,35 +79,30 @@ public class EntanglementConsole extends InteractiveThread {
                 if (!commandSet.contains(command)) {
                     System.out.println("Unknown command: " + command);
                     continue;
-                }
-
-                if ("compare".equals(command)) {
-                    int staticAngel1 = Integer.parseInt(tokens.nextToken());
-                    int execNum1 = Integer.parseInt(tokens.nextToken());
-                    int staticAngel2 = Integer.parseInt(tokens.nextToken());
-                    int execNum2 = Integer.parseInt(tokens.nextToken());
-                    compare(staticAngel1, execNum1, staticAngel2, execNum2);
-                } else if ("constant".equals(command)) {
-                    printAllConstantDynAngels();
-                } else if ("subsets".equals(command)) {
-                    if (tokens.hasMoreElements()) {
-                        int n = Integer.parseInt(tokens.nextToken());
-                        printSubsets(n);
-                    } else {
-                        printSubsets(2);
-                    }
-                } else if ("pull".equals(command)) {
-                    pullFromStore();
-                } else if ("push".equals(command)) {
-                    pushFromStore();
                 } else if ("update".equals(command)) {
                     updateEntanglement();
+                } else if ("pull".equals(command)) {
+                    pullFromResults();
+                } else if ("push".equals(command)) {
+                    pushToResults();
+                } else if ("subsets".equals(command)) {
+                    printSubsets();
+                } else if ("store".equals(command)) {
+                    if (tokens.countTokens() > 0) {
+                        int n = Integer.parseInt(tokens.nextToken());
+                        storeSubsets(n);
+                    } else {
+                        storeSubsets(0);
+                    }
+                } else if ("restore".equals(command)) {
+                    if (tokens.countTokens() > 0) {
+                        int n = Integer.parseInt(tokens.nextToken());
+                        restoreSubsets(n);
+                    }
+                } else if ("showstored".equals(command)) {
+                    showStoredSubsets();
                 } else if ("partitioners".equals(command)) {
-                    printTraceListPartitioners();
-                } else if ("partitions".equals(command)) {
-                    printPartitions();
-                } else if ("size".equals(command)) {
-                    printSize();
+                    printTracePartitioners();
                 } else if ("partition".equals(command)) {
                     int n = Integer.parseInt(tokens.nextToken());
                     String args[] = new String[tokens.countTokens()];
@@ -117,17 +110,37 @@ public class EntanglementConsole extends InteractiveThread {
                         args[i] = tokens.nextToken();
                     }
                     if (n < TracePartitioner.partitionTypes.length) {
-                        partitionTraces(TracePartitioner.partitionTypes[n], args);
+                        createTraceSubsets(TracePartitioner.partitionTypes[n], args);
                     }
                 } else if ("choose".equals(command)) {
                     int n = Integer.parseInt(tokens.nextToken());
-                    choosePartition(n);
+                    chooseSubset(n);
+                } else if ("remove".equals(command)) {
+                    int n = Integer.parseInt(tokens.nextToken());
+                    removeSubset(n);
                 } else if ("reset".equals(command)) {
-                    resetPartitions();
+                    resetSubsets();
+                } else if ("issubset".equals(command)) {
+                    int n = Integer.parseInt(tokens.nextToken());
+                    printIsSubset(n);
+                } else if ("info".equals(command)) {
+                    printInfo();
+                } else if ("compare".equals(command)) {
+                    int staticAngel1 = Integer.parseInt(tokens.nextToken());
+                    int execNum1 = Integer.parseInt(tokens.nextToken());
+                    int staticAngel2 = Integer.parseInt(tokens.nextToken());
+                    int execNum2 = Integer.parseInt(tokens.nextToken());
+                    compare(staticAngel1, execNum1, staticAngel2, execNum2);
+                } else if ("entanglement".equals(command)) {
+                    printPartitioning(satEA);
+                } else if ("constant".equals(command)) {
+                    printConstantAngels();
+                } else if ("size".equals(command)) {
+                    printSize();
+                } else if ("values".equals(command)) {
+                    printValues(ea, getAllTraces(subsetsStack.peek()));
                 } else if ("exit".equals(command)) {
                     break;
-                } else if ("values".equals(command)) {
-                    printValues();
                 } else if ("help".equals(command)) {
                     for (int i = 0; i < commands.length; i++) {
                         System.out.println(commands[i]);
@@ -143,32 +156,27 @@ public class EntanglementConsole extends InteractiveThread {
     }
 
     private void updateEntanglement() {
-        Set<Trace> traces = new HashSet<Trace>();
-        for (SubsetOfTraces partition : partitionsStack.peek()) {
-            traces.addAll(partition.getTraces());
-        }
+        Set<Trace> traces = getAllTraces(subsetsStack.peek());
         ea = new SimpleEntanglementAnalysis(traces);
         satEA = new SATEntanglementAnalysis(traces);
     }
 
-    private void compare(int staticAngel1, int execNum1, int staticAngel2, int execNum2) {
-        DynAngel dynAngel1 = new DynAngel(staticAngel1, execNum1);
-        DynAngel dynAngel2 = new DynAngel(staticAngel2, execNum2);
-
-        compareTwoDynAngels(dynAngel1, dynAngel2);
-    }
-
-    private void printSize() {
-        int size = 0;
-        for (SubsetOfTraces partition : partitionsStack.peek()) {
-            size += partition.getTraces().size();
+    private void pullFromResults() {
+        traceToStack.clear();
+        ArrayList<ScStack> solutions = results.getSolutions();
+        for (ScStack solution : solutions) {
+            traceToStack.put(solution.getExecutionTrace(), solution);
         }
-        System.out.println(size);
+        List<SubsetOfTraces> initialPartition = new ArrayList<SubsetOfTraces>();
+        initialPartition.add(new SubsetOfTraces(new ArrayList<Trace>(
+                traceToStack.keySet()), "init", null));
+        subsetsStack.add(initialPartition);
+        updateEntanglement();
     }
 
-    private void pushFromStore() {
+    private void pushToResults() {
         List<ScStack> stackList = new ArrayList<ScStack>();
-        List<SubsetOfTraces> partitions = partitionsStack.peek();
+        List<SubsetOfTraces> partitions = subsetsStack.peek();
         for (SubsetOfTraces partition : partitions) {
             for (Trace trace : partition.getTraces()) {
                 stackList.add(traceToStack.get(trace));
@@ -177,41 +185,125 @@ public class EntanglementConsole extends InteractiveThread {
         results.resetStackSolutions(stackList);
     }
 
-    private void printPartitions() {
-        List<SubsetOfTraces> curPartitions = partitionsStack.peek();
-        for (int i = 0; i < curPartitions.size(); i++) {
-            System.out.println("[" + i + "]" + curPartitions.get(i).toString());
-        }
-    }
-
-    private void resetPartitions() {
-        if (partitionsStack.size() > 1) {
-            partitionsStack.pop();
-        }
-    }
-
-    private void choosePartition(int n) {
-        List<SubsetOfTraces> curPartitions = partitionsStack.peek();
-        if (n < curPartitions.size()) {
-            List<SubsetOfTraces> newPartition = new ArrayList<SubsetOfTraces>();
-            newPartition.add(curPartitions.get(n));
-            partitionsStack.push(newPartition);
-        }
-    }
-
-    private void partitionTraces(TracePartitioner traceListPartitioner, String args[]) {
-        List<SubsetOfTraces> newPartitions = new ArrayList<SubsetOfTraces>();
-        for (SubsetOfTraces partition : partitionsStack.peek()) {
-            newPartitions.addAll(traceListPartitioner.getSubsets(partition, args));
-        }
-        partitionsStack.push(newPartitions);
-    }
-
-    private void printTraceListPartitioners() {
+    private void printTracePartitioners() {
         TracePartitioner[] partitioners = TracePartitioner.partitionTypes;
         for (int i = 0; i < partitioners.length; i++) {
             System.out.println("[" + i + "]" + partitioners[i].toString());
         }
+    }
+
+    private void createTraceSubsets(TracePartitioner traceListPartitioner, String args[])
+    {
+        List<SubsetOfTraces> newPartitions = new ArrayList<SubsetOfTraces>();
+        for (SubsetOfTraces partition : subsetsStack.peek()) {
+            newPartitions.addAll(traceListPartitioner.getSubsets(partition, args));
+        }
+        subsetsStack.push(newPartitions);
+    }
+
+    private void chooseSubset(int n) {
+        List<SubsetOfTraces> curPartitions = subsetsStack.peek();
+        if (n < curPartitions.size()) {
+            List<SubsetOfTraces> newPartition = new ArrayList<SubsetOfTraces>();
+            newPartition.add(curPartitions.get(n));
+            subsetsStack.push(newPartition);
+            updateEntanglement();
+        }
+    }
+
+    private void removeSubset(int n) {
+        List<SubsetOfTraces> curPartitions = subsetsStack.peek();
+        if (n < curPartitions.size()) {
+            List<SubsetOfTraces> newPartition = new ArrayList<SubsetOfTraces>();
+            newPartition.addAll(curPartitions);
+            newPartition.remove(curPartitions.get(n));
+            subsetsStack.push(newPartition);
+            updateEntanglement();
+        }
+    }
+
+    private void resetSubsets() {
+        if (subsetsStack.size() > 1) {
+            subsetsStack.pop();
+            updateEntanglement();
+        }
+    }
+
+    private void printSubsets() {
+        List<SubsetOfTraces> curSubsets = subsetsStack.peek();
+        for (int i = 0; i < curSubsets.size(); i++) {
+            System.out.println("[" + i + "]" + curSubsets.get(i).toString());
+        }
+    }
+
+    private void storeSubsets(int n) {
+        if (n < 0) {
+            return;
+        }
+        traceSetStorage.put(n, subsetsStack.peek());
+    }
+
+    private void restoreSubsets(int n) {
+        if (traceSetStorage.containsKey(n)) {
+            List<SubsetOfTraces> s = traceSetStorage.get(n);
+            subsetsStack.push(s);
+            updateEntanglement();
+        }
+    }
+
+    private void showStoredSubsets() {
+        List<Integer> keys = new ArrayList<Integer>(traceSetStorage.keySet());
+        Collections.sort(keys);
+        for (Integer key : keys) {
+            StringBuilder result = new StringBuilder("[" + key + "] {");
+            List<SubsetOfTraces> curPartitions = traceSetStorage.get(key);
+            for (int i = 0; i < curPartitions.size(); i++) {
+                result.append(curPartitions.get(i).toString());
+                if (i != curPartitions.size() - 1) {
+                    result.append(',');
+                }
+            }
+            result.append('}');
+            System.out.println(result);
+        }
+    }
+
+    private void printIsSubset(int n) {
+        if (traceSetStorage.containsKey(n)) {
+            List<SubsetOfTraces> s = traceSetStorage.get(n);
+            if (isSubset(s, subsetsStack.peek())) {
+                System.out.println(n + " is a subset of the current traces.");
+            } else {
+                System.out.println(n + " is not a subset of the current traces.");
+            }
+        }
+    }
+
+    private boolean isSubset(List<SubsetOfTraces> subset, List<SubsetOfTraces> superset) {
+        Set<Trace> subsetTraces = getAllTraces(subset);
+        Set<Trace> supersetTraces = getAllTraces(superset);
+
+        return supersetTraces.containsAll(subsetTraces);
+    }
+
+    private void printInfo() {
+        List<SubsetOfTraces> subsets = subsetsStack.peek();
+        for (SubsetOfTraces subset : subsets) {
+            System.out.println("****** " + subset.getPartitionName() + " ******");
+            List<Trace> traces = subset.getTraces();
+            System.out.println("Size: " + traces.size());
+            printPartitioning(new SATEntanglementAnalysis(new HashSet<Trace>(traces)));
+
+            printValues(new SimpleEntanglementAnalysis(traces),
+                    new HashSet<Trace>(traces));
+        }
+    }
+
+    private void compare(int staticAngel1, int execNum1, int staticAngel2, int execNum2) {
+        DynAngel dynAngel1 = new DynAngel(staticAngel1, execNum1);
+        DynAngel dynAngel2 = new DynAngel(staticAngel2, execNum2);
+
+        compareTwoDynAngels(dynAngel1, dynAngel2);
     }
 
     private void compareTwoDynAngels(DynAngel angel1, DynAngel angel2) {
@@ -284,53 +376,65 @@ public class EntanglementConsole extends InteractiveThread {
 
     }
 
-    private void printAllConstantDynAngels() {
+    private void printPartitioning(SATEntanglementAnalysis ea) {
+
+        Comparator<Collection<DynAngel>> dynAngelsComparator =
+                new Comparator<Collection<DynAngel>>() {
+
+                    public int compare(Collection<DynAngel> angelCol1,
+                            Collection<DynAngel> angelCol2)
+                    {
+                        DynAngel smallestAngel1 = null;
+                        for (DynAngel da : angelCol1) {
+                            if (smallestAngel1 == null ||
+                                    smallestAngel1.compareTo(da) > 0)
+                            {
+                                smallestAngel1 = da;
+                            }
+                        }
+                        DynAngel smallestAngel2 = null;
+                        for (DynAngel da : angelCol2) {
+                            if (smallestAngel2 == null ||
+                                    smallestAngel2.compareTo(da) > 0)
+                            {
+                                smallestAngel2 = da;
+                            }
+                        }
+                        return smallestAngel1.compareTo(smallestAngel2);
+                    }
+                };
+
+        Set<Set<DynAngel>> subsets = ea.getEntangledPartitions();
+
+        List<Set<DynAngel>> unentangledSubsets = new ArrayList<Set<DynAngel>>(subsets);
+        Collections.sort(unentangledSubsets, dynAngelsComparator);
+
+        for (Set<DynAngel> subset : unentangledSubsets) {
+            List<DynAngel> subsetList = new ArrayList<DynAngel>(subset);
+            System.out.println(toStringRep(subsetList));
+        }
+    }
+
+    private void printSize() {
+        int size = getAllTraces(subsetsStack.peek()).size();
+        System.out.println("Size: " + size);
+    }
+
+    private void printConstantAngels() {
         List<DynAngel> dynAngels = new ArrayList<DynAngel>(ea.getConstantAngels());
-        Collections.sort(dynAngels);
-        System.out.println("Constant angels");
-        for (DynAngel dynAngel : dynAngels) {
-            System.out.println("Location: " + dynAngel);
-        }
+        System.out.println(toStringRep(dynAngels));
     }
 
-    private void printSubsets(int n) {
-        EntangledPartitions subsets = satEA.getEntangledPartitions(n);
-        printSubsets(subsets);
-    }
-
-    private void printSubsets(EntangledPartitions subsets) {
-        System.out.println("----Entangled----");
-        for (Set<DynAngel> subset : subsets.entangledSubsets) {
-            List<DynAngel> subsetList = new ArrayList<DynAngel>(subset);
-            System.out.println("--------------");
-            Collections.sort(subsetList);
-            for (DynAngel dynAngel : subsetList) {
-                System.out.println("Location: " + dynAngel);
-            }
-        }
-        System.out.println("----Unentangled----");
-        for (Set<DynAngel> subset : subsets.unentangledSubsets) {
-            List<DynAngel> subsetList = new ArrayList<DynAngel>(subset);
-            System.out.println("--------------");
-            Collections.sort(subsetList);
-            for (DynAngel dynAngel : subsetList) {
-                System.out.println("Location: " + dynAngel);
-            }
-        }
-    }
-
-    private void printValues() {
+    private void printValues(SimpleEntanglementAnalysis ea, Set<Trace> traces) {
         HashMap<DynAngel, HashSet<Integer>> dynAngelToValues =
                 new HashMap<DynAngel, HashSet<Integer>>();
         for (DynAngel angel : ea.getAngels()) {
             dynAngelToValues.put(angel, new HashSet<Integer>());
         }
-        List<SubsetOfTraces> partitions = partitionsStack.peek();
-        for (SubsetOfTraces partition : partitions) {
-            for (Trace t : partition.getTraces()) {
-                for (Event e : t.getEvents()) {
-                    dynAngelToValues.get(e.dynAngel).add(e.valueChosen);
-                }
+
+        for (Trace t : traces) {
+            for (Event e : t.getEvents()) {
+                dynAngelToValues.get(e.dynAngel).add(e.valueChosen);
             }
         }
         ArrayList<DynAngel> angels = new ArrayList<DynAngel>(dynAngelToValues.keySet());
@@ -342,6 +446,28 @@ public class EntanglementConsole extends InteractiveThread {
             }
             System.out.println();
         }
+    }
+
+    private String toStringRep(List<DynAngel> angels) {
+        Collections.sort(angels);
+        StringBuilder result = new StringBuilder("{ ");
+        for (int j = 0; j < angels.size(); j++) {
+            DynAngel angel = angels.get(j);
+            result.append(angel);
+            if (j != angels.size() - 1) {
+                result.append(", ");
+            }
+        }
+        result.append(" }");
+        return result.toString();
+    }
+
+    private Set<Trace> getAllTraces(List<SubsetOfTraces> subsetsList) {
+        Set<Trace> traces = new HashSet<Trace>();
+        for (SubsetOfTraces partition : subsetsList) {
+            traces.addAll(partition.getTraces());
+        }
+        return traces;
     }
 
     @Override

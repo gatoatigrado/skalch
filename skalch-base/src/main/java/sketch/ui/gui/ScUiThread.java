@@ -122,7 +122,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                     if (completion instanceof ScActiveStack) {
                         ScActiveStack stack = (ScActiveStack) completion;
                         gui.synthCompletions.remove(stack);
-                        gui.numSynthActive -= 1;
                     }
                 }
             }
@@ -141,7 +140,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                         ScActiveStack stack = (ScActiveStack) completion;
                         if (stack.localSsr == localSsr) {
                             gui.synthCompletions.remove(stack);
-                            gui.numSynthActive -= 1;
                         }
                     }
                 }
@@ -159,7 +157,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                                 stackToAdd);
                 solution.add();
                 autoDisplaySolution(solution);
-                ScStatsMT.statsSingleton.ntraces.add(1);
             }
         };
     }
@@ -175,7 +172,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                     if (completion instanceof ScSolutionStack) {
                         ScSolutionStack solution = (ScSolutionStack) completion;
                         gui.synthCompletions.remove(solution);
-                        ScStatsMT.statsSingleton.ntraces.add(-1);
                     }
                 }
             }
@@ -194,7 +190,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                         ScSolutionStack solution = (ScSolutionStack) completion;
                         if (stackToRemove == solution.myStack) {
                             gui.synthCompletions.remove(solution);
-                            ScStatsMT.statsSingleton.ntraces.add(-1);
                         }
                     }
                 }
@@ -213,7 +208,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                     if (completion instanceof ScSolutionStack) {
                         ScSolutionStack solution = (ScSolutionStack) completion;
                         gui.synthCompletions.remove(solution);
-                        ScStatsMT.statsSingleton.ntraces.add(-1);
                     }
                 }
 
@@ -222,7 +216,6 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                             new ScSolutionStack(ScUiThread.this, gui.synthCompletions,
                                     stack);
                     solution.add();
-                    ScStatsMT.statsSingleton.ntraces.add(1);
                 }
             }
         };

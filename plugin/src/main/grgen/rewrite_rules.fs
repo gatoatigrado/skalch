@@ -180,7 +180,10 @@ let ArrayLoweringRules = [
     Xgrs "decorateArrayGet*"
     Xgrs "deleteDangling*"
     Xgrs "createArrayLengthSyms*"
-    Xgrs "typifyConstLenArrays*" ]
+    Xgrs "typifyConstLenArrays*"
+    Xgrs "updateAssignLhsTypes*"
+    Xgrs "updateValDefSymbolTypes*"
+    Xgrs "updateVarRefTypes*" ]
 
 let LowerPhiFunctionsRules = [
     Xgrs "markPhiSyms* & createCounterVars*"
@@ -219,6 +222,7 @@ let SketchFinalMinorCleanupRules = [
     Xgrs "[finalizeSymbolNames]"
     Xgrs "setSymbolSketchType*"
     Xgrs "setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit"
+    Xgrs "setSketchTypeArray*"
     Xgrs "connectFunctions*"
     Xgrs "removeEmptyChains*"
     Xgrs "setAssertCalls* & deleteDangling*"

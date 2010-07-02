@@ -102,6 +102,11 @@ BooleanConstant(.value) -> new ExprConstBoolean(<ctx>, boolean)
 IntConstant(.value) -> new ExprConstInt(<ctx>, int)
 
 UnitConstant() -> new ExprConstUnit(<ctx>)
+
+NewArray(OL[ArrValueList]) -> new ExprArrayInit(<ctx>, List[Expression])
+
+SketchArrayAccess(SketchArrayAccessArray, SketchArrayAccessIndex)
+    -> new ExprArrayRange(<ctxnode>, Expression, Expression)
 """
 
 
@@ -110,6 +115,7 @@ TYPES = r"""
 TypeBoolean() -> TypePrimitive "TypePrimitive.bittype"
 TypeInt() -> TypePrimitive "TypePrimitive.inttype"
 TypeUnit() -> TypePrimitive "TypePrimitive.voidtype"
+TypeArray(ArrayInnerTypeSymbol:SketchType, ArrayLengthExpr) -> new TypeArray(Type, Expression)
 
 Symbol() -> Type "getType(followEdge(\"SketchType\", node))"
 
@@ -150,10 +156,10 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange",
         "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
         "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile",
-        "Type": "TypeStruct TypePrimitive TypeStructRef" }
+        "Type": "TypeStruct TypePrimitive TypeStructRef TypeArray" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:
         name = str(rule.javaname)

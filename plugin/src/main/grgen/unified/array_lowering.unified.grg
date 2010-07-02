@@ -90,19 +90,29 @@ rule decorateArrayGet {
 /// create symbols representing specialized array lengths,
 /// e.g. "int[3]"
 rule createArrayLengthSyms {
-    . -:ArrayLengthExpr-> y:IntConstant;
+    w:Node -:ArrayLengthExpr-> y:IntConstant;
     x:ScalaArraySymbol -:ClassSymbol-> x;
     x -:TypeSymbol-> x;
+    w -:InnerTypeSymbol-> m:Symbol;
+    hom(m, x);
 
     negative {
-        z:FixedArraySymbol;
+        z:FixedArraySymbol -:SymbolTypeArgsList->
+            {{ macros.finiteList(["m"]) }}
         if { z.value == y.value; }
     }
 
     modify {
         z:FixedArraySymbol -:SymbolOwner-> x;
         z -:SpecializedSymbolBase-> x;
-        eval { z.value = y.value; }
+        z -:SymbolTypeArgsList-> {{ macros.finiteListInit(["m"]) }}
+        eval {
+            z.fullSymbolName = "array[" + m.symbolName + "][" + y.value + "]";
+            z.symbolName = "array[" + m.symbolName + "][" + y.value + "]";
+            z.simpleName = "array[" + m.symbolName + "][" + y.value + "]";
+            z.uniqueSymbolName = "array[" + m.symbolName + "][" + y.value + "]";
+            z.value = y.value;
+        }
     }
 }
 
@@ -132,6 +142,30 @@ rule updateAssignLhsTypes {
     modify {
         delete(e);
         z -:typeof(e)-> newsym;
+    }
+}
+
+rule updateValDefSymbolTypes {
+    x:ValDef -:ValDefSymbol-> sym:Symbol;
+    sym -e:TypeSymbol-> .;
+
+    x -:ValDefRhs-> y:ScAstNode;
+    y -:ScTypeSymbol-> newsym:Symbol;
+
+    modify {
+        delete(e);
+        sym -:typeof(e)-> newsym;
+    }
+}
+
+rule updateVarRefTypes {
+    x:VarRef -:VarRefSymbol-> sym:Symbol;
+    sym -:TypeSymbol-> z:Symbol;
+    x -e:VarRefTypeSymbol-> w:Symbol;
+
+    modify {
+        delete(e);
+        x -:typeof(e)-> z;
     }
 }
 

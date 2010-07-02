@@ -204,6 +204,8 @@ node class TypeUnit extends TypePrimitive;
 node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
 
 edge class SketchType;
+// ArrayLengthExpr from TypeArray to Expression
+edge class ArrayInnerTypeSymbol connect TypeArray --> Symbol;
 
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
@@ -524,6 +526,7 @@ abstract edge class CstyleExprTarget;
 abstract edge class VarRefTarget extends CstyleExprTarget;
 abstract edge class ScTermSymbol;
 abstract edge class ScTypeSymbol;
+abstract edge class InnerTypeSymbol;
 
 abstract edge class FcnArg extends CstyleExprTarget;
 abstract edge class BlockStmt;
@@ -635,6 +638,7 @@ edge class VarRefTypeSymbol extends ScTypeSymbol;
 edge class ParentTypeSymbol extends ScTypeSymbol;
 edge class ApplyImplicitViewTypeSymbol extends ScTypeSymbol;
 edge class ApplyToImplicitArgsTypeSymbol extends ScTypeSymbol;
+edge class NewArrayInnerTypeSymbol extends InnerTypeSymbol;
 
 // symbols...
 edge class CaseDefTypeSymbol extends ScTypeSymbol;

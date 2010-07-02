@@ -19,6 +19,8 @@ node class TypeUnit extends TypePrimitive;
 node class TypeStructRef extends AbstractSketchNodeType { typename : string; }
 
 edge class SketchType;
+// ArrayLengthExpr from TypeArray to Expression
+edge class ArrayInnerTypeSymbol connect TypeArray --> Symbol;
 
 edge class FcnBinaryCallLhs;
 edge class FcnBinaryCallRhs;
@@ -52,6 +54,19 @@ rule setSketch{{ sketch_type }} {
 
 {{ set_sketch_type("ScalaSymbol", "scala.Int", "TypeInt") }}
 {{ set_sketch_type("ScalaSymbol", "scala.Boolean", "TypeBoolean") }}
+
+rule setSketchTypeArray {
+    x:FixedArraySymbol;
+    x -:SymbolTypeArgsList-> {{ macros.finiteList(["inner_typ:Symbol"]) }}
+
+    negative { x -:SketchType-> .; }
+    modify {
+        x -:SketchType-> arrtyp:TypeArray;
+        arrtyp -:ArrayLengthExpr-> y:IntConstant;
+        arrtyp -:ArrayInnerTypeSymbol-> inner_typ;
+        eval { y.value = x.value; }
+    }
+}
 
 rule setSketchTypeUnit {
     x:ScalaUnitTypeSymbol;

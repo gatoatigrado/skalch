@@ -344,6 +344,32 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public ExprArrayInit getExprArrayInitFromNewArray(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Vector<Expression> arg1_vec = new Vector<Expression>();
+        for (GXLNode arg1_tmp1 : followEdgeOL("ArrValueList", node)) {
+            arg1_vec.add(getExpression(arg1_tmp1)); // gen marker 4
+        }
+        List<Expression> arg1 = unmodifiableList(arg1_vec);
+
+        return new ExprArrayInit(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public ExprArrayRange getExprArrayRangeFromSketchArrayAccess(final GXLNode node) {
+        FENode arg0 = new DummyFENode(create_fe_context(node));
+
+        Expression arg1 = getExpression(followEdge("SketchArrayAccessArray", node)); // gen marker 2
+
+        Expression arg2 = getExpression(followEdge("SketchArrayAccessIndex", node)); // gen marker 2
+
+        return new ExprArrayRange(arg0, arg1, arg2);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public TypePrimitive getTypePrimitiveFromTypeBoolean(final GXLNode node) {
         return TypePrimitive.bittype;
     }
@@ -358,6 +384,17 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     @SuppressWarnings("deprecation")
     public TypePrimitive getTypePrimitiveFromTypeUnit(final GXLNode node) {
         return TypePrimitive.voidtype;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public TypeArray getTypeArrayFromTypeArray(final GXLNode node) {
+        GXLNode arg0_tmp1 = followEdge("ArrayInnerTypeSymbol", node); // gen marker 3
+        Type arg0 = getType(followEdge("SketchType", arg0_tmp1)); // gen marker 2
+
+        Expression arg1 = getExpression(followEdge("ArrayLengthExpr", node)); // gen marker 2
+
+        return new TypeArray(arg0, arg1);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -463,7 +500,9 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     public Type getType(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("TypeStructRef")) {
+        if (typ.equals("TypeArray")) {
+            return getTypeArrayFromTypeArray(node);
+        } else if (typ.equals("TypeStructRef")) {
             return getTypeStructRefFromTypeStructRef(node);
         } else if (typ.equals("TypeUnit")) {
             return getTypePrimitiveFromTypeUnit(node);
@@ -480,16 +519,12 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public TypePrimitive getTypePrimitive(final GXLNode node) {
+    public TypeArray getTypeArray(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("TypeUnit")) {
-            return getTypePrimitiveFromTypeUnit(node);
-        } else if (typ.equals("TypeInt")) {
-            return getTypePrimitiveFromTypeInt(node);
-        } else if (typ.equals("TypeBoolean")) {
-            return getTypePrimitiveFromTypeBoolean(node);
+        if (typ.equals("TypeArray")) {
+            return getTypeArrayFromTypeArray(node);
         } else {
-            throw new RuntimeException("no way to return a 'TypePrimitive' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'TypeArray' from a node of type " + typ);
         }
     }
 
@@ -553,6 +588,19 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getStreamSpecFromPackageDef(node);
         } else {
             throw new RuntimeException("no way to return a 'StreamSpec' from a node of type " + typ);
+        }
+    }
+
+    public TypePrimitive getTypePrimitive(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("TypeUnit")) {
+            return getTypePrimitiveFromTypeUnit(node);
+        } else if (typ.equals("TypeInt")) {
+            return getTypePrimitiveFromTypeInt(node);
+        } else if (typ.equals("TypeBoolean")) {
+            return getTypePrimitiveFromTypeBoolean(node);
+        } else {
+            throw new RuntimeException("no way to return a 'TypePrimitive' from a node of type " + typ);
         }
     }
 
@@ -640,6 +688,10 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprConstIntFromIntConstant(node);
         } else if (typ.equals("BooleanConstant")) {
             return getExprConstBooleanFromBooleanConstant(node);
+        } else if (typ.equals("SketchArrayAccess")) {
+            return getExprArrayRangeFromSketchArrayAccess(node);
+        } else if (typ.equals("NewArray")) {
+            return getExprArrayInitFromNewArray(node);
         } else if (typ.equals("SKNew")) {
             return getExprNewFromSKNew(node);
         } else if (typ.equals("NullTypeConstant")) {
@@ -703,6 +755,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
+    public ExprArrayRange getExprArrayRange(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SketchArrayAccess")) {
+            return getExprArrayRangeFromSketchArrayAccess(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprArrayRange' from a node of type " + typ);
+        }
+    }
+
     public ExprStar getExprStar(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("HoleCall")) {
@@ -718,6 +779,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprFunCallFromFcnCall(node);
         } else {
             throw new RuntimeException("no way to return a 'ExprFunCall' from a node of type " + typ);
+        }
+    }
+
+    public ExprArrayInit getExprArrayInit(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("NewArray")) {
+            return getExprArrayInitFromNewArray(node);
+        } else {
+            throw new RuntimeException("no way to return a 'ExprArrayInit' from a node of type " + typ);
         }
     }
 }

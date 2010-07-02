@@ -229,6 +229,10 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
 
             case ArrayValue(elemtpt, elems) =>
                 subchain("ArrValue", elems)
+                tree.tpe.normalize match {
+                    case TypeRef(pre, sym, List(inner_typ)) =>
+                        symlink(clsname + "InnerType", inner_typ.typeSymbol)
+                }
 
             case Ident(name) => ()
 //                 symlink("Var", tree.symbol)

@@ -93,14 +93,19 @@ public class ScFixedInputConf extends ScInputConf {
         }
     }
 
+    public void setCnt(int uidIdx, int subuidIdx, int value) {
+        if (setCnt.length > uidIdx && setCnt[uidIdx].length > subuidIdx) {
+            setCnt[uidIdx][subuidIdx] = value;
+        }
+    }
+
     /** NOTE - a bit of messy (uid, subuid) -> index mapping */
     @SuppressWarnings("unchecked")
     public void generateValueStrings() {
         Vector<ScHighlightValues.Value> valueArr = new Vector<ScHighlightValues.Value>();
         for (int uidIdx = 0; uidIdx < values.length; uidIdx++) {
             for (int subuidIdx = 0; subuidIdx < values[uidIdx].length; subuidIdx++) {
-                ScConstructValue value =
-                        new ScConstructValue(values[uidIdx][subuidIdx]);
+                ScConstructValue value = new ScConstructValue(values[uidIdx][subuidIdx]);
                 int colorV = setCnt[uidIdx][subuidIdx];
                 int[] idArr = { uidIdx, subuidIdx };
                 valueArr.add(new ScHighlightValues.Value(value, colorV, idArr));

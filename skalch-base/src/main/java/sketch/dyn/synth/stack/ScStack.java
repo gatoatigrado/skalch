@@ -44,26 +44,14 @@ public class ScStack extends ScPrefixSearch {
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
+    public int[][] setCnt;
+
     public ScStack(ScPrefix defaultPrefix, int maxStackDepth) {
         this.maxStackDepth = maxStackDepth;
         stack = new FactoryStack<ScStackEntry>(16, new ScStackEntry.Factory());
         ctrlConf = new ScSynthCtrlConf(this, SYNTH_HOLE_LOG_TYPE);
         oracleConf = new ScSolvingInputConf(this, SYNTH_ORACLE_LOG_TYPE);
         currentPrefix = defaultPrefix;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 0;
-        for (ScStackEntry ent : stack) {
-            result *= 77;
-            result += ent.hashCode();
-        }
-        result *= 171;
-        result += ctrlConf.hashCode();
-        result *= 723;
-        result += oracleConf.hashCode();
-        return result;
     }
 
     public String[] getStringArrayRep() {
@@ -90,8 +78,20 @@ public class ScStack extends ScPrefixSearch {
     public void initializeFixedForIllustration(ScDynamicSketchCall<?> sketchCall) {
         ctrlConf.generateValueStrings();
         ScFixedInputConf fixedOracles = oracleConf.fixedInputs();
+        // sbarman: hack to display angelic values as a certain color
+        if (setCnt != null) {
+            for (int i = 0; i < setCnt.length; i++) {
+                for (int j = 0; j < setCnt[i].length; j++) {
+                    fixedOracles.setCnt(i, j, setCnt[i][j]);
+                }
+            }
+        }
         fixedOracles.generateValueStrings();
         sketchCall.initializeBeforeAllTests(ctrlConf, fixedOracles, null);
+    }
+
+    public void setCnt(int[][] setCnt) {
+        this.setCnt = setCnt;
     }
 
     public void resetBeforeRun() {
@@ -212,5 +212,19 @@ public class ScStack extends ScPrefixSearch {
             curExec.addEvent(ent.uid, ent.subuid, getUntilv(ent), getStackEnt(ent));
         }
         return curExec;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (ScStackEntry ent : stack) {
+            result *= 77;
+            result += ent.hashCode();
+        }
+        result *= 171;
+        result += ctrlConf.hashCode();
+        result *= 723;
+        result += oracleConf.hashCode();
+        return result;
     }
 }

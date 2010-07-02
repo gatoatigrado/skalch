@@ -33,7 +33,7 @@ public class ScUiOptions extends CliAnnotatedOptionGroup {
     @CliParameter(help = "regex to split lines")
     public String linesepRegex = "\\n";
     @CliParameter(help = "maximum number of counterexamples and solutions (to avoid overflowing the JList)")
-    public int maxListLength = 10000;
+    public int maxListLength = 30000;
     @CliParameter(help = "don't re-execute the program to get skdprint values")
     public boolean noConSkdprint;
     @CliParameter(help = "don't scroll the debug out and source panes to the top left")

@@ -90,7 +90,6 @@ public class EntanglementPartitioner extends TracePartitioner {
                     }
                     newPartitions.add(singleton);
                     newPartitions.add(rest);
-                    break;
                 } else {
                     newPartitions.add(curPartition);
                 }

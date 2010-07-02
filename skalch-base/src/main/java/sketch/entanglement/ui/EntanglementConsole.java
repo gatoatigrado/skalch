@@ -46,7 +46,7 @@ public class EntanglementConsole extends InteractiveThread {
             { "compare", "constant", "entanglement", "info", "pull", "push", "store",
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
-                    "values", "help" };
+                    "values", "help", "color", "nocolor" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results) {
         super(0.05f);
@@ -60,7 +60,6 @@ public class EntanglementConsole extends InteractiveThread {
         for (int i = 0; i < commands.length; i++) {
             commandSet.add(commands[i]);
         }
-        pullFromResults();
     }
 
     public void startConsole() {
@@ -139,6 +138,10 @@ public class EntanglementConsole extends InteractiveThread {
                     printSize();
                 } else if ("values".equals(command)) {
                     printValues(ea, getAllTraces(subsetsStack.peek()));
+                } else if ("color".equals(command)) {
+                    colorTraces();
+                } else if ("nocolor".equals(command)) {
+                    removeColorTraces();
                 } else if ("exit".equals(command)) {
                     break;
                 } else if ("help".equals(command)) {
@@ -170,7 +173,7 @@ public class EntanglementConsole extends InteractiveThread {
         List<SubsetOfTraces> initialPartition = new ArrayList<SubsetOfTraces>();
         initialPartition.add(new SubsetOfTraces(new ArrayList<Trace>(
                 traceToStack.keySet()), "init", null));
-        subsetsStack.add(initialPartition);
+        subsetsStack.push(initialPartition);
         updateEntanglement();
     }
 
@@ -468,6 +471,53 @@ public class EntanglementConsole extends InteractiveThread {
             traces.addAll(partition.getTraces());
         }
         return traces;
+    }
+
+    private void removeColorTraces() {
+        setCntMatrix(null);
+    }
+
+    private void colorTraces() {
+        Set<DynAngel> angels = ea.getAngels();
+        int maxStaticAngel = -1;
+        for (DynAngel angel : angels) {
+            if (angel.staticAngelId > maxStaticAngel) {
+                maxStaticAngel = angel.staticAngelId;
+            }
+        }
+        int[] maxExecNum = new int[maxStaticAngel + 1];
+        for (DynAngel angel : angels) {
+            if (angel.execNum > maxExecNum[angel.staticAngelId]) {
+                maxExecNum[angel.staticAngelId] = angel.execNum;
+            }
+        }
+        int[][] cntMatrix = new int[maxStaticAngel + 1][];
+        for (int i = 0; i < cntMatrix.length; i++) {
+            cntMatrix[i] = new int[maxExecNum[i] + 1];
+        }
+
+        int val = 4;
+        int inc = 4;
+        int constant = 0;
+        Set<Set<DynAngel>> partitions = satEA.getEntangledPartitions();
+        for (Set<DynAngel> partition : partitions) {
+            if (partition.size() == 1) {
+                DynAngel d = partition.iterator().next();
+                cntMatrix[d.staticAngelId][d.execNum] = constant;
+            } else {
+                for (DynAngel d : partition) {
+                    cntMatrix[d.staticAngelId][d.execNum] = val;
+                }
+                val += inc;
+            }
+        }
+        setCntMatrix(cntMatrix);
+    }
+
+    private void setCntMatrix(int[][] cntMatrix) {
+        for (Trace t : traceToStack.keySet()) {
+            traceToStack.get(t).setCnt(cntMatrix);
+        }
     }
 
     @Override

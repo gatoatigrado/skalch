@@ -2,9 +2,12 @@ package sketch.ui;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 /**
  * generic wrapper for a list view. can remove elements before they are added.
@@ -35,6 +38,27 @@ public class ScUiList<T> {
         } else {
             if (listModel.getSize() < maxEntries) {
                 listModel.addElement(element);
+            }
+        }
+    }
+
+    public void addAll(List<? extends T> elements) {
+        ListDataListener[] dataListeners = listModel.getListDataListeners();
+        for (ListDataListener l : dataListeners) {
+            listModel.removeListDataListener(l);
+        }
+
+        int curSize = listModel.size();
+
+        for (T element : elements) {
+            add(element);
+        }
+
+        for (ListDataListener l : dataListeners) {
+            listModel.addListDataListener(l);
+            if (curSize < listModel.size()) {
+                l.intervalAdded(new ListDataEvent(listModel,
+                        ListDataEvent.INTERVAL_ADDED, curSize, listModel.size() - 1));
             }
         }
     }

@@ -14,6 +14,7 @@ import sketch.ui.gui.ScUiThread;
  *          changes, please consider contributing back!
  */
 public class ScSolutionStack extends ScModifierDispatcher {
+
     final public ScStack myStack;
 
     /**
@@ -51,6 +52,36 @@ public class ScSolutionStack extends ScModifierDispatcher {
 
     @Override
     public boolean isAcceptable() {
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((myStack == null) ? 0 : myStack.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ScSolutionStack other = (ScSolutionStack) obj;
+        if (myStack == null) {
+            if (other.myStack != null) {
+                return false;
+            }
+        } else if (!myStack.equals(other.myStack)) {
+            return false;
+        }
         return true;
     }
 }

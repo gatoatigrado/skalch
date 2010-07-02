@@ -1,5 +1,6 @@
 package sketch.ui.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -147,14 +148,12 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         };
     }
 
-    public void addStackSolution(ScStack stack) {
-        final ScStack stackToAdd = stack.clone();
+    public void addStackSolution(final ScStack stack) {
         new AddedModifier() {
             @Override
             public void apply() {
                 ScSolutionStack solution =
-                        new ScSolutionStack(ScUiThread.this, gui.synthCompletions,
-                                stackToAdd);
+                        new ScSolutionStack(ScUiThread.this, gui.synthCompletions, stack);
                 solution.add();
                 autoDisplaySolution(solution);
             }
@@ -178,8 +177,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         };
     }
 
-    public void removeStackSolution(ScStack stack) {
-        final ScStack stackToRemove = stack.clone();
+    public void removeStackSolution(final ScStack stack) {
         new RemoveModifier() {
             @Override
             public void apply() {
@@ -188,7 +186,7 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
                 for (Object completion : completions) {
                     if (completion instanceof ScSolutionStack) {
                         ScSolutionStack solution = (ScSolutionStack) completion;
-                        if (stackToRemove == solution.myStack) {
+                        if (stack == solution.myStack) {
                             gui.synthCompletions.remove(solution);
                         }
                     }
@@ -197,26 +195,29 @@ public class ScUiThread extends InteractiveThread implements ScUserInterface {
         };
     }
 
-    public void resetStackSolutions(final List<ScStack> solutions) {
+    public void resetStackSolutions(final List<ScStack> stacks) {
         final ScUiThread target = this;
         new RemoveModifier() {
             @Override
+            // TODO (sbarman): this is a hack and needs to be rewritten
             public void apply() {
                 ScUiGui gui = target.gui;
-                Object[] completions = gui.synthCompletions.getAll();
-                for (Object completion : completions) {
-                    if (completion instanceof ScSolutionStack) {
-                        ScSolutionStack solution = (ScSolutionStack) completion;
-                        gui.synthCompletions.remove(solution);
-                    }
-                }
-
-                for (ScStack stack : solutions) {
+                gui.synthCompletions.removeAll();
+                // Object[] completions = gui.synthCompletions.getAll();
+                // for (Object completion : completions) {
+                // if (completion instanceof ScSolutionStack) {
+                // ScSolutionStack solution = (ScSolutionStack) completion;
+                // gui.synthCompletions.remove(solution);
+                // }
+                // }
+                List<ScSolutionStack> solutions = new ArrayList<ScSolutionStack>();
+                for (ScStack stack : stacks) {
                     ScSolutionStack solution =
                             new ScSolutionStack(ScUiThread.this, gui.synthCompletions,
                                     stack);
-                    solution.add();
+                    solutions.add(solution);
                 }
+                gui.synthCompletions.addAll(solutions);
             }
         };
     }

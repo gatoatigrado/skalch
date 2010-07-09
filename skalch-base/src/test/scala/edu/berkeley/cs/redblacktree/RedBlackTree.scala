@@ -38,34 +38,43 @@ class RedBlackTreeSketch extends AngelicSketch {
           def insert(v : Int, curNode : RedBlackTreeNode,
         		  parent : RedBlackTreeNode) : Unit= {
         	val putOnLeft : Boolean = v < curNode.value
+        	val isBlack : Boolean = !!(true, false)
         	if (putOnLeft) {
               if (curNode.left == null) {
-                val isBlack : Boolean = !!(true, false)
                 curNode.left = new RedBlackTreeNode(v, null, null, isBlack)
               } else {
                 insert(v, curNode.left, curNode)
               }
             } else {	  
               if (curNode.right == null) {
-                val isBlack : Boolean = !!(true, false)
                 curNode.right = new RedBlackTreeNode(v, null, null, isBlack)
               } else {
             	insert(v, curNode.right, curNode)
               }
             }
 
-  	        if (!checkRedBlack()) {
-    	      if (!!()) {
-    	    	if (!!()) {
-    	    	  rotateClockwise(curNode, parent, putOnLeft)
-    	    	  skput("clock")
-    	    	} else { 
-    	          rotateCounterClockwise(curNode, parent, putOnLeft)
-    	          skput("cclock")
-    	    	}
-    	      } else {
-    	    	  skput("none")
-    	      }
+          	val rotate = !!(List(0,1,2))
+            val changeNodeColor = !!(true, false)
+            val changeChildNodeColor = !!(true, false)
+            val changeChildChildNodeColor = !!(true, false)
+            
+            if (checkRedBlack()) {
+              synthAssert(rotate == 2)
+              synthAssert(changeNodeColor == true)
+              synthAssert(changeChildNodeColor == true)
+              synthAssert(changeChildChildNodeColor == true)
+            }
+            
+  	        if (rotate == 0) {
+  	          rotateClockwise(curNode, parent, putOnLeft, changeNodeColor,
+  	          		changeChildNodeColor, changeChildChildNodeColor);
+  	          skput("clock")
+  	        } else if (rotate == 1) { 
+  	          rotateCounterClockwise(curNode, parent, putOnLeft, changeNodeColor,
+  	          		changeChildNodeColor, changeChildChildNodeColor);
+  	          skput("cclock")
+            } else {
+              skput("none")
     	    }  
           }
 	      
@@ -78,15 +87,16 @@ class RedBlackTreeSketch extends AngelicSketch {
       }
 	  
 	  def rotateClockwise(node : RedBlackTreeNode, parent : RedBlackTreeNode, 
-			  isLeftChild : Boolean) = {
+			  isLeftChild : Boolean, changeNodeColor : Boolean,
+                  changeLeftNodeColor : Boolean, changeLeftRightNodeColor : Boolean) = {
 	    if (node.left != null) {
-	      if (!!()) {
+	      if (changeNodeColor) {
 	    	node.isBlack = !node.isBlack
 	      }
-	      if (node.left != null && !!()) {
+	      if (node.left != null && changeLeftNodeColor) {
 	    	node.left.isBlack = !node.left.isBlack
 	      }
-	      if (node.left.right != null && !!()) {
+	      if (node.left.right != null && changeLeftRightNodeColor) {
 	    	node.left.right.isBlack = !node.left.right.isBlack
 	      }
 	      
@@ -109,15 +119,16 @@ class RedBlackTreeSketch extends AngelicSketch {
 	  }
 	    
 	  def rotateCounterClockwise(node : RedBlackTreeNode, parent : RedBlackTreeNode, 
-				  isLeftChild : Boolean) = {
+				  isLeftChild : Boolean, changeNodeColor : Boolean,
+	  			  changeRightNodeColor : Boolean, changeRightLeftNodeColor : Boolean) = {
 	    if (node.right != null) {
-	      if (!!()) {
+	      if (changeNodeColor) {
 	    	node.isBlack = !node.isBlack
 	      }
-		  if (node.right != null && !!()) {
+		  if (node.right != null && changeRightNodeColor) {
 			node.right.isBlack = !node.right.isBlack
 		  }
-		  if (node.right.left != null && !!()) {
+		  if (node.right.left != null && changeRightLeftNodeColor) {
 			node.right.left.isBlack = !node.right.left.isBlack    
 		  }
 	    	
@@ -251,12 +262,7 @@ class RedBlackTreeSketch extends AngelicSketch {
 	}
 	
 	val tree : RedBlackTree = new RedBlackTree()
- /*   if (!!()) { tree.insert(1)
-    if (!!()) {	tree.insert(2)
-    if (!!()) { tree.insert(3)
-    if (!!()) { tree.insert(4)
-    }}}}
-*/  tree.insert(1)
+    tree.insert(1)
 	tree.insert(2)
 	tree.insert(3)
 	tree.insert(4)

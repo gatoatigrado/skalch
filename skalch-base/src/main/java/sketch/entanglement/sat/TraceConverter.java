@@ -1,7 +1,6 @@
 package sketch.entanglement.sat;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import kodkod.util.ints.IntBitSet;
+import kodkod.util.ints.IntIterator;
+import kodkod.util.ints.IntSet;
+import kodkod.util.ints.Ints;
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.Event;
 import sketch.entanglement.Trace;
@@ -27,20 +30,20 @@ public class TraceConverter {
 
     final private Map<List<Integer>, Trace> simpleTraceToNormalTrace;
     final private ArrayList<DynAngel> angels;
+    private Map<DynAngel, List<Integer>> angelsToValues;
 
-    public TraceConverter(Set<Trace> traces) {
+    public TraceConverter(List<DynAngel> angels, Set<Trace> traces) {
         // A list version of the traces
         ArrayList<Trace> traceList = new ArrayList<Trace>(traces);
         // A mapping from dynamic angel to a list of integers. The ith value in the list
         // represents the value of the dynamic angel in the ith trace in traceList.
-        Map<DynAngel, List<Integer>> tracesByAngelMap = getTracesByAngel(traceList);
-
-        // sort the angels so they are in some order
-        angels = new ArrayList<DynAngel>(tracesByAngelMap.keySet());
-        Collections.sort(angels);
+        Map<DynAngel, List<Integer>> tracesByAngelMap =
+                getTracesByAngel(traceList, angels);
+        this.angels = new ArrayList<DynAngel>(angels);
+        angelsToValues = getAngelsToValues(tracesByAngelMap);
 
         simpleTraceToNormalTrace =
-                getSimpleTraceMapping(traceList, tracesByAngelMap, angels);
+                getSimpleTraceMapping(traceList, tracesByAngelMap, angels, angelsToValues);
         simpleTraces = simpleTraceToNormalTrace.keySet();
 
         maxValues = getMaxAngelValues(angels.size(), simpleTraces);
@@ -48,11 +51,8 @@ public class TraceConverter {
         assert simpleTraces.size() == traces.size();
     }
 
-    // returns a mapping from a "ordered trace" to the original trace. ordered traces
-    // contain values in a strict order and can also contains values for unencountered
-    // angels (but encountered in another trace)
-    private Map<List<Integer>, Trace> getSimpleTraceMapping(List<Trace> traceList,
-            Map<DynAngel, List<Integer>> tracesByAngelMap, List<DynAngel> angelList)
+    private Map<DynAngel, List<Integer>> getAngelsToValues(
+            Map<DynAngel, List<Integer>> tracesByAngelMap)
     {
         Map<DynAngel, List<Integer>> angelToValues =
                 new HashMap<DynAngel, List<Integer>>();
@@ -63,6 +63,16 @@ public class TraceConverter {
             }
             angelToValues.put(angel, new ArrayList<Integer>(values));
         }
+        return angelToValues;
+    }
+
+    // returns a mapping from a "ordered trace" to the original trace. ordered traces
+    // contain values in a strict order and can also contains values for unencountered
+    // angels (but encountered in another trace)
+    private Map<List<Integer>, Trace> getSimpleTraceMapping(List<Trace> traceList,
+            Map<DynAngel, List<Integer>> tracesByAngelMap, List<DynAngel> angelList,
+            Map<DynAngel, List<Integer>> angelsToValues)
+    {
 
         Map<List<Integer>, Trace> simpleTraceMapping =
                 new HashMap<List<Integer>, Trace>();
@@ -74,7 +84,7 @@ public class TraceConverter {
                 DynAngel angel = angelList.get(j);
                 // get the value of the angel at the ith trace
                 int val = tracesByAngelMap.get(angel).get(i);
-                int index = angelToValues.get(angel).indexOf(val);
+                int index = angelsToValues.get(angel).indexOf(val);
                 trace.add(index);
             }
             simpleTraceMapping.put(trace, traceList.get(i));
@@ -95,9 +105,15 @@ public class TraceConverter {
         return max;
     }
 
-    private Map<DynAngel, List<Integer>> getTracesByAngel(List<Trace> traces) {
+    private Map<DynAngel, List<Integer>> getTracesByAngel(List<Trace> traces,
+            List<DynAngel> angels)
+    {
         Map<DynAngel, List<Integer>> dynamicAngelsToValues =
                 new HashMap<DynAngel, List<Integer>>();
+        for (DynAngel angel : angels) {
+            dynamicAngelsToValues.put(angel, new ArrayList<Integer>());
+        }
+
         // go through every trace
         for (int i = 0; i < traces.size(); i++) {
             // go through every dynamic angelic call
@@ -108,16 +124,14 @@ public class TraceConverter {
                 // add valueChosen to correct list
                 if (dynamicAngelsToValues.containsKey(dynAngel)) {
                     values = dynamicAngelsToValues.get(dynAngel);
-                } else {
-                    values = new ArrayList<Integer>();
-                    dynamicAngelsToValues.put(dynAngel, values);
+
+                    // if the dynamic angel was not accessed in the previous traces,
+                    // then we need to pad the list until the index
+                    while (values.size() < i) {
+                        values.add(-1);
+                    }
+                    values.add(event.valueChosen);
                 }
-                // if the dynamic angel was not accessed in the previous traces,
-                // then we need to pad the list until the index
-                while (values.size() < i) {
-                    values.add(-1);
-                }
-                values.add(event.valueChosen);
             }
         }
         // pad all the lists so they are the same size
@@ -136,6 +150,15 @@ public class TraceConverter {
 
     public DynAngel getAngel(int index) {
         return angels.get(index);
+    }
+
+    public int getAngelValue(int index, int val) {
+        DynAngel angel = getAngel(index);
+        return angelsToValues.get(angel).get(val);
+    }
+
+    public List<DynAngel> getAngelList() {
+        return new ArrayList<DynAngel>(angels);
     }
 
     public int getIndex(DynAngel d) {
@@ -159,5 +182,43 @@ public class TraceConverter {
             }
         }
         return normalTraces;
+    }
+
+    public Set<Set<DynAngel>> getDynAngelPartitions(List<IntSet> oldPartitions) {
+        Set<Set<DynAngel>> dynAngelPartitions = new HashSet<Set<DynAngel>>();
+        for (IntSet oldPartition : oldPartitions) {
+            Set<DynAngel> partition = new HashSet<DynAngel>();
+            for (IntIterator i = oldPartition.iterator(); i.hasNext();) {
+                partition.add(getAngel(i.next()));
+            }
+            dynAngelPartitions.add(partition);
+        }
+        return dynAngelPartitions;
+    }
+
+    public List<IntSet> getIntSetPartitions(Set<Set<DynAngel>> partitioning) {
+        List<IntSet> newPartitions = new ArrayList<IntSet>();
+
+        for (Set<DynAngel> partition : partitioning) {
+            if (partition.size() == 1) {
+                newPartitions.add(Ints.singleton(getIndex(partition.iterator().next())));
+            } else {
+                int maxValue = -1;
+                List<Integer> indexes = new ArrayList<Integer>();
+                for (DynAngel angel : partition) {
+                    int index = getIndex(angel);
+                    indexes.add(index);
+                    if (index > maxValue) {
+                        maxValue = index;
+                    }
+                }
+                IntSet partitionIndexes = new IntBitSet(maxValue + 1);
+                for (Integer index : indexes) {
+                    partitionIndexes.add(index);
+                }
+                newPartitions.add(partitionIndexes);
+            }
+        }
+        return newPartitions;
     }
 }

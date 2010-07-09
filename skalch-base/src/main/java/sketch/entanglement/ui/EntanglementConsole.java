@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -23,8 +24,12 @@ import sketch.entanglement.Trace;
 import sketch.entanglement.partition.SubsetOfTraces;
 import sketch.entanglement.partition.TracePartitioner;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
+import sketch.entanglement.sat.SubsetTraceFilter;
 import sketch.result.ScSynthesisResults;
 import sketch.util.thread.InteractiveThread;
+import entanglement.EntanglementDetector;
+import entanglement.MaxSupportFinder;
+import entanglement.trace.Traces;
 
 public class EntanglementConsole extends InteractiveThread {
 
@@ -46,7 +51,7 @@ public class EntanglementConsole extends InteractiveThread {
             { "compare", "constant", "entanglement", "info", "pull", "push", "store",
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
-                    "values", "help", "color", "nocolor" };
+                    "values", "help", "color", "nocolor", "grow" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results) {
         super(0.05f);
@@ -142,6 +147,9 @@ public class EntanglementConsole extends InteractiveThread {
                     colorTraces();
                 } else if ("nocolor".equals(command)) {
                     removeColorTraces();
+                } else if ("grow".equals(command)) {
+                    int n = Integer.parseInt(tokens.nextToken());
+                    growTraces(n);
                 } else if ("exit".equals(command)) {
                     break;
                 } else if ("help".equals(command)) {
@@ -174,6 +182,7 @@ public class EntanglementConsole extends InteractiveThread {
         initialPartition.add(new SubsetOfTraces(new ArrayList<Trace>(
                 traceToStack.keySet()), "init", null));
         subsetsStack.push(initialPartition);
+        storeSubsets(0);
         updateEntanglement();
     }
 
@@ -518,6 +527,47 @@ public class EntanglementConsole extends InteractiveThread {
         for (Trace t : traceToStack.keySet()) {
             traceToStack.get(t).setCnt(cntMatrix);
         }
+    }
+
+    private void growTraces(int n) {
+        if (traceSetStorage.containsKey(n)) {
+            List<SubsetOfTraces> s = traceSetStorage.get(n);
+            Set<Trace> allTraces = getAllTraces(s);
+            SATEntanglementAnalysis allTraceEA = new SATEntanglementAnalysis(allTraces);
+            Set<Trace> subsetTraces = getAllTraces(subsetsStack.peek());
+
+            Traces subset =
+                    allTraceEA.getTraceConverter().getTraces().restrict(
+                            new SubsetTraceFilter(subsetTraces,
+                                    allTraceEA.getTraceConverter()));
+            System.out.println(subset.size());
+            System.out.println(allTraceEA.getEntangledIntSets());
+            System.out.println(EntanglementDetector.entanglement(subset));
+
+            Iterator<Traces> it =
+                    MaxSupportFinder.findMaximalSupports(
+                            allTraceEA.getTraceConverter().getTraces(),
+                            allTraceEA.getEntangledIntSets(), subset,
+                            EntanglementDetector.entanglement(subset));
+
+            System.out.println("here");
+            List<SubsetOfTraces> partitions = new ArrayList<SubsetOfTraces>();
+            int index = 0;
+            while (it.hasNext()) {
+
+                Traces traces = it.next();
+                System.out.println("new trace set" + traces.size());
+
+                List<Trace> sketchTraces = allTraceEA.getTraceConverter().convert(traces);
+                SubsetOfTraces partition =
+                        new SubsetOfTraces(sketchTraces, "grow" + index, null);
+                partitions.add(partition);
+                index++;
+            }
+            subsetsStack.push(partitions);
+            updateEntanglement();
+        }
+
     }
 
     @Override

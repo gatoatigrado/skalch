@@ -6,10 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import kodkod.util.ints.IntBitSet;
-import kodkod.util.ints.IntIterator;
 import kodkod.util.ints.IntSet;
-import kodkod.util.ints.Ints;
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.Trace;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
@@ -31,41 +28,22 @@ public class EntanglementPartitioner extends TracePartitioner {
         SATEntanglementAnalysis satEA = new SATEntanglementAnalysis(traces);
 
         TraceConverter converter = satEA.getTraceConverter();
-        List<IntSet> oldPartitions = satEA.getEntangledIntSets();
-        System.out.println("Old partitions: " + oldPartitions);
-        List<IntSet> newPartitions;
+        List<IntSet> oldSatPartitions = satEA.getEntangledIntSets();
+        Set<Set<DynAngel>> oldPartitions =
+                converter.getDynAngelPartitions(oldSatPartitions);
 
+        System.out.println("Old partitions: " + oldSatPartitions);
+        System.out.println("Old partitions: " + oldPartitions);
+
+        List<List<DynAngel>> subpartitioning;
         if ("-s".equals(args[0])) {
             StringBuilder argString = new StringBuilder();
             for (int i = 1; i < args.length; i++) {
                 argString.append(args[i]);
                 argString.append(" ");
             }
-            List<List<DynAngel>> partitioning =
-                    DynAngel.parseDynAngelPartitioning(argString.toString());
-            System.out.println("Partitions: " + partitioning);
-            newPartitions = new ArrayList<IntSet>();
-
-            for (List<DynAngel> partition : partitioning) {
-                if (partition.size() == 1) {
-                    newPartitions.add(Ints.singleton(converter.getIndex(partition.get(0))));
-                } else {
-                    int maxValue = -1;
-                    List<Integer> indexes = new ArrayList<Integer>();
-                    for (DynAngel angel : partition) {
-                        int index = converter.getIndex(angel);
-                        indexes.add(index);
-                        if (index > maxValue) {
-                            maxValue = index;
-                        }
-                    }
-                    IntSet partitionIndexes = new IntBitSet(maxValue + 1);
-                    for (Integer index : indexes) {
-                        partitionIndexes.add(index);
-                    }
-                    newPartitions.add(partitionIndexes);
-                }
-            }
+            subpartitioning = DynAngel.parseDynAngelPartitioning(argString.toString());
+            System.out.println("Partitions: " + subpartitioning);
         } else {
             StringBuilder argString = new StringBuilder();
             for (int i = 0; i < args.length; i++) {
@@ -73,28 +51,36 @@ public class EntanglementPartitioner extends TracePartitioner {
                 argString.append(" ");
             }
             DynAngel d = DynAngel.parseDynAngel(argString.toString());
+            subpartitioning = new ArrayList<List<DynAngel>>();
+            List<DynAngel> partition = new ArrayList<DynAngel>();
+            partition.add(d);
+            subpartitioning.add(partition);
+        }
 
-            int index = converter.getIndex(d);
-            newPartitions = new ArrayList<IntSet>();
+        Set<Set<DynAngel>> partitioning = new HashSet<Set<DynAngel>>();
 
-            for (int i = 0; i < oldPartitions.size(); i++) {
-                IntSet curPartition = oldPartitions.get(i);
-                if (curPartition.contains(index) && curPartition.size() > 1) {
-                    IntSet singleton = Ints.singleton(index);
-                    IntSet rest = new IntBitSet(curPartition.max() + 1);
-                    for (IntIterator it = curPartition.iterator(); it.hasNext();) {
-                        int element = it.next();
-                        if (element != index) {
-                            rest.add(element);
-                        }
+        for (Set<DynAngel> partition : oldPartitions) {
+            HashSet<DynAngel> partitionClone = new HashSet<DynAngel>(partition);
+            for (List<DynAngel> subpartition : subpartitioning) {
+                HashSet<DynAngel> projection = new HashSet<DynAngel>();
+                for (DynAngel angel : subpartition) {
+                    if (partition.contains(angel)) {
+                        projection.add(angel);
                     }
-                    newPartitions.add(singleton);
-                    newPartitions.add(rest);
-                } else {
-                    newPartitions.add(curPartition);
+                }
+                if (!projection.isEmpty()) {
+                    partitioning.add(projection);
+                    partitionClone.removeAll(projection);
                 }
             }
+            if (!partitionClone.isEmpty()) {
+                partitioning.add(partitionClone);
+            }
         }
+
+        List<IntSet> newPartitions = converter.getIntSetPartitions(partitioning);
+
+        System.out.println("New partitions: " + partitioning);
         System.out.println("New partitions: " + newPartitions);
 
         int i = 0;
@@ -102,7 +88,7 @@ public class EntanglementPartitioner extends TracePartitioner {
         List<SubsetOfTraces> subsets = new ArrayList<SubsetOfTraces>();
 
         for (Iterator<Traces> supports =
-                MaxSupportFinder.findMaximalSupports(satTraces, oldPartitions,
+                MaxSupportFinder.findMaximalSupports(satTraces, oldSatPartitions,
                         newPartitions); supports.hasNext();)
         {
             Traces support = supports.next();

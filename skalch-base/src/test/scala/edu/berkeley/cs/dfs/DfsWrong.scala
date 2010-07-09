@@ -19,16 +19,56 @@ class DfsWrongSketch() extends AngelicSketch {
 
     class Graph() {
         var nodes = new ArrayBuffer[Node]
+                                   
+        // input 1
+//        val c = new Node("c")
+//        val b = new Node("b")
+//        val a = new Node("a", b, c)
+//
+//        val root = a
+//        nodes ++= List(a,b,c)
 
-        val d = new Node("d")
-        val c = new Node("c", d)
-        val b = new Node("b")
-        val a = new Node("a", b, c)
+        // input 2
+//        val d = new Node("d")
+//        val c = new Node("c", d)
+//        val b = new Node("b", c)
+//        val a : Node = new Node("a", a, b)
+//        d.children += a;
+//        val root = a
+//        nodes ++= List(a,b,c,d)
 
+        // input 3
+//        val d = new Node("d")
+//        val c = new Node("c", d)
+//        val b = new Node("b", c)
+//        val a = new Node("a", b)
+//        d.children += a
+//        c.children += b
+//        val root = a
+//        nodes ++= List(a,b,c,d)
+                    
+		// input 4
+//		val d = new Node("d")
+//        val c = new Node("c", d)
+//        val b = new Node("b", c, d)
+//        val a = new Node("a", b)
+//        d.children += a
+//        c.children += b
+//        val root = a
+//        nodes ++= List(a,b,c,d)
+
+        //input 5
+        val e = new Node("e")
+        val d = new Node("d", e)
+        val c = new Node("c", d, e)
+        val b = new Node("b", c, e)
+        val a = new Node("a", b)
+        e.children += a
+        d.children += b
         val root = a
+        nodes ++= List(a,b,c,d,e)
 
-        nodes ++= List(a,b,c,d)
-
+        
         def checkpoint() {
             for(node <- getNodes()) {
                 node.checkpoint()
@@ -184,13 +224,13 @@ class DfsWrongSketch() extends AngelicSketch {
             }
         }
 
-        def pop(restore: A) = {
+        def pop(unused_restore: A) = {
             synthAssert(reference.size > 0)
             // should only be used to check if the correct value is returned
             val refPoppedVal = reference.pop
             
             var nodes = new ListBuffer[A]
-            nodes += restore
+ //           nodes += restore
             
             for (location <- extraLocations) {
               nodes += location.read()
@@ -212,12 +252,12 @@ class DfsWrongSketch() extends AngelicSketch {
                 val v = location.read
                 values += v
             }
-            values += restore
+ //           values += restore
             
             val returnValue = !!(values)
             synthAssert(returnValue == refPoppedVal)  
             
-            skdprint("pop(" + restore.toString() + ") : " 
+            skdprint("pop(" + /*restore.toString() +*/ ") : " 
                      + extraStorage.mkString("e[", ", ", "]") 
                      + " return[" + refPoppedVal.toString() + "]")
 

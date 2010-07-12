@@ -3,14 +3,20 @@ package edu.berkeley.cs.maxcomponent
 
 import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
-//import sketch.util.DebugOut
+import sketch.util.DebugOut
 import sketch.util._
 
 import scala.collection.mutable.HashSet
 import scala.collection.mutable.Set
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.Map
+import scala.collection.mutable.Stack
 import scala.collection.mutable.Queue
+import scala.collection.mutable.ListBuffer
 
-class MaxComponent5Sketch extends AngelicSketch {
+
+
+class MaxComponent4Sketch extends AngelicSketch {
     val tests = Array( () )
     
     def main() {
@@ -19,21 +25,23 @@ class MaxComponent5Sketch extends AngelicSketch {
             val MAX_OUT = 5
         
             var id : String = name
-            var edges : Array[Vertex] = new Array[Vertex](MAX_OUT)
-            var numedges : Int = 0
-            var inset : Int = -1  // uninit
+            var edges : List[Vertex] = Nil
         
             override def toString() : String = {
                 var returnString : String = id
+                return returnString
+            }
+            
+            def toDetailedString() : String = {
+                var returnString : String = id
                 returnString += "["
-                for (j <- 0 to numedges - 1) returnString += edges(j).id 
+                for (j <- 0 to edges.size) returnString += edges(j).id 
                     returnString += "]"
                 return returnString
             }
         
             def addEdge(target : Vertex) {
-                edges(numedges) = target
-                numedges += 1
+                edges ::= target
             }
         }
 
@@ -55,6 +63,9 @@ class MaxComponent5Sketch extends AngelicSketch {
     //  Idea: we will keep marks. we will assume up to two marks can be updated per go. we will force
     //  the angels to reveal to us the order in which edges are picked
 
+        var correct : Set[Set[Vertex]] = new HashSet[Set[Vertex]]
+            
+        
         class Graph {
 
             var vertices : List[Vertex] = Nil
@@ -70,51 +81,111 @@ class MaxComponent5Sketch extends AngelicSketch {
                 v1.addEdge(v2)
             }
             
-            def chopSCCs() : List[Set[Vertex]] = {
-                var ccs : List[Set[Vertex]] = Nil
-                var vset : Set[Vertex] = new HashSet[Vertex]()
-                for (j <- 0 to edges.size - 1) {  // repeat #edges times
-                    val e : Edge = edges.apply(!!(edges.size))
-                    synthAssert(!e.handled)
-                    e.handled = true
-                    vset.add(e.src)
-                    vset.add(e.dest)
-                    // check if we have enough to spit out a scc
-                    val newCC : Set[Vertex] = vset.clone.filter { vertex => !!() }
-                    val newCCSet : Set[Vertex] = new HashSet[Vertex]()
-                    newCC.foreach { vertex =>
-                        newCCSet.add(vertex)
-                        vset.remove(vertex)
-                    }
-                    if (newCCSet.size > 0) {
-                        synthAssert(isConnected(newCCSet))
-                        synthAssert(isMaximal(newCCSet))
-                        print(newCCSet)
-                    }
-                }
-                return ccs
-            }
-            
             def getConnectedComponents() : List[Set[Vertex]] = {
                 var ccomponents : List[Set[Vertex]] = Nil
-                var remainingVertices : List[Vertex] = vertices
-                var loop : Int = 0
-                while (remainingVertices != Nil && loop < 5) {
-                    val newCC : List[Vertex] = vertices.filter {vertex => !!()}
-                    val newCCSet : Set[Vertex] = new HashSet[Vertex]()
-                    newCC.foreach { vertex =>
-                        newCCSet.add(vertex)
+                val visited : ListBuffer[Vertex] = new ListBuffer[Vertex]
+                while (visited.size < vertices.size) {
+                    var root : Vertex = null;
+                    var index : Int = 0;
+                    while (root == null) {
+                        if (!visited.contains(vertices(index))) {
+                            root = vertices(index)
+                        } else {
+                            index += 1
+                        }
                     }
-                    print(newCCSet)
-                    synthAssert(isConnected(newCCSet))
-                    synthAssert(isMaximal(newCCSet))
-                    remainingVertices = remainingVertices.remove { vertex =>
-                        newCCSet.contains(vertex)
-                    }
-                    ccomponents ::= newCCSet
-                    loop += 1
+                    skdprint("New root: " + root)
+                    synthAssert(!visited.contains(root))
+                    val ccs : List[Set[Vertex]] = search(root, visited)
+                    ccomponents :::= ccs
                 }
+                skdprint("CCs: " + ccomponents)
                 return ccomponents;
+            }
+            
+            def search(root : Vertex, visited : ListBuffer[Vertex]) : List[Set[Vertex]] = {
+                val ccs : ListBuffer[Set[Vertex]] = new ListBuffer[Set[Vertex]]
+                dfs(root, ccs, visited)
+                val makeCC : Boolean = !!()
+                if (makeCC) {
+                    val cc : Set[Vertex] = new HashSet[Vertex]
+                    for (val i <- 0 to visited.size) {
+                        if (!!()) cc.add(visited.apply(i))
+                    }
+                    
+                    skdprint("New cc after dfs: " + cc)
+                    ccs += cc
+                }
+                skdprint("Dfs search returned: " + ccs)
+                var ccsList : List[Set[Vertex]] = Nil
+                ccsList ++= ccs
+                
+                return ccsList
+            }
+
+            val up : Boolean = !!()
+            skdprint("Up: " + up)
+            
+            def dfs(v : Vertex, ccs : ListBuffer[Set[Vertex]], visited : ListBuffer[Vertex]) {
+                skdprint("Vertex: " + v + "; Visited: " + visited)
+                
+                val makeCC : Boolean = !!()
+                skdprint("Making cc: " + makeCC)
+                
+                if (visited.contains(v)) {
+                    if (makeCC) {
+                        val cc : Set[Vertex] = new HashSet[Vertex]
+                        for (val i <- 0 to visited.size) {
+                            if (!!()) cc.add(visited.apply(i))
+                        }
+                        skdprint("New cc: " + cc)
+                        synthAssert(cc.contains(v))
+                        synthAssert(correct.contains(cc))
+                        ccs += cc
+                    }
+                    skdprint("Pop")
+                    return
+                } 
+                
+                visited += v
+                
+                if (!up && makeCC) {
+                    val cc : Set[Vertex] = new HashSet[Vertex]
+                    for (val i <- 0 to visited.size) {
+                        if (!!()) cc.add(visited.apply(i))
+                    }
+                
+                    skdprint("New cc: " + cc)
+                    synthAssert(cc.contains(v))
+//                    ccs.foreach { otherCC =>
+//                        synthAssert(otherCC.clone.intersect(cc).isEmpty)
+//                    }
+                    synthAssert(correct.contains(cc))
+                        
+                    ccs += cc
+                }
+                
+                v.edges.foreach { dest =>
+                    skdprint("Push to: " + dest)
+                    dfs(dest, ccs, visited)
+                }
+                
+                if (up && makeCC) {
+                    val cc : Set[Vertex] = new HashSet[Vertex]
+                    for (val i <- 0 to visited.size) {
+                        if (!!()) cc.add(visited.apply(i))
+                    }
+                
+                    skdprint("New cc: " + cc)
+                    synthAssert(cc.contains(v))
+//                    ccs.foreach { otherCC =>
+//                        synthAssert(otherCC.clone.intersect(cc).isEmpty)
+//                    }
+                    synthAssert(correct.contains(cc))
+                        
+                    ccs += cc
+                }
+                skdprint("Pop")
             }
             
             def print(ccomponents : List[Set[Vertex]]) {
@@ -140,6 +211,18 @@ class MaxComponent5Sketch extends AngelicSketch {
             }
             
             def checkConnectedComponents(ccomponents : List[Set[Vertex]]) {
+                ccomponents.foreach { cc =>
+                    synthAssert(correct.contains(cc))
+                }
+                
+                correct.foreach { cc =>
+                    synthAssert(ccomponents.contains(cc))
+                }
+                
+                synthAssert(ccomponents.size == correct.size)
+                
+                return;
+                
                 val allVertices : Set[Vertex] = new HashSet[Vertex]
                 ccomponents.foreach { ccomponent =>
                     synthAssert(isConnected(ccomponent));
@@ -148,8 +231,6 @@ class MaxComponent5Sketch extends AngelicSketch {
                             intersect(allVertices).isEmpty)
                     allVertices ++= ccomponent
                 }
-                skdprint("All: " + allVertices)
-                skdprint("Cur: " + vertices)
                 synthAssert(allVertices.size == vertices.size)
             }
             
@@ -202,9 +283,9 @@ class MaxComponent5Sketch extends AngelicSketch {
         G.addVertex(vA)
         G.addVertex(vB)
         G.addVertex(vC)
-        G.addVertex(vD)
         G.addVertex(vE)
         G.addVertex(vF)
+        G.addVertex(vD)
     
         G.addEdge(vA,vC)
         G.addEdge(vC,vB)
@@ -214,18 +295,25 @@ class MaxComponent5Sketch extends AngelicSketch {
         G.addEdge(vE,vB)
         G.addEdge(vF,vE)
         
-        //val ccomponents : List[Set[Vertex]] = G.getConnectedComponents();
-         val ccomponents : List[Set[Vertex]] = G.chopSCCs();
+        val abcd = new HashSet[Vertex]
+        abcd += (vA,vB,vC,vD)
+        val e = new HashSet[Vertex]
+        e += vE
+        val f = new HashSet[Vertex]
+        f += vF
+        correct += (abcd, e, f)
+            
+        val ccomponents : List[Set[Vertex]] = G.getConnectedComponents();
         G.checkConnectedComponents(ccomponents);
     }
 }
 
-object MaxComponent5 {
+object MaxComponent4 {
     def main(args: Array[String]) = {
         for (arg <- args)
             Console.println(arg)
         //val cmdopts = new cli.CliParser(args)
         skalch.AngelicSketchSynthesize(() => 
-            new MaxComponent5Sketch())
+            new MaxComponent4Sketch())
         }
     }

@@ -80,7 +80,7 @@ class MaxComponent5Sketch extends AngelicSketch {
                     vset.add(e.src)
                     vset.add(e.dest)
                     // check if we have enough to spit out a scc
-                    val newCC : List[Vertex] = vset.filter { vertex => !!() }
+                    val newCC : Set[Vertex] = vset.filter { vertex => !!() }
                     val newCCSet : Set[Vertex] = new HashSet[Vertex]()
                     newCC.foreach { vertex =>
                         newCCSet.add(vertex)

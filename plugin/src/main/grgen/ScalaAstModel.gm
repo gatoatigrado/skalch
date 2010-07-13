@@ -526,7 +526,7 @@ abstract edge class CstyleExprTarget;
 abstract edge class VarRefTarget extends CstyleExprTarget;
 abstract edge class ScTermSymbol;
 abstract edge class ScTypeSymbol;
-abstract edge class InnerTypeSymbol;
+edge class InnerTypeSymbol;
 
 abstract edge class FcnArg extends CstyleExprTarget;
 abstract edge class BlockStmt;
@@ -638,7 +638,6 @@ edge class VarRefTypeSymbol extends ScTypeSymbol;
 edge class ParentTypeSymbol extends ScTypeSymbol;
 edge class ApplyImplicitViewTypeSymbol extends ScTypeSymbol;
 edge class ApplyToImplicitArgsTypeSymbol extends ScTypeSymbol;
-edge class NewArrayInnerTypeSymbol extends InnerTypeSymbol;
 
 // symbols...
 edge class CaseDefTypeSymbol extends ScTypeSymbol;

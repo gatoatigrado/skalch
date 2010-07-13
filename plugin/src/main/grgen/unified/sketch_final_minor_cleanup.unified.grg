@@ -107,6 +107,15 @@ rule setAssertCalls {
     }
 }
 
+// replace with "array = 0"
+rule setNewArrayCalls {
+    x:NewArrayCall;
+    modify {
+        next:IntConstant<x>;
+        eval { next.value = 0; }
+    }
+}
+
 /// change all subclasses of e.g. FcnBinaryCall to FcnBinaryCall
 {% macro set_base_type(name) %}
 rule set{{ name }}BaseType {

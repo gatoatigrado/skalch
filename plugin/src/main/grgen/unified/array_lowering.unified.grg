@@ -18,19 +18,6 @@
 
 {% block grg %}
 
-{# old scala output (simpler)
-rule replaceArrayInit {
-    x:FcnCallTypeApply -:FcnArgChain-> :FieldAccess -:FieldAccessObject-> :ApplyToImplicitArgs
-        -:FcnArgChain-> wrapArrayCall:FcnCall -:FcnArgList->
-        {{ macros.finiteList(["predef:QualifiedClassRef", "newArray:NewArray"]) }}
-    wrapArrayCall -:FcnCallSymbol-> sym:ScalaSymbol;
-    if { sym.fullSymbolName == "scala.LowPriorityImplicits.genericWrapArray"; }
-    r:TreeReplacer(x);
-
-    modify { r(newArray); }
-}
-#}
-
 rule countNewArrayElts {
     x:NewArray -:ArrValueList-> lst:List;
     negative { x -:ArrayLengthExpr-> .; }
@@ -41,6 +28,7 @@ rule countNewArrayElts {
     }
 }
 
+/// Array.apply(1, WrappedArray({2, 3})) -> Array.apply(1, {2, 3})
 rule deleteWrapNewArray {
     parent:Node -e:Replaceable->
         x:FcnCall -:FcnCallTypeSymbol-> wrappedsym:Symbol;
@@ -49,6 +37,7 @@ rule deleteWrapNewArray {
     modify { delete(e); parent -:typeof(e)-> z; }
 }
 
+/// Array.apply(1, {2, 3}) -> Array({1, 2, 3})
 rule simplifyArrayConstructors {
     parent:Node -e:Replaceable->
         x:FcnCall -:FcnCallSymbol-> sym:Symbol
@@ -67,6 +56,16 @@ rule simplifyArrayConstructors {
         parent -:typeof(e)-> z;
         eval { lenexpr.value = lenexpr.value + 1; }
         exec(listInsertFirst(prev_lst, y));
+    }
+}
+
+rule simplifyVarLenArrayCtors {
+    x:NewArrayCall -:FcnArgList->
+        {{ macros.finiteList(["y:ScAstNode"]) }}
+
+    negative { x -:ArrayLengthExpr-> .; }
+    modify {
+        x -:ArrayLengthExpr-> y;
     }
 }
 
@@ -119,15 +118,21 @@ rule createArrayLengthSyms {
 /// redirect type symbols from new arrays to their
 /// specialized versions
 rule typifyConstLenArrays {
-    x:NewArray -e:NewArrayTypeSymbol-> sym:ScalaArraySymbol;
+    x:Node -e:Edge-> sym:ScalaArraySymbol;
     x -:ArrayLengthExpr-> y:IntConstant;
     z:FixedArraySymbol;
     if { z.value == y.value; }
 
-    modify {
-        delete(e);
-        x -:NewArrayTypeSymbol-> z;
+    alternative {
+        A {
+            if { typeof(x) == NewArray; }
+            modify { x -:NewArrayTypeSymbol-> z; } }
+        B {
+            if { typeof(x) == NewArrayCall; }
+            modify { x -:FcnCallTypeSymbol-> z; } }
     }
+
+    modify { delete(e); }
 }
 
 /// TODO -- move to another file

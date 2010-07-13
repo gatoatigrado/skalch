@@ -16,4 +16,6 @@ public class GxlOptions extends CliAnnotatedOptionGroup {
 
     @CliParameter(help = "Disable defaults (keep tmp, keep asserts)")
     public boolean noDefaults = false;
+    @CliParameter(metavar = "FILE", help = "Dump the input to a file")
+    public String dumpInputParse = null;
 }

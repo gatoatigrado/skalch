@@ -1,5 +1,6 @@
 package sketch.compiler.parser.gxlimport;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -72,6 +73,9 @@ public class GxlImport {
             if (!this.args.gxlOpts.noDefaults) {
                 this.args.feOpts.keepTmp = true;
                 this.args.feOpts.keepAsserts = true;
+            }
+            if (this.args.gxlOpts.dumpInputParse != null) {
+                prog.debugDump(new File(this.args.gxlOpts.dumpInputParse));
             }
             (new SequentialSketchGxlMain(this.args, prog)).run();
         }

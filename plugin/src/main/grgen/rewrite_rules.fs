@@ -81,6 +81,10 @@ let NiceListsRules = [Xgrs "listBlockInit*";
 let SimplifyConstantsRules = [
     Xgrs "replaceUnaryNeg+" ]
 
+let LowerTprintRules = [
+    Xgrs "(convertTprintArrayToArgList+ | deleteDangling+)+"
+    ]
+
 let RaiseSpecialGotosRules = [
     Xgrs "raiseWhileLoopGotos*"
     Xgrs "deleteDangling*"

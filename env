@@ -15,7 +15,7 @@ export libgrg="$(getpath "$skalchdir"/../grgen/engine-net-2/bin)"
 export stagetf="$(getpath "$skalchdir"/../grgen/engine-net-2/FSharpBindings)"
 stagetf_sources_array=($(for i in $(cat "$stagetf"/filelist); do echo "$stagetf"/"$i"; done))
 export stagetf_sources="${stagetf_sources_array}"
-export MONO_PATH="$libgrg"
+export MONO_PATH="$libgrg:$HOME/bin/fsharp/bin"
 
 function g() { grep -E "$@" **/*(grg|fs) | sed '/\/gen\//d'; }
 function tf() {

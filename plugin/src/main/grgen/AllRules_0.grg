@@ -1,6 +1,6 @@
 using ScalaAstModel;
 
-#include "rules/common.grg"
+#include "rules/gen/common.grg"
 #include "rules/gen/template_util.grg"
 
 #include "rules/gen/warn_unsupported.grg"
@@ -43,4 +43,5 @@ using ScalaAstModel;
 #include "rules/gen/raise_special_gotos.grg"
 #include "rules/gen/simplify_constants.grg"
 #include "rules/gen/ssa_form.grg"
+#include "rules/gen/lower_tprint.grg"
 // add unified here

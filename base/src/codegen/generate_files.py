@@ -160,8 +160,8 @@ def process_unified():
             if path.write_if_different(output):
                 print("    generating '%s'" % (path))
 
-    [process_file(fname) for fname in unified.walk_files()
-        if ".unified" in fname]
+    [process_file(v) for v in unified.walk_files(["grg"])
+        if "unified" in v]
 
 @memoize_file(".gen/generate_files.txt")
 def files_with_generate():

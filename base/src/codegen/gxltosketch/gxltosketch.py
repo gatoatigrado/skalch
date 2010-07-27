@@ -107,6 +107,12 @@ NewArray(OL[ArrValueList]) -> new ExprArrayInit(<ctx>, List[Expression])
 
 SketchArrayAccess(SketchArrayAccessArray, SketchArrayAccessIndex)
     -> new ExprArrayRange(<ctxnode>, Expression, Expression)
+
+SketchTprintCall(OL[PrintCallArgList])
+    -> new ExprTprint(<ctx>, List[TprintTuple])
+
+SketchPrintTuple(SketchPrintTupleName.value, SketchPrintTupleValue)
+    -> new TprintTuple(String, Expression)
 """
 
 
@@ -156,7 +162,7 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange ExprTprint",
         "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
         "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile",
         "Type": "TypeStruct TypePrimitive TypeStructRef TypeArray" }

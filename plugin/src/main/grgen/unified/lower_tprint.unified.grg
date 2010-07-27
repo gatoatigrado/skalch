@@ -1,0 +1,82 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// lower
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+/// convert MySketch.this.tprint(scala.this.Predef.wrapRefArray(Array{a, b, c})) to tprint(a, b, c)
+rule convertTprintArrayToArgList {
+    tprintcall:FcnCall; arraywrapper:FcnCall;
+    tprintcall -:FcnArgList-> arglist:List;
+    :CallThisMethod(tprintcall, "tprint", arraywrapper);
+
+    instanceof:FcnCallTypeApply;
+    :ObjectCall(arraywrapper, "wrapRefArray", instanceof);
+
+    instanceof -:FcnArgList-> {{ macros.finiteList(["fa:FieldAccess"]) }}
+    fa -:FieldAccessObject-> na:NewArray -:ArrValueList-> ent_lst:List;
+
+    modify {
+        delete(arglist, arraywrapper);
+        next:SketchTprintCall<tprintcall> -:PrintCallArgList-> ent_lst;
+
+        exec(unwrapTuples(tprintcall)+ ||
+            assertFalse("lower tprint arrows failed!"));
+    }
+}
+
+rule unwrapTuples(tprintcall:FcnCall) {
+    tprintcall -:PrintCallArgList-> :List -:ListElt->
+        :ListNode -:ListValue-> arrowcall:FcnCall;
+
+    arrowcall -e1:FcnCallSymbol-> sym:Symbol;
+    if { sym.symbolName == "$minus$greater"; }
+    arrowcall -e2:FcnArgList-> {{ macros.finiteList(
+        ["x:ApplyImplicitView", "y:ScAstNode"]) }}
+
+    z:StringConstant;
+    :ObjectCall(x, "any2ArrowAssoc", z);
+
+    modify {
+        delete(e1, e2);
+        tuple:SketchPrintTuple<arrowcall>;
+        tuple -:SketchPrintTupleName-> z;
+
+        // NOTE -- cannot set y and then rewrite it with exec,
+        // since exec executes after
+        exec(deleteIntWrapper(tuple, y) || deleteBooleanWrapper(tuple, y) || setOtherValue(tuple, y));
+    }
+}
+
+rule deleteIntWrapper(tuple:SketchPrintTuple, x:ScAstNode) {
+    next:ScAstNode;
+    :ObjectCall_FN_NTYP(x, "scala.Int.box", next);
+
+    modify { tuple -:SketchPrintTupleValue-> next; }
+}
+
+rule deleteBooleanWrapper(tuple:SketchPrintTuple, x:ScAstNode) {
+    next:ScAstNode;
+    :ObjectCall_FN_NTYP(x, "scala.Boolean.box", next);
+
+    modify { tuple -:SketchPrintTupleValue-> next; }
+}
+
+rule setOtherValue(tuple:SketchPrintTuple, x:ScAstNode) {
+    modify { tuple -:SketchPrintTupleValue-> x; }
+}
+
+{% endblock %}

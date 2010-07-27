@@ -32,6 +32,8 @@ abstract class AngelicSketch {
     def skdprint(x : => String) { assert(false); }
     def skdprint_loc(x : => String) { assert(false); }
 
+    def tprint(objs : Tuple2[String, _]*) = assert(false)
+
     class Range[T](values : Seq[T]) extends StaticAnnotation
     class ArrayLen[T](len : Int) extends StaticAnnotation
     class generator extends StaticAnnotation

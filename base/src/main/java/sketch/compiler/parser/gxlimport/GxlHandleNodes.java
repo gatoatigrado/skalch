@@ -11,6 +11,7 @@ import sketch.compiler.ast.core.exprs.*;
 import sketch.compiler.ast.core.stmts.*;
 import sketch.compiler.ast.core.typs.*;
 import sketch.compiler.ast.scala.exprs.*;
+import sketch.util.datastructures.TprintTuple;
 
 /**
  * Handle simple node types. THIS IS A GENERATED FILE, modify the .jinja2 version.
@@ -370,6 +371,31 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public ExprTprint getExprTprintFromSketchTprintCall(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        Vector<TprintTuple> arg1_vec = new Vector<TprintTuple>();
+        for (GXLNode arg1_tmp1 : followEdgeOL("PrintCallArgList", node)) {
+            arg1_vec.add(getTprintTuple(arg1_tmp1)); // gen marker 4
+        }
+        List<TprintTuple> arg1 = unmodifiableList(arg1_vec);
+
+        return new ExprTprint(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public TprintTuple getTprintTupleFromSketchPrintTuple(final GXLNode node) {
+        GXLNode arg0_tmp1 = followEdge("SketchPrintTupleName", node); // gen marker 3
+        String arg0 = getStringAttribute("value", arg0_tmp1); // gen marker 7
+
+        Expression arg1 = getExpression(followEdge("SketchPrintTupleValue", node)); // gen marker 2
+
+        return new TprintTuple(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public TypePrimitive getTypePrimitiveFromTypeBoolean(final GXLNode node) {
         return TypePrimitive.bittype;
     }
@@ -653,12 +679,12 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
-    public TypeStruct getTypeStruct(final GXLNode node) {
+    public ExprTprint getExprTprint(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("ClassDef")) {
-            return getTypeStructFromClassDef(node);
+        if (typ.equals("SketchTprintCall")) {
+            return getExprTprintFromSketchTprintCall(node);
         } else {
-            throw new RuntimeException("no way to return a 'TypeStruct' from a node of type " + typ);
+            throw new RuntimeException("no way to return a 'ExprTprint' from a node of type " + typ);
         }
     }
 
@@ -680,6 +706,24 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
+    public TprintTuple getTprintTuple(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SketchPrintTuple")) {
+            return getTprintTupleFromSketchPrintTuple(node);
+        } else {
+            throw new RuntimeException("no way to return a 'TprintTuple' from a node of type " + typ);
+        }
+    }
+
+    public TypeStruct getTypeStruct(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("ClassDef")) {
+            return getTypeStructFromClassDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'TypeStruct' from a node of type " + typ);
+        }
+    }
+
     public Expression getExpression(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("UnitConstant")) {
@@ -688,6 +732,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprConstIntFromIntConstant(node);
         } else if (typ.equals("BooleanConstant")) {
             return getExprConstBooleanFromBooleanConstant(node);
+        } else if (typ.equals("SketchTprintCall")) {
+            return getExprTprintFromSketchTprintCall(node);
         } else if (typ.equals("SketchArrayAccess")) {
             return getExprArrayRangeFromSketchArrayAccess(node);
         } else if (typ.equals("NewArray")) {

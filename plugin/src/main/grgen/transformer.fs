@@ -98,7 +98,8 @@ let no_oo_meta = [ ConvertThis ]
 (* add ssa to below *)
 let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements;
-    CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec ]
+    CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec;
+    LowerTprint ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
 let library_meta = [ EmitRequiredImports ]
 let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
@@ -124,6 +125,7 @@ let zone_decorated =
 let zone_nice_lists =
     NiceLists,
     [
+        LowerTprint
         SimplifyConstants
         RaiseSpecialGotos
         ProcessAnnotations

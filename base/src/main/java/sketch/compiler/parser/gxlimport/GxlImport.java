@@ -77,6 +77,7 @@ public class GxlImport {
             if (this.args.gxlOpts.dumpInputParse != null) {
                 prog.debugDump(new File(this.args.gxlOpts.dumpInputParse));
             }
+            prog.debugDump("input parse");
             (new SequentialSketchGxlMain(this.args, prog)).run();
         }
     }

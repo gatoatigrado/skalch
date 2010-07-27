@@ -69,6 +69,12 @@ let SimplifyConstants = {
         description = "Simplify any constants Scala hasn't"
         stage = rewriteStage SimplifyConstantsRules }
 
+let LowerTprint = {
+    stageDefault with
+        name = "LowerTprint"
+        description = "Desugar tprint() calls (test printout commands)"
+        stage = rewriteStage LowerTprintRules }
+
 let RaiseSpecialGotos = {
     stageDefault with
         name = "RaiseSpecialGotos"

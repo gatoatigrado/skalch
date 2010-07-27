@@ -25,9 +25,9 @@ show-env-vars:
 	@echo "\$$libgrg from $(origin libgrg), value '$(libgrg)'"
 	@echo "\$$stagetf_sources from $(origin stagetf_sources), value '$(stagetf_sources)'"
 
-tests: gen stagetf-compile $(grgenfiles)/runtests.exe
+test: gen stagetf-compile $(grgenfiles)/runtests.exe
 	fsc -shutdown || true
-	source env; mono $(grgenfiles)/runtests.exe "$$angelicsimple"/Test0003_WhileLoops.scala "$$angelicsimple"/Test0004_Classes.scala > test-output.txt 2>&1 || { grep -E "\\[ERROR\\]" test-output.txt; false; }
+	source env; mono $(grgenfiles)/runtests.exe "$$angelicsimple"/Test0003_WhileLoops.scala "$$angelicsimple"/Test0004_Classes.scala "$$angelicsimple"/Test0005_tprint.scala > test-output.txt 2>&1 || { grep -E "\\[ERROR\\]" test-output.txt; false; }
 
 
 

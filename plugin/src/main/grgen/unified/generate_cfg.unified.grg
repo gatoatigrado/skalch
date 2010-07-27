@@ -126,28 +126,15 @@ rule {{ set_next_fcn("cfgSetWhileLoopNext") }} {
     }
 }
 
-rule {{ set_next_fcn("cfgSetAssignNext") }} {
-    x:Assign -:AssignLhs-> lhs:ScAstNode;
-    x -:AssignRhs-> rhs:ScAstNode;
+rule {{ set_next_fcn("cfgSet2SubtreeNext") }} {
+    x:ScAstNode -:Cfg2SubtreeSecond-> second:ScAstNode;
+    x -:Cfg2SubtreeFirst-> first:ScAstNode;
     x -:CfgPrologue-> prologue:CfgAbstractNode;
     x -:CfgEpilogue-> epilogue:CfgAbstractNode;
 
     negative { prologue -:CfgNext-> .; }
     modify {
-        prologue -:CfgNext-> rhs -:CfgNext-> lhs -:CfgNext-> epilogue;
-    }
-}
-
-rule {{ set_next_fcn("cfgSetArrayAccessNext") }} {
-    x:SketchArrayAccess
-        -:SketchArrayAccessArray-> arr:ScAstNode;
-    x -:SketchArrayAccessIndex-> arridx:ScAstNode;
-    x -:CfgPrologue-> prologue:CfgAbstractNode;
-    x -:CfgEpilogue-> epilogue:CfgAbstractNode;
-
-    negative { prologue -:CfgNext-> .; }
-    modify {
-        prologue -:CfgNext-> arridx -:CfgNext-> arr -:CfgNext-> epilogue;
+        prologue -:CfgNext-> first -:CfgNext-> second -:CfgNext-> epilogue;
     }
 }
 

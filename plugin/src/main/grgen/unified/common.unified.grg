@@ -1,0 +1,110 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// DESCRIPTION OF FILE HERE
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+rule assertFalse(var msg : string) {
+    modify { emit("[GRG ASSERT FAILURE] " + msg + "\n"); }
+}
+
+rule assertFalseNoNewline(var msg : string) {
+    modify { emit("[GRG ASSERT FAILURE] " + msg); }
+}
+
+/// use in xgrs rules
+rule print(var x : string) { modify { emit(x); } }
+
+rule printn(x : Node) { modify { emit(x); } }
+
+rule deleteNode(x : Node) { modify { delete(x); } }
+
+/// grab the parent of a node
+pattern TreeReplacer(y:ScAstNode) replace (next:Node) {
+    x:Node -e:Replaceable-> y;
+
+    replace {
+        y; x -:typeof(e)-> next;
+    }
+}
+
+/// statements that are within the body of e.g. a function or if stmt
+pattern BodyStatement(x:ScAstNode) {
+    blk:Block -:BlockStmtList-> :List -:ListElt->
+        :ListNode -:ListValue-> x;
+}
+
+pattern FcnBodyStatement(fcn:FcnDef, x:ScAstNode) {
+     fcn -:FcnBody-> blk:Block -:BlockStmtList-> :List -:ListElt->
+        :ListNode -:ListValue-> x;
+}
+
+pattern IsLastNode(x:ScAstNode) {
+    lstnode:ListNode -:ListValue-> x;
+    lstnode -:ListNext-> :ListLastNode;
+}
+
+pattern IsSubtree(x:Node, y:Node) {
+    alternative {
+        DirectChild { x -:Subtree-> y; }
+        ListChild { x -:ListElt-> :ListNode -:ListValue-> y; }
+        RecursiveChild { x -:Subtree-> z:Node; :IsSubtree(z, y); }
+        RecursiveListChild { x -:ListElt-> :ListNode -:ListValue-> z:Node; :IsSubtree(z, y); }
+    }
+}
+
+rule replaceSubtree(x:Node, y:Node) {
+    parent:Node -e:Replaceable-> x;
+    modify { delete(e); parent -:typeof(e)-> y; }
+}
+
+pattern ObjectCall(x:FcnCall, var y : string, z:ScAstNode) {
+    independent {
+        x -:FcnCallSymbol-> sym:Symbol;
+        if { sym.symbolName == y; }
+        x -:FcnArgList-> {{ macros.finiteList([":QualifiedClassRef", "z"]) }}
+    }
+}
+
+pattern ObjectCall_FN_NTYP(x:ScAstNode, var y : string, z:ScAstNode) {
+    if { typeof(x) >= FcnCall; }
+    independent {
+        x -:FcnCallSymbol-> sym:Symbol;
+        if { sym.fullSymbolName == y; }
+        x -:FcnArgList-> {{ macros.finiteList([":QualifiedClassRef", "z"]) }}
+    }
+}
+
+{#//--------------------------------------------------
+// pattern ObjectCall2(x:FcnCall, var y : string, z:ScAstNode, z2:ScAstNode) {
+//     independent {
+//         x -:FcnCallSymbol-> sym:Symbol;
+//         if { sym.symbolName == y; }
+//         x -:FcnArgList-> {{ macros.finiteList([":QualifiedClassRef", "z"]) }}
+//     }
+// }
+//-------------------------------------------------- 
+#}
+
+pattern CallThisMethod(x:FcnCall, var y : string, z:ScAstNode) {
+    independent {
+        x -:FcnCallSymbol-> sym:Symbol;
+        if { sym.symbolName == y; }
+        x -:FcnArgList-> {{ macros.finiteList([":ThisVarRef", "z"]) }}
+    }
+}
+
+{% endblock %}

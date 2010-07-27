@@ -51,8 +51,15 @@ node class HoleCall extends SketchConstructCall;
 edge class PackageDefGlobal extends Subtree;
 
 node class SketchArrayAccess extends ScAstNode;
-edge class SketchArrayAccessArray extends Subtree;
-edge class SketchArrayAccessIndex extends Subtree;
+edge class SketchArrayAccessArray extends Subtree, Cfg2SubtreeSecond;
+edge class SketchArrayAccessIndex extends Subtree, Cfg2SubtreeFirst;
+
+node class SketchPrintTuple extends ScAstNode;
+edge class SketchPrintTupleName extends Subtree, Cfg2SubtreeFirst;
+edge class SketchPrintTupleValue extends Subtree, Cfg2SubtreeSecond;
+
+node class SketchTprintCall extends FcnCall;
+edge class PrintCallArgList extends FcnArgList;
 
 
 
@@ -107,6 +114,8 @@ edge class ListTmpLast;
 
 abstract edge class TmpEdge; // for doing calculations, erase them w/ a single rewrite
 abstract edge class CfgSimpleInner; // prologue connected to child's prolog, same with epil.
+abstract edge class Cfg2SubtreeFirst;
+abstract edge class Cfg2SubtreeSecond;
 
 edge class ArrayLengthExpr extends Subtree;
 
@@ -331,6 +340,12 @@ edge class ValDefSSADefine;
 
 edge class SSAParent connect Symbol[0:1] --> Symbol[*] { idx : int; }
 edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 // add unified here
 
 
@@ -555,8 +570,8 @@ edge class MatchCaseNext extends OldChainNext;
 edge class AnnotationArgsChain extends Subtree;
 edge class AnnotationArgsLast;
 edge class ArrValueChain extends Subtree;
-edge class AssignLhs extends Subtree;
-edge class AssignRhs extends Subtree, ValDefOrAssignRhs;
+edge class AssignLhs extends Subtree, Cfg2SubtreeSecond;
+edge class AssignRhs extends Subtree, ValDefOrAssignRhs, Cfg2SubtreeFirst;
 edge class BlockExpr extends Subtree;
 edge class BlockStmtLast;
 edge class CaseBody extends Subtree;
@@ -610,7 +625,7 @@ edge class ThisSymbol extends ScTermSymbol;
 edge class TypeTreeSymbol extends ScTermSymbol;
 edge class ValDefSymbol extends ScTermSymbol;
 edge class VarRefSymbol extends ScTermSymbol;
-edge class ApplyImplicitViewSymbol extends ScTermSymbol;
+edge class ApplyImplicitViewSymbol extends FcnCallSymbol;
 edge class ApplyToImplicitArgsSymbol extends ScTermSymbol;
 edge class ClassRefTermSymbol extends ScTermSymbol;
 edge class SkTemplateSymbol extends ScTermSymbol;

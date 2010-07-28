@@ -79,4 +79,9 @@ rule setOtherValue(tuple:SketchPrintTuple, x:ScAstNode) {
     modify { tuple -:SketchPrintTupleValue-> x; }
 }
 
+test existsTprintWithoutTuple {
+    :SketchTprintCall -:PrintCallArgList-> :List
+        -:ListElt-> . -:ListValue-> y:Node \ SketchPrintTuple;
+}
+
 {% endblock %}

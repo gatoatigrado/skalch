@@ -29,7 +29,7 @@ let CleanupNonuniqueSymbolsRules = [
 
 let DecorateNodesRules = [
     Xgrs "[setRootSymbol]"
-    ValidateXgrs "existsRootSymbol && ! multipleRootSymbols"
+    ValidateXgrs ("existsRootSymbol && ! multipleRootSymbols", "ASG has multiple root symbols")
     Xgrs "replaceAngelicSketchSymbol*"
     Xgrs "runAllSymbolRetypes"
     Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]"
@@ -38,12 +38,13 @@ let DecorateNodesRules = [
     (* see note in grg file; ValidateXgrs "! existSymbolsWithSameUniqueName" *)
     Xgrs "deleteBridgeFunctions*"
     Xgrs "deleteDangling*"
-    ValidateNeg "existsBridgeFcnSymbol" ] @ CleanupNonuniqueSymbolsRules
+    ValidateNeg ("existsBridgeFcnSymbol", "failed to cleanup Java API bridge functions") ] @ CleanupNonuniqueSymbolsRules
 
-let ConvertThisRules = [Xgrs "setEnclosingFunctionInitial+";
-    Xgrs "[transformFcnWrapper]";
-    ValidateXgrs "testNoThisNodes";
-    Xgrs "removeEnclosingLinks* & deleteDangling*";
+let ConvertThisRules = [
+    Xgrs "setEnclosingFunctionInitial+"
+    Xgrs "[transformFcnWrapper]"
+    ValidateXgrs ("testNoThisNodes", "failed to convert all $this variables to parameters")
+    Xgrs "removeEnclosingLinks* & deleteDangling*"
     Xgrs "setSketchMainFcn*"]
 
 let RedirectAccessorsToFieldsRules = [
@@ -63,11 +64,11 @@ let CleanSketchConstructsRules = [
 
 let BlockifyFcndefsRules = [
     Xgrs "removeEmptyFcnTarget* & removeFcnTarget*"
-    ValidateXgrs "! existsFcnTarget"
+    ValidateXgrs ("! existsFcnTarget", "failed to rewrite function targets (x.f()) into arguments (f(x))")
     Xgrs "(deleteDangling+ | removeNopTypeCast)*"
     Xgrs "createFunctionBlocks* & retypeBlockSKBlock*"
     Xgrs "deleteFcnBlockEmptyTrees*"
-    ValidateXgrs "! existsFcnNonBlockBody" ]
+    ValidateNeg ("existsFcnNonBlockBody", "failed to convert all function bodies into blocks") ]
 
 let NiceListsRules = [Xgrs "listBlockInit*";
     Xgrs "listClassDefsInit*";
@@ -83,18 +84,19 @@ let SimplifyConstantsRules = [
 
 let LowerTprintRules = [
     Xgrs "(convertTprintArrayToArgList+ | deleteDangling+)+"
+    ValidateNeg ("existsTprintWithoutTuple", "failed to convert a tprint argument (usage: tprint(\"const-str\" -> value))")
     ]
 
 let RaiseSpecialGotosRules = [
     Xgrs "raiseWhileLoopGotos*"
     Xgrs "deleteDangling*"
-    ValidateXgrs "! existsLabelDef" ]
+    ValidateNeg ("existsLabelDef", "Could not recognize control flow structure (unknown goto)!") ]
 
 let CleanTypedTmpBlockRules = [
-    Xgrs "deleteDangling*";
-    Xgrs "cleanupDummyVarBlocks*";
-    Xgrs "deleteAnnotationLink";
-    ValidateXgrs "! existsDanglingAnnotation";
+    Xgrs "deleteDangling*"
+    Xgrs "cleanupDummyVarBlocks*"
+    Xgrs "deleteAnnotationLink"
+    ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")
     Xgrs "deleteDangling*"]
 
 let ProcessAnnotationsRules1 =
@@ -102,22 +104,22 @@ let ProcessAnnotationsRules1 =
     [
         Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*"
         Xgrs "deleteDangling*"
-        ValidateXgrs "! existsDanglingAnnotation"
+        ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")
         Xgrs "[requestIntHoleTemplate]" ]
 
 let PostImportUnionRules = [
     Xgrs "instantiateTemplateSymbols*"
     Xgrs "unionRootSymbol*"
     Xgrs "unionSubSymbol*"
-    ValidateXgrs "! twoFcnsForSameSymbol" ]
+    ValidateNeg ("twoFcnsForSameSymbol", "Failed to merge template/library -- two functions defined for the same symbol") ]
 
 let ProcessAnnotationsRules2 =
     PostImportUnionRules @
     [ Xgrs "attachAnnotationsToTemplates*";
     Xgrs "setTemplateParameter*";
     Xgrs "createFcnCallTemplates*";
-    ValidateXgrs "! existsUnreplacedCall";
-    ValidateXgrs "! existsDanglingTemplateFcn" ]
+    ValidateNeg ("existsUnreplacedCall", "A requested template was not imported or correctly connected");
+    ValidateNeg ("existsDanglingTemplateFcn", "An template imported was not connected") ]
 
 let EmitRequiredImportsRules = [
     Xgrs "[setEnclosingFunctionInitial]"
@@ -151,10 +153,10 @@ let NewInitializerFcnStubsRules = [
 let CfgInitRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
-    ValidateNeg "existsCfgNextFromAst"
-    ValidateNeg "existsCfgNextToAst"
+    ValidateNeg ("existsCfgNextFromAst", "Failed to convert CFG->AST edges to CFG->CFG edges")
+    ValidateNeg ("existsCfgNextToAst", "Failed to convert CFG->AST edges to CFG->CFG edges")
     Xgrs "deleteCfgNodesOnClassFields*"
-    ValidateXgrs "! cfgExistsIncomplete" ]
+    ValidateNeg ("cfgExistsIncomplete", "Failed to create a complete CFG; perhaps you added an AST node without adding CFG rules?") ]
 
 let SSAFormRules =
     CfgInitRules @ [
@@ -163,7 +165,7 @@ let SSAFormRules =
         Xgrs "createNewAssignSymbols*"
         Xgrs "uniquelyNameSymbols*"
         Xgrs "[setUniqueSSANames]"
-        ValidateConnect
+        (* ValidateConnect *)
 
         Xgrs "createHLPhiFcns*"
         Xgrs "addAdditionalSymbolToPhiFcn*"
@@ -172,7 +174,7 @@ let SSAFormRules =
         Xgrs "convertValDefsToInits_0*"
         Xgrs "convertFirstVDToSSAAssign*"
         Xgrs "convertValDefsToInits_1*"
-        ValidateNeg "existsSSAParentNotOkToDelete"
+        ValidateNeg ("existsSSAParentNotOkToDelete", "Failed to create and connect all SSA instance nodes (e.g. a_0, a_1, etc.)")
         Xgrs "deleteCfgNode*"
         Xgrs "deleteDangling*" ]
         (* todo convertFirstVDToSSAAssign *)
@@ -211,7 +213,7 @@ let CstyleStmtsRules =
         Xgrs "createTemporaryAssign*"
         Xgrs "attachNodesToBlockList*"
         Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
-        ValidateXgrs "! existsBlockify"]
+        ValidateXgrs ("! existsBlockify", "Failed to convert all statements to C-style statements") ]
 
 let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
     Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]

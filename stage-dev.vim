@@ -127,6 +127,7 @@ set expandtab
 set fileencodings=ucs-bom,utf-8,default,latin1
 set helplang=en
 set nomodeline
+set operatorfunc=<SNR>27_opfunc
 set ruler
 set shiftwidth=4
 set showmatch
@@ -141,21 +142,22 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +1 base/src/test/scala/angelic/simple/SugaredTest.scala
+badd +10 base/src/test/scala/angelic/simple/SugaredTest.scala
 badd +83 plugin/src/main/grgen/unified/common.unified.grg
-badd +35 plugin/src/main/grgen/unified/lower_tprint.unified.grg
+badd +82 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +6 plugin/src/main/grgen/build_templates.py
 badd +62 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +60 plugin/src/main/grgen/rewrite_rules.fs
+badd +41 plugin/src/main/grgen/rewrite_rules.fs
 badd +190 base/src/codegen/gxltosketch/gxltosketch.py
 badd +13 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
-badd +68 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
-badd +27 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
-badd +1 base/src/test/scala/angelic/simple/Test0004_Classes.scala
+badd +59 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
+badd +23 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
 badd +3 base/src/test/scala/angelic/simple/Test0003_WhileLoops.scala
-badd +1 base/src/test/scala/angelic/simple/Test0005_tprint.scala
+badd +8 base/src/test/scala/angelic/simple/Test0005_tprint.scala
+badd +39 base/src/main/scala/skalch/AngelicSketch.scala
+badd +86 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
 silent! argdel *
-edit base/src/test/scala/angelic/simple/Test0005_tprint.scala
+edit base/src/test/scala/angelic/simple/SugaredTest.scala
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -255,12 +257,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 6 - ((5 * winheight(0) + 54) / 108)
+let s:l = 10 - ((9 * winheight(0) + 54) / 108)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-6
-normal! 015l
+10
+normal! 036l
 lcd ~/sandbox/skalch
 tabnext 1
 if exists('s:wipebuf')

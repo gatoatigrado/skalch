@@ -35,6 +35,6 @@ abstract class AngelicSketch {
     def tprint(objs : Tuple2[String, _]*) = assert(false)
 
     class Range[T](values : Seq[T]) extends StaticAnnotation
-    class ArrayLen[T](len : Int) extends StaticAnnotation
+    class ArrayLen(len : Int) extends StaticAnnotation
     class generator extends StaticAnnotation
 }

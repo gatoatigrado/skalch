@@ -43,7 +43,7 @@ rule cleanupDummyVarBlocks {
 }
 
 rule deleteAnnotationLink {
-    :Symbol -e:Edge-> :Annotation \ IgnoreClassAnnotation;
+    :Symbol -e:Edge-> :RangeAnnotation;
     modify { delete(e); }
 }
 

@@ -65,7 +65,8 @@ edge class PrintCallArgList extends FcnArgList;
 
 // === Symbol type annotations ===
 abstract node class SketchAnnotation extends Annotation;
-node class StaticSketchAnnotation extends SketchAnnotation;
+node class RangeAnnotation extends SketchAnnotation;
+node class ArrayLenAnnotation extends SketchAnnotation;
 node class IgnoreClassAnnotation extends Annotation;
 node class OuterSymbol extends Symbol; // $outer var in inner classes
 

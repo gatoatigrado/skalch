@@ -122,12 +122,30 @@ rule setScalaSubtypes {
     modify { rt1:ScalaSymbol<s1>; }
 }
 
-rule setStaticAnnotationTypes {
-    annot:Annotation -symlink:AnnotationSymbol-> annot_sym:Symbol;
-    if { annot_sym.fullSymbolName == "skalch.AngelicSketch$Range"; }
+pattern NamedStaticAnnotation(annot : Annotation, var fullSymbolName : string) {
+    annot -symlink:AnnotationSymbol-> annot_sym:Symbol;
+    if { annot_sym.fullSymbolName == fullSymbolName; }
+
+    modify { delete(symlink); }
+}
+
+rule setRangeAnnotations {
+    annot:Annotation;
+    r:NamedStaticAnnotation(annot, "skalch.AngelicSketch$Range");
+
     modify {
-        delete(symlink);
-        next_sym:StaticSketchAnnotation<annot>;
+        r();
+        next:RangeAnnotation<annot>;
+    }
+}
+
+rule setArrayLenAnnotations {
+    annot:Annotation;
+    r:NamedStaticAnnotation(annot, "skalch.AngelicSketch$ArrayLen");
+
+    modify {
+        r();
+        next:ArrayLenAnnotation<annot>;
     }
 }
 

@@ -16,3 +16,4 @@ plugin/src/main/grgen/dependencies.txt
 *.lyx.emergency
 *.exe
 test-output.txt
+*.swp

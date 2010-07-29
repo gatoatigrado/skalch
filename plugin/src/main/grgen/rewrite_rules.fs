@@ -32,7 +32,7 @@ let DecorateNodesRules = [
     ValidateXgrs ("existsRootSymbol && ! multipleRootSymbols", "ASG has multiple root symbols")
     Xgrs "replaceAngelicSketchSymbol*"
     Xgrs "runAllSymbolRetypes"
-    Xgrs "setStaticAnnotationTypes* & [setOuterSymbol]"
+    Xgrs "setRangeAnnotations* & setArrayLenAnnotations* & [setOuterSymbol]"
     Xgrs "setScalaRoot & setScalaSubtypes*"
     Xgrs "setSketchClasses*"
     (* see note in grg file; ValidateXgrs "! existSymbolsWithSameUniqueName" *)
@@ -59,8 +59,10 @@ let CleanSketchConstructsRules = [
     Xgrs "(valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*"
     Xgrs "replaceConstructCalls*"
     Xgrs "unboxConstructCalls*"
+    Xgrs "removeInstanceOf*"
     Xgrs "simplifyClassConstruction*"
     Xgrs "deleteDangling*"]
+
 
 let BlockifyFcndefsRules = [
     Xgrs "removeEmptyFcnTarget* & removeFcnTarget*"

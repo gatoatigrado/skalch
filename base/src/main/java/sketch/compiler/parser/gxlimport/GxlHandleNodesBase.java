@@ -147,9 +147,13 @@ public class GxlHandleNodesBase {
     @SuppressWarnings("deprecation")
     public Function createFunction(final FEContext arg0, final String arg1,
             final Type arg2, final List<Parameter> arg3, final String arg4,
-            final Statement arg5)
+            final Statement arg5, final boolean isGenerator)
     {
-        return Function.newStatic(arg0, arg1, arg2, arg3, arg4, arg5);
+        if (isGenerator) {
+            return Function.newHelper(arg0, arg1, arg2, arg3, arg4, arg5);
+        } else {
+            return Function.newStatic(arg0, arg1, arg2, arg3, arg4, arg5);
+        }
     }
 
     protected ExprNullPtr createExprNullPtr(final FEContext arg0) {

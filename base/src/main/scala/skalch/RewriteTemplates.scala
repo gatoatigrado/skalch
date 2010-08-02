@@ -13,10 +13,22 @@ class RewriteTemplates extends AngelicSketch {
         val from_ : Int = -32
         val to_ : Int = 31
 
-        def fcn = {
+        @generator def fcn = {
             val v = (?? : Int) + from_
             assert (v <= to_)
             v
         }
     }
+
+    /* object StaticIntArrayRangeHole extends Template("int range hole") {
+        val from_ : Int = -32
+        val to_ : Int = 31
+        val len_ : Int = 0
+
+        def fcn = {
+            val v = (?? : Int) + from_
+            assert (v <= to_)
+            v
+        }
+    } */
 }

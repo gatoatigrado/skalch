@@ -158,4 +158,25 @@ rule addSkExprStmts {
     }
 }
 
+rule setGeneratorFcn {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol
+        -e:SymbolAnnotation-> n:GeneratorAnnotation;
+
+    modify {
+        delete(e, n);
+        x -:FcnDefIsGenerator-> y:BooleanConstant;
+        eval { y.value = true; }
+    }
+}
+
+rule setNonGeneratorFcn {
+    x:FcnDef;
+
+    negative { x -:FcnDefIsGenerator-> .; }
+    modify {
+        x -:FcnDefIsGenerator-> y:BooleanConstant;
+        eval { y.value = false; }
+    }
+}
+
 {% endblock %}

@@ -100,6 +100,7 @@ rule {{ fcnName }} {
    "scala.Float.unbox", "scala.Double.unbox"], "ScalaUnboxSymbol") }}
 {{ retype_syms(["scala.Unit"], "ScalaUnitTypeSymbol") }}
 {{ retype_syms(["scala.Array"], "ScalaArraySymbol") }}
+{{ retype_syms(["scala.Int"], "ScalaIntSymbol") }}
 
 rule runAllSymbolRetypes {
     modify {
@@ -146,6 +147,18 @@ rule setArrayLenAnnotations {
     modify {
         r();
         next:ArrayLenAnnotation<annot>;
+    }
+}
+
+
+rule setGeneratorAnnotations {
+    annot:Annotation -e:AnnotationArgsChain-> .;
+    r:NamedStaticAnnotation(annot, "skalch.AngelicSketch$generator");
+
+    modify {
+        r();
+        delete(e);
+        next:GeneratorAnnotation<annot>;
     }
 }
 

@@ -35,11 +35,28 @@ rule cleanupDummyVarBlocks {
     y -:ValDefSymbol-> sym:Symbol;
     z -:VarRefSymbol-> sym;
     y -:ValDefRhs-> w:ScAstNode;
-    optional {
+    iterated {
         sym -:SymbolAnnotation-> annot:Annotation;
         modify { w -:TypeAnnotation-> annot; }
     }
     modify { delete(e); parent -:typeof(e)-> w; }
+}
+
+/// when we assign directly to a variable, e.g.
+/// a = ??, this gets tf'd to a = { v = ??; v }
+/// when this is rewritten again, we may get 2
+/// annotations for v.
+/// Unfortunately, these are different nodes output by the Scala
+/// compiler.
+rule deleteDuplicateAnnotations {
+    x:ValDef -:ValDefRhs-> w:ScAstNode;
+    x -:ValDefSymbol-> sym:Symbol;
+
+    sym -:SymbolAnnotation-> annot:Annotation;
+    w -:TypeAnnotation-> annot2:Annotation;
+    if { typeof(annot) == typeof(annot2); }
+
+    modify { delete(annot); }
 }
 
 rule deleteAnnotationLink {
@@ -92,11 +109,38 @@ rule decrementUntilValues {
     }
 }
 
+pattern IntRangeHole(constr:HoleCall, y:PrimitiveIntRange) {
+    constr -:TypeAnnotation-> :RangeAnnotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["y"]) }}
+    constr -:ScTypeSymbol-> :ScalaIntSymbol;
+}
+
+pattern StaticIntArrayRangeHole(constr:HoleCall, y:PrimitiveIntRange, z:IntConstant) {
+    constr -:TypeAnnotation-> :RangeAnnotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["y"]) }}
+    constr -:TypeAnnotation-> :ArrayLenAnnotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["z"], lstname="lst2") }}
+    constr -:ScTypeSymbol-> :ScalaArraySymbol;
+}
+
 rule requestIntHoleTemplate {
-    constr:HoleCall -:TypeAnnotation-> x:Annotation
-        -:AnnotationArgsList-> {{ macros.finiteList(["y:PrimitiveIntRange"]) }}
+    constr:HoleCall;
+    y:PrimitiveIntRange;
+    :IntRangeHole(constr, y);
+
     modify {
         emit("Request template IntRangeHole\n");
+    }
+}
+
+rule requestStaticIntArrayHoleTemplate {
+    constr:HoleCall;
+    y:PrimitiveIntRange;
+    z:IntConstant;
+    :StaticIntArrayRangeHole(constr, y, z);
+
+    modify {
+        emit("Request template StaticIntArrayRangeHole\n");
     }
 }
 

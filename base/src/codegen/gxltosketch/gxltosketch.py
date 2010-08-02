@@ -35,8 +35,8 @@ ClassDef(ClassDefSymbol:PrintSymName, OL[ClassDefFieldsList]:PrintSymName,
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
     -> new TypeStruct(<ctx>, String, List[String], List[Type])
 
-FcnDef(FcnDefSymbol:PrintSymName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody)
-    -> Function(<ctx>, String, Type, List[Parameter], "getImplements(node)", Statement)
+FcnDef(FcnDefSymbol:PrintSymName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], FcnBody, FcnDefIsGenerator.value)
+    -> Function(<ctx>, String, Type, List[Parameter], "getImplements(node)", Statement, boolean)
 """
 
 

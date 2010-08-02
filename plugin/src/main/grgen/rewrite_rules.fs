@@ -32,7 +32,10 @@ let DecorateNodesRules = [
     ValidateXgrs ("existsRootSymbol && ! multipleRootSymbols", "ASG has multiple root symbols")
     Xgrs "replaceAngelicSketchSymbol*"
     Xgrs "runAllSymbolRetypes"
-    Xgrs "setRangeAnnotations* & setArrayLenAnnotations* & [setOuterSymbol]"
+    Xgrs "setRangeAnnotations*"
+    Xgrs "setArrayLenAnnotations*"
+    Xgrs "setGeneratorAnnotations*"
+    Xgrs "[setOuterSymbol]"
     Xgrs "setScalaRoot & setScalaSubtypes*"
     Xgrs "setSketchClasses*"
     (* see note in grg file; ValidateXgrs "! existSymbolsWithSameUniqueName" *)
@@ -97,9 +100,12 @@ let RaiseSpecialGotosRules = [
 let CleanTypedTmpBlockRules = [
     Xgrs "deleteDangling*"
     Xgrs "cleanupDummyVarBlocks*"
+    Xgrs "deleteDuplicateAnnotations*"
     Xgrs "deleteAnnotationLink"
     ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")
     Xgrs "deleteDangling*"]
+
+
 
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
@@ -107,7 +113,8 @@ let ProcessAnnotationsRules1 =
         Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*"
         Xgrs "deleteDangling*"
         ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")
-        Xgrs "[requestIntHoleTemplate]" ]
+        (* NOTE -- only the last command is scanned! Don't add rules after this one *)
+        Xgrs "[requestIntHoleTemplate] && [requestStaticIntArrayHoleTemplate]" ]
 
 let PostImportUnionRules = [
     Xgrs "instantiateTemplateSymbols*"
@@ -242,6 +249,7 @@ let SketchFinalMinorCleanupRules = [
     Xgrs "setValDefBaseType*"
     Xgrs "setVarRefBaseType*"
     Xgrs "setFcnDefBaseType*"
+    Xgrs "[setGeneratorFcn] & [setNonGeneratorFcn]"
     Xgrs "addSkExprStmts*" ]
 
 let CreateTemplatesRules = [
@@ -249,3 +257,4 @@ let CreateTemplatesRules = [
     Xgrs "convertFieldsToTmplParams*"
     Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*"
     Xgrs "[printAndRetypeTemplates]" ] @ CleanTypedTmpBlockRules
+

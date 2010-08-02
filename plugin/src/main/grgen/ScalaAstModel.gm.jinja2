@@ -61,12 +61,15 @@ edge class SketchPrintTupleValue extends Subtree, Cfg2SubtreeSecond;
 node class SketchTprintCall extends FcnCall;
 edge class PrintCallArgList extends FcnArgList;
 
+edge class FcnDefIsGenerator;
+
 
 
 // === Symbol type annotations ===
 abstract node class SketchAnnotation extends Annotation;
 node class RangeAnnotation extends SketchAnnotation;
 node class ArrayLenAnnotation extends SketchAnnotation;
+node class GeneratorAnnotation extends SketchAnnotation;
 node class IgnoreClassAnnotation extends Annotation;
 node class OuterSymbol extends Symbol; // $outer var in inner classes
 
@@ -75,6 +78,7 @@ node class ScalaSymbol extends Symbol;
 node class ScalaUnboxSymbol extends ScalaSymbol;
 node class ScalaUnitTypeSymbol extends ScalaSymbol;
 node class ScalaArraySymbol extends ScalaSymbol;
+node class ScalaIntSymbol extends ScalaSymbol;
 
 node class TemplateClassSymbol extends Symbol { number : int; }
 // can be LHS target of a sketch construct assignment

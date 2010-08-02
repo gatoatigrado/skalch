@@ -109,7 +109,10 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
         Statement arg5 = getStatement(followEdge("FcnBody", node)); // gen marker 2
 
-        return createFunction(arg0, arg1, arg2, arg3, getImplements(node), arg5);
+        GXLNode arg6_tmp1 = followEdge("FcnDefIsGenerator", node); // gen marker 3
+        boolean arg6 = getBooleanAttribute("value", arg6_tmp1); // gen marker 7
+
+        return createFunction(arg0, arg1, arg2, arg3, getImplements(node), arg5, arg6);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.

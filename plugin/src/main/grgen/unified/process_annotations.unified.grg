@@ -35,10 +35,17 @@ rule cleanupDummyVarBlocks {
     y -:ValDefSymbol-> sym:Symbol;
     z -:VarRefSymbol-> sym;
     y -:ValDefRhs-> w:ScAstNode;
+
     iterated {
         sym -:SymbolAnnotation-> annot:Annotation;
         modify { w -:TypeAnnotation-> annot; }
     }
+
+    optional {
+        x -:InnerTypeSymbol-> sym2:Symbol;
+        modify { w -:InnerTypeSymbol-> sym2; }
+    }
+
     modify { delete(e); parent -:typeof(e)-> w; }
 }
 
@@ -68,6 +75,75 @@ test existsDanglingAnnotation {
     x:Annotation;
     negative { x; . --> x; }
 }
+
+
+
+//--------------------------------------------------
+// Process static array annotations
+//-------------------------------------------------- 
+
+/// NOTE -- we can type static arrays which are
+/// annotated before SSA.
+rule createAnnotArrayLengthSyms {
+    w:Node -:TypeAnnotation-> :ArrayLenAnnotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["y:IntConstant"]) }}
+    x:ScalaArraySymbol -:ClassSymbol-> x;
+    x -:TypeSymbol-> x;
+    w -:InnerTypeSymbol-> m:Symbol;
+    hom(m, x);
+
+    c:CreateFixedArraySymbol(x, m, y.value);
+
+    modify { c(); }
+}
+
+/// set ScTypeSymbol to the specialized array type
+rule setAnnotArrayTypeSymbols {
+    w:Node -e1:TypeAnnotation-> :ArrayLenAnnotation
+        -:AnnotationArgsList-> {{ macros.finiteList(["y:IntConstant"]) }}
+    x:ScalaArraySymbol -:ClassSymbol-> x;
+    x -:TypeSymbol-> x;
+    w -:InnerTypeSymbol-> inner:Symbol;
+    hom(inner, x);
+    z:FixedArraySymbol;
+    :GetFixedArraySymbol(z, inner, y.value);
+
+    alternative {
+        A {
+            w -e:ScTypeSymbol-> x;
+            modify {
+                delete(e);
+                w -:typeof(e)-> z;
+            }
+        }
+        B {
+            modify { w -:TmpArrayTypeSymbol-> z; }
+        }
+    }
+    modify { delete(e1); }
+}
+
+/// these can be deleted, since they've already been used
+rule deleteDanglingArrayLenAnnotations {
+    x:ArrayLenAnnotation;
+    negative { x; . --> x; }
+    modify { delete(x); }
+}
+
+rule deleteStaticArrayConstructInfo {
+    x:SketchConstructCall -:ScTypeSymbol-> :FixedArraySymbol;
+    x -:FcnArgChain-> y:ScAstNode;
+    x -:FcnArgLast-> z:ScAstNode;
+    hom(y, z);
+
+    modify { delete(y, z); }
+}
+
+
+
+//--------------------------------------------------
+// Process integer range annotations
+//-------------------------------------------------- 
 
 /** NOTE -- this takes time!
  * TODO -- pass hints to the compiler as to what nodes to look for first */

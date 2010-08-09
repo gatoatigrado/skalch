@@ -55,11 +55,26 @@ map Ok +
 map Om -
 map Oj *
 map Oo :
+xmap <silent> ,e <Plug>CamelCaseMotion_e
+xmap <silent> ,b <Plug>CamelCaseMotion_b
+xmap <silent> ,w <Plug>CamelCaseMotion_w
+omap <silent> ,e <Plug>CamelCaseMotion_e
+omap <silent> ,b <Plug>CamelCaseMotion_b
+omap <silent> ,w <Plug>CamelCaseMotion_w
+nmap <silent> ,e <Plug>CamelCaseMotion_e
+nmap <silent> ,b <Plug>CamelCaseMotion_b
+nmap <silent> ,w <Plug>CamelCaseMotion_w
 xmap S <Plug>VSurround
 nmap cs <Plug>Csurround
 nmap ds <Plug>Dsurround
 nmap gx <Plug>NetrwBrowseX
 xmap gS <Plug>VgSurround
+xmap <silent> i,e <Plug>CamelCaseMotion_ie
+xmap <silent> i,b <Plug>CamelCaseMotion_ib
+xmap <silent> i,w <Plug>CamelCaseMotion_iw
+omap <silent> i,e <Plug>CamelCaseMotion_ie
+omap <silent> i,b <Plug>CamelCaseMotion_ib
+omap <silent> i,w <Plug>CamelCaseMotion_iw
 xmap s <Plug>Vsurround
 nmap ySS <Plug>YSsurround
 nmap ySs <Plug>YSsurround
@@ -67,6 +82,21 @@ nmap yss <Plug>Yssurround
 nmap yS <Plug>YSurround
 nmap ys <Plug>Ysurround
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)
+vnoremap <Plug>CamelCaseMotion_ie :call camelcasemotion#InnerMotion('e',v:count1)
+vnoremap <Plug>CamelCaseMotion_ib :call camelcasemotion#InnerMotion('b',v:count1)
+vnoremap <Plug>CamelCaseMotion_iw :call camelcasemotion#InnerMotion('w',v:count1)
+onoremap <Plug>CamelCaseMotion_ie :call camelcasemotion#InnerMotion('e',v:count1)
+onoremap <Plug>CamelCaseMotion_ib :call camelcasemotion#InnerMotion('b',v:count1)
+onoremap <Plug>CamelCaseMotion_iw :call camelcasemotion#InnerMotion('w',v:count1)
+vnoremap <Plug>CamelCaseMotion_e :call camelcasemotion#Motion('e',v:count1,'v')
+vnoremap <Plug>CamelCaseMotion_b :call camelcasemotion#Motion('b',v:count1,'v')
+vnoremap <Plug>CamelCaseMotion_w :call camelcasemotion#Motion('w',v:count1,'v')
+onoremap <Plug>CamelCaseMotion_e :call camelcasemotion#Motion('e',v:count1,'o')
+onoremap <Plug>CamelCaseMotion_b :call camelcasemotion#Motion('b',v:count1,'o')
+onoremap <Plug>CamelCaseMotion_w :call camelcasemotion#Motion('w',v:count1,'o')
+nnoremap <Plug>CamelCaseMotion_e :call camelcasemotion#Motion('e',v:count1,'n')
+nnoremap <Plug>CamelCaseMotion_b :call camelcasemotion#Motion('b',v:count1,'n')
+nnoremap <Plug>CamelCaseMotion_w :call camelcasemotion#Motion('w',v:count1,'n')
 map <F1> :w | silent execute "! ./run_jinja2.py || sleep 1" | redraw!
 map <F4> dd][jdd
 map <F3> }{o{#][o#}
@@ -129,6 +159,7 @@ set backspace=indent,eol,start
 set expandtab
 set fileencodings=ucs-bom,utf-8,default,latin1
 set helplang=en
+set ignorecase
 set nomodeline
 set operatorfunc=<SNR>27_opfunc
 set ruler
@@ -145,13 +176,13 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +8 base/src/test/scala/angelic/simple/SugaredTest.scala
+badd +5 base/src/test/scala/angelic/simple/SugaredTest.scala
 badd +83 plugin/src/main/grgen/unified/common.unified.grg
 badd +82 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +6 plugin/src/main/grgen/build_templates.py
-badd +64 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +257 plugin/src/main/grgen/rewrite_rules.fs
-badd +44 base/src/codegen/gxltosketch/gxltosketch.py
+badd +125 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+badd +120 plugin/src/main/grgen/rewrite_rules.fs
+badd +150 base/src/codegen/gxltosketch/gxltosketch.py
 badd +13 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
 badd +59 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +23 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
@@ -160,17 +191,19 @@ badd +8 base/src/test/scala/angelic/simple/Test0005_tprint.scala
 badd +39 base/src/main/scala/skalch/AngelicSketch.scala
 badd +86 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
 badd +149 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
-badd +137 plugin/src/main/grgen/unified/process_annotations.unified.grg
+badd +33 plugin/src/main/grgen/unified/process_annotations.unified.grg
 badd +10 plugin/src/main/grgen/AllRules_0.grg
 badd +1 plugin/src/main/grgen/rules/simplify_sketch_constructs.grg
 badd +58 plugin/src/main/grgen/unified/macros.grg
-badd +16 base/src/main/scala/skalch/RewriteTemplates.scala
+badd +20 base/src/main/scala/skalch/RewriteTemplates.scala
 badd +1 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
-badd +63 plugin/src/main/grgen/transformer.fs
-badd +84 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
+badd +183 plugin/src/main/grgen/transformer.fs
+badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
+badd +162 plugin/src/main/grgen/unified/array_lowering.unified.grg
+badd +130 plugin/src/main/scala/skalch/plugins/ScalaGxlNodeMap.scala
 silent! argdel *
-edit ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
+edit base/src/test/scala/angelic/simple/SugaredTest.scala
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -201,8 +234,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'java'
-setlocal filetype=java
+if &filetype != ''
+setlocal filetype=
 endif
 setlocal foldcolumn=0
 setlocal foldenable
@@ -258,8 +291,8 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != 'java'
-setlocal syntax=java
+if &syntax != ''
+setlocal syntax=
 endif
 setlocal tabstop=4
 setlocal tags=
@@ -270,12 +303,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 167 - ((5 * winheight(0) + 54) / 108)
+let s:l = 13 - ((12 * winheight(0) + 54) / 108)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-167
-normal! 0
+13
+normal! 037l
 lcd ~/sandbox/skalch
 tabnext 1
 if exists('s:wipebuf')

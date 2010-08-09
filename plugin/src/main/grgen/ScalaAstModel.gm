@@ -123,6 +123,7 @@ abstract edge class Cfg2SubtreeFirst;
 abstract edge class Cfg2SubtreeSecond;
 
 edge class ArrayLengthExpr extends Subtree;
+edge class TmpArrayTypeSymbol extends ScTypeSymbol;
 
 
 

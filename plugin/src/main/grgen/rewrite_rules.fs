@@ -103,6 +103,7 @@ let CleanTypedTmpBlockRules = [
     Xgrs "deleteDuplicateAnnotations*"
     Xgrs "deleteAnnotationLink"
     ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")
+
     Xgrs "deleteDangling*"]
 
 
@@ -110,6 +111,15 @@ let CleanTypedTmpBlockRules = [
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
     [
+        (* static array length annotations *)
+        Xgrs "createAnnotArrayLengthSyms*"
+        Xgrs "setAnnotArrayTypeSymbols*"
+        Xgrs "updateAssignLhsTypes*"
+        Xgrs "updateValDefSymbolTypes*"
+        Xgrs "deleteDanglingArrayLenAnnotations*"
+        Xgrs "deleteStaticArrayConstructInfo*"
+
+        (* integer range annotations *)
         Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*"
         Xgrs "deleteDangling*"
         ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")

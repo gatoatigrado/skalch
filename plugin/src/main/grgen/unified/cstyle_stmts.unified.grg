@@ -12,6 +12,7 @@
 //      (b) The blocks know how to
 {% endblock %}
 {% block gm %}
+
 // attribute edges on ast nodes indicating that statements can be appended.
 abstract node class CfgAbstractAttachable;
 node class CfgAttachable extends CfgAbstractAttachable;

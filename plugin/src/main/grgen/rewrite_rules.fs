@@ -119,6 +119,9 @@ let ProcessAnnotationsRules1 =
         Xgrs "deleteDanglingArrayLenAnnotations*"
         Xgrs "deleteStaticArrayConstructInfo*"
 
+        (* cuda function annotations *)
+        Xgrs "setCudaFunction*"
+
         (* integer range annotations *)
         Xgrs "replacePrimitiveRanges* & decrementUntilValues* & deleteDangling*"
         Xgrs "deleteDangling*"
@@ -169,6 +172,24 @@ let LossyReplacementsRules = [
 let NewInitializerFcnStubsRules = [
     Xgrs "markInitializerFunctions+ && createInitializerFunctions+ && replaceConstructors+"]
 
+let SpecializeCudaFcnCallsRules =
+    [
+        for name in [ "threadIdx"; "blockDim"; "blockIdx"; "gridIdx" ] do
+            yield Xgrs (sprintf "setFixedPrintName(\"skalch.CudaKernel.%s\", \"%s\")" name name)
+    ] @
+    [
+        for name in [ "x"; "y"; "z" ] do
+            yield Xgrs (sprintf "setFixedPrintName(\"skalch.CudaKernel$ParallelIndex.%s\", \"%s\")" name name)
+    ] @
+
+    (* very much C names... change if translating to other languages *)
+    [
+        Xgrs "setFixedPrintName(\"scala.Unit\", \"void\")"
+        Xgrs "setFixedPrintName(\"scala.Int\", \"int\")"
+        Xgrs "convertParallelIdxToCudaSpecial*"
+        Xgrs "convertParallelIndexVecToField*"
+        ]
+
 let CfgInitRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
@@ -199,14 +220,27 @@ let SSAFormRules =
         (* todo convertFirstVDToSSAAssign *)
 
 let ArrayLoweringRules = [
+    (* a = Array(1, 2, 3, 4) *)
     Xgrs "countNewArrayElts*"
     Xgrs "deleteWrapNewArray*"
     Xgrs "simplifyArrayConstructors*"
+
+    (* a = new Array(len)     for now, only constants supported *)
     Xgrs "simplifyVarLenArrayCtors*"
+
+    (* fcns to sketch specials *)
     Xgrs "decorateArrayGet*"
     Xgrs "deleteDangling*"
+
+    (* create fixed array symbols *)
     Xgrs "createArrayLengthSyms*"
     Xgrs "typifyConstLenArrays*"
+
+    (* create variable length array symbols *)
+    Xgrs "createVariableArraySyms*"
+    Xgrs "typifyVariableLenArrays*"
+
+    (* propagate types to further variables *)
     Xgrs "updateAssignLhsTypes*"
     Xgrs "updateValDefSymbolTypes*"
     Xgrs "updateVarRefTypes*" ]
@@ -240,8 +274,7 @@ let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
 let CstyleMinorCleanupRules = [
     Xgrs "unitBlocksToSKBlocks" ]
 
-let SketchFinalMinorCleanupRules = [
-    Xgrs "removeEmptyTrees"
+let NameSymbolsRules = [
     Xgrs "[setTmpSymbolNames]"
     Xgrs "[initSymbolNames]"
     Xgrs "uniqueSymbolNames*"
@@ -249,18 +282,71 @@ let SketchFinalMinorCleanupRules = [
     Xgrs "setSymbolSketchType*"
     Xgrs "setSketchTypeInt & setSketchTypeBoolean & setSketchTypeUnit"
     Xgrs "setSketchTypeArray*"
-    Xgrs "connectFunctions*"
-    Xgrs "removeEmptyChains*"
-    Xgrs "setNewArrayCalls*"
-    Xgrs "setAssertCalls* & deleteDangling*"
-    Xgrs "setFcnBinaryCallBaseType*"
-    Xgrs "setFcnBinaryCallArgs*"
-    Xgrs "setSymbolBaseType*"
-    Xgrs "setValDefBaseType*"
-    Xgrs "setVarRefBaseType*"
-    Xgrs "setFcnDefBaseType*"
-    Xgrs "[setGeneratorFcn] & [setNonGeneratorFcn]"
-    Xgrs "addSkExprStmts*" ]
+    ]
+
+let SketchAndCudaCleanupRules =
+    NameSymbolsRules @
+    [
+        Xgrs "removeEmptyTrees"
+        Xgrs "connectFunctions*" (* set PackageDefFcn edges *)
+        Xgrs "removeEmptyChains*" ]
+
+let CudaCleanupRules =
+    SketchAndCudaCleanupRules @
+    [
+        Xgrs "removeThisVarFromCudaKernel*" ]
+
+let SketchFinalMinorCleanupRules =
+    SketchAndCudaCleanupRules  @
+    [
+        Xgrs "setNewArrayCalls*"
+        Xgrs "setAssertCalls* & deleteDangling*"
+        Xgrs "setFcnBinaryCallBaseType*"
+        Xgrs "setFcnBinaryCallArgs*"
+        Xgrs "setSymbolBaseType*"
+        Xgrs "setValDefBaseType*"
+        Xgrs "setVarRefBaseType*"
+        Xgrs "setFcnDefBaseType*"
+        Xgrs "[setGeneratorFcn] & [setNonGeneratorFcn]"
+        Xgrs "addSkExprStmts*" ]
+
+let CudaGenerateCodeRules = [
+    (* basic string representation *)
+    Xgrs "stringRepFcnDef*"
+    Xgrs "[stringRepCudaKernelFcn]"
+    Xgrs "stringRepEmptyValDef*"
+    Xgrs "stringRepCudaParIdxCall*"
+    Xgrs "stringRepFieldAccess*"
+
+    (* TEMP DEBUG *)
+    Xgrs "dummySetVarArraysToPtrs*"
+
+    Xgrs "stringRepSymbol*"
+
+    (* TEMP DEBUG *)
+    Xgrs "testAppendDummyStringRep*"
+
+    (* Convert higher-level nodes to basic strings *)
+    Xgrs "convertHLStringRepsToBasic*"
+    Xgrs "expandStringRepSepList_Copy*"
+    Xgrs "expandStringRepSepList_InsertSep*"
+    Xgrs "expandStringRepSepList_DeleteNode*"
+
+    (* linearization *)
+    Xgrs "(forwardStringReps+ | linearizeStringReps+)+"
+
+    (* newlines and indentation *)
+    Xgrs "handleAdjacentNewlines*"
+    Xgrs "handleNewline*"
+
+    (* collapse to a single string *)
+    Xgrs "deleteDangling*"
+    Xgrs "collapseStringRepAdjacentLiterals*"
+    Xgrs "collapseStringRep*"
+    Xgrs "deleteDangling*"
+    Xgrs "collapseSingletonLists*"
+    Xgrs "deleteDangling*"
+    ]
 
 let CreateTemplatesRules = [
     Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*"

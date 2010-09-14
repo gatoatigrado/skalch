@@ -92,6 +92,9 @@ rule {{ fcnName }} {
 }
 {% endmacro %}
 
+// NOTE -- unfortunately, since one can't pass types as parameters,
+// these cannot just be one rewrite rule called with different
+// args like setFixedPrintName.
 {{ retype_syms(["scala.Predef.assert"], "AssertFcnSymbol") }}
 {{ retype_syms(["synthAssert"], "AssertFcnSymbol", skbase=True) }}
 {{ retype_syms(["$bang$bang"], "BangBangSymbol", skbase=True) }}
@@ -101,13 +104,17 @@ rule {{ fcnName }} {
 {{ retype_syms(["scala.Unit"], "ScalaUnitTypeSymbol") }}
 {{ retype_syms(["scala.Array"], "ScalaArraySymbol") }}
 {{ retype_syms(["scala.Int"], "ScalaIntSymbol") }}
+{{ retype_syms(["skalch.CudaKernel"], "CudaKernelSymbol") }}
+{{ retype_syms(["skalch.cuda.CudaKernel$ParallelIndex"], "ParallelIndexSymbol") }}
 
 rule runAllSymbolRetypes {
     modify {
         exec(
 {% for elt in retypeList %}
-            [{{ elt }}]{{ " & " if not loop.last else ");" }}
+            [{{ elt }}]{{ " & " if not loop.last else "" }}
 {% endfor %}
+            // & replaceCudaParallelIndex*
+        );
     }
 }
 

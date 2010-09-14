@@ -86,6 +86,7 @@ edge class CanBeConstructAssigned;
 node class RootSymbol extends Symbol;
 
 node class FixedArraySymbol extends Symbol { value : int; }
+node class VariableArraySymbol extends Symbol;
 edge class SpecializedSymbolBase;
 
 
@@ -102,6 +103,12 @@ node class TmpSymbol extends Symbol;
 node class ThisValDef extends ValDef;
 edge class ObjectSymbol;
 edge class ClassSymbol;
+
+node class CudaKernelSymbol extends Symbol;
+node class ParallelIndexSymbol extends Symbol;
+
+// on fcn symbol
+edge class CudaKernelFcn;
 
 node class PhiFcn extends FcnCall;
 
@@ -166,7 +173,40 @@ edge class CfgStrictlySequentialNode;
 
 
 
-// ==== Scala statement-expressions to blocks ====
+// === cuda nodes ===
+
+// node class CudaParallelIndex extends ScAstNode {
+// parallelIndex : string; indexVector : string; }
+
+node class CudaParallelIndexCall extends FcnCall;
+
+abstract edge class StringRep;
+edge class StringRepSingleChild extends StringRep;
+// a paragraph is a [document] "block", i.e. surrounded by newlines
+edge class StringRepPara extends StringRep;
+edge class StringRepParenBlock extends StringRep;
+// an edge to a node (NStringRep..._) containing more
+// information about a string representation
+edge class StringRepNode extends StringRep;
+edge class StringRepBasicList extends StringRep; // no higher level semantics like Para, ParenBlock, etc.
+
+// string representation special nodes
+abstract node class NStringRep { nident : int; }
+node class NStringRepIncreaseIdent extends NStringRep;
+node class NStringRepDecreaseIdent extends NStringRep;
+// print a newline and indent (except in the cases of double-blanks)
+node class NStringRepNewLine extends NStringRep;
+
+node class NStringRepSepList extends NStringRep; // to be rewritten
+edge class NSRListSep;
+edge class NSRListElts;
+edge class NSRListBase;
+
+node class NStringRepConstant extends NStringRep { value : string; }
+// literals are words (variable names, etc.) which should
+// be space-separated if next to other literals
+node class NStringRepLiteral extends NStringRepConstant;
+
 
 
 // ==== unified modules ====
@@ -196,6 +236,8 @@ edge class CfgStrictlySequentialNode;
 {% include "nodes/gen/ssa_form.gm" %}
 {% include "nodes/gen/lower_tprint.gm" %}
 {% include "nodes/gen/common.gm" %}
+{% include "nodes/gen/cuda_specials.gm" %}
+{% include "nodes/gen/cuda_generate_code.gm" %}
 // add unified here
 
 
@@ -239,6 +281,10 @@ edge class CfgIsConnected;
 // === Print nodes ===
 edge class PrintSymName;
 node class PrintName { name : string; uid : int; }
+// some nodes are special identifiers; they should not
+// be renamed, but they should force other nodes to avoid
+// their names
+node class SpecialPrintName extends PrintName;
 
 node class PrintNoName extends PrintName; // no name
 
@@ -489,7 +535,6 @@ edge class BlockTypeSymbol extends ScTypeSymbol;
 edge class ClassDefTypeSymbol extends ScTypeSymbol;
 edge class ClassRefTypeSymbol extends ScTypeSymbol;
 edge class FcnCallTypeSymbol extends ScTypeSymbol;
-edge class FcnDefTypeSymbol extends ScTypeSymbol;
 edge class FcnDefReturnTypeSymbol extends ScTypeSymbol;
 edge class FieldAccessTypeSymbol extends ScTypeSymbol;
 edge class IfTypeSymbol extends ScTypeSymbol;

@@ -111,6 +111,12 @@ let LossyReplacements = {
         description = "Ignore try / catch for now, fix some Scala weirdnesses (bugs?)";
         stage = rewriteStage LossyReplacementsRules }
 
+let SpecializeCudaFcnCalls = {
+    stageDefault with
+        name = "SpecializeCudaFcnCalls";
+        description = "make threadIdx, etc. special syms that won't get renamed.";
+        stage = rewriteStage SpecializeCudaFcnCallsRules }
+
 let NewInitializerFcnStubs = {
     stageDefault with
         name = "NewInitializerFcnStubs";
@@ -146,6 +152,18 @@ let CstyleMinorCleanup = {
         name = "CstyleMinorCleanup"
         description = "change unit blocks to skblocks"
         stage = rewriteStage CstyleMinorCleanupRules }
+
+let CudaCleanup = {
+    stageDefault with
+        name = "CudaCleanup";
+        description = "Final cuda cleanup";
+        stage = rewriteStage CudaCleanupRules }
+
+let CudaGenerateCode = {
+    stageDefault with
+        name = "CudaGenerateCode";
+        description = "Cuda code generation";
+        stage = rewriteStage CudaGenerateCodeRules }
 
 let SketchFinalMinorCleanup = {
     stageDefault with

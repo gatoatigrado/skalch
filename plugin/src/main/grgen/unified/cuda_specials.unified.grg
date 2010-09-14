@@ -1,0 +1,69 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// DESCRIPTION OF FILE HERE
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+rule setFixedPrintName(var fullname : string, var printname : string) {
+    x:Symbol;
+    if { x.fullSymbolName == fullname; }
+    negative { x -:PrintSymName-> .; }
+    modify {
+        x -:PrintSymName-> name:SpecialPrintName;
+        eval { name.name = printname; }
+    }
+}
+
+rule convertParallelIdxToCudaSpecial {
+    x:FcnCall -:FcnCallSymbol-> sym:Symbol;
+    x -e:FcnArgList-> .;
+    x -:FcnCallTypeSymbol-> :ParallelIndexSymbol;
+
+    modify {
+        delete(e);
+        next:CudaParallelIndexCall<x>;
+    }
+}
+
+rule convertParallelIndexVecToField {
+    x:FcnCall -e:FcnArgList-> {{ macros.finiteList(["paridx:CudaParallelIndexCall"]) }}
+    x -e2:FcnCallSymbol-> sym:Symbol;
+    x -e3:FcnCallTypeSymbol-> sym2:Symbol;
+    hom(sym, sym2);
+
+    modify {
+        delete(e, e2, e3);
+        next:FieldAccess<x>;
+        next -:FieldAccessObject-> paridx;
+        next -:FieldAccessSymbol-> sym;
+        next -:FieldAccessTypeSymbol-> sym2;
+    }
+}
+
+rule removeThisVarFromCudaKernel {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
+    sym -:CudaKernelFcn-> sym;
+
+    ths_lst_node:ListNode;
+    ths_valdef:ThisValDef;
+    :ThisVarFcn(x, ths_lst_node, ths_valdef);
+
+    modify {
+        exec(removeThisVarFromFcn(x, ths_lst_node, ths_valdef));
+    }
+}
+
+{% endblock %}

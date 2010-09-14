@@ -44,4 +44,6 @@ using ScalaAstModel;
 #include "rules/gen/simplify_constants.grg"
 #include "rules/gen/ssa_form.grg"
 #include "rules/gen/lower_tprint.grg"
+#include "rules/gen/cuda_specials.grg"
+#include "rules/gen/cuda_generate_code.grg"
 // add unified here

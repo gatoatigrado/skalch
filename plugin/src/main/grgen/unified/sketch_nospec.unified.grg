@@ -27,13 +27,19 @@ xgrs checkNoMainFcns
 
 {% block grg %}
 {% import "macros.grg" as macros %}
-rule removeThisVarFromMain {
-    x:SketchMainFcnDef -:FcnDefParamsList-> :List
-        -:ListFirst-> :ListFirstNode
-        -:ListNext-> ths_lst_node:ListNode
-        -:ListValue-> ths_valdef:ThisValDef
-        -e:ValDefRhs-> et:EmptyTree;
 
+pattern ThisVarFcn(x:FcnDef, ths_lst_node:ListNode, ths_valdef:ThisValDef) {
+    x -:FcnDefParamsList-> lst:List;
+    :IsFirstListNode(lst, ths_lst_node);
+    ths_lst_node -:ListValue-> ths_valdef;
+
+}
+
+// NOTE -- make sure to match it with ThisVarFcn
+// since this is called with exec, the parent must
+// match the this var so it won't repeat unnecessarily
+rule removeThisVarFromFcn(x:FcnDef, ths_lst_node:ListNode, ths_valdef:ThisValDef) {
+    ths_valdef -e:ValDefRhs-> et:EmptyTree;
     ths_valdef -:ValDefSymbol-> :Symbol
         -:TypeSymbol-> typesym:Symbol;
 
@@ -46,6 +52,17 @@ rule removeThisVarFromMain {
         exec((listInsertAfter(body_first, ths_valdef) &
             listDelete(ths_lst_node)) ||
             assertFalse("removeThisVarFromMain failed"));
+    }
+}
+
+rule removeThisVarFromMain {
+    x:SketchMainFcnDef;
+    ths_lst_node:ListNode;
+    ths_valdef:ThisValDef;
+    :ThisVarFcn(x, ths_lst_node, ths_valdef);
+
+    modify {
+        exec(removeThisVarFromFcn(x, ths_lst_node, ths_valdef));
     }
 }
 

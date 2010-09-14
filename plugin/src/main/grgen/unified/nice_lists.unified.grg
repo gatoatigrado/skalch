@@ -172,6 +172,13 @@ rule listCompleteBlockLast {
     }
 }
 
+
+
+//--------------------------------------------------
+// Basic node-level operations (delete, insert before/after)
+// don't use any of the *Inner functions
+//-------------------------------------------------- 
+
 rule listDeleteInner(x:ListNode) {
     lst:List -:ListElt-> x;
     before:ListAbstractNode -:ListNext-> x -:ListNext-> after:ListAbstractNode;
@@ -193,15 +200,6 @@ rule listDoInsertAfter(x:ListAbstractNode, lst_y:ListNode) {
         lst -:ListElt-> lst_y;
     }
 }
-
-{#
-rule toListNode(x:Node) : (ListNode) {
-    modify {
-        lst_x:ListNode -:ListValue-> x;
-        return (lst_x);
-    }
-}
-#}
 
 /// first arg: node already part of list; second arg: node to insert
 rule listInsertAfter(x:ListAbstractNode, y:Node) {
@@ -234,6 +232,28 @@ rule listInsertFirst(lst:List, y:Node) {
     modify { exec(listInsertAfter(first, y)); }
 }
 
+rule listInsertLast(lst:List, y:Node) {
+    lst -:ListLast-> last:ListLastNode;
+    modify { exec(listInsertBefore(last, y)); }
+}
+
+
+
+//--------------------------------------------------
+// List info: match patterns, count functions
+//-------------------------------------------------- 
+pattern IsListFirst(lst:List, y:ScAstNode) {
+    lst -:ListFirst-> :ListFirstNode
+        -:ListNext-> :ListNode -:ListValue-> y;
+}
+
+pattern IsFirstListNode(lst:List, y:ListNode) {
+    independent {
+        lst -:ListFirst-> :ListFirstNode
+            -:ListNext-> y;
+    }
+}
+
 pattern IsListLast(lst:List, y:ScAstNode) {
     lst -:ListLast-> last:ListLastNode;
     n:ListNode -:ListNext-> last;
@@ -258,6 +278,38 @@ rule countList(lst:List, y:IntConstant) {
     modify {
         exec(countListInner(x, y));
     }
+}
+
+
+
+//--------------------------------------------------
+// List-list operations
+//-------------------------------------------------- 
+
+/// insert a list after a specified list node
+/// useful for linearizing lists
+rule insertListToList(x:ListAbstractNode, y:List) {
+    y -:ListFirst-> first:ListFirstNode;
+    first -:ListNext-> firstnode:ListNode;
+
+    modify { exec(insertListToListInner(x, firstnode)); }
+}
+
+/// copies a node from $y to $x, and calls insertListToListNext
+/// to determine if there are more elements in $y to copy.
+rule insertListToListInner(x:ListAbstractNode, lst_y:ListNode) {
+    lst_y -:ListValue-> v:Node;
+
+    modify {
+        xlst_ynode:ListNode -:ListValue-> v;
+        exec((listInsertNodeAfter(x, xlst_ynode) || assertFalse("list insert after failed")) && insertListToListNext(xlst_ynode, lst_y));
+    }
+}
+
+rule insertListToListNext(x:ListNode, lst_y:ListNode) {
+    lst_y -:ListNext-> z:ListNode;
+
+    modify { exec(insertListToListInner(x, z)); }
 }
 
 {% endblock %}

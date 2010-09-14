@@ -42,7 +42,7 @@ let create_rewrite_stage name =
  for any futher exports, so a graph stack is used to revert stage *)
 let export_templates (results:RewriteResult list) graph =
     let exportfcn (results, (graph:Graph)) name =
-        let graphstack = graph.Impl.getGraphStack()
+        let graphstack = graph.Impl.GetGraphStack()
         graphstack.PushClone()
         let results, e_g = processStage (create_rewrite_stage name) results graph
         printfn "exporting template %s" (Config.template name).value
@@ -100,6 +100,7 @@ let optimize_meta = [ ArrayLowering ]
 let sketch_meta = [ ProcessAnnotations; LossyReplacements;
     CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec;
     LowerTprint ]
+let cuda_meta = [ ProcessAnnotations; LossyReplacements; SpecializeCudaFcnCalls; CudaCleanup; CudaGenerateCode ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
 let library_meta = [ EmitRequiredImports ]
 let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
@@ -132,7 +133,8 @@ let zone_nice_lists =
         CreateTemplates
         ExportTemplates
         LossyReplacements
-        NewInitializerFcnStubs ]
+        NewInitializerFcnStubs
+        SpecializeCudaFcnCalls ]
 let zone_ssa =
     nullStage "ssa",
     [
@@ -145,7 +147,9 @@ let zone_ssa =
 let zone_cstyle =
     CstyleMain,
     [
-        SketchFinalMinorCleanup ]
+        SketchFinalMinorCleanup
+        CudaCleanup
+        CudaGenerateCode ]
 
 let rec depsFromZones (prevDeps:NamedStage list) = function
     | [] -> []
@@ -189,6 +193,9 @@ let deps =
         (* SSA form intradependencies *)
         ArrayLowering <?? EmitRequiredImports
         EmitRequiredImports <?? SketchNospec
+
+        (* Code generation should be last *)
+        CudaCleanup <?? CudaGenerateCode
     ]
 
 (* Goals -- sets of stages *)
@@ -198,14 +205,18 @@ let test = { name = "test"; stages=innocuous_meta @ [NiceLists] }
 let sketch = { name = "sketch";
     stages=innocuous_meta @ no_oo_meta @ optimize_meta @
         sketch_meta @ cstyle_meta @ library_meta }
-let all_goals = [create_templates; sketch; test]
+let cuda = { name = "cuda";
+    stages=innocuous_meta @ no_oo_meta @ optimize_meta @
+        cstyle_meta @ library_meta @ cuda_meta }
+
+let all_goals = [create_templates; sketch; test; cuda]
 let all_stages = List.fold (fun x y -> x @ (y.stages)) [] all_goals
 
 (* Functions for command line parsing. Exposed so you can add aliases, etc. *)
 let goalMap, stageMap = (defaultGoalMap all_goals, defaultStageMap all_stages)
 
 [<EntryPoint>]
-let transformerMain(args:string[]) =
+let transformerMain(args : string[]) =
     (* Basic parsing of the command line *)
     let cmdline = args |> Seq.toList |> parseCommandLine
 
@@ -243,6 +254,7 @@ let transformerMain(args:string[]) =
         "SKWhileLoop", "DarkBlue"
         "CfgAssign", "LightRed"
         ]
+
     initialgraph.SetEdgeColors [
         "CfgAbstractNext", "DarkGreen"
         "AbstractBlockify", "DarkRed"
@@ -254,6 +266,7 @@ let transformerMain(args:string[]) =
         "CfgAssignThisStep", "LightRed"
         "CfgAssignPrevStep", "orange"
         "CfgAssignPossibleSymbol", "LightRed"
+        "StringRep", "green"
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"

@@ -86,12 +86,19 @@ rule decorateArrayGet {
     }
 }
 
+
+
+
+//--------------------------------------------------
+// fixed-length array symbols
+//-------------------------------------------------- 
 pattern GetFixedArraySymbol(z:FixedArraySymbol, inner:Symbol, var value:int) {
         z -:SymbolTypeArgsList->
             {{ macros.finiteList(["inner"]) }}
         if { z.value == value; }
 }
 
+/// pattern b/c called from annotations
 pattern CreateFixedArraySymbol(x:ScalaArraySymbol, inner:Symbol, var value:int) {
     negative {
         z:FixedArraySymbol;
@@ -147,6 +154,67 @@ rule typifyConstLenArrays {
     modify { delete(e); }
 }
 
+
+
+//--------------------------------------------------
+// variable-length array symbols
+//-------------------------------------------------- 
+pattern GetVariableArraySymbol(z:VariableArraySymbol, inner:Symbol) {
+    z -:SymbolTypeArgsList-> {{ macros.finiteList(["inner"]) }}
+}
+
+/// pattern b/c called from annotations
+pattern CreateVariableArraySymbol(x:ScalaArraySymbol, inner:Symbol) {
+    negative {
+        z:VariableArraySymbol;
+        :GetVariableArraySymbol(z, inner);
+    }
+
+    modify {
+        z:VariableArraySymbol -:SymbolOwner-> x;
+        z -:SpecializedSymbolBase-> x;
+        z -:SymbolTypeArgsList-> {{ macros.finiteListInit(["inner"]) }}
+        eval {
+            z.fullSymbolName = "VLArray[" + inner.symbolName + "]";
+            z.symbolName = "VLArray[" + inner.symbolName + "]";
+            z.simpleName = "VLArray[" + inner.symbolName + "]";
+            z.uniqueSymbolName = "VLArray[" + inner.symbolName + "]";
+        }
+    }
+}
+
+rule createVariableArraySyms {
+    sym:Symbol -:SymbolTypeArgsList->
+        {{ macros.finiteList(["inner:Symbol"]) }}
+    sym -:ScTypeSymbol-> arraysym:ScalaArraySymbol;
+    hom(inner, arraysym);
+    c:CreateVariableArraySymbol(arraysym, inner);
+
+    modify { c(); }
+}
+
+rule typifyVariableLenArrays {
+    sym:Symbol -:SymbolTypeArgsList->
+        {{ macros.finiteList(["inner:Symbol"]) }}
+    sym -e:ScTypeSymbol-> arraysym:ScalaArraySymbol;
+    hom(inner, arraysym);
+
+    z:VariableArraySymbol;
+    :GetVariableArraySymbol(z, inner);
+
+    modify {
+        delete(e);
+        sym -:typeof(e)-> z;
+    }
+}
+
+
+
+//--------------------------------------------------
+// update types of other ast nodes
+// which may not have gotten the SymbolTypeArgsList
+// or InnerTypeSymbol edges
+//-------------------------------------------------- 
 /// TODO -- move to another file
 rule updateAssignLhsTypes {
     x:Assign -:AssignRhs-> y:ScAstNode;

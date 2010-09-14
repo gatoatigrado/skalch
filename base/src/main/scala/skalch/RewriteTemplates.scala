@@ -1,5 +1,8 @@
 package skalch
 
+import skalch.cuda._
+import skalch.cuda.annotations._
+
 /**
  * Templates for transforming subtrees. Each template is exported to a GXL file,
  * and then imported when needed. Variables in the class bodies are template parameters.
@@ -19,6 +22,13 @@ class RewriteTemplates extends AngelicSketch {
             v
         }
     }
+
+//     object VLArrayType extends Template("variable length array") {
+//         @CNoPtr class VLArray[T] {
+//             val length : Int = 0;
+//             val ptr @ CRawArrPtr : Array[T] = null;
+//         }
+//     }
 
     /* object StaticIntArrayRangeHole extends Template("int range hole") {
         val from_ : Int = -32

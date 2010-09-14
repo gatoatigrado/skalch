@@ -1,0 +1,315 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// DESCRIPTION OF FILE HERE
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+//--------------------------------------------------
+// Basic structure of string representation for AST
+//-------------------------------------------------- 
+// print rep for function def's
+rule stringRepFcnDef {
+    x:FcnDef -:FcnBody-> body:SKBlock;
+    x -:FcnDefParamsList-> args:List;
+    x -:FcnDefSymbol-> sym:Symbol;
+    x -:FcnDefReturnTypeSymbol-> typsym:Symbol;
+
+    negative { x -:StringRep-> .; }
+    modify {
+        x -:StringRepPara-> {{ macros.finiteListInit(
+            ["typsym", "sym",
+                "lparen:NStringRepConstant",
+                "paramlst:NStringRepSepList",
+                "rparen:NStringRepConstant",
+                "body" ]) }}
+        paramlst -:NSRListBase-> args;
+        paramlst -:NSRListSep-> z:NStringRepConstant;
+        paramlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst2") }}
+        eval {
+            z.value = ", ";
+            lparen.value = "(";
+            rparen.value = ")";
+        }
+    }
+}
+
+rule stringRepCudaKernelFcn {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
+    sym -:CudaKernelFcn-> sym;
+    x -:StringRepPara-> lst:List;
+
+    modify {
+        globalname:NStringRepLiteral;
+        eval { globalname.value = "__global__"; }
+        exec(listInsertFirst(lst, globalname));
+    }
+}
+
+rule stringRepCudaParIdxCall {
+    x:CudaParallelIndexCall -:FcnCallSymbol-> sym:Symbol;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepSingleChild-> sym;
+    }
+}
+
+rule stringRepFieldAccess {
+    x:FieldAccess -:FieldAccessObject-> obj:ScAstNode;
+    x -:FieldAccessSymbol-> sym:Symbol;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepBasicList-> {{ macros.finiteListInit(
+            ["obj", "dot:NStringRepConstant", "sym"]) }}
+        eval { dot.value = "."; }
+    }
+}
+
+rule stringRepEmptyValDef {
+    x:ValDef -:ValDefRhs-> :EmptyTree;
+    x -:ValDefSymbol-> sym:Symbol;
+    sym -:TypeSymbol-> typsym:Symbol;
+
+    negative { x -:StringRep-> .; }
+    modify {
+        x -:StringRepBasicList->
+            {{ macros.finiteListInit(["typsym", "sym"]) }}
+    }
+}
+
+rule stringRepSymbol {
+    x:Symbol -:PrintSymName-> y:PrintName;
+
+    negative { x -:StringRep-> .; }
+    modify {
+        x -:StringRepNode-> z:NStringRepLiteral;
+        eval { z.value = y.name; }
+    }
+}
+
+
+
+//--------------------------------------------------
+// For now, set string representation of unknown
+// nodes to DEBUG
+//-------------------------------------------------- 
+rule testAppendDummyStringRep {
+    . -:StringRep-> :List -:ListElt-> :ListNode
+        -:ListValue-> y:Node \ (NStringRep + List);
+    negative { y -:StringRep-> .; }
+
+    modify {
+        y -:StringRepNode-> z:NStringRepConstant;
+        eval { z.value = "DEBUG"; }
+    }
+}
+
+// for now, forget variable arrays, just leave them as ptrs
+rule dummySetVarArraysToPtrs {
+    x:VariableArraySymbol -:SymbolTypeArgsList->
+        {{ macros.finiteList(["innertyp:Symbol"]) }}
+    innertyp -:PrintSymName-> y:PrintName;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepNode-> z:NStringRepLiteral;
+        eval { z.value = y.name + "*"; }
+    }
+}
+
+
+
+//--------------------------------------------------
+// Convert higher-level nodes to basic strings
+//-------------------------------------------------- 
+rule convertHLStringRepsToBasic {
+    x:Node -e1:StringRepPara-> lst:List;
+
+    modify {
+        delete(e1);
+        x -:StringRepBasicList-> lst;
+        nl1:NStringRepNewLine;
+        nl2:NStringRepNewLine;
+        nl3:NStringRepNewLine;
+        exec(listInsertFirst(lst, nl1) && listInsertLast(lst, nl2)
+            && listInsertFirst(lst, nl3));
+    }
+}
+
+// step 1
+rule expandStringRepSepList_Copy {
+    seplist:NStringRepSepList;
+    seplist -e:NSRListBase-> args:List;
+    seplist -:NSRListElts-> copyto:List
+        -:ListFirst-> first:ListFirstNode;
+
+    modify {
+        delete(e);
+        exec(insertListToList(first, args));
+    }
+}
+
+rule expandStringRepSepList_InsertSep {
+    seplist:NStringRepSepList;
+    seplist -:NSRListSep-> sep:Node;
+    seplist -:NSRListElts-> lst:List
+        -:ListElt-> first:ListNode
+        -:ListNext-> second:ListNode;
+    first -:ListValue-> first_val:Node;
+    second -:ListValue-> second_val:Node;
+
+    modify {
+        exec(listInsertAfter(first, sep));
+    }
+}
+
+rule expandStringRepSepList_DeleteNode {
+    parent:Node -e:Edge-> seplist:NStringRepSepList;
+    seplist -:NSRListElts-> lst:List;
+
+    alternative {
+        A {
+            if { typeof(e) >= ListValue; }
+            modify { parent -:typeof(e)-> lst; }
+        }
+        B {
+            if { typeof(parent) >= ScAstNode; }
+            modify { parent -:StringRepBasicList-> lst; }
+        }
+    }
+
+    modify {
+        delete(e);
+    }
+}
+
+
+
+//--------------------------------------------------
+// Linearize the string representation structure
+//-------------------------------------------------- 
+rule forwardStringReps {
+    x:Node -:StringRepBasicList-> :List
+        -:ListElt-> lst_y:ListNode -e:ListValue-> y:Node \ NStringRep;
+    y -:StringRep-> z:Node;
+
+    modify {
+        delete(e);
+        lst_y -:ListValue -> z;
+    }
+}
+
+rule collapseSingletonLists {
+    x:Node -e:StringRepBasicList->
+        {{ macros.finiteList(["elt:NStringRepConstant"]) }}
+
+    modify {
+        delete(e);
+        x -:StringRepNode-> elt;
+    }
+}
+
+rule linearizeStringReps {
+    x:Node -:StringRepBasicList-> :List
+        -:ListElt-> lst_y:ListNode -e:ListValue-> y:List;
+
+    modify {
+        exec(insertListToList(lst_y, y) && listDelete(lst_y));
+    }
+}
+
+
+
+//--------------------------------------------------
+// Handle newlines and indentation
+//-------------------------------------------------- 
+pattern AdjacentStringRep(first:ListNode, second:ListNode) {
+    x:Node -:StringRepBasicList-> lst:List;
+    lst -:ListElt-> first -:ListNext-> second;
+}
+
+/// first one should be blank to avoid trailing whitespace
+rule handleAdjacentNewlines {
+    first:ListNode; second:ListNode;
+    :AdjacentStringRep(first, second);
+
+    first -:ListValue-> v1:NStringRepNewLine;
+    second -:ListValue-> v2:NStringRepNewLine;
+
+    modify {
+        nl:NStringRepConstant;
+        eval { nl.value = "\n"; }
+        exec(listInsertAfter(first, nl) && listDelete(first));
+    }
+}
+
+rule appendIndentation(n:NStringRepConstant) {
+    if { n.nident > 0; }
+
+    modify {
+        eval {
+            n.value = n.value + " ";
+            n.nident = n.nident - 1;
+        }
+        exec(appendIndentation(n));
+    }
+}
+
+rule handleNewline {
+    x:NStringRepNewLine;
+
+    modify {
+        nl:NStringRepConstant<x>;
+        eval { nl.value = "\n"; }
+        exec(appendIndentation(nl));
+    }
+}
+
+
+
+//--------------------------------------------------
+// Collapse lists to a single string node
+//-------------------------------------------------- 
+rule collapseStringRepAdjacentLiterals {
+    first:ListNode; second:ListNode;
+    :AdjacentStringRep(first, second);
+
+    first -:ListValue-> v1:NStringRepLiteral;
+    second -:ListValue-> v2:NStringRepLiteral;
+
+    modify {
+        space:NStringRepConstant;
+        eval { space.value = " "; }
+        exec(listInsertAfter(first, space));
+    }
+}
+
+rule collapseStringRep {
+    first:ListNode; second:ListNode;
+    :AdjacentStringRep(first, second);
+
+    first -:ListValue-> v1:NStringRepConstant;
+    second -:ListValue-> v2:NStringRepConstant;
+
+    modify {
+        v3:NStringRepConstant;
+        eval { v3.value = v1.value + v2.value; }
+        exec(listInsertBefore(first, v3) && listDelete(first) && listDelete(second));
+    }
+}
+
+{% endblock %}

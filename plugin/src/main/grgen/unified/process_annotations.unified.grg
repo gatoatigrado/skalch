@@ -79,6 +79,22 @@ test existsDanglingAnnotation {
 
 
 //--------------------------------------------------
+// Process CudaKernel annotations
+//-------------------------------------------------- 
+rule setCudaFunction {
+    x:Symbol -e:SymbolAnnotation-> :Annotation
+        -:AnnotationSymbol-> y:Symbol;
+    if { y.fullSymbolName == "skalch.cuda.annotations.cudakernel"; }
+
+    modify {
+        delete(e);
+        x -:CudaKernelFcn-> x;
+    }
+}
+
+
+
+//--------------------------------------------------
 // Process static array annotations
 //-------------------------------------------------- 
 

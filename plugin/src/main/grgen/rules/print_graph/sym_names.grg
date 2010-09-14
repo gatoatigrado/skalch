@@ -15,6 +15,10 @@ rule setTmpSymbolNames {
 
 rule initSymbolNames {
     x:Symbol;
+
+    // some symbols are given special names
+    negative { x -:PrintSymName-> .; }
+
     modify {
         x -:PrintSymName-> name:PrintName;
         eval { name.name = x.symbolName; }
@@ -22,7 +26,7 @@ rule initSymbolNames {
 }
 
 rule uniqueSymbolNames {
-    x:PrintName;
+    x:PrintName \ SpecialPrintName;
     y:PrintName;
     if { x.name == y.name && x.uid == y.uid; }
     modify {

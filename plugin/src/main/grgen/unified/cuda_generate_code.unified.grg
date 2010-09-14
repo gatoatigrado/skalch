@@ -21,7 +21,7 @@
 // Basic structure of string representation for AST
 //-------------------------------------------------- 
 // print rep for function def's
-rule stringRepFcnDef {
+rule setStringRepFcnDef {
     x:FcnDef -:FcnBody-> body:SKBlock;
     x -:FcnDefParamsList-> args:List;
     x -:FcnDefSymbol-> sym:Symbol;
@@ -30,23 +30,20 @@ rule stringRepFcnDef {
     negative { x -:StringRep-> .; }
     modify {
         x -:StringRepPara-> {{ macros.finiteListInit(
-            ["typsym", "sym",
-                "lparen:NStringRepConstant",
-                "paramlst:NStringRepSepList",
-                "rparen:NStringRepConstant",
-                "body" ]) }}
+            ["typsym", "sym", "parens:NSRParens", "body" ]) }}
+
+        parens -:StringRepNode-> paramlst:NStringRepSepList;
         paramlst -:NSRListBase-> args;
         paramlst -:NSRListSep-> z:NStringRepConstant;
         paramlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst2") }}
+
         eval {
             z.value = ", ";
-            lparen.value = "(";
-            rparen.value = ")";
         }
     }
 }
 
-rule stringRepCudaKernelFcn {
+rule setStringRepCudaKernelFcn {
     x:FcnDef -:FcnDefSymbol-> sym:Symbol;
     sym -:CudaKernelFcn-> sym;
     x -:StringRepPara-> lst:List;
@@ -58,7 +55,25 @@ rule stringRepCudaKernelFcn {
     }
 }
 
-rule stringRepCudaParIdxCall {
+rule setStringRepBlock {
+    x:Block -:BlockStmtList-> stmts:List;
+
+    negative { x -:StringRep-> .; }
+    modify {
+        x -:StringRepNode-> braces:NSRBraces
+            -:StringRepNode-> stmtlst:NStringRepSepList;
+        stmtlst -:NSRListBase-> stmts;
+        stmtlst -:NSRListSep-> z:NStringRepConstant;
+        stmtlst -:NSRListElts-> {{ macros.finiteListInit([]) }}
+        eval { z.value = "; "; }
+    }
+}
+
+
+
+// ==== subsection function calls ====
+
+rule setStringRepCudaParIdxCall {
     x:CudaParallelIndexCall -:FcnCallSymbol-> sym:Symbol;
     negative { x -:StringRep-> .; }
 
@@ -67,7 +82,26 @@ rule stringRepCudaParIdxCall {
     }
 }
 
-rule stringRepFieldAccess {
+rule setStringRepFcnCallBinary {
+    x:FcnBinaryCall -:FcnArgList->
+        {{ macros.finiteList(["left:ScAstNode", "right:ScAstNode"]) }}
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepBasicList-> {{ macros.finiteListInit([
+            "safe_left:NSRSafeParens", "op:NStringRepConstant",
+            "safe_right:NSRSafeParens"], lstname="lst2") }}
+        safe_left -:StringRepNode-> left;
+        safe_right -:StringRepNode-> right;
+        eval { op.value = " " + x.strop + " "; }
+    }
+}
+
+// ----
+
+
+
+rule setStringRepFieldAccess {
     x:FieldAccess -:FieldAccessObject-> obj:ScAstNode;
     x -:FieldAccessSymbol-> sym:Symbol;
     negative { x -:StringRep-> .; }
@@ -79,7 +113,7 @@ rule stringRepFieldAccess {
     }
 }
 
-rule stringRepEmptyValDef {
+rule setStringRepEmptyValDef {
     x:ValDef -:ValDefRhs-> :EmptyTree;
     x -:ValDefSymbol-> sym:Symbol;
     sym -:TypeSymbol-> typsym:Symbol;
@@ -91,7 +125,43 @@ rule stringRepEmptyValDef {
     }
 }
 
-rule stringRepSymbol {
+rule setStringRepSketchArrayAccess {
+    x:SketchArrayAccess -:SketchArrayAccessArray-> arr:ScAstNode;
+    x -:SketchArrayAccessIndex-> idx:ScAstNode;
+
+    negative { x -:StringRep-> .; }
+    modify {
+        x -:StringRepBasicList-> {{ macros.finiteListInit([
+            "safe_arr:NSRSafeParens", "idx_bracket:NSRBrackets"]) }}
+        safe_arr -:StringRepNode-> arr;
+        idx_bracket -:StringRepNode-> idx;
+    }
+}
+
+rule setStringRepSketchArrayAssign {
+    assign:SketchArrayAssign;
+    assign -:SketchArrayAssignArray-> array:ScAstNode;
+    assign -:SketchArrayAssignIndex-> idx:ScAstNode;
+    assign -:SketchArrayAssignValue-> value:ScAstNode;
+
+    negative { assign -:StringRep-> .; }
+    modify {
+        assign -:StringRepBasicList-> {{ macros.finiteListInit([
+            "safe_arr:NSRSafeParens", "idx_bracket:NSRBrackets",
+            "eq:NSRCEqualAssign", "value" ]) }}
+        safe_arr -:StringRepNode-> array;
+        idx_bracket -:StringRepNode-> idx;
+    }
+}
+
+rule setStringRepVarRef {
+    x:VarRef -:VarRefSymbol-> sym:Symbol;
+    negative { x -:StringRep-> .; }
+
+    modify { x -:StringRepSingleChild-> sym; }
+}
+
+rule setStringRepSymbol {
     x:Symbol -:PrintSymName-> y:PrintName;
 
     negative { x -:StringRep-> .; }
@@ -107,9 +177,16 @@ rule stringRepSymbol {
 // For now, set string representation of unknown
 // nodes to DEBUG
 //-------------------------------------------------- 
+pattern StringRepTarget(y:Node) {
+    alternative {
+        A { . -:StringRep-> :List -:ListElt-> :ListNode -:ListValue-> y; }
+        B { . -:StringRep-> y; }
+    }
+}
+
 rule testAppendDummyStringRep {
-    . -:StringRep-> :List -:ListElt-> :ListNode
-        -:ListValue-> y:Node \ (NStringRep + List);
+    y:Node \ (NStringRep + List);
+    :StringRepTarget(y);
     negative { y -:StringRep-> .; }
 
     modify {
@@ -136,7 +213,69 @@ rule dummySetVarArraysToPtrs {
 //--------------------------------------------------
 // Convert higher-level nodes to basic strings
 //-------------------------------------------------- 
-rule convertHLStringRepsToBasic {
+//--------------------------------------------------
+// pattern ReplaceStringRepParentNode(x:Node) modify (y:Node) {
+//     parent:Node -e:Edge-> x;
+// 
+//     alternative {
+//         A {
+//             if { typeof(e) >= ListValue; }
+//             modify { parent -:typeof(e)-> y; }
+//         }
+//         B {
+//             modify { parent -:StringRepNode-> y; }
+//         }
+//     }
+// 
+//     modify { delete(e); }
+// }
+//-------------------------------------------------- 
+
+pattern ReplaceStringRepParentList(x:Node) modify (y:List) {
+    parent:Node -e:Edge-> x;
+
+    alternative {
+        A {
+            if { typeof(e) >= ListValue; }
+            modify { parent -:typeof(e)-> y; }
+        }
+        B {
+            modify { parent -:StringRepBasicList-> y; }
+        }
+    }
+
+    modify { delete(e); }
+}
+
+//--------------------------------------------------
+// rule deleteUnnecessaryParens_VarRef {
+//     x:NSRSafeParens -e:StringRepNode-> child:VarRef;
+//     modify {
+//         delete(e);
+//         x -:StringRepSingleChild-> child;
+//     }
+// }
+//-------------------------------------------------- 
+
+rule expandNSRSurround {
+    x:NSRSurround -e:StringRepNode-> child:Node;
+    r:ReplaceStringRepParentList(x);
+
+    modify {
+        delete(e);
+        {{ macros.finiteListInit([
+            "left:NStringRepConstant",
+            "child",
+            "right:NStringRepConstant"]) }}
+        eval {
+            left.value = x.left;
+            right.value = x.right;
+        }
+        r(lst); // variable created by finiteListInit
+    }
+}
+
+rule convertParaListsToBasic {
     x:Node -e1:StringRepPara-> lst:List;
 
     modify {
@@ -178,23 +317,11 @@ rule expandStringRepSepList_InsertSep {
 }
 
 rule expandStringRepSepList_DeleteNode {
-    parent:Node -e:Edge-> seplist:NStringRepSepList;
+    seplist:NStringRepSepList;
     seplist -:NSRListElts-> lst:List;
+    r:ReplaceStringRepParentList(seplist);
 
-    alternative {
-        A {
-            if { typeof(e) >= ListValue; }
-            modify { parent -:typeof(e)-> lst; }
-        }
-        B {
-            if { typeof(parent) >= ScAstNode; }
-            modify { parent -:StringRepBasicList-> lst; }
-        }
-    }
-
-    modify {
-        delete(e);
-    }
+    modify { r(lst); }
 }
 
 
@@ -213,13 +340,13 @@ rule forwardStringReps {
     }
 }
 
-rule collapseSingletonLists {
-    x:Node -e:StringRepBasicList->
-        {{ macros.finiteList(["elt:NStringRepConstant"]) }}
+rule forwardStringRepsSingleChild {
+    x:Node -e:StringRepSingleChild-> y:Node \ NStringRep;
+    y -e2:StringRep-> z:Node;
 
     modify {
         delete(e);
-        x -:StringRepNode-> elt;
+        x -:typeof(e2)-> z;
     }
 }
 
@@ -309,6 +436,16 @@ rule collapseStringRep {
         v3:NStringRepConstant;
         eval { v3.value = v1.value + v2.value; }
         exec(listInsertBefore(first, v3) && listDelete(first) && listDelete(second));
+    }
+}
+
+rule collapseSingletonLists {
+    x:Node -e:StringRepBasicList->
+        {{ macros.finiteList(["elt:NStringRepConstant"]) }}
+
+    modify {
+        delete(e);
+        x -:StringRepNode-> elt;
     }
 }
 

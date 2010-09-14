@@ -74,15 +74,27 @@ rule simplifyVarLenArrayCtors {
 /// SKETCH differentiates between function calls and array
 /// accesses. No information loss, so it should be easy to reverse.
 rule decorateArrayGet {
-    parent:Node -e:Replaceable->
-        x:FcnCallArrayGet -:FcnArgList->
+    x:FcnCallArrayGet -e:FcnArgList->
         {{ macros.finiteList(["array:ScAstNode", "idx:ScAstNode"]) }}
 
     modify {
         delete(e);
-        parent -:typeof(e)-> access:SketchArrayAccess;
+        access:SketchArrayAccess<x>;
         access -:SketchArrayAccessArray-> array;
         access -:SketchArrayAccessIndex-> idx;
+    }
+}
+
+rule decorateArraySet {
+    x:FcnCallArraySet -e:FcnArgList-> {{ macros.finiteList(
+        ["array:ScAstNode", "idx:ScAstNode", "value:ScAstNode"]) }}
+
+    modify {
+        delete(e);
+        assign:SketchArrayAssign<x>;
+        assign -:SketchArrayAssignArray-> array;
+        assign -:SketchArrayAssignIndex-> idx;
+        assign -:SketchArrayAssignValue-> value;
     }
 }
 

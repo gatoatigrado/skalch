@@ -230,6 +230,7 @@ let ArrayLoweringRules = [
 
     (* fcns to sketch specials *)
     Xgrs "decorateArrayGet*"
+    Xgrs "decorateArraySet*"
     Xgrs "deleteDangling*"
 
     (* create fixed array symbols *)
@@ -312,30 +313,55 @@ let SketchFinalMinorCleanupRules =
 
 let CudaGenerateCodeRules = [
     (* basic string representation *)
-    Xgrs "stringRepFcnDef*"
-    Xgrs "[stringRepCudaKernelFcn]"
-    Xgrs "stringRepEmptyValDef*"
-    Xgrs "stringRepCudaParIdxCall*"
-    Xgrs "stringRepFieldAccess*"
+    Xgrs "setStringRepFcnDef*"
+    Xgrs "[setStringRepCudaKernelFcn]"
+
+    Xgrs "setStringRepBlock*"
+
+    Xgrs "setStringRepCudaParIdxCall*"
+    Xgrs "setStringRepFcnCallBinary*"
+
+    Xgrs "setStringRepFieldAccess*"
+    Xgrs "setStringRepEmptyValDef*"
+    Xgrs "setStringRepSketchArrayAccess*"
+    Xgrs "setStringRepSketchArrayAssign*"
 
     (* TEMP DEBUG *)
     Xgrs "dummySetVarArraysToPtrs*"
 
-    Xgrs "stringRepSymbol*"
-
-    (* TEMP DEBUG *)
-    Xgrs "testAppendDummyStringRep*"
+    Xgrs "setStringRepVarRef*"
+    Xgrs "setStringRepSymbol*"
 
     (* Convert higher-level nodes to basic strings *)
-    Xgrs "convertHLStringRepsToBasic*"
+    (*--------------------------------------------------
+    * Xgrs "deleteUnnecessaryParens_VarRef*"
+    *--------------------------------------------------*)
+    Xgrs "expandNSRSurround*" (* NOTE -- must come before other list expansion *)
+    Xgrs "convertParaListsToBasic*"
     Xgrs "expandStringRepSepList_Copy*"
     Xgrs "expandStringRepSepList_InsertSep*"
     Xgrs "expandStringRepSepList_DeleteNode*"
 
+    (* TEMP DEBUG *)
+    Xgrs "deleteDangling*"
+    Xgrs "testAppendDummyStringRep*"
+
     (* linearization *)
-    Xgrs "(forwardStringReps+ | linearizeStringReps+)+"
+    Xgrs "(forwardStringReps+ | forwardStringRepsSingleChild+ | linearizeStringReps+)+"
+
+
+
+
+    (* TEMP DEBUG -- redo above *)
+    Xgrs "deleteDangling*"
+    Xgrs "testAppendDummyStringRep*"
+    Xgrs "(forwardStringReps+ | forwardStringRepsSingleChild+ | linearizeStringReps+)+"
+
+
+
 
     (* newlines and indentation *)
+    Xgrs "deleteDangling*"
     Xgrs "handleAdjacentNewlines*"
     Xgrs "handleNewline*"
 

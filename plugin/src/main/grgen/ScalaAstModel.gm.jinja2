@@ -54,6 +54,11 @@ node class SketchArrayAccess extends ScAstNode;
 edge class SketchArrayAccessArray extends Subtree, Cfg2SubtreeSecond;
 edge class SketchArrayAccessIndex extends Subtree, Cfg2SubtreeFirst;
 
+node class SketchArrayAssign extends ScAstNode;
+edge class SketchArrayAssignArray extends Subtree;
+edge class SketchArrayAssignIndex extends Subtree;
+edge class SketchArrayAssignValue extends Subtree;
+
 node class SketchPrintTuple extends ScAstNode;
 edge class SketchPrintTupleName extends Subtree, Cfg2SubtreeFirst;
 edge class SketchPrintTupleValue extends Subtree, Cfg2SubtreeSecond;
@@ -180,15 +185,25 @@ edge class CfgStrictlySequentialNode;
 
 node class CudaParallelIndexCall extends FcnCall;
 
+
+
 abstract edge class StringRep;
+
+// child contains all information
 edge class StringRepSingleChild extends StringRep;
+
 // a paragraph is a [document] "block", i.e. surrounded by newlines
 edge class StringRepPara extends StringRep;
 edge class StringRepParenBlock extends StringRep;
+
 // an edge to a node (NStringRep..._) containing more
 // information about a string representation
 edge class StringRepNode extends StringRep;
-edge class StringRepBasicList extends StringRep; // no higher level semantics like Para, ParenBlock, etc.
+
+// no higher level semantics like Para, ParenBlock, etc.
+edge class StringRepBasicList extends StringRep;
+
+
 
 // string representation special nodes
 abstract node class NStringRep { nident : int; }
@@ -197,15 +212,26 @@ node class NStringRepDecreaseIdent extends NStringRep;
 // print a newline and indent (except in the cases of double-blanks)
 node class NStringRepNewLine extends NStringRep;
 
-node class NStringRepSepList extends NStringRep; // to be rewritten
+// separate a target list of nodes (base) and save to (elts)
+node class NStringRepSepList extends NStringRep;
 edge class NSRListSep;
 edge class NSRListElts;
 edge class NSRListBase;
 
 node class NStringRepConstant extends NStringRep { value : string; }
+node class NSRCPeriod extends NStringRepConstant { value = "."; }
+node class NSRCEqualAssign extends NStringRepConstant { value = " = "; }
 // literals are words (variable names, etc.) which should
 // be space-separated if next to other literals
 node class NStringRepLiteral extends NStringRepConstant;
+abstract node class NSRSurround extends NStringRep {
+    left : string; right : string; }
+node class NSRParens extends NSRSurround { left = "("; right=")"; }
+node class NSRBrackets extends NSRSurround { left = "["; right="]"; }
+node class NSRBraces extends NSRSurround { left = "{"; right="}"; }
+// parenthesis that are left in for order-of-operations,
+// not required syntax (e.g. function definitions)
+node class NSRSafeParens extends NSRParens;
 
 
 

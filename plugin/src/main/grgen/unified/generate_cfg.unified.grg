@@ -138,6 +138,22 @@ rule {{ set_next_fcn("cfgSet2SubtreeNext") }} {
     }
 }
 
+rule {{ set_next_fcn("cfgSetSketchArrayAssignSubtreeNext") }} {
+    assign:SketchArrayAssign;
+    assign -:SketchArrayAssignArray-> array:ScAstNode;
+    assign -:SketchArrayAssignIndex-> idx:ScAstNode;
+    assign -:SketchArrayAssignValue-> value:ScAstNode;
+
+    assign -:CfgPrologue-> prologue:CfgAbstractNode;
+    assign -:CfgEpilogue-> epilogue:CfgAbstractNode;
+
+    negative { prologue -:CfgNext-> .; }
+    modify {
+        prologue -:CfgNext-> array -:CfgNext-> idx
+            -:CfgNext-> value -:CfgNext-> epilogue;
+    }
+}
+
 rule {{ set_next_fcn("cfgSetIfNext") }} {
     x:If -:IfCond-> cond:ScAstNode;
     x -:IfThen-> then:ScAstNode;

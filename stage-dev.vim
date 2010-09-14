@@ -184,27 +184,27 @@ badd +7 base/src/test/scala/angelic/simple/SugaredTest.scala
 badd +74 plugin/src/main/grgen/unified/common.unified.grg
 badd +46 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +6 plugin/src/main/grgen/build_templates.py
-badd +516 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +311 plugin/src/main/grgen/rewrite_rules.fs
+badd +219 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+badd +337 plugin/src/main/grgen/rewrite_rules.fs
 badd +150 base/src/codegen/gxltosketch/gxltosketch.py
 badd +13 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
-badd +1 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
+badd +15 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +65 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
 badd +3 base/src/test/scala/angelic/simple/Test0003_WhileLoops.scala
 badd +8 base/src/test/scala/angelic/simple/Test0005_tprint.scala
 badd +33 base/src/main/scala/skalch/AngelicSketch.scala
-badd +86 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
+badd +18 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
 badd +106 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
 badd +102 plugin/src/main/grgen/unified/process_annotations.unified.grg
 badd +48 plugin/src/main/grgen/AllRules_0.grg
 badd +1 plugin/src/main/grgen/rules/simplify_sketch_constructs.grg
-badd +58 plugin/src/main/grgen/unified/macros.grg
+badd +42 plugin/src/main/grgen/unified/macros.grg
 badd +35 base/src/main/scala/skalch/RewriteTemplates.scala
 badd +52 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
-badd +45 plugin/src/main/grgen/transformer.fs
+badd +271 plugin/src/main/grgen/transformer.fs
 badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
-badd +257 plugin/src/main/grgen/unified/array_lowering.unified.grg
+badd +93 plugin/src/main/grgen/unified/array_lowering.unified.grg
 badd +130 plugin/src/main/scala/skalch/plugins/ScalaGxlNodeMap.scala
 badd +5 base/src/test/scala/cuda/VectorAdd.scala
 badd +2 base/src/main/java/sketch/compiler/parser/gxlimport/GxlSketchOptions.java
@@ -212,12 +212,13 @@ badd +23 base/src/main/scala/skalch/cuda/CudaKernel.scala
 badd +41 plugin/src/main/grgen/rules/print_graph/sym_names.grg
 badd +170 plugin/src/main/grgen/rewrite_stage_info.fs
 badd +31 plugin/src/main/grgen/unified/cuda_specials.unified.grg
-badd +32 plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
-badd +228 plugin/src/main/grgen/unified/generate_cfg.unified.grg
+badd +1 plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
+badd +142 plugin/src/main/grgen/unified/generate_cfg.unified.grg
 badd +14 plugin/src/main/grgen/unified/cstyle_stmts.unified.grg
 badd +1 plugin/src/main/grgen/unified/nice_lists.unified.grg
 badd +36 plugin/src/main/grgen/unified/sketch_nospec.unified.grg
 badd +13 base/src/main/scala/skalch/cuda/annotations/CudaAnnotations.scala
+badd +73 ~/sandbox/grgen/engine-net-2/FSharpBindings/util_fcns.fs
 args base/src/main/scala/skalch/cuda/annotations/CudaAnnotations.scala
 edit plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
 set splitbelow splitright
@@ -233,11 +234,11 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 72 + 73) / 146)
+exe 'vert 1resize ' . ((&columns * 87 + 73) / 146)
 exe '2resize ' . ((&lines * 53 + 54) / 109)
-exe 'vert 2resize ' . ((&columns * 73 + 73) / 146)
+exe 'vert 2resize ' . ((&columns * 58 + 73) / 146)
 exe '3resize ' . ((&lines * 53 + 54) / 109)
-exe 'vert 3resize ' . ((&columns * 73 + 73) / 146)
+exe 'vert 3resize ' . ((&columns * 58 + 73) / 146)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -333,12 +334,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 69 - ((62 * winheight(0) + 53) / 107)
+let s:l = 238 - ((55 * winheight(0) + 53) / 107)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-69
-normal! 0
+238
+normal! 010l
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
@@ -437,16 +438,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 184 - ((27 * winheight(0) + 26) / 53)
+let s:l = 224 - ((44 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-184
-normal! 049l
+224
+normal! 053l
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
-edit ~/sandbox/skalch/plugin/src/main/grgen/rewrite_rules.fs
+edit ~/sandbox/skalch/base/src/test/scala/cuda/VectorAdd.scala
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -472,8 +473,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'ocaml'
-setlocal filetype=ocaml
+if &filetype != ''
+setlocal filetype=
 endif
 setlocal foldcolumn=0
 setlocal foldenable
@@ -529,8 +530,8 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != 'ocaml'
-setlocal syntax=ocaml
+if &syntax != ''
+setlocal syntax=
 endif
 setlocal tabstop=4
 setlocal tags=
@@ -541,19 +542,19 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 319 - ((17 * winheight(0) + 26) / 53)
+let s:l = 7 - ((6 * winheight(0) + 26) / 53)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-319
-normal! 031l
+7
+normal! 0
 lcd ~/sandbox/skalch
 wincmd w
-exe 'vert 1resize ' . ((&columns * 72 + 73) / 146)
+exe 'vert 1resize ' . ((&columns * 87 + 73) / 146)
 exe '2resize ' . ((&lines * 53 + 54) / 109)
-exe 'vert 2resize ' . ((&columns * 73 + 73) / 146)
+exe 'vert 2resize ' . ((&columns * 58 + 73) / 146)
 exe '3resize ' . ((&lines * 53 + 54) / 109)
-exe 'vert 3resize ' . ((&columns * 73 + 73) / 146)
+exe 'vert 3resize ' . ((&columns * 58 + 73) / 146)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

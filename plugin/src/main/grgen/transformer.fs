@@ -11,6 +11,7 @@ module edu.berkeley.cs.skalch.transformer.main
 *)
 
 open System
+open System.Windows.Forms
 open de.unika.ipd.grGen.libGr
 open de.unika.ipd.grGen.grShell
 (* override GrGen's Set class *)
@@ -230,7 +231,8 @@ let transformerMain(args : string[]) =
 
     (* Since actions are necessary everywhere, they are not currently regarded as a stage.
      This could be changed in the future if necessary *)
-    let initialgraph = new Graph("~/sandbox/skalch/plugin/src/main/grgen/AllRules_0.grg")
+    let grgenrules = (Path Application.ExecutablePath).parent.subpath("AllRules_0.grg")
+    let initialgraph = new Graph(grgenrules.value)
     initialgraph.Impl.SetDebugLayout "Compilergraph"
     initialgraph.Impl.SetDebugLayoutOption ("CREATE_LOOP_TREE", "false")
     initialgraph.SetNodeColors [

@@ -24,7 +24,7 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
 {% macro finiteListBase(names, isInit, lstname) -%}
     {{ lstname }}:List -:ListFirst-> {{ lstname }}_first:ListFirstNode -:ListNext->
 {% for name in names %}
-        lstnode_{{ name.split(":")[0] }}:ListNode -:ListNext->
+        {{ lstname }}_node_{{ name.split(":")[0] }}:ListNode -:ListNext->
 {% endfor %}
         {{ lstname }}_last:ListLastNode;
 {% if isInit %}
@@ -32,9 +32,9 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
 {% endif %}
 {% for name in names %}
 {% if isInit %}
-        {{ lstname }} -:ListElt-> lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
+        {{ lstname }} -:ListElt-> {{ lstname }}_node_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
 {% else %}
-        lstnode_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
+        {{ lstname }}_node_{{ name.split(":")[0] }} -:ListValue-> {{ name }};
 {% endif %}
 {% endfor %}
 {%- endmacro %}

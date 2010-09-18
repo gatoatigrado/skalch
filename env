@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/bin/bash
 # environment variables (source it from your .bashrc?)
 
 function getpath() {
@@ -6,7 +6,14 @@ function getpath() {
     readlink -f "$*"
 }
 
-export skalchdir="$(dirname "$(getpath "$0")")"
+if ! [ -d "$skalchdir" ]; then
+    if [ -z "$0" ]; then
+        echo "ERROR -- if you are running this from bash, run
+        export skalchdir=<YOUR_PATH_TO_SKALCH_SANDBOX"
+    else
+        export skalchdir="$(dirname "$(getpath "$0")")"
+    fi
+fi
 export grgenfiles="$skalchdir"/plugin/src/main/grgen
 export angelicsimple="$skalchdir"/base/src/test/scala/angelic/simple
 export sugaredtest=$angelicsimple/SugaredTest.scala.ast.gxl
@@ -17,7 +24,7 @@ stagetf_sources_array=($(for i in $(cat "$stagetf"/filelist); do echo "$stagetf"
 export stagetf_sources="${stagetf_sources_array}"
 export MONO_PATH="$libgrg:$HOME/bin/fsharp/bin"
 
-function g() { grep -E "$@" **/*(grg|fs) | sed '/\/gen\//d'; }
+function g() { grep -E "$@" $(find . -iregex ".*\\.\\(grg\\|gm\\|fs\\)" | sed '/\/gen\//d'); }
 function tf() {
     mono "$grgenfiles"/transformer.exe "$@"
 }

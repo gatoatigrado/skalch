@@ -25,7 +25,8 @@ edge class SymbolOwner;
 edge class EnclosingFcn;
 edge class BridgeFcn;
 node class EmptyChain extends ScAstNode;
-node class Annotation;
+// typename only for debugging
+node class Annotation { typename : string; }
 
 
 // === Abstract node types ===
@@ -106,8 +107,9 @@ node class BlockifyValDef extends ValDef;
 node class ThisVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
 node class ThisValDef extends ValDef;
-edge class ObjectSymbol;
-edge class ClassSymbol;
+edge class ObjectSymbol connect Symbol[0:1] --> Symbol[0:1];
+edge class ClassSymbol connect Symbol[0:1] --> Symbol[0:1];
+edge class Specialized connect Symbol[0:1] --> Symbol[0:1];
 
 node class CudaKernelSymbol extends Symbol;
 node class ParallelIndexSymbol extends Symbol;
@@ -425,6 +427,9 @@ edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
 
 
 // place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 // add unified here
 
 
@@ -546,6 +551,7 @@ node class FcnCallBinaryLessThanOrEqual extends FcnBinaryCall { strop = "<="; }
 node class FcnCallBinaryLogicAnd extends FcnBinaryCall { strop = "&"; }
 node class FcnCallBinaryLogicOr extends FcnBinaryCall { strop = "|"; }
 node class FcnCallBinaryBitwiseXor extends FcnBinaryCall { strop = "^"; }
+node class FcnCallBinaryModulo extends FcnBinaryCall { strop = "%"; }
 node class FcnCallBinaryNotSameObj extends FcnBinaryCall { strop = "!="; }
 node class FcnCallBinaryPrimitiveEquals extends FcnBinaryCall { strop = "=="; }
 node class FcnCallBinaryPrimitiveNotEquals extends FcnBinaryCall { strop = "!="; }
@@ -554,7 +560,9 @@ node class FcnCallBinaryStringConcat extends FcnBinaryCall { strop = "cat"; }
 node class FcnCallBinarySubtract extends FcnBinaryCall { strop = "-"; }
 
 node class FcnCallTypeApply extends FcnCall;
+
 node class FcnCallUnaryIntCast extends FcnCall;
+node class FcnCallUnaryLongCast extends FcnCall;
 node class FcnCallUnaryNonzero extends FcnCall;
 node class FcnCallUnaryNegative extends FcnCall;
 // ctor new Array(length); cf below

@@ -46,7 +46,7 @@ rule unionSubSymbol {
         w:Node -e:Edge-> y;
         modify { delete(e); w -:typeof(e)-> x; }
     }
-    modify { delete(y); }
+    modify { delete(y); emit("union symbol " + x.uniqueSymbolName + "\n"); }
 }
 
 test twoFcnsForSameSymbol {

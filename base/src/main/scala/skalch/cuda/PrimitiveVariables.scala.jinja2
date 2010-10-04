@@ -1,0 +1,33 @@
+package skalch.cuda
+
+import skalch.AngelicSketch
+import skalch.cuda.annotations._
+import sketch.util.DebugOut
+
+/**
+ * Base class for a deterministic CUDA kernel
+ * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
+ * @license This file is licensed under BSD license, available at
+ *          http://creativecommons.org/licenses/BSD/. While not required,
+ *          if you make changes, please consider contributing back!
+ */
+
+/// would contain deref, but need to avoid specialization
+abstract class Ptr
+
+{% for typ, ctypename in [("Int", "int"), ("Long", "unsigned long long")] %}
+@scPointerObject("{{ ctypename }}") case class {{ typ }}Ptr(val deref : {{ typ }}) extends Ptr {
+    @scSpecialFcn def atomicAdd (
+        amnt : {{ typ }} @scCTypeNameOverride("{{ ctypename }}")) = 0
+    @scSpecialFcn def atomicExch(
+        amnt : {{ typ }} @scCTypeNameOverride("{{ ctypename }}")) = 0
+    @scSpecialFcn def atomicCAS (
+        amnt : {{ typ }} @scCTypeNameOverride("{{ ctypename }}")) = 0
+    @scSpecialFcn def atomicAnd (
+        amnt : {{ typ }} @scCTypeNameOverride("{{ ctypename }}")) = 0
+    @scSpecialFcn def atomicXor (
+        amnt : {{ typ }} @scCTypeNameOverride("{{ ctypename }}")) = 0
+    @scSpecialFcn def atomicOr  (
+        amnt : {{ typ }} @scCTypeNameOverride("{{ ctypename }}")) = 0
+}
+{% endfor %}

@@ -5,4 +5,4 @@ read name
 cp unified-template.txt unified/$name.unified.grg
 sed -i -r "s/\\/\\/ add unified here/#include \"rules\\/gen\\/$name.grg\"\n\\0/g" AllRules_0.grg
 sed -i -r "s/\\/\\/ add unified here/{% include \"nodes\\/gen\\/$name.gm\" %}\n\\0/g" ScalaAstModel.gm.jinja2
-kate -u unified/$name.unified.grg
+readlink -f unified/$name.unified.grg

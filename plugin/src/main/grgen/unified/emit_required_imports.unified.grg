@@ -31,7 +31,7 @@ xgrs removeEnclosingLinks* & deleteDangling* & cleanupTmpEdges*
 
 {% block grg %}
 rule setCalledMethods {
-    x:FcnCall -:FcnCallSymbol-> y:Symbol;
+    x:FcnCall \ CudaParallelIndexCall -:FcnCallSymbol-> y:Symbol;
     negative { y -:CalledMethod-> y; }
     modify { y -:CalledMethod-> y; }
 }

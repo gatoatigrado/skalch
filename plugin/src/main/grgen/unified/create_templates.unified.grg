@@ -7,7 +7,9 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain a
 copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
 
-DESCRIPTION OF FILE HERE
+Rewrite functionality for exporting specific templates -- do some
+cleanup, echo each template class so the F# transformer knows what
+they are, then isolate them individually.
 
 remember to update transformer.fs
 
@@ -78,6 +80,27 @@ rule printAndRetypeTemplates {
     }
 }
 
+
+
+{#
+rule printAndRetypeClassTemplates {
+    x:ClassDef
+    x -:ClassDefFieldsList-> :List
+        -:ListFirst-> :ListFirstNode
+        -:ListNext-> first:ListNode
+        -:ListValue-> outersym:OuterSymbol;
+    outersym -:TypeSymbol-> template_sym:Symbol;
+    
+    modify {
+        next:TemplateClass<x>
+            -:Template
+        x -:TemplateClassSymbol-> template_sym;
+    }
+}
+#}
+
+
+
 rule IsolateTemplate(var name : string) {
     x:TemplateFcn;
     if { x.template == name; }
@@ -96,35 +119,5 @@ rule removeToExport {
     x:TemplateToExport;
     modify { delete(x); }
 }
-
-/*
-rule uniqueSymNamesTypesPrecedence {
-    x:Symbol;
-    y:Symbol;
-    if { x.fullSymbolName == y.fullSymbolName; }
-    z:Node -:TypeSymbol-> y;
-    hom(x, z);
-    negative { x; . -:TypeSymbol-> x; }
-
-    modify {
-        x.fullSymbolName = x.fullSymbolName + "-ALTNAME";
-    }
-}
-
-rule uniqueSymNamesFcnPrecedence {
-    x:Symbol;
-    y:Symbol;
-    if { x.fullSymbolName == y.fullSymbolName; }
-
-    // $y is a function symbol, $x is not.
-    // rationale: functions are more likely called in libraries.
-    alternative {
-        A { . -:FcnDefSymbol-> y; }
-        B { . -:FcnCallSymbol-> y; }
-    }
-    negative { . -:FcnDefSymbol-> x; }
-    negative { . -:FcnCallSymbol-> x; }
-}
-*/
 
 {% endblock %}

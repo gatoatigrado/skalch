@@ -5,9 +5,16 @@ package skalch.cuda.annotations
  * are many possible
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required,
+ *          if you make changes, please consider contributing back!
  */
-class cudakernel extends StaticAnnotation
-class CNoPtr extends StaticAnnotation
-class CRawArrPtr extends StaticAnnotation
+class scKernel extends StaticAnnotation
+class scCopy extends StaticAnnotation
+class scSpecialFcn extends StaticAnnotation
+class scIField extends StaticAnnotation
+class scInlineArray extends StaticAnnotation
+class scPtr extends StaticAnnotation
+class scRawArray extends StaticAnnotation
+class scDefaultCopyInline extends StaticAnnotation
+class scPointerObject(c_name : String) extends StaticAnnotation
+class scCTypeNameOverride(c_name : String) extends StaticAnnotation

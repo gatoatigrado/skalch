@@ -8,8 +8,8 @@ import sketch.util.DebugOut
  * compatibility.
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required,
+ *          if you make changes, please consider contributing back!
  */
 abstract class AngelicSketch {
     abstract class _SketchConstruct

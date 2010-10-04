@@ -20,6 +20,9 @@ open edu.berkeley.cs.grgenmods.fsharp.util_fcns
 open edu.berkeley.cs.grgenmods.fsharp.graph
 open edu.berkeley.cs.grgenmods.fsharp.cmdline
 open edu.berkeley.cs.grgenmods.fsharp.stages
+(*--------------------------------------------------
+* open edu.berkeley.cs.grgenmods.fsharp.modular_compile_rules
+*--------------------------------------------------*)
 open edu.berkeley.cs.grgenmods.fsharp.dependencies
 open edu.berkeley.cs.skalch.transformer.rewrite_rules
 open edu.berkeley.cs.skalch.transformer.rewrite_stage_info
@@ -30,7 +33,10 @@ module Config =
     let template name = templates.subpath (sprintf "%s.gxl.gz" name)
     let library name = libraries.subpath (sprintf "%s.gxl.gz" name)
 
-let create_rewrite_stage name =
+
+
+(* specialized stages for IO, not just rewrites *)
+let create_template_rewrite_stage name =
     let rewrites = [ Xgrs (sprintf "[IsolateTemplate(\"%s\")]" name);
         Xgrs "[deletePackageDefs] & deleteDangling*";
         Xgrs "[removeToExport]" ]
@@ -39,13 +45,23 @@ let create_rewrite_stage name =
         description = (sprintf "export the template %s" name);
         stage = rewriteStage rewrites }
 
+let create_libraries_rewrite_stage name =
+    let rewrites = [ Xgrs (sprintf "[IsolateClassDef(\"%s\")]" name);
+        Xgrs "[deletePackageDefs] & deleteDangling*";
+        Xgrs "[removeToExport]";
+        DebugXgrs "deleteDangling" ]
+    { stageDefault with
+        name = (sprintf "ExportLibraryInner[%s]" name);
+        description = (sprintf "add the class %s to known libraries" name);
+        stage = rewriteStage rewrites }
+
 (* export each template individually. The export functions "destroy" the graph
  for any futher exports, so a graph stack is used to revert stage *)
 let export_templates (results:RewriteResult list) graph =
     let exportfcn (results, (graph:Graph)) name =
         let graphstack = graph.Impl.GetGraphStack()
         graphstack.PushClone()
-        let results, e_g = processStage (create_rewrite_stage name) results graph
+        let results, e_g = processStage (create_template_rewrite_stage name) results graph
         printfn "exporting template %s" (Config.template name).value
         let r_exp = e_g.Export (Config.template name)
         graphstack.Pop() |> ignore
@@ -53,6 +69,23 @@ let export_templates (results:RewriteResult list) graph =
     (getAllStageEmit results).Split '\n'
     |> Array.map (fun x -> x.Split())
     |> Array.filter (fun x -> (x.Length = 2) && "Template" = x.[0])
+    |> Array.map (fun x -> x.[1])
+    |> Array.fold exportfcn (results, graph)
+
+(* TODO -- this is very stupidly duplicated code, I just don't want to re-refactor
+ * the above at the moment *)
+let export_libraries (results:RewriteResult list) graph =
+    let exportfcn (results, (graph:Graph)) name =
+        let graphstack = graph.Impl.GetGraphStack()
+        graphstack.PushClone()
+        let results, e_g = processStage (create_libraries_rewrite_stage name) results graph
+        printfn "exporting class to library file '%s'" (Config.library name).value
+        let r_exp = e_g.Export (Config.library name)
+        graphstack.Pop() |> ignore
+        (r_exp :: results, graph)
+    (getAllStageEmit results).Split '\n'
+    |> Array.map (fun x -> x.Split())
+    |> Array.filter (fun x -> (x.Length = 2) && "Library" = x.[0])
     |> Array.map (fun x -> x.[1])
     |> Array.fold exportfcn (results, graph)
 
@@ -72,6 +105,12 @@ let ExportTemplates = {
         name = "ExportTemplates"
         description = "Export each template specified by the CreateTemplates stage"
         stage = CustomStage export_templates }
+
+let ExportLibraries = {
+    stageDefault with
+        name = "ExportLibraries"
+        description = "Export each class specified by the CreateTemplates stage"
+        stage = CustomStage export_libraries }
 
 let ImportTemplates = {
     stageDefault with
@@ -93,19 +132,7 @@ let CstyleMain = {
         description = "convert AST to C-style syntax (e.g. if statements aren't expressions)"
         stage = MetaStage [CstyleStmts; CstyleAssns; CstyleMinorCleanup] }
 
-(* metastages *)
-let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
-let no_oo_meta = [ ConvertThis ]
-(* add ssa to below *)
-let optimize_meta = [ ArrayLowering ]
-let sketch_meta = [ ProcessAnnotations; LossyReplacements;
-    CleanSketchConstructs; SketchFinalMinorCleanup; SketchNospec;
-    LowerTprint ]
-let cuda_meta = [ ProcessAnnotations; LossyReplacements; SpecializeCudaFcnCalls; CudaCleanup; CudaGenerateCode ]
-let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs; BlockifyFcndefs; CstyleMain ]
-let library_meta = [ EmitRequiredImports ]
-let create_templates_meta = [ NiceLists; CreateTemplates; ExportTemplates;
-    DecorateNodes; CleanSketchConstructs; RedirectAccessorsToFields ]
+
 
 (* zones -- abstraction of dependencies
  read concrete dependencies below first
@@ -133,6 +160,8 @@ let zone_nice_lists =
         ProcessAnnotations
         CreateTemplates
         ExportTemplates
+        CreateLibraries
+        ExportLibraries
         LossyReplacements
         NewInitializerFcnStubs
         SpecializeCudaFcnCalls ]
@@ -189,6 +218,7 @@ let deps =
         (* zone_nice_lists intradependencies *)
         ProcessAnnotations <?? LossyReplacements
         CreateTemplates <?? ExportTemplates
+        CreateLibraries <?? ExportLibraries
         LossyReplacements <?? NewInitializerFcnStubs
 
         (* SSA form intradependencies *)
@@ -199,9 +229,34 @@ let deps =
         CudaCleanup <?? CudaGenerateCode
     ]
 
+
+
+(* metastages *)
+let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
+let no_oo_meta = [ ConvertThis ]
+(* add ssa to below *)
+let optimize_meta = [ ArrayLowering ]
+let sketch_base_meta = [ CleanSketchConstructs; DecorateNodes;
+    LossyReplacements; LowerTprint; NiceLists ]
+let sketch_meta = sketch_base_meta @ [ ProcessAnnotations;
+    SketchFinalMinorCleanup; SketchNospec ]
+let cuda_meta = sketch_base_meta @ [ ProcessAnnotations;
+    SpecializeCudaFcnCalls; CudaCleanup; CudaGenerateCode ]
+let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs;
+    BlockifyFcndefs; CstyleMain ]
+let library_meta = [ EmitRequiredImports ]
+let create_templates_meta = sketch_base_meta @ [ CreateTemplates;
+    ExportTemplates;
+    DecorateNodes; CleanSketchConstructs; RedirectAccessorsToFields ]
+let create_libraries_meta = sketch_base_meta @ [ CreateLibraries;
+    ExportLibraries;
+    DecorateNodes; CleanSketchConstructs; RedirectAccessorsToFields ]
+
 (* Goals -- sets of stages *)
 let create_templates = { name = "create_templates";
     stages=innocuous_meta @ create_templates_meta }
+let create_libraries = { name = "create_libraries";
+    stages=innocuous_meta @ create_libraries_meta }
 let test = { name = "test"; stages=innocuous_meta @ [NiceLists] }
 let sketch = { name = "sketch";
     stages=innocuous_meta @ no_oo_meta @ optimize_meta @
@@ -210,14 +265,27 @@ let cuda = { name = "cuda";
     stages=innocuous_meta @ no_oo_meta @ optimize_meta @
         cstyle_meta @ library_meta @ cuda_meta }
 
-let all_goals = [create_templates; sketch; test; cuda]
+let all_goals = [create_templates; create_libraries; sketch; test; cuda]
 let all_stages = List.fold (fun x y -> x @ (y.stages)) [] all_goals
 
 (* Functions for command line parsing. Exposed so you can add aliases, etc. *)
 let goalMap, stageMap = (defaultGoalMap all_goals, defaultStageMap all_stages)
 
+
+
 [<EntryPoint>]
 let transformerMain(args : string[]) =
+    (* first, compile the actions *)
+    let grgendir = (Path Application.ExecutablePath).parent
+    let grgenmodel = grgendir.subpath("ScalaAstModel.gm")
+    let grgenAllRules = grgendir.subpath("AllRules_0.grg")
+    assert grgenAllRules.isfile
+    let rulesPath = grgendir.subpath("rules").subpath("gen")
+    (*--------------------------------------------------
+    * modular compilation extension not yet ready
+    * let xgrsActionLoad = compileRules rulesPath grgenmodel all_stages true
+    *--------------------------------------------------*)
+
     (* Basic parsing of the command line *)
     let cmdline = args |> Seq.toList |> parseCommandLine
 
@@ -231,8 +299,13 @@ let transformerMain(args : string[]) =
 
     (* Since actions are necessary everywhere, they are not currently regarded as a stage.
      This could be changed in the future if necessary *)
-    let grgenrules = (Path Application.ExecutablePath).parent.subpath("AllRules_0.grg")
-    let initialgraph = new Graph(grgenrules.value)
+
+    (*--------------------------------------------------
+    * modular compilation extension not yet ready
+    * let initialgraph = new Graph(grgenmodel, xgrsActionLoad)
+    *--------------------------------------------------*)
+
+    let initialgraph = new Graph(grgenAllRules.value)
     initialgraph.Impl.SetDebugLayout "Compilergraph"
     initialgraph.Impl.SetDebugLayoutOption ("CREATE_LOOP_TREE", "false")
     initialgraph.SetNodeColors [

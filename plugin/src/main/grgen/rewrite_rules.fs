@@ -380,3 +380,6 @@ let CreateTemplatesRules = [
     Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*"
     Xgrs "[printAndRetypeTemplates]" ] @ CleanTypedTmpBlockRules
 
+let CreateLibrariesRules = [
+    Xgrs "[printClassNames]" ] @ CleanTypedTmpBlockRules
+

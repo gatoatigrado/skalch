@@ -176,3 +176,9 @@ let CreateTemplates = {
         name = "CreateTemplates";
         description = "Transform RewriteTemplates.Template into useable templates"
         stage = rewriteStage CreateTemplatesRules }
+
+let CreateLibraries = {
+    stageDefault with
+        name = "CreateLibraries";
+        description = "Minor cleanup for exporting classes"
+        stage = rewriteStage CreateLibrariesRules }

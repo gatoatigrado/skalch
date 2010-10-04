@@ -1,12 +1,18 @@
-// -*- coding: utf-8 -*-
-// author: gatoatigrado (nicholas tung) [ntung at ntung]
+{% import "macros.grg" as macros with context %}
 
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+// copyright: University of California, Berkeley
+//
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
 // not use this file except in compliance with the License. You may obtain a
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
-
+//
 // generate unique symbol names with PrintRenamer nodes, which have a counter
 // for each symbol.
+{% endblock %}
+
+{% block grg %}
 
 rule setTmpSymbolNames {
     x:TmpSymbol;
@@ -39,3 +45,5 @@ rule finalizeSymbolNames {
     if { x.uid > 0; }
     modify { eval { x.name = x.name + x.uid; } }
 }
+
+{% endblock %}

@@ -81,6 +81,7 @@ abstract class NodeFactory {
 //         println("=== ANNOTATION NODE ===")
 //         println(info)
         var annot_node = new GrNode("Annotation", "annot_" + id_ctr())
+        annot_node.append_str_attr("typename", info.atp.typeSymbol.name.toString)
         val node_fcns = new BoundNodeFcns(annot_node, "Annotation")
         import node_fcns._
         symlink("Annotation", info.atp.typeSymbol)
@@ -127,6 +128,7 @@ abstract class NodeFactory {
                 else if (sym.isMethod) attr_edge("ClsMethod")
                 if (sym.isModuleClass) attr_edge("ObjectSymbol")
                 if (sym.isClass) attr_edge("ClassSymbol")
+                if (sym.hasFlag(symtab.Flags.SPECIALIZED)) attr_edge("Specialized")
 
                 ntyp match {
                     case ClassInfoType(parents, decls, type_sym) =>

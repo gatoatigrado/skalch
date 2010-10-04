@@ -81,7 +81,8 @@ killall:
 
 gen:
 	@mkdir -p plugin/src/main/resources/skalch/plugins
-	base/src/codegen/generate_files.py plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+	for i in $$grgenfiles/**/*.jinja2; do base/src/codegen/generate_files.py $$i; done
+	for i in base/src/main/scala/skalch/cuda/**/*.jinja2; do base/src/codegen/generate_files.py $$i; done
 	@make --quiet plugin/src/main/resources/skalch/plugins/type_graph.gxl
 	base/src/codegen/generate_files.py --no_rebuild
 

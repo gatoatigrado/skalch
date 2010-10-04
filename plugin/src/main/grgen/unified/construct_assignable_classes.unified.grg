@@ -1,12 +1,18 @@
-// -*- coding: utf-8 -*-
-// author: gatoatigrado (nicholas tung) [ntung at ntung]
+{% import "macros.grg" as macros with context %}
 
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+// copyright: University of California, Berkeley
+//
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
 // not use this file except in compliance with the License. You may obtain a
 // copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
-
+//
 // determine which classes can be instantiated by ?? or !!, and
 // write the code to do so.
+{% endblock %}
+
+{% block grg %}
 
 /// values which have SKETCH annotations, e.g. @ Range
 rule valueConstructAssigned {
@@ -47,3 +53,5 @@ rule classConstructAssigned {
     negative { cls -:CanBeConstructAssigned-> cls; }
     modify { cls -:CanBeConstructAssigned-> cls; }
 }
+
+{% endblock %}

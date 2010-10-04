@@ -1,0 +1,40 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// DESCRIPTION OF FILE HERE
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+// print names of classes
+rule printClassNames {
+    x:ClassDef -:ClassDefSymbol-> sym:Symbol;
+
+    modify {
+        emit("Library " + sym.fullSymbolName + "\n");
+    }
+}
+
+rule IsolateClassDef(var name : string) {
+    x:ClassDef -:ClassDefSymbol-> sym:Symbol;
+    if { sym.fullSymbolName == name; }
+
+    modify {
+        // not really templates, but same code anyway
+        x --> export_node:TemplateToExport;
+        export_node --> x;
+    }
+}
+
+{% endblock %}

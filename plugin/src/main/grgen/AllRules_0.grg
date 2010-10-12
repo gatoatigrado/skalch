@@ -42,4 +42,5 @@ using ScalaAstModel;
 #include "rules/gen/cuda_specials.grg"
 #include "rules/gen/cuda_generate_code.grg"
 #include "rules/gen/create_libraries.grg"
+#include "rules/gen/resolve_templates.grg"
 // add unified here

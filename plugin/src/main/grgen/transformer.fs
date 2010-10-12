@@ -100,6 +100,27 @@ let import_templates (results:RewriteResult list) (graph:Graph) =
     |> Array.map (fun x -> x.[2])
     |> Array.fold importfcn (results, graph)
 
+let resolve_gt (results:RewriteResult list) (graph:Graph) =
+    let processRewrite = (fun x -> processRewrite false graph (Xgrs x)) >> (fun (x, y) -> x)
+    let getGTInst instname basename () =
+        let rewrites = [
+            Xgrs (sprintf "isolateGT(\"%s\", \"%s\")" instname basename)
+            Xgrs "deleteDangling*"
+            Xgrs "emitGTParamsAndValues" ]
+        let r, _ = processRewriteLst graph rewrites
+
+        graph.Debug true
+        r, graph.CurrentGraph
+
+    let r2 = processRewrite "deleteGTInstanceTypeDefinition* && deleteDangling*"
+    let results = r2 :: results
+
+    RegexMatchAll "TemplateInstance ([\\s\\w$\\.\\_]+) of ([\\s\\w$\\.\\_]+)\\n" r2.emitout
+    |> List.fold (fun (results, retv) ({groups=g}) -> 
+        let r3, instgraph = graph.withstack(getGTInst g.[0] g.[1])
+        (r3 @ results, (g.[0], g.[1], instgraph) :: retv)) (results, [])
+    |> fun (results, _) -> results, graph
+
 let ExportTemplates = {
     stageDefault with
         name = "ExportTemplates"
@@ -119,6 +140,12 @@ let ImportTemplates = {
         (* run it before others, since it uses the last emitout values. *)
         priority = -0.1f
         stage = CustomStage import_templates }
+
+let ResolveGT = {
+    stageDefault with
+        name = "ResolveGT"
+        description = "Logic stage of specializing generics (i.e. using them as C++ templates)"
+        stage = CustomStage resolve_gt }
 
 let ProcessAnnotations = {
     stageDefault with
@@ -158,6 +185,7 @@ let zone_nice_lists =
         SimplifyConstants
         RaiseSpecialGotos
         ProcessAnnotations
+        ResolveGT
         CreateTemplates
         ExportTemplates
         CreateLibraries
@@ -207,6 +235,7 @@ let deps =
         BlockifyFcndefs <?? CleanSketchConstructs
         SimplifyConstants <+? ProcessAnnotations
         ProcessAnnotations <+? CstyleMain
+        ProcessAnnotations <+? ResolveGT
 
         (* most later stages require decorate... *)
         DecorateNodes <+? NiceLists
@@ -237,7 +266,7 @@ let no_oo_meta = [ ConvertThis ]
 (* add ssa to below *)
 let optimize_meta = [ ArrayLowering ]
 let sketch_base_meta = [ CleanSketchConstructs; DecorateNodes;
-    LossyReplacements; LowerTprint; NiceLists ]
+    LossyReplacements; LowerTprint; NiceLists (*; ResolveGT *) ]
 let sketch_meta = sketch_base_meta @ [ ProcessAnnotations;
     SketchFinalMinorCleanup; SketchNospec ]
 let cuda_meta = sketch_base_meta @ [ ProcessAnnotations;
@@ -345,6 +374,9 @@ let transformerMain(args : string[]) =
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"
+    initialgraph.SetNodeNamesFromAttr "symbolName" "Symbol"
+    initialgraph.SetNodeNamesFromAttr "typename" "Annotation"
+    List.map (initialgraph.SetNodeNamesFromAttr "value") [ "BooleanConstant"; "CharConstant"; "LongConstant"; "IntConstant"; "StringConstant" ] |> ignore
     List.iter (initialgraph.SetEdgeLabel "") [ "ListElt"; "ListNext"; "ListValue" ]
 
     (* Each step of this loop processes one stage *)

@@ -18,3 +18,9 @@ class scRawArray extends StaticAnnotation
 class scDefaultCopyInline extends StaticAnnotation
 class scPointerObject(c_name : String) extends StaticAnnotation
 class scCTypeNameOverride(c_name : String) extends StaticAnnotation
+
+class scTemplateClass(params : String*) extends StaticAnnotation
+class scRetype(typ : Class[_]) extends StaticAnnotation
+class scRetypeTemplate(name : String) extends StaticAnnotation
+class scRetypeTemplateInner(name : String) extends StaticAnnotation
+class scTemplateInstanceType(paramValues : Class[_]*) extends StaticAnnotation

@@ -12,6 +12,8 @@ import sketch.util.DebugOut
  *          if you make changes, please consider contributing back!
  */
 abstract class CudaKernel extends AngelicSketch {
+    class TemplateType
+
     class ParallelIndex() {
         val x : Int = 0
         val y : Int = 0

@@ -12,7 +12,10 @@ module edu.berkeley.cs.skalch.transformer.rewrite_rules
 
 open edu.berkeley.cs.grgenmods.fsharp.stages
 
-let WarnUnsupportedRules = [Xgrs "unsupportedWarnAll"]
+let WarnUnsupportedRules = [
+    ValidateNeg ("existsUnsupportedAssignToNonvar", "assignment left-hand sides must be variables or field accesses");
+    ValidateNeg ("existsUnsupportedArrayLength", "array length expressions are not supported.")
+    ]
 
 let DeleteMarkedIgnoreRules = [Xgrs "setIgnoreAnnotationType*";
     Xgrs "deleteIgnoreAnnotated* & deleteDangling*"]
@@ -28,6 +31,9 @@ let CleanupNonuniqueSymbolsRules = [
     Xgrs "unionSubSymbol*" ]
 
 let DecorateNodesRules = [
+    (* misc cleanup *)
+    Xgrs "cleanupLiteralTypeOnClassOf*"
+
     Xgrs "[setRootSymbol]"
     ValidateXgrs ("existsRootSymbol && ! multipleRootSymbols", "ASG has multiple root symbols")
     Xgrs "replaceAngelicSketchSymbol*"
@@ -38,6 +44,7 @@ let DecorateNodesRules = [
     Xgrs "[setOuterSymbol]"
     Xgrs "setScalaRoot & setScalaSubtypes*"
     Xgrs "setSketchClasses*"
+
     (* see note in grg file; ValidateXgrs "! existSymbolsWithSameUniqueName" *)
     Xgrs "deleteBridgeFunctions*"
     Xgrs "deleteDangling*"
@@ -111,6 +118,9 @@ let CleanTypedTmpBlockRules = [
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
     [
+        (* gt-independent retype annotations *)
+        Xgrs "retypeSymbolsAnnotations*"
+
         (* static array length annotations *)
         Xgrs "createAnnotArrayLengthSyms*"
         Xgrs "setAnnotArrayTypeSymbols*"
@@ -142,6 +152,11 @@ let ProcessAnnotationsRules2 =
     Xgrs "createFcnCallTemplates*";
     ValidateNeg ("existsUnreplacedCall", "A requested template was not imported or correctly connected");
     ValidateNeg ("existsDanglingTemplateFcn", "An template imported was not connected") ]
+
+let ResolveTemplatesRules = [
+    Xgrs "deleteGTInstanceTypeDefinition*"
+    Xgrs "deleteDangling*"
+    ]
 
 let EmitRequiredImportsRules = [
     Xgrs "[setEnclosingFunctionInitial]"
@@ -244,7 +259,10 @@ let ArrayLoweringRules = [
     (* propagate types to further variables *)
     Xgrs "updateAssignLhsTypes*"
     Xgrs "updateValDefSymbolTypes*"
-    Xgrs "updateVarRefTypes*" ]
+    Xgrs "updateVarRefTypes*"
+
+    ValidateNeg ("existsAssignToDiffLenArray", "no alternating/variable array lengths yet, sorry")
+    ]
 
 let LowerPhiFunctionsRules = [
     Xgrs "markPhiSyms* & createCounterVars*"

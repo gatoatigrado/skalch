@@ -280,6 +280,13 @@ rule countList(lst:List, y:IntConstant) {
     }
 }
 
+pattern SingletonList(lst:List, v:Node) {
+    lst -:ListFirst-> :ListFirstNode
+        -:ListNext-> vnode:ListNode
+        -:ListNext-> :ListLastNode;
+    vnode -:ListValue-> v;
+}
+
 
 
 //--------------------------------------------------

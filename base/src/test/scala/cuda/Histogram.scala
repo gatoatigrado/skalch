@@ -13,8 +13,8 @@ import sketch.util._
  */
 class Histogram() extends CudaKernel {
     type Word = Int
-    type IntArr = ScIArray1D[IntPtr]
-    type WordArr = ScIArray1D[Word]
+    type IntArr = Array[IntPtr]
+    type WordArr = Array[Word]
 
     class Sentence {
         val en : WordArr @ ArrayLen(40) @ scIField = null
@@ -23,6 +23,7 @@ class Histogram() extends CudaKernel {
 
     class BloomFilter {
         val keys : IntArr = null
+        val num_keys : Int = 0
 
         def increment(idx : Int, amnt : Int) {
             val idx2 = if (idx < 0) -idx else idx
@@ -57,7 +58,8 @@ class Histogram() extends CudaKernel {
     def hash2(en : Word, fr : Word) = en * 207139 + fr * 143797
 
     @scKernel def addToHistogram(
-            sentences : ScIArray1D[Sentence],
+            sentences : Array[Sentence],
+            num_sent : Int,
             bigram : BloomFilter @ scCopy)
     {
         var sent_idx = blockIdx.x

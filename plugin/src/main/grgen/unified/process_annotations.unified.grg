@@ -92,6 +92,32 @@ rule setCudaFunction {
     }
 }
 
+// Sometimes, Scala sets ridiculous symbol types,
+// e.g. Object for arrays
+rule retypeSymbolsAnnotations {
+    x:Symbol -e:SymbolAnnotation-> annot:Annotation
+        -:AnnotationArgsList-> lst:List;
+    cls:ClassOfConstant -:ClassOfConstantSymbol-> clssym:Symbol;
+    :SingletonList(lst, cls);
+    if { annot.typename == "scRetype"; }
+
+    iterated {
+        x -e2:TypeSymbol-> othersym:Symbol;
+        modify { delete(e2); x -:typeof(e2)-> clssym; }
+    }
+
+    modify {
+        delete(e);
+        exec(propagateSpecificRetypesAstTypes(x, clssym)*);
+    }
+}
+
+rule propagateSpecificRetypesAstTypes(x : Symbol, clssym : Symbol) {
+    y:ScAstNode -:ScTermSymbol-> x;
+    y -e2:ScTypeSymbol-> .;
+    modify { delete(e2); y -:typeof(e2)-> clssym; }
+}
+
 
 
 //--------------------------------------------------

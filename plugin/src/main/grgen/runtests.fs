@@ -65,7 +65,7 @@ let testsMain(args:string[]) =
     let verbose = options |> List.filter (fun x -> x = "--verbose") |> List.isEmpty |> not
 
     (* scala to scala gxl *)
-    SubProc("make", ["py-fsc-compile"]).wait
+    SubProc("make", ["compile"]).wait
 
     (* scala gxl to sketch gxl *)
     let getopts (x:TestFile) =

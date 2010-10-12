@@ -313,8 +313,12 @@ abstract class ScalaGxlNodeMap() extends NodeFactory {
                         node.set_type("UnitConstant", "Constant")
                     case null =>
                         node.set_type("NullTypeConstant", "Constant")
+                    case TypeRef(pre, sym, args) =>
+                        node.set_type("ClassOfConstant", "Constant")
+                        symlink("ClassOfConstant", sym)
                     case r : AnyRef =>
-                        not_implemented("scala constant literal", r.getClass().getName(),  value.toString)
+                        not_implemented("scala constant literal",
+                            r.getClass().getName(), value.toString)
                     case _ =>
                         not_implemented("scala constant literal", value.toString)
                 }

@@ -95,6 +95,8 @@ node class FixedArraySymbol extends Symbol { value : int; }
 node class VariableArraySymbol extends Symbol;
 edge class SpecializedSymbolBase;
 
+node class GTInstSymbol extends Symbol; // instance of a generic template
+
 
 
 // === Intermediate nodes ===
@@ -238,10 +240,6 @@ node class NSRSafeParens extends NSRParens;
 
 
 // ==== unified modules ====
-
-// edge class MyEdge
-// node class MyNode
-
 
 
 // edge class MyEdge
@@ -430,6 +428,9 @@ edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
 
 
 // place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+
+
+edge class GTInstParamMap;
 // add unified here
 
 
@@ -606,6 +607,8 @@ node class IntConstant extends Constant {
 node class StringConstant extends Constant {
     value : string;
 }
+node class ClassOfConstant extends Constant;
+edge class ClassOfConstantSymbol extends ScTypeSymbol;
 node class NullTypeConstant extends Constant;
 node class UnitConstant extends Constant;
 

@@ -95,6 +95,8 @@ node class FixedArraySymbol extends Symbol { value : int; }
 node class VariableArraySymbol extends Symbol;
 edge class SpecializedSymbolBase;
 
+node class GTInstSymbol extends Symbol; // instance of a generic template
+
 
 
 // === Intermediate nodes ===
@@ -267,6 +269,7 @@ node class NSRSafeParens extends NSRParens;
 {% include "nodes/gen/cuda_specials.gm" %}
 {% include "nodes/gen/cuda_generate_code.gm" %}
 {% include "nodes/gen/create_libraries.gm" %}
+{% include "nodes/gen/resolve_templates.gm" %}
 // add unified here
 
 
@@ -446,6 +449,8 @@ node class IntConstant extends Constant {
 node class StringConstant extends Constant {
     value : string;
 }
+node class ClassOfConstant extends Constant;
+edge class ClassOfConstantSymbol extends ScTypeSymbol;
 node class NullTypeConstant extends Constant;
 node class UnitConstant extends Constant;
 

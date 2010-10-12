@@ -46,4 +46,9 @@ rule removeEnclosingLinks {
     }
 }
 
+rule cleanupLiteralTypeOnClassOf {
+    x:ClassOfConstant -e:LiteralTypeSymbol-> .;
+    modify { delete(e); }
+}
+
 {% endblock %}

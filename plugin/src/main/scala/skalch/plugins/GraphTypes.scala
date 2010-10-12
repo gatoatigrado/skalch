@@ -132,11 +132,16 @@ abstract class NodeFactory {
 
                 ntyp match {
                     case ClassInfoType(parents, decls, type_sym) =>
-                        parents foreach ( (x : Type) => symlink("ParentType", x.typeSymbol) )
+                        parents.firstOption.foreach( (x : Type) =>
+                            symlink("ParentType", x.typeSymbol) )
 
                     case TypeRef(pre, sym, args) =>
-                        ntyp.parents.foreach( (x : Type) =>
+                        ntyp.parents.firstOption.foreach( (x : Type) =>
                             symlink("ParentType", x.typeSymbol) )
+                        //--------------------------------------------------
+                        // ntyp.parents.foreach( (x : Type) =>
+                        //     symlink("ParentType", x.typeSymbol) )
+                        //-------------------------------------------------- 
                         args match {
                             case Nil => ()
                             case x => nice_list("SymbolTypeArgsList", (args map ((x:Type) => getsym(x.typeSymbol))))

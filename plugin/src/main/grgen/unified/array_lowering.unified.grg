@@ -265,4 +265,9 @@ rule updateVarRefTypes {
     }
 }
 
+test existsAssignToDiffLenArray {
+    x:Assign -:AssignLhs-> . -:ScTypeSymbol-> fixed1:FixedArraySymbol;
+    x -:AssignRhs-> . -:ScTypeSymbol-> fixed2:FixedArraySymbol;
+}
+
 {% endblock %}

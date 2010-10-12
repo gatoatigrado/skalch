@@ -8,7 +8,6 @@ class TestAnnotatedHoles() extends AngelicSketch {
     def main(x : Int) {
         var arr = Array(1, 2, 3)
         arr = new Array(4)
-        // increment(arr)
         assert(arr(2) + (?? : Int7) == x)
     }
 }

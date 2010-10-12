@@ -102,6 +102,9 @@ class ExternalGxlTransformer(val global: Global) extends Plugin {
                     // def print_subident(text:String) = print_indented("- " + text)
 
                     if ((sym != null) && (sym != NoSymbol)) {
+                    //--------------------------------------------------
+                    // println("annottf visiting " + sym.name.toString())
+                    //-------------------------------------------------- 
                         (sym.annotations ::: sym.tpe.normalize.annotations) match {
                             case Nil => ()
                             case lst => annotations.put(sym.fullName, lst)

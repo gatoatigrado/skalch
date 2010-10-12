@@ -84,7 +84,7 @@ let RaiseSpecialGotos = {
 let ProcessAnnotations1 = {
     stageDefault with
         name = "ProcessAnnotations1"
-        description = "Annotation pre-processing"
+        description = "Array / hole / retype annotation pre-processing"
         stage = rewriteStage ProcessAnnotationsRules1 }
 
 let ProcessAnnotations2 = {
@@ -92,6 +92,12 @@ let ProcessAnnotations2 = {
         name = "ProcessAnnotations2"
         description = "Replace annotations with their literal"
         stage = rewriteStage ProcessAnnotationsRules2 }
+
+let ResolveTemplates = {
+    stageDefault with
+        name = "ResolveTemplates"
+        description = "Use annotated generic classes as C++ templates"
+        stage = rewriteStage ResolveTemplatesRules }
 
 let EmitRequiredImports = {
     stageDefault with

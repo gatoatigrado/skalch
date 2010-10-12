@@ -12,9 +12,11 @@ import sketch.util.DebugOut
  *          if you make changes, please consider contributing back!
  */
 
-class ScIArray1D[T] {
+@scTemplateClass("T") abstract class ScIArray1D[T] {
     val length : Int = 0
-    val values : Array[T] @scInlineArray @scRawArray = null
-    def apply(idx : Int) = values(idx)
-    def update(idx : Int, value : T) { values(idx) = value; }
+    val values : Array[T] @scRetypeTemplateInner("T") @scInlineArray @scRawArray = null
+    @scRetypeTemplate("T") def apply(idx : Int) = values(idx)
+    def update(idx : Int, @scRetypeTemplate("T") value : T) { values(idx) = value; }
 }
+
+// @scTemplateInstanceType("Int") class ScIArray1D_Int extends ScIArray1D[Int]

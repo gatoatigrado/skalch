@@ -177,7 +177,7 @@ set smartindent
 set softtabstop=4
 set tabstop=4
 set termencoding=utf-8
-set window=95
+set window=94
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -186,37 +186,37 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +7 base/src/test/scala/angelic/simple/SugaredTest.scala
-badd +90 plugin/src/main/grgen/unified/common.unified.grg
+badd +12 base/src/test/scala/angelic/simple/SugaredTest.scala
+badd +1 plugin/src/main/grgen/unified/common.unified.grg
 badd +46 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +1 plugin/src/main/grgen/build_templates.py
-badd +412 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +130 plugin/src/main/grgen/rewrite_rules.fs
+badd +382 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+badd +30 plugin/src/main/grgen/rewrite_rules.fs
 badd +150 base/src/codegen/gxltosketch/gxltosketch.py
 badd +13 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
 badd +15 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +86 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
-badd +3 base/src/test/scala/angelic/simple/Test0003_WhileLoops.scala
-badd +8 base/src/test/scala/angelic/simple/Test0005_tprint.scala
+badd +8 base/src/test/scala/angelic/simple/Test0003_WhileLoops.scala
+badd +6 base/src/test/scala/angelic/simple/Test0005_tprint.scala
 badd +19 base/src/main/scala/skalch/AngelicSketch.scala
 badd +140 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
 badd +121 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
-badd +10 plugin/src/main/grgen/unified/process_annotations.unified.grg
+badd +106 plugin/src/main/grgen/unified/process_annotations.unified.grg
 badd +27 plugin/src/main/grgen/AllRules_0.grg
 badd +1 plugin/src/main/grgen/rules/simplify_sketch_constructs.grg
 badd +42 plugin/src/main/grgen/unified/macros.grg
 badd +35 base/src/main/scala/skalch/RewriteTemplates.scala
 badd +60 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
-badd +240 plugin/src/main/grgen/transformer.fs
+badd +265 plugin/src/main/grgen/transformer.fs
 badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
-badd +132 plugin/src/main/grgen/unified/array_lowering.unified.grg
+badd +253 plugin/src/main/grgen/unified/array_lowering.unified.grg
 badd +313 plugin/src/main/scala/skalch/plugins/ScalaGxlNodeMap.scala
-badd +17 base/src/test/scala/cuda/VectorAdd.scala
+badd +10 base/src/test/scala/cuda/VectorAdd.scala
 badd +2 base/src/main/java/sketch/compiler/parser/gxlimport/GxlSketchOptions.java
 badd +16 base/src/main/scala/skalch/cuda/CudaKernel.scala
 badd +41 plugin/src/main/grgen/rules/print_graph/sym_names.grg
-badd +79 plugin/src/main/grgen/rewrite_stage_info.fs
+badd +177 plugin/src/main/grgen/rewrite_stage_info.fs
 badd +48 plugin/src/main/grgen/unified/cuda_specials.unified.grg
 badd +198 plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
 badd +142 plugin/src/main/grgen/unified/generate_cfg.unified.grg
@@ -225,7 +225,7 @@ badd +281 plugin/src/main/grgen/unified/nice_lists.unified.grg
 badd +36 plugin/src/main/grgen/unified/sketch_nospec.unified.grg
 badd +26 base/src/main/scala/skalch/cuda/annotations/CudaAnnotations.scala
 badd +18 ~/sandbox/grgen/engine-net-2/FSharpBindings/util_fcns.fs
-badd +15 base/src/test/scala/cuda/Histogram.scala
+badd +35 base/src/test/scala/cuda/Histogram.scala
 badd +93 plugin/src/main/grgen/unified/create_templates.unified.grg
 badd +1 base/src/main/scala/skalch/cuda/ScIArray1D.scala
 badd +35 plugin/src/main/grgen/unified/create_libraries.unified.grg
@@ -235,7 +235,6 @@ badd +19 base/src/main/scala/skalch/cuda/ScIArray1D.scala.jinja2
 badd +27 base/src/main/scala/skalch/cuda/PrimitiveVariables.scala
 badd +33 base/src/main/scala/skalch/cuda/PrimitiveVariables.scala.jinja2
 badd +165 ~/sandbox/grgen/engine-net-2/FSharpBindings/modular_compile_rules.fs
-badd +1 modular_rules_compile.fs
 badd +25 base/src/test/scala/cuda/Histogram.scala.html
 badd +1 base/src/main/scala/skalch/cuda/ScIArray1D.scala.jinja2.html
 badd +1 base/src/main/scala/skalch/cuda/PrimitiveVariables.scala.jinja2.html
@@ -248,8 +247,13 @@ badd +36 plugin/src/main/grgen/unified/blockify_fcndefs.unified.grg
 badd +1 plugin/src/main/grgen/generate_typegraph.grs
 badd +344 ~/sandbox/grgen/engine-net-2/src/GrShell/GrShellImpl.cs
 badd +54 plugin/src/main/grgen/unified/cleanup.unified.grg
+badd +25 plugin/src/main/grgen/unified/warn_unsupported.unified.grg
+badd +13 base/src/test/scala/angelic/simple/Test0004_Classes.scala
+badd +20 base/src/test/scala/angelic/simple/Test0001_AnnotatedHoles.scala
+badd +22 plugin/src/main/grgen/runtests.fs
+badd +1 modular_rules_compile.fs
 args modular_rules_compile.fs
-edit plugin/src/main/grgen/unified/process_annotations.unified.grg
+edit plugin/src/main/grgen/runtests.fs
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
@@ -263,220 +267,12 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 1resize ' . ((&columns * 79 + 82) / 165)
 exe '2resize ' . ((&lines * 47 + 48) / 96)
-exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 2resize ' . ((&columns * 85 + 82) / 165)
 exe '3resize ' . ((&lines * 46 + 48) / 96)
-exe 'vert 3resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 3resize ' . ((&columns * 85 + 82) / 165)
 argglobal
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'grg'
-setlocal filetype=grg
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=
-setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal nomodeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-setlocal nonumber
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal smartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'grg'
-setlocal syntax=grg
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 160 - ((87 * winheight(0) + 47) / 94)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-160
-normal! 08l
-lcd ~/sandbox/skalch
-wincmd w
-argglobal
-edit ~/sandbox/skalch/base/src/test/scala/cuda/VectorAdd.scala
-setlocal keymap=
-setlocal noarabic
-setlocal autoindent
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'scala'
-setlocal filetype=scala
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcq
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=
-setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal nomodeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-setlocal nonumber
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=4
-setlocal noshortname
-setlocal smartindent
-setlocal softtabstop=4
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'scala'
-setlocal syntax=scala
-endif
-setlocal tabstop=4
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 17 - ((16 * winheight(0) + 23) / 47)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-17
-normal! 0
-lcd ~/sandbox/skalch
-wincmd w
-argglobal
-edit ~/sandbox/skalch/plugin/src/main/grgen/rewrite_stage_info.fs
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -571,19 +367,227 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 71 - ((3 * winheight(0) + 23) / 46)
+let s:l = 76 - ((65 * winheight(0) + 47) / 94)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-71
+76
+normal! 047l
+lcd ~/sandbox/skalch
+wincmd w
+argglobal
+edit ~/sandbox/skalch/plugin/src/main/grgen/rewrite_rules.fs
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'ocaml'
+setlocal filetype=ocaml
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcq
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'ocaml'
+setlocal syntax=ocaml
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 258 - ((30 * winheight(0) + 23) / 47)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+258
 normal! 0
 lcd ~/sandbox/skalch
 wincmd w
-exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
+argglobal
+edit ~/sandbox/skalch/base/src/test/scala/cuda/Histogram.scala
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'scala'
+setlocal filetype=scala
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcq
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+setlocal nonumber
+setlocal numberwidth=4
+setlocal omnifunc=
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'scala'
+setlocal syntax=scala
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 81 - ((12 * winheight(0) + 23) / 46)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+81
+normal! 071l
+lcd ~/sandbox/skalch
+wincmd w
+exe 'vert 1resize ' . ((&columns * 79 + 82) / 165)
 exe '2resize ' . ((&lines * 47 + 48) / 96)
-exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 2resize ' . ((&columns * 85 + 82) / 165)
 exe '3resize ' . ((&lines * 46 + 48) / 96)
-exe 'vert 3resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 3resize ' . ((&columns * 85 + 82) / 165)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

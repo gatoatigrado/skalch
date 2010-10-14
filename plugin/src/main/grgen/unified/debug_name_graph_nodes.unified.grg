@@ -1,0 +1,26 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// Name graph nodes for debugging
+{% endblock %}
+
+{% block grg %}
+
+rule nameAstNodeWithSym(x:ScAstNode) {
+    x -:ScTermSymbol-> sym:Symbol;
+    if { sym.symbolName != null && sym.symbolName != ""; }
+    modify { eval { x.label = "AST(" + sym.symbolName + ")"; } }
+}
+
+rule nameAstNodeMain {
+    x:ScAstNode;
+    modify { exec(nameAstNodeWithSym(x)); }
+}
+
+{% endblock %}

@@ -12,6 +12,7 @@ node class ScAstNode {
     startCol : int;
     endLine : int;
     endCol : int;
+    label : string; // for visualization
 }
 
 // N.B. -- not an AST node
@@ -270,6 +271,7 @@ node class NSRSafeParens extends NSRParens;
 {% include "nodes/gen/cuda_generate_code.gm" %}
 {% include "nodes/gen/create_libraries.gm" %}
 {% include "nodes/gen/resolve_templates.gm" %}
+{% include "nodes/gen/debug_name_graph_nodes.gm" %}
 // add unified here
 
 

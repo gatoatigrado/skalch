@@ -12,6 +12,7 @@ node class ScAstNode {
     startCol : int;
     endLine : int;
     endCol : int;
+    label : string; // for visualization
 }
 
 // N.B. -- not an AST node
@@ -431,6 +432,7 @@ edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
 
 
 edge class GTInstParamMap;
+
 // add unified here
 
 

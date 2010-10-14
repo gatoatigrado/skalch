@@ -334,7 +334,7 @@ let transformerMain(args : string[]) =
     * let initialgraph = new Graph(grgenmodel, xgrsActionLoad)
     *--------------------------------------------------*)
 
-    let initialgraph = new Graph(grgenAllRules.value)
+    let initialgraph = new Graph(grgenAllRules.value, Some("[nameAstNodeMain]"))
     initialgraph.Impl.SetDebugLayout "Compilergraph"
     initialgraph.Impl.SetDebugLayoutOption ("CREATE_LOOP_TREE", "false")
     initialgraph.SetNodeColors [
@@ -376,6 +376,7 @@ let transformerMain(args : string[]) =
     initialgraph.SetNodeShape "circle" "ListAbstractNode"
     initialgraph.SetNodeNamesFromAttr "symbolName" "Symbol"
     initialgraph.SetNodeNamesFromAttr "typename" "Annotation"
+    initialgraph.SetNodeNamesFromAttr "label" "ScAstNode"
     List.map (initialgraph.SetNodeNamesFromAttr "value") [ "BooleanConstant"; "CharConstant"; "LongConstant"; "IntConstant"; "StringConstant" ] |> ignore
     List.iter (initialgraph.SetEdgeLabel "") [ "ListElt"; "ListNext"; "ListValue" ]
 

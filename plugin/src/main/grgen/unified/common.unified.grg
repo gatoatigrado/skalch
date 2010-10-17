@@ -17,6 +17,12 @@
 
 {% block grg %}
 
+pattern Annotated(sym : Symbol, var annotName : string) {
+    sym -:SymbolAnnotation-> annot:Annotation;
+    if { annot.typename == annotName; }
+    modify { delete(annot); }
+}
+
 rule assertFalse(var msg : string) {
     modify { emit("[GRG ASSERT FAILURE] " + msg + "\n"); }
 }

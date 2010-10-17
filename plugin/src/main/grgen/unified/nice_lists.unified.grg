@@ -296,8 +296,8 @@ pattern SingletonList(lst:List, v:Node) {
 /// insert a list after a specified list node
 /// useful for linearizing lists
 rule insertListToList(x:ListAbstractNode, y:List) {
-    y -:ListFirst-> first:ListFirstNode;
-    first -:ListNext-> firstnode:ListNode;
+    firstnode:ListNode;
+    :IsFirstListNode(y, firstnode);
 
     modify { exec(insertListToListInner(x, firstnode)); }
 }

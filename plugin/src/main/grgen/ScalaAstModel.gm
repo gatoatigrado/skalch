@@ -92,11 +92,32 @@ node class TemplateClassSymbol extends Symbol { number : int; }
 edge class CanBeConstructAssigned;
 node class RootSymbol extends Symbol;
 
-node class FixedArraySymbol extends Symbol { value : int; }
-node class VariableArraySymbol extends Symbol;
+abstract node class ScArraySymbol extends Symbol;
+node class FixedArraySymbol extends ScArraySymbol { value : int; }
+node class VariableArraySymbol extends ScArraySymbol;
 edge class SpecializedSymbolBase;
 
 node class GTInstSymbol extends Symbol; // instance of a generic template
+
+abstract edge class MVRType;
+edge class MValueType extends MVRType;
+edge class MReferenceType extends MVRType;
+
+abstract edge class MTypeAbstractEdge;
+edge class MInlinedType extends MTypeAbstractEdge;
+edge class MNormalType extends MTypeAbstractEdge;
+edge class MInlinedInnerInlinedType extends MTypeAbstractEdge;
+edge class MNormalInnerInlinedType extends MTypeAbstractEdge;
+edge class MType extends MTypeAbstractEdge;
+
+abstract node class MNode;
+node class MPtr extends MNode;
+node class MFixedArray extends MNode;
+node class MVariableArray extends MNode;
+node class MRawType extends MNode;
+
+// next in chain, or type value
+edge class MNodeValue;
 
 
 
@@ -215,7 +236,8 @@ abstract node class NStringRep { nident : int; }
 node class NStringRepIncreaseIdent extends NStringRep;
 node class NStringRepDecreaseIdent extends NStringRep;
 // print a newline and indent (except in the cases of double-blanks)
-node class NStringRepNewLine extends NStringRep;
+abstract node class NSRWhitespace;
+node class NStringRepNewLine extends NStringRep, NSRWhitespace { spaces_str : string = ""; }
 
 // separate a target list of nodes (base) and save to (elts)
 node class NStringRepSepList extends NStringRep;
@@ -226,14 +248,21 @@ edge class NSRListBase;
 node class NStringRepConstant extends NStringRep { value : string; }
 node class NSRCPeriod extends NStringRepConstant { value = "."; }
 node class NSRCEqualAssign extends NStringRepConstant { value = " = "; }
+// important when lowering literals and NStringRepSpaceAround HL nodes
+node class NSRSpace extends NStringRepConstant, NSRWhitespace { value = " "; }
 // literals are words (variable names, etc.) which should
 // be space-separated if next to other literals
 node class NStringRepLiteral extends NStringRepConstant;
+//--------------------------------------------------
+// node class NStringRepSpaceAround extends NStringRepConstant;
+//-------------------------------------------------- 
+
 abstract node class NSRSurround extends NStringRep {
     left : string; right : string; }
 node class NSRParens extends NSRSurround { left = "("; right=")"; }
 node class NSRBrackets extends NSRSurround { left = "["; right="]"; }
 node class NSRBraces extends NSRSurround { left = "{"; right="}"; }
+node class NSRSpaces extends NStringRep;
 // parenthesis that are left in for order-of-operations,
 // not required syntax (e.g. function definitions)
 node class NSRSafeParens extends NSRParens;
@@ -432,6 +461,7 @@ edge class PhiSSAParentSymbol connect PhiFcn --> Symbol;
 
 
 edge class GTInstParamMap;
+
 
 // add unified here
 
@@ -745,7 +775,7 @@ edge class TypeSymbol extends ScTypeSymbol;
 edge class TypeTreeTypeSymbol extends ScTypeSymbol;
 edge class ValDefTypeSymbol extends ScTypeSymbol;
 edge class VarRefTypeSymbol extends ScTypeSymbol;
-edge class ParentTypeSymbol extends ScTypeSymbol;
+edge class ParentTypeSymbol;
 edge class ApplyImplicitViewTypeSymbol extends ScTypeSymbol;
 edge class ApplyToImplicitArgsTypeSymbol extends ScTypeSymbol;
 

@@ -14,7 +14,7 @@ import sketch.util.DebugOut
 
 @scTemplateClass("T") abstract class ScIArray1D[T] {
     val length : Int = 0
-    val values : Array[T] @scRetypeTemplateInner("T") @scInlineArray @scRawArray = null
+    val values : Array[T] @scRetypeTemplateInner("T") @scInlineArray = null
     @scRetypeTemplate("T") def apply(idx : Int) = values(idx)
     def update(idx : Int, @scRetypeTemplate("T") value : T) { values(idx) = value; }
 }

@@ -84,7 +84,7 @@ test existsDanglingAnnotation {
 rule setCudaFunction {
     x:Symbol -e:SymbolAnnotation-> :Annotation
         -:AnnotationSymbol-> y:Symbol;
-    if { y.fullSymbolName == "skalch.cuda.annotations.cudakernel"; }
+    if { y.fullSymbolName == "skalch.cuda.annotations.scKernel"; }
 
     modify {
         delete(e);

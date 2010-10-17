@@ -200,6 +200,8 @@ let zone_ssa =
         EmitRequiredImports
         SketchNospec
         ]
+let zone_cmemtypes =
+    CMemTypes, []
 (*let zone_ll_ssa =
     LowerPhiFunctions, []*)
 let zone_cstyle =
@@ -220,6 +222,7 @@ let zone_deps =
         zone_decorated
         zone_nice_lists
         zone_ssa
+        zone_cmemtypes 
         zone_cstyle ]
 
 (* Dependencies. If the "?" side (left or right) is present, the "+" stage is added *)
@@ -236,6 +239,7 @@ let deps =
         SimplifyConstants <+? ProcessAnnotations
         ProcessAnnotations <+? CstyleMain
         ProcessAnnotations <+? ResolveGT
+        ArrayLowering <+? CMemTypes
 
         (* most later stages require decorate... *)
         DecorateNodes <+? NiceLists
@@ -270,6 +274,7 @@ let sketch_base_meta = [ CleanSketchConstructs; DecorateNodes;
 let sketch_meta = sketch_base_meta @ [ ProcessAnnotations;
     SketchFinalMinorCleanup; SketchNospec ]
 let cuda_meta = sketch_base_meta @ [ ProcessAnnotations;
+    CMemTypes;
     SpecializeCudaFcnCalls; CudaCleanup; CudaGenerateCode ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs;
     BlockifyFcndefs; CstyleMain ]
@@ -371,13 +376,14 @@ let transformerMain(args : string[]) =
         "CfgAssignPrevStep", "orange"
         "CfgAssignPossibleSymbol", "LightRed"
         "StringRep", "green"
+        "MTypeAbstractEdge", "orange"
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"
     initialgraph.SetNodeNamesFromAttr "symbolName" "Symbol"
     initialgraph.SetNodeNamesFromAttr "typename" "Annotation"
     initialgraph.SetNodeNamesFromAttr "label" "ScAstNode"
-    List.map (initialgraph.SetNodeNamesFromAttr "value") [ "BooleanConstant"; "CharConstant"; "LongConstant"; "IntConstant"; "StringConstant" ] |> ignore
+    List.map (initialgraph.SetNodeNamesFromAttr "value") [ "BooleanConstant"; "CharConstant"; "LongConstant"; "IntConstant"; "StringConstant"; "NStringRepConstant" ] |> ignore
     List.iter (initialgraph.SetEdgeLabel "") [ "ListElt"; "ListNext"; "ListValue" ]
 
     (* Each step of this loop processes one stage *)

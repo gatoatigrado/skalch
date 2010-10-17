@@ -205,6 +205,24 @@ let SpecializeCudaFcnCallsRules =
         Xgrs "convertParallelIndexVecToField*"
         ]
 
+let SetTypeValueOrReferenceRules =
+    [
+        for typ in [ "Byte"; "Short"; "Int"; "Long"; "Float"; "Double"; "Boolean"; "Char"; "Unit" ] do
+            yield Xgrs (sprintf "setSpecificValueType(\"scala.%s\")" typ)
+    ] @
+    [
+        Xgrs "setAnnotatedValueTypes*"
+        Xgrs "deleteDangling*"
+        Xgrs "setReferenceTypes*"
+        Xgrs "[addMNodesForValueTypes]"
+        Xgrs "addMNodesForVariableArrays*"
+        Xgrs "[addMNodesForReferenceTypes]"
+
+        (* link term symbols to memory types *)
+        Xgrs "setMTermArrayInlinedTypes*"
+        Xgrs "setMTermRegalarTypes*"
+        ]
+
 let CfgInitRules = [
     Xgrs "deleteDangling*"
     Xgrs "cfgInit"
@@ -336,13 +354,19 @@ let CudaGenerateCodeRules = [
 
     Xgrs "setStringRepBlock*"
 
+    (* function calls; start with specialized ones first *)
     Xgrs "setStringRepCudaParIdxCall*"
     Xgrs "setStringRepFcnCallBinary*"
+    Xgrs "setStringRepFcnCall*"
 
+    (* other nodes *)
     Xgrs "setStringRepFieldAccess*"
     Xgrs "setStringRepEmptyValDef*"
     Xgrs "setStringRepSketchArrayAccess*"
     Xgrs "setStringRepSketchArrayAssign*"
+    Xgrs "setStringRepReturn*"
+
+
 
     (* TEMP DEBUG *)
     Xgrs "dummySetVarArraysToPtrs*"
@@ -354,7 +378,8 @@ let CudaGenerateCodeRules = [
     (*--------------------------------------------------
     * Xgrs "deleteUnnecessaryParens_VarRef*"
     *--------------------------------------------------*)
-    Xgrs "expandNSRSurround*" (* NOTE -- must come before other list expansion *)
+    Xgrs "expandNSRSurround*"
+    Xgrs "expandNSRSpaces*"
     Xgrs "convertParaListsToBasic*"
     Xgrs "expandStringRepSepList_Copy*"
     Xgrs "expandStringRepSepList_InsertSep*"
@@ -381,6 +406,8 @@ let CudaGenerateCodeRules = [
     (* newlines and indentation *)
     Xgrs "deleteDangling*"
     Xgrs "handleAdjacentNewlines*"
+    Xgrs "propagateIndent*"
+    Xgrs "propagateDeindent*"
     Xgrs "handleNewline*"
 
     (* collapse to a single string *)
@@ -390,6 +417,8 @@ let CudaGenerateCodeRules = [
     Xgrs "deleteDangling*"
     Xgrs "collapseSingletonLists*"
     Xgrs "deleteDangling*"
+
+    Xgrs "[printMethodStringRep]"
     ]
 
 let CreateTemplatesRules = [

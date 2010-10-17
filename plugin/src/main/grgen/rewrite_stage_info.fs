@@ -123,6 +123,12 @@ let SpecializeCudaFcnCalls = {
         description = "make threadIdx, etc. special syms that won't get renamed.";
         stage = rewriteStage SpecializeCudaFcnCallsRules }
 
+let CMemTypes = {
+    stageDefault with
+        name = "CMemTypes";
+        description = "Set C memory types based on annotations, and add relevant address-of and dereference code";
+        stage = rewriteStage (SetTypeValueOrReferenceRules) }
+
 let NewInitializerFcnStubs = {
     stageDefault with
         name = "NewInitializerFcnStubs";

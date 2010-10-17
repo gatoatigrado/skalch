@@ -1,0 +1,135 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// generate C memory type nodes
+{% endblock %}
+
+{% block grg %}
+
+rule setSpecificValueType(var name : string) {
+    x:Symbol -:TypeSymbol-> x;
+    if { x.fullSymbolName == name; }
+    negative { x -:MVRType-> x; }
+    modify { x -:MValueType-> x; }
+}
+
+rule setAnnotatedValueTypes {
+    x:Symbol -:SymbolAnnotation-> annot:Annotation;
+    if { annot.typename == "scValueType"; }
+
+    modify {
+        delete(annot);
+        x -:MValueType-> x;
+    }
+}
+
+rule setReferenceTypes {
+    x:Symbol;
+    alternative {
+        A { x -:TypeSymbol-> x; modify { } }
+        B { if { typeof(x) >= FixedArraySymbol; } modify { } }
+        C { if { typeof(x) >= VariableArraySymbol; } modify { } }
+    }
+    negative { x -:MVRType-> x; }
+    modify { x -:MReferenceType-> x; }
+}
+
+rule addMNodesForValueTypes {
+    x:Symbol -:MValueType-> x;
+
+    modify {
+        n:MRawType -:MNodeValue-> x;
+        x -:MInlinedType-> n;
+        x -:MNormalType-> n;
+    }
+}
+
+rule addMNodesForReferenceTypes {
+    x:Symbol \ VariableArraySymbol -:MReferenceType-> x;
+
+    modify {
+        ptr:MPtr -:MNodeValue-> n:MRawType -:MNodeValue-> x;
+        x -:MInlinedType-> n;
+        x -:MNormalType-> ptr;
+    }
+}
+
+rule addMNodesForVariableArrays {
+    x:VariableArraySymbol -:SymbolTypeArgsList->
+        {{ macros.finiteList(["inner:Symbol"]) }}
+    negative { x -:MNormalType-> .; }
+
+    alternative {
+        ValueInner {
+            inner -:MInlinedType-> typ:MNode;
+            inner -:MNormalType-> typ;
+
+            modify {
+                mptr:MPtr -:MNodeValue-> marr:MVariableArray
+                    -:MNodeValue-> typ;
+
+                // NOTE -- can't inline variable length arrays
+                x -:MNormalType-> mptr;
+                // x -:MInlinedType-> marr;
+                x -:MNormalInnerInlinedType-> mptr;
+                // x -:MInlinedInnerInlinedType-> marr;
+            }
+        }
+        RefInner {
+            inner -:MInlinedType-> ityp:MNode;
+            inner -:MNormalType-> ntyp:MNode;
+
+            modify {
+                mptr_inl:MPtr -:MNodeValue-> marr_inl:MVariableArray
+                    -:MNodeValue-> ityp;
+                mptr:MPtr -:MNodeValue-> marr:MVariableArray
+                    -:MNodeValue-> ntyp;
+
+                // NOTE -- can't inline variable length arrays
+                x -:MNormalType-> mptr;
+                // x -:MInlinedType-> marr;
+                x -:MNormalInnerInlinedType-> mptr_inl;
+                // x -:MInlinedInnerInlinedType-> marr_inl;
+            }
+        }
+        VaraibleArrayInner {
+            inner -:MNormalType-> ntyp:MNode;
+            negative { inner -:MInlinedType-> .; }
+
+            modify {
+                mptr:MPtr -:MNodeValue-> marr:MVariableArray
+                    -:MNodeValue-> ntyp;
+                x -:MNormalType-> mptr;
+            }
+        }
+    }
+
+    modify { }
+}
+
+rule setMTermArrayInlinedTypes {
+    x:Symbol -:TypeSymbol-> y:Symbol;
+    :Annotated(x, "scInlineArray");
+    y -:MNormalInnerInlinedType-> n:MNode;
+    negative { x -:MType-> .; }
+
+    modify {
+        x -:MType-> n;
+    }
+}
+
+rule setMTermRegalarTypes {
+    x:Symbol -:TypeSymbol-> y:Symbol;
+    y -:MNormalType-> n:MNode;
+    negative { x -:MType-> .; }
+
+    modify { x -:MType-> n; }
+}
+
+{% endblock %}

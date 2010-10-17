@@ -60,12 +60,27 @@ rule setStringRepBlock {
 
     negative { x -:StringRep-> .; }
     modify {
-        x -:StringRepNode-> braces:NSRBraces
-            -:StringRepNode-> stmtlst:NStringRepSepList;
+        x -:StringRepNode-> :NSRSpaces -:StringRepNode-> braces:NSRBraces
+            -:StringRepBasicList-> {{ macros.finiteListInit(
+                ["a:NStringRepIncreaseIdent", "b:NStringRepNewLine",
+                 "stmtlst:NStringRepSepList", "semi:NStringRepConstant",
+                 "c:NStringRepDecreaseIdent", "d:NStringRepNewLine"]) }}
         stmtlst -:NSRListBase-> stmts;
-        stmtlst -:NSRListSep-> z:NStringRepConstant;
-        stmtlst -:NSRListElts-> {{ macros.finiteListInit([]) }}
-        eval { z.value = "; "; }
+        stmtlst -:NSRListSep-> {{ macros.finiteListInit(
+            ["semi", ":NStringRepNewLine"], lstname="lst2") }}
+        stmtlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst3") }}
+        eval { semi.value = ";"; }
+    }
+}
+
+rule setStringRepReturn {
+    x:Return -:ReturnExpr-> expr:ScAstNode;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepNode-> {{ macros.finiteListInit(
+            ["returnconst:NStringRepConstant", "expr"]) }}
+        eval { returnconst.value = "return "; }
     }
 }
 
@@ -94,6 +109,22 @@ rule setStringRepFcnCallBinary {
         safe_left -:StringRepNode-> left;
         safe_right -:StringRepNode-> right;
         eval { op.value = " " + x.strop + " "; }
+    }
+}
+
+rule setStringRepFcnCall {
+    x:FcnCall -:FcnArgList-> args:List;
+    x -:FcnCallSymbol-> sym:Symbol;
+
+    negative { x -:StringRep-> .; }
+    modify {
+        x -:StringRepBasicList-> {{ macros.finiteListInit([
+            "sym", "parens:NSRParens"]) }}
+        parens -:StringRepNode-> stmtlst:NStringRepSepList;
+        stmtlst -:NSRListBase-> args;
+        stmtlst -:NSRListSep-> z:NStringRepConstant;
+        stmtlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst2") }}
+        eval { z.value = ", "; }
     }
 }
 
@@ -258,20 +289,35 @@ pattern ReplaceStringRepParentList(x:Node) modify (y:List) {
 //-------------------------------------------------- 
 
 rule expandNSRSurround {
-    x:NSRSurround -e:StringRepNode-> child:Node;
-    r:ReplaceStringRepParentList(x);
+    x:NSRSurround -e:StringRep-> child:Node;
 
     modify {
         delete(e);
-        {{ macros.finiteListInit([
-            "left:NStringRepConstant",
-            "child",
-            "right:NStringRepConstant"]) }}
+
+        left:NStringRepConstant;
+        right:NStringRepConstant;
         eval {
             left.value = x.left;
             right.value = x.right;
         }
-        r(lst); // variable created by finiteListInit
+
+        next:List<x>;
+        {{ macros.finiteListInit(
+            [ "left", "child", "right" ], use_lstname="next") }}
+    }
+}
+
+// special whitespace entries which will be deleted if adjacent
+rule expandNSRSpaces {
+    x:NSRSpaces -e:StringRep-> child:Node;
+
+    modify {
+        delete(e);
+        left:NSRSpace;
+        right:NSRSpace;
+        next:List<x>;
+        {{ macros.finiteListInit(
+            [ "left", "child", "right" ], use_lstname="next") }}
     }
 }
 
@@ -355,7 +401,8 @@ rule linearizeStringReps {
         -:ListElt-> lst_y:ListNode -e:ListValue-> y:List;
 
     modify {
-        exec(insertListToList(lst_y, y) && listDelete(lst_y));
+        // delete it regardless, list could be empty
+        exec(insertListToList(lst_y, y) | listDelete(lst_y));
     }
 }
 
@@ -381,6 +428,43 @@ rule handleAdjacentNewlines {
         nl:NStringRepConstant;
         eval { nl.value = "\n"; }
         exec(listInsertAfter(first, nl) && listDelete(first));
+    }
+}
+
+rule hackPropagateIdent {
+    first:ListNode; second:ListNode;
+    :AdjacentStringRep(first, second);
+
+    first -:ListValue-> :NStringRepIncreaseIdent;
+    second -:ListValue-> v2:NStringRep;
+
+    modify {
+        eval { v2.nident = v2.nident + 1; }
+        exec(listDelete(first));
+    }
+}
+
+rule propagateIndent {
+    x:ListNode -:ListValue-> :NStringRepIncreaseIdent;
+
+    modify {
+        exec(propagateIdentInner(x, 1) | listDelete(x));
+    }
+}
+
+rule propagateDeindent {
+    x:ListNode -:ListValue-> :NStringRepDecreaseIdent;
+
+    modify {
+        exec(propagateIdentInner(x, -1) | listDelete(x));
+    }
+}
+
+rule propagateIdentInner(x:ListNode, var val : int) {
+    x -:ListNext-> y:ListNode -:ListValue-> yval:NStringRep;
+    modify {
+        eval { yval.nident = yval.nident + val; }
+        exec(propagateIdentInner(y, val));
     }
 }
 
@@ -419,9 +503,20 @@ rule collapseStringRepAdjacentLiterals {
     second -:ListValue-> v2:NStringRepLiteral;
 
     modify {
-        space:NStringRepConstant;
-        eval { space.value = " "; }
+        space:NSRSpace;
         exec(listInsertAfter(first, space));
+    }
+}
+
+rule deleteAdjancentSpaces {
+    first:ListNode; second:ListNode;
+    :AdjacentStringRep(first, second);
+
+    first -:ListValue-> v1:NSRSpace;
+    second -:ListValue-> v2:NSRWhitespace;
+
+    modify {
+        exec(listDelete(first));
     }
 }
 
@@ -447,6 +542,12 @@ rule collapseSingletonLists {
         delete(e);
         x -:StringRepNode-> elt;
     }
+}
+
+rule printMethodStringRep {
+    x:MemberFcn -:StringRepNode-> v:NStringRepConstant;
+
+    modify { emit(v.value + "\n"); }
 }
 
 {% endblock %}

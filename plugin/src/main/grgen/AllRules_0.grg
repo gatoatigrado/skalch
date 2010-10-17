@@ -44,4 +44,5 @@ using ScalaAstModel;
 #include "rules/gen/create_libraries.grg"
 #include "rules/gen/resolve_templates.grg"
 #include "rules/gen/debug_name_graph_nodes.grg"
+#include "rules/gen/set_types_value_or_reference.grg"
 // add unified here

@@ -62,8 +62,21 @@ rule removeThisVarFromCudaKernel {
     :ThisVarFcn(x, ths_lst_node, ths_valdef);
 
     modify {
-        exec(removeThisVarFromFcn(x, ths_lst_node, ths_valdef));
+        exec(removeThisVarFromFcn(x, ths_lst_node, ths_valdef)
+            || assertFalse("removing $this from kernel failed!"));
     }
 }
+
+{#
+rule rewriteSyncthreadsCall {
+    x:FcnCall -:FcnArgList-> args:List;
+    x -:FcnCallSymbol-> sym:Symbol;
+    :Annotated(sym, "scSpecialFcn");
+    if { sym.symbolName == "__syncthreads"; }
+
+    first:ListNode;
+    :IsFirstListNode(args, first);
+}
+#}
 
 {% endblock %}

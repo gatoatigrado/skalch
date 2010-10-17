@@ -21,8 +21,15 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
         lst_last:ListLastNode;
 {%- endmacro %}
 
-{% macro finiteListBase(names, isInit, lstname) -%}
-    {{ lstname }}:List -:ListFirst-> {{ lstname }}_first:ListFirstNode -:ListNext->
+
+
+{% macro finiteListBase(names, isInit, lstname, create_list) -%}
+{% for name in names %}
+{% if not name %}
+{% do names[loop.idx].__setitem__("unnamed" + loop.idx) %}
+{% endif %}
+{% endfor %}
+    {{ lstname }}{{ ":List" if create_list else "" }} -:ListFirst-> {{ lstname }}_first:ListFirstNode -:ListNext->
 {% for name in names %}
         {{ lstname }}_node_{{ name.split(":")[0] }}:ListNode -:ListNext->
 {% endfor %}
@@ -39,8 +46,8 @@ rule {{ name }}Inner({{ var }}:{{ typ }}) {
 {% endfor %}
 {%- endmacro %}
 
-{% macro finiteList(names, lstname="lst") %}{{ finiteListBase(names, False, lstname) }}{% endmacro %}
-{% macro finiteListInit(names, lstname="lst") %}{{ finiteListBase(names, True, lstname) }}{% endmacro %}
+{% macro finiteList(names, lstname="lst", use_lstname=None) %}{{ finiteListBase(names, False, lstname if not use_lstname else use_lstname, not use_lstname) }}{% endmacro %}
+{% macro finiteListInit(names, lstname="lst", use_lstname=None) %}{{ finiteListBase(names, True, lstname if not use_lstname else use_lstname, not use_lstname) }}{% endmacro %}
 
 
 

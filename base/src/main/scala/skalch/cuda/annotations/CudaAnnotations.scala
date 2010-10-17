@@ -14,11 +14,12 @@ class scSpecialFcn extends StaticAnnotation
 class scIField extends StaticAnnotation
 class scInlineArray extends StaticAnnotation
 class scPtr extends StaticAnnotation
-class scRawArray extends StaticAnnotation
-class scDefaultCopyInline extends StaticAnnotation
+
+class scValueType extends StaticAnnotation
 class scPointerObject(c_name : String) extends StaticAnnotation
 class scCTypeNameOverride(c_name : String) extends StaticAnnotation
 
+/// template stuff, currently on hold until we work around the erasure phase
 class scTemplateClass(params : String*) extends StaticAnnotation
 class scRetype(typ : Class[_]) extends StaticAnnotation
 class scRetypeTemplate(name : String) extends StaticAnnotation

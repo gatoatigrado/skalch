@@ -1,6 +1,8 @@
 package sketch.entanglement.ui;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,7 +53,8 @@ public class EntanglementConsole extends InteractiveThread {
             { "compare", "constant", "entanglement", "info", "pull", "push", "store",
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
-                    "values", "help", "color", "nocolor", "grow" };
+                    "values", "help", "color", "nocolor", "grow", "gui", "summary",
+                    "guisummary" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results) {
         super(0.05f);
@@ -156,6 +159,18 @@ public class EntanglementConsole extends InteractiveThread {
                     for (int i = 0; i < commands.length; i++) {
                         System.out.println(commands[i]);
                     }
+                } else if ("gui".equals(command)) {
+                    EntanglementGui gui =
+                            new EntanglementGui(traceToStack.keySet(), satEA, ea);
+                    gui.pack();
+                    gui.setVisible(true);
+                } else if ("summary".equals(command)) {
+                    Trace t = traceToStack.keySet().iterator().next();
+                    List<DynAngel> angelList = new ArrayList<DynAngel>();
+                    for (Event e : t.getEvents()) {
+                        angelList.add(e.dynAngel);
+                    }
+                    printSummary(angelList, satEA, ea);
                 } else {
                     System.out.println("Unknown command: " + command);
                 }
@@ -416,7 +431,10 @@ public class EntanglementConsole extends InteractiveThread {
                     }
                 };
 
+        long startTime = System.currentTimeMillis();
         Set<Set<DynAngel>> subsets = ea.getEntangledPartitions();
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time to compute entanglement(ms): " + (endTime - startTime));
 
         List<Set<DynAngel>> unentangledSubsets = new ArrayList<Set<DynAngel>>(subsets);
         Collections.sort(unentangledSubsets, dynAngelsComparator);
@@ -568,6 +586,72 @@ public class EntanglementConsole extends InteractiveThread {
             updateEntanglement();
         }
 
+    }
+
+    private void printSummary(List<DynAngel> angelList, SATEntanglementAnalysis satEA,
+            SimpleEntanglementAnalysis ea)
+    {
+        Set<Set<DynAngel>> partitions = satEA.getEntangledPartitions();
+
+        Map<Set<DynAngel>, Set<Trace>> subtraces =
+                new HashMap<Set<DynAngel>, Set<Trace>>();
+        int length = 0;
+
+        for (Set<DynAngel> partition : partitions) {
+            Set<Trace> values = ea.getValues(partition);
+            length += values.size();
+            subtraces.put(partition, values);
+        }
+
+        Map<DynAngel, Integer> angelToRow = new HashMap<DynAngel, Integer>();
+        for (int i = 0; i < angelList.size(); i++) {
+            angelToRow.put(angelList.get(i), i);
+        }
+
+        HashSet<DynAngel> seenAngels = new HashSet<DynAngel>();
+        SparseMatrix<String> matrix = new SparseMatrix<String>(angelList.size(), length);
+        int column = 0;
+
+        for (DynAngel angel : angelList) {
+            if (!seenAngels.contains(angel)) {
+                Set<DynAngel> angelPartition = null;
+                for (Set<DynAngel> partition : partitions) {
+                    if (partition.contains(angel)) {
+                        angelPartition = partition;
+                        break;
+                    }
+                }
+
+                seenAngels.addAll(angelPartition);
+
+                Set<Trace> values = subtraces.get(angelPartition);
+                for (Trace value : values) {
+                    for (Event event : value.getEvents()) {
+                        matrix.put(angelToRow.get(event.dynAngel), column, "" +
+                                event.valueChosen);
+                    }
+                    column++;
+                }
+            }
+        }
+
+        try {
+            PrintStream out = new PrintStream("traces.txt");
+            for (int i = 0; i < matrix.getNumRows(); i++) {
+                for (int j = 0; j < matrix.getNumCols(); j++) {
+                    String val = matrix.get(i, j);
+                    if (val != null) {
+                        out.print(val);
+                    }
+                    out.print('\t');
+                }
+                out.println();
+            }
+            out.close();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override

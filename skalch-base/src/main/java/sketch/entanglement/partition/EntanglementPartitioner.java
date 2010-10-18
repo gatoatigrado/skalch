@@ -87,6 +87,8 @@ public class EntanglementPartitioner extends TracePartitioner {
         Traces satTraces = converter.getTraces();
         List<SubsetOfTraces> subsets = new ArrayList<SubsetOfTraces>();
 
+        long startTime = System.currentTimeMillis();
+
         for (Iterator<Traces> supports =
                 MaxSupportFinder.findMaximalSupports(satTraces, oldSatPartitions,
                         newPartitions); supports.hasNext();)
@@ -98,6 +100,9 @@ public class EntanglementPartitioner extends TracePartitioner {
             subsets.add(subset);
             i++;
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time to compute entanglement(ms): " + (endTime - startTime));
+
         return subsets;
     }
 

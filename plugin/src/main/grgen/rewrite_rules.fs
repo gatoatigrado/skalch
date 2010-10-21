@@ -203,6 +203,17 @@ let SpecializeCudaFcnCallsRules =
         Xgrs "setFixedPrintName(\"scala.Int\", \"int\")"
         Xgrs "convertParallelIdxToCudaSpecial*"
         Xgrs "convertParallelIndexVecToField*"
+        Xgrs "deleteDangling*"
+        Xgrs "[createObjDefs]"
+        Xgrs "rewriteSyncthreadsCall*"
+
+        (* delete $this variables from object functions *)
+        Xgrs "removeObjArgFromFcnCalls*"
+        Xgrs "removeObjArgFromFcnDefs*"
+        Xgrs "removeSuperCallFromInit*"
+        Xgrs "deleteDangling*"
+        Xgrs "addObjFieldAsGlobal*"
+        Xgrs "convertObjFieldAccessToGlobalRef*"
         ]
 
 let SetTypeValueOrReferenceRules =
@@ -331,7 +342,8 @@ let SketchAndCudaCleanupRules =
 let CudaCleanupRules =
     SketchAndCudaCleanupRules @
     [
-        Xgrs "removeThisVarFromCudaKernel*" ]
+        (* Xgrs "removeThisVarFromCudaKernel*" *)
+        ]
 
 let SketchFinalMinorCleanupRules =
     SketchAndCudaCleanupRules  @
@@ -359,12 +371,16 @@ let CudaGenerateCodeRules = [
     Xgrs "setStringRepFcnCallBinary*"
     Xgrs "setStringRepFcnCall*"
 
+    (* fields, run first since they are valdefs *)
+    Xgrs "setStringRepClassDef*"
+
     (* other nodes *)
     Xgrs "setStringRepFieldAccess*"
     Xgrs "setStringRepEmptyValDef*"
     Xgrs "setStringRepSketchArrayAccess*"
     Xgrs "setStringRepSketchArrayAssign*"
     Xgrs "setStringRepReturn*"
+    Xgrs "setStringRepAssign*"
 
 
 

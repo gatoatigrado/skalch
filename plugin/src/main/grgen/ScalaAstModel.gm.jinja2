@@ -129,6 +129,7 @@ node class InsertedReturnSymbol extends Symbol;
 // execute this statement before the given one.
 node class BlockifyValDef extends ValDef;
 node class ThisVarRef extends VarRef, BlockifySafe;
+node class GlobalVarRef extends VarRef, BlockifySafe;
 node class TmpSymbol extends Symbol;
 node class ThisValDef extends ValDef;
 edge class ObjectSymbol connect Symbol[0:1] --> Symbol[0:1];
@@ -163,6 +164,9 @@ abstract edge class Cfg2SubtreeSecond;
 edge class ArrayLengthExpr extends Subtree;
 edge class TmpArrayTypeSymbol extends ScTypeSymbol;
 
+node class ObjectDef extends ClassDef;
+edge class GlobalVariable;
+edge class GlobalField extends ScTermSymbol;
 
 
 
@@ -242,6 +246,7 @@ node class NStringRepNewLine extends NStringRep, NSRWhitespace { spaces_str : st
 // separate a target list of nodes (base) and save to (elts)
 node class NStringRepSepList extends NStringRep;
 edge class NSRListSep;
+edge class NSRListAfter;
 edge class NSRListElts;
 edge class NSRListBase;
 

@@ -12,6 +12,12 @@
 
 {% block grg %}
 
+rule nameClassDefWithSym(x:ScAstNode) {
+    x -:ClassDefSymbol-> sym:Symbol;
+    if { sym.symbolName != null && sym.symbolName != ""; }
+    modify { eval { x.label = "AST(" + sym.symbolName + ")"; } }
+}
+
 rule nameAstNodeWithSym(x:ScAstNode) {
     x -:ScTermSymbol-> sym:Symbol;
     if { sym.symbolName != null && sym.symbolName != ""; }
@@ -20,7 +26,7 @@ rule nameAstNodeWithSym(x:ScAstNode) {
 
 rule nameAstNodeMain {
     x:ScAstNode;
-    modify { exec(nameAstNodeWithSym(x)); }
+    modify { exec(nameClassDefWithSym(x) || nameAstNodeWithSym(x)); }
 }
 
 {% endblock %}

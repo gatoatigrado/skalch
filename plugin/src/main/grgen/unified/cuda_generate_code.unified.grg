@@ -30,7 +30,7 @@ rule setStringRepFcnDef {
     negative { x -:StringRep-> .; }
     modify {
         x -:StringRepPara-> {{ macros.finiteListInit(
-            ["typsym", "sym", "parens:NSRParens", "body" ]) }}
+            ["cudaqual:NStringRepLiteral", "typsym", "sym", "parens:NSRParens", "body" ]) }}
 
         parens -:StringRepNode-> paramlst:NStringRepSepList;
         paramlst -:NSRListBase-> args;
@@ -38,6 +38,7 @@ rule setStringRepFcnDef {
         paramlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst2") }}
 
         eval {
+            cudaqual.value = "__device__";
             z.value = ", ";
         }
     }
@@ -47,18 +48,16 @@ rule setStringRepCudaKernelFcn {
     x:FcnDef -:FcnDefSymbol-> sym:Symbol;
     sym -:CudaKernelFcn-> sym;
     x -:StringRepPara-> lst:List;
+    cudaqual:NStringRepLiteral;
+    :IsListFirst(lst, cudaqual);
 
-    modify {
-        globalname:NStringRepLiteral;
-        eval { globalname.value = "__global__"; }
-        exec(listInsertFirst(lst, globalname));
-    }
+    modify { eval { cudaqual.value = "__global__"; } }
 }
 
 rule setStringRepBlock {
     x:Block -:BlockStmtList-> stmts:List;
-
     negative { x -:StringRep-> .; }
+
     modify {
         x -:StringRepNode-> :NSRSpaces -:StringRepNode-> braces:NSRBraces
             -:StringRepBasicList-> {{ macros.finiteListInit(
@@ -70,17 +69,6 @@ rule setStringRepBlock {
             ["semi", ":NStringRepNewLine"], lstname="lst2") }}
         stmtlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst3") }}
         eval { semi.value = ";"; }
-    }
-}
-
-rule setStringRepReturn {
-    x:Return -:ReturnExpr-> expr:ScAstNode;
-    negative { x -:StringRep-> .; }
-
-    modify {
-        x -:StringRepNode-> {{ macros.finiteListInit(
-            ["returnconst:NStringRepConstant", "expr"]) }}
-        eval { returnconst.value = "return "; }
     }
 }
 
@@ -129,6 +117,27 @@ rule setStringRepFcnCall {
 }
 
 // ----
+
+rule setStringRepClassDef {
+    x:ClassDef -:ClassDefFieldsList-> fields:List;
+    x -:ClassDefSymbol-> sym:Symbol;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepBasicList-> {{ macros.finiteListInit(
+            ["sym", "sp:NSRSpaces"], lstname="lst4") }}
+        sp -:StringRepNode-> braces:NSRBraces
+            -:StringRepBasicList-> {{ macros.finiteListInit(
+                ["a:NStringRepIncreaseIdent", "b:NStringRepNewLine",
+                 "stmtlst:NStringRepSepList", "semi:NStringRepConstant",
+                 "c:NStringRepDecreaseIdent", "d:NStringRepNewLine"]) }}
+        stmtlst -:NSRListBase-> fields;
+        stmtlst -:NSRListSep-> {{ macros.finiteListInit(
+            ["semi", ":NStringRepNewLine"], lstname="lst2") }}
+        stmtlst -:NSRListElts-> {{ macros.finiteListInit([], lstname="lst3") }}
+        eval { semi.value = ";"; }
+    }
+}
 
 
 
@@ -199,6 +208,28 @@ rule setStringRepSymbol {
     modify {
         x -:StringRepNode-> z:NStringRepLiteral;
         eval { z.value = y.name; }
+    }
+}
+
+rule setStringRepReturn {
+    x:Return -:ReturnExpr-> expr:ScAstNode;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepNode-> {{ macros.finiteListInit(
+            ["returnconst:NStringRepConstant", "expr"]) }}
+        eval { returnconst.value = "return "; }
+    }
+}
+
+rule setStringRepAssign {
+    x:Assign -:AssignLhs-> lhs:ScAstNode;
+    x -:AssignRhs-> rhs:ScAstNode;
+    negative { x -:StringRep-> .; }
+
+    modify {
+        x -:StringRepBasicList-> {{ macros.finiteListInit(
+            ["lhs", ":NSRCEqualAssign", "rhs"]) }}
     }
 }
 
@@ -335,7 +366,7 @@ rule convertParaListsToBasic {
     }
 }
 
-// step 1
+// step 1 -- copy nodes from
 rule expandStringRepSepList_Copy {
     seplist:NStringRepSepList;
     seplist -e:NSRListBase-> args:List;
@@ -546,6 +577,12 @@ rule collapseSingletonLists {
 
 rule printMethodStringRep {
     x:MemberFcn -:StringRepNode-> v:NStringRepConstant;
+
+    modify { emit(v.value); }
+}
+
+rule printClassDefRep {
+    x:ClassDef -:StringRepNode-> v:NStringRepConstant;
 
     modify { emit(v.value + "\n"); }
 }

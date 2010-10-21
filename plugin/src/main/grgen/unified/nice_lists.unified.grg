@@ -242,7 +242,7 @@ rule listInsertLast(lst:List, y:Node) {
 //--------------------------------------------------
 // List info: match patterns, count functions
 //-------------------------------------------------- 
-pattern IsListFirst(lst:List, y:ScAstNode) {
+pattern IsListFirst(lst:List, y:Node) {
     lst -:ListFirst-> :ListFirstNode
         -:ListNext-> :ListNode -:ListValue-> y;
 }

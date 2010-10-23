@@ -40,15 +40,20 @@ abstract edge class ValDefOrAssignRhs;
 // special symbols. Use these!
 abstract node class SketchBaseSymbol extends Symbol;
 node class AngelicSketchSymbol extends SketchBaseSymbol;
-node class SketchClassSymbol extends SketchBaseSymbol;
+node class HoleSketchSymbol extends SketchBaseSymbol;
+
 node class AssertFcnSymbol extends SketchBaseSymbol;
 abstract node class SketchConstructSymbol extends SketchBaseSymbol;
 node class BangBangSymbol extends SketchConstructSymbol;
 node class HoleSymbol extends SketchConstructSymbol;
 
+abstract node class SketchClassSymbol extends SketchBaseSymbol;
+node class AngelicSketchInstSymbol extends SketchClassSymbol;
+
 abstract node class SketchConstructCall extends ScAstNode, BlockifySafe;
 node class BangBangCall extends SketchConstructCall;
 node class HoleCall extends SketchConstructCall;
+node class SyncthreadsCall extends ScAstNode, BlockifySafe;
 
 edge class PackageDefGlobal extends Subtree;
 
@@ -307,6 +312,7 @@ node class NSRSafeParens extends NSRParens;
 {% include "nodes/gen/resolve_templates.gm" %}
 {% include "nodes/gen/debug_name_graph_nodes.gm" %}
 {% include "nodes/gen/set_types_value_or_reference.gm" %}
+{% include "nodes/gen/sketch_vlarray_to_fixed.gm" %}
 // add unified here
 
 
@@ -582,7 +588,7 @@ edge class MatchCaseLast;
 // Term symbols
 edge class AnnotationSymbol extends ScTermSymbol;
 edge class ClassDefFieldSymbol extends ScTermSymbol;
-edge class ClassDefFieldsList extends ScTermSymbol;
+edge class ClassDefFieldsList;
 edge class ClassDefSymbol extends ScTermSymbol;
 edge class ClassRefSymbol extends ScTermSymbol;
 edge class EmptyTreeTypeSymbol extends ScTermSymbol;

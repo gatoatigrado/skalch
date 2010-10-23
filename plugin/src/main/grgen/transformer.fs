@@ -192,11 +192,14 @@ let zone_nice_lists =
         ExportLibraries
         LossyReplacements
         NewInitializerFcnStubs
+        RewriteObjects
+        CreateSpecialCudaNodesForSketch
         SpecializeCudaFcnCalls ]
 let zone_ssa =
     nullStage "ssa",
     [
         ArrayLowering
+        ConvertVLArraysToFixed
         EmitRequiredImports
         SketchNospec
         ]
@@ -253,9 +256,11 @@ let deps =
         CreateTemplates <?? ExportTemplates
         CreateLibraries <?? ExportLibraries
         LossyReplacements <?? NewInitializerFcnStubs
+        CreateSpecialCudaNodesForSketch <?? SpecializeCudaFcnCalls
 
         (* SSA form intradependencies *)
         ArrayLowering <?? EmitRequiredImports
+        ArrayLowering <?? ConvertVLArraysToFixed
         EmitRequiredImports <?? SketchNospec
 
         (* Code generation should be last *)
@@ -270,12 +275,14 @@ let no_oo_meta = [ ConvertThis ]
 (* add ssa to below *)
 let optimize_meta = [ ArrayLowering ]
 let sketch_base_meta = [ CleanSketchConstructs; DecorateNodes;
+    RewriteObjects; SpecializeCudaFcnCalls;
     LossyReplacements; LowerTprint; NiceLists (*; ResolveGT *) ]
 let sketch_meta = sketch_base_meta @ [ ProcessAnnotations;
-    SketchFinalMinorCleanup; SketchNospec ]
+    SketchFinalMinorCleanup; SketchNospec;
+    ConvertVLArraysToFixed;
+    CreateSpecialCudaNodesForSketch ]
 let cuda_meta = sketch_base_meta @ [ ProcessAnnotations;
-    CMemTypes;
-    SpecializeCudaFcnCalls; CudaCleanup; CudaGenerateCode ]
+    CMemTypes; CudaCleanup; CudaGenerateCode ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs;
     BlockifyFcndefs; CstyleMain ]
 let library_meta = [ EmitRequiredImports ]
@@ -377,6 +384,7 @@ let transformerMain(args : string[]) =
         "CfgAssignPossibleSymbol", "LightRed"
         "StringRep", "green"
         "MTypeAbstractEdge", "orange"
+        "SketchType", "red"
         ]
     initialgraph.SetNodeLabel ""  "ListAbstractNode"
     initialgraph.SetNodeShape "circle" "ListAbstractNode"

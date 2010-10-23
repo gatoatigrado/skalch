@@ -189,11 +189,20 @@ rule setOuterSymbol {
     modify { next_sym:OuterSymbol<outer_sym>; }
 }
 
-rule setSketchClasses {
-    sym:Symbol -:ParentTypeSymbol-> :AngelicSketchSymbol;
-    :ClassDef -:ClassDefSymbol-> sym;
-    negative { if { typeof(sym) >= SketchClassSymbol; } }
-    modify { next:SketchClassSymbol<sym>; }
+rule setAngelicSketchSymbol {
+    x:Symbol;
+    independent {
+        alternative {
+            A {
+                x -:ParentTypeSymbol-> :AngelicSketchSymbol; }
+            B {
+                x -:ParentTypeSymbol-> .
+                    -:ParentTypeSymbol-> :AngelicSketchSymbol;
+            }
+        }
+    }
+
+    modify { next:AngelicSketchInstSymbol<x>; }
 }
 
 /// NOTE -- run in convert_this.grs, as conversion of $this$ to a

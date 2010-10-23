@@ -42,8 +42,8 @@ let DecorateNodesRules = [
     Xgrs "setArrayLenAnnotations*"
     Xgrs "setGeneratorAnnotations*"
     Xgrs "[setOuterSymbol]"
+    Xgrs "[setAngelicSketchSymbol]"
     Xgrs "setScalaRoot & setScalaSubtypes*"
-    Xgrs "setSketchClasses*"
 
     (* see note in grg file; ValidateXgrs "! existSymbolsWithSameUniqueName" *)
     Xgrs "deleteBridgeFunctions*"
@@ -205,16 +205,22 @@ let SpecializeCudaFcnCallsRules =
         Xgrs "convertParallelIndexVecToField*"
         Xgrs "deleteDangling*"
         Xgrs "[createObjDefs]"
-        Xgrs "rewriteSyncthreadsCall*"
+        Xgrs "rewriteSyncthreadsCall*" ]
 
-        (* delete $this variables from object functions *)
-        Xgrs "removeObjArgFromFcnCalls*"
-        Xgrs "removeObjArgFromFcnDefs*"
-        Xgrs "removeSuperCallFromInit*"
-        Xgrs "deleteDangling*"
-        Xgrs "addObjFieldAsGlobal*"
-        Xgrs "convertObjFieldAccessToGlobalRef*"
-        ]
+let RewriteObjectsRules = [
+    (* delete $this variables from object functions *)
+    Xgrs "removeObjArgFromFcnCalls*"
+    Xgrs "removeObjArgFromFcnDefs*"
+    Xgrs "removeSuperCallFromInit*"
+    Xgrs "deleteDangling*"
+    Xgrs "addObjFieldAsGlobal*"
+    Xgrs "convertObjFieldAccessToGlobalRef*" ]
+
+let ConvertVLArraysToFixedRules = [
+    Xgrs "convertVLArraySymbolToFixed*" ]
+
+let CreateSpecialCudaNodesForSketchRules = [
+    Xgrs "createSyncthreadsNodes*" ]
 
 let SetTypeValueOrReferenceRules =
     [
@@ -231,8 +237,7 @@ let SetTypeValueOrReferenceRules =
 
         (* link term symbols to memory types *)
         Xgrs "setMTermArrayInlinedTypes*"
-        Xgrs "setMTermRegalarTypes*"
-        ]
+        Xgrs "setMTermRegalarTypes*" ]
 
 let CfgInitRules = [
     Xgrs "deleteDangling*"

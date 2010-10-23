@@ -117,6 +117,24 @@ let LossyReplacements = {
         description = "Ignore try / catch for now, fix some Scala weirdnesses (bugs?)";
         stage = rewriteStage LossyReplacementsRules }
 
+let RewriteObjects = {
+    stageDefault with
+        name = "RewriteObjects";
+        description = "Rewrite object functions by deleting $this variables";
+        stage = rewriteStage RewriteObjectsRules }
+
+let ConvertVLArraysToFixed = {
+    stageDefault with
+        name = "ConvertVLArraysToFixed";
+        description = "Convert variable length arrays to fixed";
+        stage = rewriteStage ConvertVLArraysToFixedRules }
+
+let CreateSpecialCudaNodesForSketch = {
+    stageDefault with
+        name = "CreateSpecialCudaNodesForSketch";
+        description = "Convert __syncthreads, etc. into special nodes";
+        stage = rewriteStage CreateSpecialCudaNodesForSketchRules }
+
 let SpecializeCudaFcnCalls = {
     stageDefault with
         name = "SpecializeCudaFcnCalls";

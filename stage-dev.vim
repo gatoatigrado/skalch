@@ -191,12 +191,12 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
 endif
 set shortmess=aoO
 badd +12 base/src/test/scala/angelic/simple/SugaredTest.scala
-badd +25 plugin/src/main/grgen/unified/common.unified.grg
+badd +26 plugin/src/main/grgen/unified/common.unified.grg
 badd +46 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +1 plugin/src/main/grgen/build_templates.py
-badd +140 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +240 plugin/src/main/grgen/rewrite_rules.fs
-badd +150 base/src/codegen/gxltosketch/gxltosketch.py
+badd +98 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+badd +219 plugin/src/main/grgen/rewrite_rules.fs
+badd +111 base/src/codegen/gxltosketch/gxltosketch.py
 badd +13 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
 badd +15 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +1 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
@@ -204,28 +204,28 @@ badd +8 base/src/test/scala/angelic/simple/Test0003_WhileLoops.scala
 badd +6 base/src/test/scala/angelic/simple/Test0005_tprint.scala
 badd +19 base/src/main/scala/skalch/AngelicSketch.scala
 badd +160 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
-badd +111 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
+badd +213 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
 badd +85 plugin/src/main/grgen/unified/process_annotations.unified.grg
 badd +27 plugin/src/main/grgen/AllRules_0.grg
 badd +1 plugin/src/main/grgen/rules/simplify_sketch_constructs.grg
 badd +41 plugin/src/main/grgen/unified/macros.grg
 badd +35 base/src/main/scala/skalch/RewriteTemplates.scala
-badd +60 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
-badd +368 plugin/src/main/grgen/transformer.fs
+badd +21 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
+badd +237 plugin/src/main/grgen/transformer.fs
 badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
 badd +253 plugin/src/main/grgen/unified/array_lowering.unified.grg
 badd +313 plugin/src/main/scala/skalch/plugins/ScalaGxlNodeMap.scala
-badd +17 base/src/test/scala/cuda/VectorAdd.scala
+badd +12 base/src/test/scala/cuda/VectorAdd.scala
 badd +2 base/src/main/java/sketch/compiler/parser/gxlimport/GxlSketchOptions.java
-badd +37 base/src/main/scala/skalch/cuda/CudaKernel.scala
+badd +38 base/src/main/scala/skalch/cuda/CudaKernel.scala
 badd +41 plugin/src/main/grgen/rules/print_graph/sym_names.grg
-badd +142 plugin/src/main/grgen/rewrite_stage_info.fs
-badd +158 plugin/src/main/grgen/unified/cuda_specials.unified.grg
-badd +1 plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
+badd +130 plugin/src/main/grgen/rewrite_stage_info.fs
+badd +80 plugin/src/main/grgen/unified/cuda_specials.unified.grg
+badd +55 plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
 badd +142 plugin/src/main/grgen/unified/generate_cfg.unified.grg
 badd +14 plugin/src/main/grgen/unified/cstyle_stmts.unified.grg
-badd +250 plugin/src/main/grgen/unified/nice_lists.unified.grg
+badd +267 plugin/src/main/grgen/unified/nice_lists.unified.grg
 badd +70 plugin/src/main/grgen/unified/sketch_nospec.unified.grg
 badd +27 base/src/main/scala/skalch/cuda/annotations/CudaAnnotations.scala
 badd +18 ~/sandbox/grgen/engine-net-2/FSharpBindings/util_fcns.fs
@@ -258,8 +258,9 @@ badd +47 plugin/src/main/grgen/runtests.fs
 badd +1 modular_rules_compile.fs
 badd +32 plugin/src/main/grgen/unified/debug_name_graph_nodes.unified.grg
 badd +76 plugin/src/main/grgen/unified/set_types_value_or_reference.unified.grg
+badd +24 plugin/src/main/grgen/unified/sketch_vlarray_to_fixed.unified.grg
 args modular_rules_compile.fs
-edit plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
+edit plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
@@ -269,8 +270,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
-exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 1resize ' . ((&columns * 83 + 82) / 165)
+exe 'vert 2resize ' . ((&columns * 81 + 82) / 165)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -366,16 +367,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 51 - ((46 * winheight(0) + 47) / 95)
+let s:l = 21 - ((20 * winheight(0) + 47) / 95)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-51
-normal! 013l
+21
+normal! 0
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
-edit ~/sandbox/skalch/plugin/src/main/grgen/unified/nice_lists.unified.grg
+edit ~/sandbox/skalch/base/src/test/scala/angelic/simple/SugaredTest.scala
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -401,8 +402,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'grg'
-setlocal filetype=grg
+if &filetype != 'scala'
+setlocal filetype=scala
 endif
 setlocal foldcolumn=0
 setlocal foldenable
@@ -458,8 +459,8 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != 'grg'
-setlocal syntax=grg
+if &syntax != 'scala'
+setlocal syntax=scala
 endif
 setlocal tabstop=4
 setlocal tags=
@@ -470,17 +471,17 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 251 - ((45 * winheight(0) + 47) / 95)
+let s:l = 13 - ((12 * winheight(0) + 47) / 95)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-251
-normal! 016l
+13
+normal! 0
 lcd ~/sandbox/skalch
 wincmd w
 2wincmd w
-exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
-exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 1resize ' . ((&columns * 83 + 82) / 165)
+exe 'vert 2resize ' . ((&columns * 81 + 82) / 165)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

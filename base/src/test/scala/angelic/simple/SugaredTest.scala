@@ -7,6 +7,7 @@ class MySketch() extends AngelicSketch {
 
     def main(x : Int) {
         var arr = Array(1, 2, 3)
+        arr(2) = x + 3
         assert(arr(2) + (?? : Int7) == x)
     }
 }

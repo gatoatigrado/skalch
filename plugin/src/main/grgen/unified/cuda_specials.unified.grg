@@ -157,4 +157,16 @@ rule rewriteSyncthreadsCall {
     }
 }
 
+rule createSyncthreadsNodes {
+    x:FcnCall -e1:FcnArgList-> args:List;
+    x -e2:FcnCallSymbol-> sym:Symbol;
+    :Annotated(sym, "scSpecialFcn");
+    if { sym.symbolName == "__syncthreads"; }
+
+    modify {
+        delete(e1, e2);
+        next:SyncthreadsCall<x>;
+    }
+}
+
 {% endblock %}

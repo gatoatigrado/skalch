@@ -129,6 +129,9 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 java_gxlimport: gen
 	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=src/test/scala/angelic/simple/SugaredTest.sketch.ast.gxl")
 
+java_cuda_gxlimport: gen
+	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=../output.sketch.ast.gxl")
+
 
 
 ### developer-specific commands

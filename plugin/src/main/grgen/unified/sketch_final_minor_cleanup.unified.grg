@@ -31,6 +31,22 @@ edge class FcnBinaryCallRhs;
 {% block grg %}
 {% import "macros.grg" as macros %}
 
+rule convertArrayAssignForSketch {
+    x:SketchArrayAssign;
+    x -e1:SketchArrayAssignArray-> arr:ScAstNode;
+    x -e2:SketchArrayAssignIndex-> idx:ScAstNode;
+    x -e3:SketchArrayAssignValue-> val:ScAstNode;
+
+    modify {
+        delete(e1, e2, e3);
+        next:Assign<x>;
+        next -:AssignLhs-> access:SketchArrayAccess;
+        access -:SketchArrayAccessArray-> arr;
+        access -:SketchArrayAccessIndex-> idx;
+        next -:AssignRhs-> val;
+    }
+}
+
 rule setSymbolSketchType {
     x:Symbol -:PrintSymName-> name:PrintName;
     :ClassDef -:ClassDefSymbol-> x;
@@ -145,6 +161,7 @@ rule setFcnBinaryCallArgs {
 {{ set_base_type("ValDef") }}
 {{ set_base_type("VarRef") }}
 {{ set_base_type("FcnDef") }}
+{{ set_base_type("ClassDef") }}
 
 /// in the SKETCH compiler, expressions are not statements!
 rule addSkExprStmts {

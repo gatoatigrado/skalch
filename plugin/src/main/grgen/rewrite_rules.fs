@@ -220,6 +220,9 @@ let ConvertVLArraysToFixedRules = [
     Xgrs "convertVLArraySymbolToFixed*" ]
 
 let CreateSpecialCudaNodesForSketchRules = [
+    Xgrs "convertParallelIdxToCudaSpecial*"
+    Xgrs "convertParallelIndexVecToField*"
+    Xgrs "createSketchThreadIdxNodes*"
     Xgrs "createSyncthreadsNodes*" ]
 
 let SetTypeValueOrReferenceRules =
@@ -353,6 +356,7 @@ let CudaCleanupRules =
 let SketchFinalMinorCleanupRules =
     SketchAndCudaCleanupRules  @
     [
+        Xgrs "convertArrayAssignForSketch*"
         Xgrs "setNewArrayCalls*"
         Xgrs "setAssertCalls* & deleteDangling*"
         Xgrs "setFcnBinaryCallBaseType*"
@@ -361,6 +365,7 @@ let SketchFinalMinorCleanupRules =
         Xgrs "setValDefBaseType*"
         Xgrs "setVarRefBaseType*"
         Xgrs "setFcnDefBaseType*"
+        Xgrs "setClassDefBaseType*"
         Xgrs "[setGeneratorFcn] & [setNonGeneratorFcn]"
         Xgrs "addSkExprStmts*" ]
 

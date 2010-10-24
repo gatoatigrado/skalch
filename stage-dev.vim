@@ -9,51 +9,51 @@ map <NL> ok
 noremap <silent>  :call Comment()
 map  o
 nnoremap  :set paste:read !xclip_paste:set nopaste
-map OE i
-map O5C w
-map O5D b
-map O5B ^F
-map O5A ^B
-map O2C w
-map O2D b
-map O2B ^F
-map O2A ^B
-map [3;5~ x
-map [2;5~ i
-map [3;2~ x
-map [2;2~ i
-map O5F $
-map O5H 0
-map O2F $
-map O2H 0
-map OF $
-map OH 0
-map [E i
-map [D h
-map [C l
-map [B j
-map [A k
-map [4~ $
-map [1~ 0
-map [F $
-map [H 0
-map On .
-map Op 0
-map Os 3
-map Or 2
-map Oq 1
-map Ov 6
-map Ou 5
-map Ot 4
-map Oy 9
-map Ox 8
-map Ow 7
-map OM 
-map Ol ,
-map Ok +
-map Om -
-map Oj *
 map Oo :
+map Oj *
+map Om -
+map Ok +
+map Ol ,
+map OM 
+map Ow 7
+map Ox 8
+map Oy 9
+map Ot 4
+map Ou 5
+map Ov 6
+map Oq 1
+map Or 2
+map Os 3
+map Op 0
+map On .
+map [H 0
+map [F $
+map [1~ 0
+map [4~ $
+map [A k
+map [B j
+map [C l
+map [D h
+map [E i
+map OH 0
+map OF $
+map O2H 0
+map O2F $
+map O5H 0
+map O5F $
+map [2;2~ i
+map [3;2~ x
+map [2;5~ i
+map [3;5~ x
+map O2A ^B
+map O2B ^F
+map O2D b
+map O2C w
+map O5A ^B
+map O5B ^F
+map O5D b
+map O5C w
+map OE i
 map [3~ x
 xmap <silent> ,e <Plug>CamelCaseMotion_e
 xmap <silent> ,b <Plug>CamelCaseMotion_b
@@ -110,51 +110,51 @@ map <F9> =
 imap S <Plug>ISurround
 imap s <Plug>Isurround
 imap  <Plug>Isurround
-map! OE <Insert>
-map! O5D <S-Left>
-map! O5C <S-Right>
-map! O5B <PageDown>
-map! O5A <PageUp>
-map! O2D <S-Left>
-map! O2C <S-Right>
-map! O2B <PageDown>
-map! O2A <PageUp>
-map! [3;5~ <Del>
-map! [2;5~ <Insert>
-map! [3;2~ <Del>
-map! [2;2~ <Insert>
-map! O5F <End>
-map! O5H <Home>
-map! O2F <End>
-map! O2H <Home>
-map! OF <End>
-map! OH <Home>
-map! [E <Insert>
-map! [D <Left>
-map! [C <Right>
-map! [B <Down>
-map! [A <Up>
-map! [4~ <End>
-map! [1~ <Home>
-map! [F <End>
-map! [H <Home>
-map! On .
-map! Op 0
-map! Os 3
-map! Or 2
-map! Oq 1
-map! Ov 6
-map! Ou 5
-map! Ot 4
-map! Oy 9
-map! Ox 8
-map! Ow 7
-map! OM 
-map! Ol ,
-map! Ok +
-map! Om -
-map! Oj *
 map! Oo :
+map! Oj *
+map! Om -
+map! Ok +
+map! Ol ,
+map! OM 
+map! Ow 7
+map! Ox 8
+map! Oy 9
+map! Ot 4
+map! Ou 5
+map! Ov 6
+map! Oq 1
+map! Or 2
+map! Os 3
+map! Op 0
+map! On .
+map! [H <Home>
+map! [F <End>
+map! [1~ <Home>
+map! [4~ <End>
+map! [A <Up>
+map! [B <Down>
+map! [C <Right>
+map! [D <Left>
+map! [E <Insert>
+map! OH <Home>
+map! OF <End>
+map! O2H <Home>
+map! O2F <End>
+map! O5H <Home>
+map! O5F <End>
+map! [2;2~ <Insert>
+map! [3;2~ <Del>
+map! [2;5~ <Insert>
+map! [3;5~ <Del>
+map! O2A <PageUp>
+map! O2B <PageDown>
+map! O2C <S-Right>
+map! O2D <S-Left>
+map! O5A <PageUp>
+map! O5B <PageDown>
+map! O5C <S-Right>
+map! O5D <S-Left>
+map! OE <Insert>
 map! [3~ <Del>
 map á ea
 map é bi
@@ -190,14 +190,14 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +12 base/src/test/scala/angelic/simple/SugaredTest.scala
+badd +10 base/src/test/scala/angelic/simple/SugaredTest.scala
 badd +26 plugin/src/main/grgen/unified/common.unified.grg
 badd +46 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +1 plugin/src/main/grgen/build_templates.py
-badd +98 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +219 plugin/src/main/grgen/rewrite_rules.fs
-badd +111 base/src/codegen/gxltosketch/gxltosketch.py
-badd +13 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
+badd +78 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+badd +225 plugin/src/main/grgen/rewrite_rules.fs
+badd +174 base/src/codegen/gxltosketch/gxltosketch.py
+badd +51 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
 badd +15 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +1 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
 badd +8 base/src/test/scala/angelic/simple/Test0003_WhileLoops.scala
@@ -206,11 +206,11 @@ badd +19 base/src/main/scala/skalch/AngelicSketch.scala
 badd +160 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
 badd +213 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
 badd +85 plugin/src/main/grgen/unified/process_annotations.unified.grg
-badd +27 plugin/src/main/grgen/AllRules_0.grg
+badd +49 plugin/src/main/grgen/AllRules_0.grg
 badd +1 plugin/src/main/grgen/rules/simplify_sketch_constructs.grg
 badd +41 plugin/src/main/grgen/unified/macros.grg
 badd +35 base/src/main/scala/skalch/RewriteTemplates.scala
-badd +21 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
+badd +43 plugin/src/main/grgen/unified/sketch_final_minor_cleanup.unified.grg
 badd +237 plugin/src/main/grgen/transformer.fs
 badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Function.java
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
@@ -221,7 +221,7 @@ badd +2 base/src/main/java/sketch/compiler/parser/gxlimport/GxlSketchOptions.jav
 badd +38 base/src/main/scala/skalch/cuda/CudaKernel.scala
 badd +41 plugin/src/main/grgen/rules/print_graph/sym_names.grg
 badd +130 plugin/src/main/grgen/rewrite_stage_info.fs
-badd +80 plugin/src/main/grgen/unified/cuda_specials.unified.grg
+badd +174 plugin/src/main/grgen/unified/cuda_specials.unified.grg
 badd +55 plugin/src/main/grgen/unified/cuda_generate_code.unified.grg
 badd +142 plugin/src/main/grgen/unified/generate_cfg.unified.grg
 badd +14 plugin/src/main/grgen/unified/cstyle_stmts.unified.grg
@@ -238,7 +238,7 @@ badd +135 plugin/src/main/scala/skalch/plugins/GraphTypes.scala
 badd +6 base/src/main/scala/skalch/cuda/ScIArray1D.scala.jinja2
 badd +27 base/src/main/scala/skalch/cuda/PrimitiveVariables.scala
 badd +33 base/src/main/scala/skalch/cuda/PrimitiveVariables.scala.jinja2
-badd +165 ~/sandbox/grgen/engine-net-2/FSharpBindings/modular_compile_rules.fs
+badd +161 ~/sandbox/grgen/engine-net-2/FSharpBindings/modular_compile_rules.fs
 badd +25 base/src/test/scala/cuda/Histogram.scala.html
 badd +1 base/src/main/scala/skalch/cuda/ScIArray1D.scala.jinja2.html
 badd +1 base/src/main/scala/skalch/cuda/PrimitiveVariables.scala.jinja2.html
@@ -270,8 +270,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 83 + 82) / 165)
-exe 'vert 2resize ' . ((&columns * 81 + 82) / 165)
+exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -367,16 +367,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 21 - ((20 * winheight(0) + 47) / 95)
+let s:l = 134 - ((87 * winheight(0) + 47) / 95)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-21
+134
 normal! 0
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
-edit ~/sandbox/skalch/base/src/test/scala/angelic/simple/SugaredTest.scala
+edit ~/sandbox/skalch/plugin/src/main/grgen/rewrite_rules.fs
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -402,8 +402,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'scala'
-setlocal filetype=scala
+if &filetype != 'ocaml'
+setlocal filetype=ocaml
 endif
 setlocal foldcolumn=0
 setlocal foldenable
@@ -459,8 +459,8 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != 'scala'
-setlocal syntax=scala
+if &syntax != 'ocaml'
+setlocal syntax=ocaml
 endif
 setlocal tabstop=4
 setlocal tags=
@@ -471,17 +471,16 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 13 - ((12 * winheight(0) + 47) / 95)
+let s:l = 372 - ((48 * winheight(0) + 47) / 95)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-13
-normal! 0
+372
+normal! 028l
 lcd ~/sandbox/skalch
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 83 + 82) / 165)
-exe 'vert 2resize ' . ((&columns * 81 + 82) / 165)
+exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
+exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

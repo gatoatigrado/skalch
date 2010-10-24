@@ -9,7 +9,6 @@ object VectorAdd extends CudaKernel {
 
     def getb(b : IntArr, off : Int) = b(threadIdx.x + off)
     @scKernel def vectoradd(a : IntArr @ scInlineArray, alen : Int, b : IntArr) {
-        val a = Array(1, 2, 3)
         a(threadIdx.x) += getb(b, alen)
         __syncthreads()
     }

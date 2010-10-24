@@ -9,6 +9,8 @@ import net.sourceforge.gxl.*;
 import sketch.compiler.ast.core.*;
 import sketch.compiler.ast.core.exprs.*;
 import sketch.compiler.ast.core.stmts.*;
+import sketch.compiler.ast.cuda.exprs.*;
+import sketch.compiler.ast.cuda.stmts.*;
 import sketch.compiler.ast.core.typs.*;
 import sketch.compiler.ast.scala.exprs.*;
 import sketch.util.datastructures.TprintTuple;
@@ -236,6 +238,14 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public CudaSyncthreads getCudaSyncthreadsFromSyncthreadsCall(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        return new CudaSyncthreads(arg0);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public ExprBinary getExprBinaryFromFcnBinaryCall(final GXLNode node) {
         FENode arg0 = new DummyFENode(create_fe_context(node));
 
@@ -399,6 +409,16 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public CudaThreadIdx getCudaThreadIdxFromSketchThreadIdx(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        String arg1 = getStringAttribute("indexName", node); // gen marker 7
+
+        return new CudaThreadIdx(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public TypePrimitive getTypePrimitiveFromTypeBoolean(final GXLNode node) {
         return TypePrimitive.bittype;
     }
@@ -461,7 +481,9 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     public Statement getStatement(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("SKWhileLoop")) {
+        if (typ.equals("SyncthreadsCall")) {
+            return getCudaSyncthreadsFromSyncthreadsCall(node);
+        } else if (typ.equals("SKWhileLoop")) {
             return getStmtWhileFromSKWhileLoop(node);
         } else if (typ.equals("SKStmtExpr")) {
             return getStmtExprFromSKStmtExpr(node);
@@ -709,12 +731,30 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
+    public CudaSyncthreads getCudaSyncthreads(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SyncthreadsCall")) {
+            return getCudaSyncthreadsFromSyncthreadsCall(node);
+        } else {
+            throw new RuntimeException("no way to return a 'CudaSyncthreads' from a node of type " + typ);
+        }
+    }
+
     public TprintTuple getTprintTuple(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("SketchPrintTuple")) {
             return getTprintTupleFromSketchPrintTuple(node);
         } else {
             throw new RuntimeException("no way to return a 'TprintTuple' from a node of type " + typ);
+        }
+    }
+
+    public CudaThreadIdx getCudaThreadIdx(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SketchThreadIdx")) {
+            return getCudaThreadIdxFromSketchThreadIdx(node);
+        } else {
+            throw new RuntimeException("no way to return a 'CudaThreadIdx' from a node of type " + typ);
         }
     }
 
@@ -735,6 +775,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprConstIntFromIntConstant(node);
         } else if (typ.equals("BooleanConstant")) {
             return getExprConstBooleanFromBooleanConstant(node);
+        } else if (typ.equals("SketchThreadIdx")) {
+            return getCudaThreadIdxFromSketchThreadIdx(node);
         } else if (typ.equals("SketchTprintCall")) {
             return getExprTprintFromSketchTprintCall(node);
         } else if (typ.equals("SketchArrayAccess")) {

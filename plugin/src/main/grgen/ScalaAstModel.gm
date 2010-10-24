@@ -75,6 +75,8 @@ edge class PrintCallArgList extends FcnArgList;
 
 edge class FcnDefIsGenerator;
 
+node class SketchThreadIdx extends ScAstNode { indexName : string; }
+
 
 
 // === Symbol type annotations ===

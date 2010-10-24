@@ -57,7 +57,7 @@ remove-whitespace: # trim trailing whitespace on all files
 	bash -c "source build_util/bash_functions.sh; cd base; trim_whitespace src"
 
 install-plugin: gen
-	(cd plugin; mvn assembly:assembly install)
+	(cd plugin; mvn install)
 
 compile: install-plugin stagetf-compile
 	mvn compile test-compile

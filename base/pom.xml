@@ -6,6 +6,7 @@
         <artifactId>skalch</artifactId>
         <groupId>edu.berkeley.cs.sketch</groupId>
         <version>0.03</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -85,9 +86,10 @@
     <dependencies>
         <dependency>
             <groupId>edu.berkeley.cs.sketch</groupId>
-            <artifactId>skalch-plugin</artifactId>
-            <version>${version}</version>
+            <artifactId>sketch-frontend</artifactId>
+            <version>${sketchfrontend.version}</version>
         </dependency>
+
         <!-- bad regexp library that follows POSIX semantics but takes exponential time :( -->
         <dependency>
             <groupId>gnu-regexp</groupId>

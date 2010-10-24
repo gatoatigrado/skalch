@@ -73,17 +73,6 @@
                     </classpathContainers>
                 </configuration>
             </plugin>
-
-            <!-- package all dependencies -->
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
-                    <finalName>skalch-plugin</finalName>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

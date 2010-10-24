@@ -169,4 +169,18 @@ rule createSyncthreadsNodes {
     }
 }
 
+rule createSketchThreadIdxNodes {
+    x:FieldAccess
+        -e1:FieldAccessObject-> y:CudaParallelIndexCall
+        -:FcnCallSymbol-> sym:Symbol;
+    if { sym.symbolName == "threadIdx"; }
+    x -e2:FieldAccessSymbol-> idx:Symbol;
+
+    modify {
+        delete(e1, e2);
+        next:SketchThreadIdx<x>;
+        eval { next.indexName = idx.symbolName; }
+    }
+}
+
 {% endblock %}

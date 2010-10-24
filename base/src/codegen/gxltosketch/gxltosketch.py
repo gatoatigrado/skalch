@@ -71,6 +71,9 @@ If(IfCond, IfThen, IfElse)
 
 SKWhileLoop(SKWhileLoopCond, SKWhileLoopBody)
     -> new StmtWhile(<ctx>, Expression, Statement)
+
+SyncthreadsCall()
+    -> new CudaSyncthreads(<ctx>)
 """
 
 
@@ -113,6 +116,9 @@ SketchTprintCall(OL[PrintCallArgList])
 
 SketchPrintTuple(SketchPrintTupleName.value, SketchPrintTupleValue)
     -> new TprintTuple(String, Expression)
+
+SketchThreadIdx(.indexName)
+    -> new CudaThreadIdx(<ctx>, String)
 """
 
 
@@ -162,9 +168,9 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange ExprTprint",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange ExprTprint CudaThreadIdx",
         "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
-        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile CudaSyncthreads",
         "Type": "TypeStruct TypePrimitive TypeStructRef TypeArray" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:

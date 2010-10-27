@@ -34,7 +34,7 @@ public class EntanglementSummaryGuiBase extends javax.swing.JFrame {
         frameLabel = new javax.swing.JLabel();
         subsetScrollPane = new javax.swing.JScrollPane();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         frameLabel.setText("Possible Subsets of Traces");
 

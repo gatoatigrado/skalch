@@ -28,6 +28,8 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     private Set<ScSourceConstruct> sourceInfo;
     public AsyncMTEvent done_events = new AsyncMTEvent();
     private ScAngelicSketchCall queueSketch;
+    private ScAngelicSketchCall entanglementSketch;
+    private Set<ScSourceConstruct> entanglementSourceInfo;
 
     public ScAngelicSynthesisMain(scala.Function0<ScAngelicSketchBase> f) {
         sketches = new ScAngelicSketchCall[nthreads];
@@ -36,7 +38,11 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
         }
         uiSketch = new ScAngelicSketchCall(f.apply());
         queueSketch = new ScAngelicSketchCall(f.apply());
+        entanglementSketch = new ScAngelicSketchCall(f.apply());
+
         sourceInfo = getSourceCodeInfo(uiSketch);
+        entanglementSourceInfo = getSourceCodeInfo(entanglementSketch);
+
         synthesisRuntime = getSynthesisRuntime(sketches);
 
     }
@@ -44,7 +50,9 @@ public class ScAngelicSynthesisMain extends ScSynthesisMainBase {
     public Object synthesize() throws Exception {
         // start various utilities
         ScSynthesisResults results = new ScSynthesisResults();
-        EntanglementConsole console = new EntanglementConsole(System.in, results);
+        EntanglementConsole console =
+                new EntanglementConsole(System.in, results, entanglementSketch,
+                        entanglementSourceInfo);
         console.start();
 
         if (beOpts.synthOpts.queueFilename != "") {

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.EntanglementComparison;
@@ -28,6 +29,7 @@ import sketch.entanglement.partition.TracePartitioner;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.entanglement.sat.SubsetTraceFilter;
 import sketch.result.ScSynthesisResults;
+import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.thread.InteractiveThread;
 import entanglement.EntanglementDetector;
 import entanglement.MaxSupportFinder;
@@ -48,6 +50,8 @@ public class EntanglementConsole extends InteractiveThread {
     private HashSet<String> commandSet;
 
     private Map<Integer, List<SubsetOfTraces>> traceSetStorage;
+    private ScDynamicSketchCall<?> sketch;
+    private Set<ScSourceConstruct> sourceCodeInfo;
 
     static String commands[] =
             { "compare", "constant", "entanglement", "info", "pull", "push", "store",
@@ -56,10 +60,15 @@ public class EntanglementConsole extends InteractiveThread {
                     "values", "help", "color", "nocolor", "grow", "gui", "summary",
                     "guisummary" };
 
-    public EntanglementConsole(InputStream input, ScSynthesisResults results) {
+    public EntanglementConsole(InputStream input, ScSynthesisResults results,
+            ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
+    {
         super(0.05f);
         this.input = input;
         this.results = results;
+        this.sketch = sketch;
+        this.sourceCodeInfo = sourceCodeInfo;
+
         traceToStack = new HashMap<Trace, ScStack>();
         subsetsStack = new Stack<List<SubsetOfTraces>>();
         commandSet = new HashSet<String>();
@@ -161,7 +170,8 @@ public class EntanglementConsole extends InteractiveThread {
                     }
                 } else if ("gui".equals(command)) {
                     EntanglementGui gui =
-                            new EntanglementGui(traceToStack.keySet(), satEA, ea);
+                            new EntanglementGui(traceToStack, satEA, ea, sketch,
+                                    sourceCodeInfo);
                     gui.pack();
                     gui.setVisible(true);
                 } else if ("summary".equals(command)) {

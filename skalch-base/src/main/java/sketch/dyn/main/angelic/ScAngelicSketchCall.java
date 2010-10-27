@@ -233,6 +233,13 @@ public class ScAngelicSketchCall implements ScDynamicSketchCall<ScAngelicSketchB
         } catch (InvocationTargetException e) {
             Throwable exception = e.getCause();
             if (exception instanceof RuntimeException) {
+                if (sketch.debugPrintEnable) {
+                    StackTraceElement[] stackTrace = exception.getStackTrace();
+                    for (StackTraceElement element : stackTrace) {
+                        sketch.skdprintBackend(element.toString());
+                    }
+                    // sketch.skdprintBackend(exception.getStackTrace().toString());
+                }
                 sketch.synthAssert(false);
                 // throw ((RuntimeException) exception);
             } else {

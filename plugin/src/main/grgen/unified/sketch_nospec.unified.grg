@@ -66,6 +66,13 @@ rule removeThisVarFromMain {
     }
 }
 
+rule setHarnessAnnotatedAsMain {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
+    annot:Annotated(sym, "harness");
+
+    modify { :SketchMainFcnDef<x>; annot(); }
+}
+
 rule generateNospec {
     x:SketchMainFcnDef -:FcnDefParamsList-> params:List;
     x -:FcnDefReturnTypeSymbol-> unitsym:ScalaUnitTypeSymbol;

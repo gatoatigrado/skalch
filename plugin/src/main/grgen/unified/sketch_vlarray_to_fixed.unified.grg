@@ -21,4 +21,42 @@ rule convertVLArraySymbolToFixed {
     }
 }
 
+// replace "array = new Array[Int](100)" with "int[100] array = 0"
+rule setNewAssignedArrayCalls {
+    :Assign -:AssignRhs-> x:NewArrayCall;
+    modify {
+        next:IntConstant<x>;
+        eval { next.value = 0; }
+    }
+}
+
+// replace "new Array[Int](100)" with "{ 0 } : FixedArray[100]"
+// (which will later get translated to "int[100] tmp = 0")
+rule setNewAnonymousArrayCalls {
+    x:NewArrayCall;
+    x -e1:FcnArgList-> .;
+    x -e3:InnerTypeSymbol-> .;
+    x -e4:FcnCallSymbol-> .;
+    x -e5:FcnCallTypeSymbol-> typ:Symbol;
+
+    modify {
+        delete(e1, e3, e4, e5);
+        next:Block<x> -:BlockStmtList-> {{ macros.finiteListInit(
+            ["c:IntConstant"]) }}
+        next -:BlockExpr-> lst_node_c;
+        c -:LiteralTypeSymbol-> typ;
+        //--------------------------------------------------
+        // first -:ValDefTypeSymbol-> typ;
+        // first -:ValDefSymbol-> tmpsym:TmpSymbol -:TypeSymbol-> typ;
+        // second -:VarRefSymbol-> tmpsym;
+        // second -:VarRefTypeSymbol-> typ;
+        //-------------------------------------------------- 
+        next -:BlockTypeSymbol-> typ;
+
+        eval {
+            c.value = 0;
+        }
+    }
+}
+
 {% endblock %}

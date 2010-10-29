@@ -167,7 +167,8 @@ let EmitRequiredImportsRules = [
     ]
 
 let SketchNospecRules = [
-    Xgrs "removeThisVarFromMain*";
+    Xgrs "removeThisVarFromMain*"
+    Xgrs "setHarnessAnnotatedAsMain*"
     Xgrs "generateNospec*"
     Xgrs "doCopy"
     Xgrs "[setCopySymbolNames]"
@@ -217,7 +218,10 @@ let RewriteObjectsRules = [
     Xgrs "convertObjFieldAccessToGlobalRef*" ]
 
 let ConvertVLArraysToFixedRules = [
-    Xgrs "convertVLArraySymbolToFixed*" ]
+    Xgrs "convertVLArraySymbolToFixed*"
+    Xgrs "setNewAssignedArrayCalls*"
+    Xgrs "setNewAnonymousArrayCalls*"
+    ]
 
 let CreateSpecialCudaNodesForSketchRules = [
     Xgrs "convertParallelIdxToCudaSpecial*"
@@ -311,8 +315,7 @@ let CstyleStmtsRules =
         Xgrs "setAttachableBlocks*"
         Xgrs "blockifyDefault* & blockifyLists*"
         Xgrs "forwardNonblockifyIntermediatePrologue*"
-        Xgrs "setBlockifyNextForAlreadyBlockified*"
-        Xgrs "(propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
+        Xgrs "(setBlockifyNextForAlreadyBlockified+| propagateBlockifyUnsafe+ | propagateBlockifyMarkSafe+)*"
         Xgrs "convertNodesAlreadyStmtsToBlockifySafe*"
         Xgrs "setBlockifyChain*"
         Xgrs "checkBlockifyLinks"
@@ -357,7 +360,6 @@ let SketchFinalMinorCleanupRules =
     SketchAndCudaCleanupRules  @
     [
         Xgrs "convertArrayAssignForSketch*"
-        Xgrs "setNewArrayCalls*"
         Xgrs "setAssertCalls* & deleteDangling*"
         Xgrs "setFcnBinaryCallBaseType*"
         Xgrs "setFcnBinaryCallArgs*"

@@ -12,4 +12,8 @@ object VectorAdd extends CudaKernel {
         a(threadIdx.x) += getb(b, alen)
         __syncthreads()
     }
+
+    @harness def sketchTest(x : Int) {
+        vectoradd(new Array(100), 0, {val v = new Array[Int](100); v})
+    }
 }

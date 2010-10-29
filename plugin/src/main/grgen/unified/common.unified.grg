@@ -18,9 +18,9 @@
 {% block grg %}
 
 pattern Annotated(sym : Symbol, var annotName : string) {
-    sym -:SymbolAnnotation-> annot:Annotation;
+    sym -e:SymbolAnnotation-> annot:Annotation;
     if { annot.typename == annotName; }
-    modify { delete(annot); }
+    modify { delete(e); }
 }
 
 rule assertFalse(var msg : string) {

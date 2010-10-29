@@ -119,30 +119,34 @@ rule forwardNonblockifyIntermediatePrologueInner(x:CfgAbstractNode) {
 
 // STEP 3: propagate blockify. simply won't match blockify nodes in cfg chain
 
-{% macro blockify_graphlet(next_cls) %}
-x:{{ next_cls }} --> :CfgEvalNode -:CfgSequentialNext->
+pattern BlockifyGraphlet(x:Node, y:ScAstNode) {
+    x --> :CfgEvalNode -:CfgSequentialNext->
         blockify_cfg_node:CfgAbstractNode;
-    y:ScAstNode -:AbstractBlockify-> y -:CfgPrologue-> blockify_cfg_node;
-{% endmacro %}
+    y -:AbstractBlockify-> y -:CfgPrologue-> blockify_cfg_node;
+}
+
+pattern BlockifyNewGraphlet(x:Node, y:ScAstNode) {
+    :BlockifyGraphlet(x, y);
+    negative { x -:AbstractBlockify-> x; }
+}
 
 /// need next ptrs for two sequential ScalaExprStmt's
 rule setBlockifyNextForAlreadyBlockified {
-    {{ blockify_graphlet("ScAstNode") }}
-    x -:AbstractBlockify-> x;
+    x:ScAstNode -:AbstractBlockify-> x;
+    y:ScAstNode;
+    :BlockifyGraphlet(x, y);
     negative { x -:BlockifyNext-> y; }
     modify { x -:BlockifyNext-> y; }
 }
 
-{% macro blockify_new_graphlet(next_cls) %}
-{{ blockify_graphlet(next_cls) }}
-    negative { x -:AbstractBlockify-> x; }
-{% endmacro %}
-
 /// need to blockify previous arguments so we don't change
 /// the effective CFG order
 rule propagateBlockifyUnsafe {
-    {{ blockify_new_graphlet("ScAstNode") }}
-    negative { if { typeof(x) >= BlockifySafe; } }
+    x:ScAstNode \ BlockifySafe; y:ScAstNode;
+    :BlockifyNewGraphlet(x, y);
+    //--------------------------------------------------
+    // negative { if { typeof(x) >= BlockifySafe; } }
+    //-------------------------------------------------- 
     modify {
         x -:BlockifyExpr-> x -:BlockifyNext-> y;
     }
@@ -150,7 +154,8 @@ rule propagateBlockifyUnsafe {
 
 /// some nodes, like ??, don't have data dependencies, so they don't have to move.
 rule propagateBlockifyMarkSafe {
-    {{ blockify_new_graphlet("BlockifySafe") }}
+    x:ScAstNode; y:ScAstNode;
+    :BlockifyNewGraphlet(x, y);
     modify {
         x -:BlockifySkip-> x -:BlockifyNext-> y;
     }

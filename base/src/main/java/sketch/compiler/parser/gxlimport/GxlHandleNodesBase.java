@@ -1,23 +1,24 @@
 package sketch.compiler.parser.gxlimport;
 
-import net.sourceforge.gxl.GXLBool;
-import net.sourceforge.gxl.GXLEdge;
-import net.sourceforge.gxl.GXLInt;
-import net.sourceforge.gxl.GXLNode;
-import net.sourceforge.gxl.GXLString;
-import scala.Tuple2;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
+import net.sourceforge.gxl.GXLBool;
+import net.sourceforge.gxl.GXLEdge;
+import net.sourceforge.gxl.GXLInt;
+import net.sourceforge.gxl.GXLNode;
+import net.sourceforge.gxl.GXLString;
+import scala.Tuple2;
 import sketch.compiler.ast.core.FEContext;
 import sketch.compiler.ast.core.Function;
 import sketch.compiler.ast.core.Parameter;
 import sketch.compiler.ast.core.exprs.ExprNullPtr;
 import sketch.compiler.ast.core.stmts.Statement;
 import sketch.compiler.ast.core.typs.Type;
+import sketch.compiler.ast.cuda.typs.CudaMemoryType;
 import sketch.util.DebugOut;
 import sketch.util.datastructures.TypedHashMap;
 
@@ -178,7 +179,11 @@ public class GxlHandleNodesBase {
         }
     }
 
-    protected <T> T getSingleton(List<T> lst) {
+    protected Type createType(final Type arg0, final CudaMemoryType arg1) {
+        return arg0.withMemType(arg1);
+    }
+
+    protected <T> T getSingleton(final List<T> lst) {
         if (lst.size() != 1) {
             DebugOut.assertFalse("getSingleton() error -- list has " + lst.size() +
                     " elements");

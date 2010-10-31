@@ -44,14 +44,8 @@ rule setNewAnonymousArrayCalls {
         next:Block<x> -:BlockStmtList-> {{ macros.finiteListInit(
             ["c:IntConstant"]) }}
         next -:BlockExpr-> lst_node_c;
-        c -:LiteralTypeSymbol-> typ;
-        //--------------------------------------------------
-        // first -:ValDefTypeSymbol-> typ;
-        // first -:ValDefSymbol-> tmpsym:TmpSymbol -:TypeSymbol-> typ;
-        // second -:VarRefSymbol-> tmpsym;
-        // second -:VarRefTypeSymbol-> typ;
-        //-------------------------------------------------- 
         next -:BlockTypeSymbol-> typ;
+        c -:LiteralTypeSymbol-> typ;
 
         eval {
             c.value = 0;

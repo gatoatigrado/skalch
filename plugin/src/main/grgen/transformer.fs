@@ -204,7 +204,9 @@ let zone_ssa =
         SketchNospec
         ]
 let zone_cmemtypes =
-    CMemTypes, []
+    CMemTypeValueOrReference,
+    [
+        CMemTypes ]
 (*let zone_ll_ssa =
     LowerPhiFunctions, []*)
 let zone_cstyle =
@@ -243,6 +245,7 @@ let deps =
         ProcessAnnotations <+? CstyleMain
         ProcessAnnotations <+? ResolveGT
         ArrayLowering <+? CMemTypes
+        ArrayLowering <+? SketchCudaMemTypes
 
         (* most later stages require decorate... *)
         DecorateNodes <+? NiceLists
@@ -280,6 +283,8 @@ let sketch_base_meta = [ CleanSketchConstructs; DecorateNodes;
 let sketch_meta = sketch_base_meta @ [ ProcessAnnotations;
     SketchFinalMinorCleanup; SketchNospec;
     ConvertVLArraysToFixed;
+    SketchCudaMemTypes;
+    CMemTypeValueOrReference;
     CreateSpecialCudaNodesForSketch ]
 let cuda_meta = sketch_base_meta @ [ ProcessAnnotations;
     CMemTypes; CudaCleanup; CudaGenerateCode ]

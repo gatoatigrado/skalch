@@ -229,6 +229,7 @@ let CreateSpecialCudaNodesForSketchRules = [
     Xgrs "createSketchThreadIdxNodes*"
     Xgrs "createSyncthreadsNodes*" ]
 
+(* CMemTypes rules *)
 let SetTypeValueOrReferenceRules =
     [
         for typ in [ "Byte"; "Short"; "Int"; "Long"; "Float"; "Double"; "Boolean"; "Char"; "Unit" ] do
@@ -237,14 +238,27 @@ let SetTypeValueOrReferenceRules =
     [
         Xgrs "setAnnotatedValueTypes*"
         Xgrs "deleteDangling*"
-        Xgrs "setReferenceTypes*"
-        Xgrs "[addMNodesForValueTypes]"
-        Xgrs "addMNodesForVariableArrays*"
-        Xgrs "[addMNodesForReferenceTypes]"
+        Xgrs "setReferenceTypes*" ]
 
-        (* link term symbols to memory types *)
-        Xgrs "setMTermArrayInlinedTypes*"
-        Xgrs "setMTermRegalarTypes*" ]
+let CMemTypesRules = [
+    Xgrs "[addMNodesForValueTypes]"
+    Xgrs "addMNodesForVariableArrays*"
+    Xgrs "[addMNodesForReferenceTypes]"
+
+    (* link term symbols to memory types *)
+    Xgrs "setMTermArrayInlinedTypes*"
+    Xgrs "setMTermRegalarTypes*" ]
+
+let FinalSetCudaMemTypesRules = [
+    Xgrs "setDefaultAsLocal*"
+    Xgrs "createDefaultMemLocation*"
+    ValidateNeg ("existsConflictingMemTypes", "Annotations for type of variable conflict") ]
+
+let SketchCudaMemTypesRules = [
+    Xgrs "[setSharedForKernelParameters]"
+    Xgrs "setAnnotatedShared*"
+    Xgrs "setAnnotatedGlobal*"
+    (* NOTE -- continued after other stages *) ] @ FinalSetCudaMemTypesRules
 
 let CfgInitRules = [
     Xgrs "deleteDangling*"
@@ -331,7 +345,7 @@ let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
     Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]
 
 let CstyleMinorCleanupRules = [
-    Xgrs "unitBlocksToSKBlocks" ]
+    Xgrs "unitBlocksToSKBlocks" ] @ FinalSetCudaMemTypesRules
 
 let NameSymbolsRules = [
     Xgrs "[setTmpSymbolNames]"
@@ -359,6 +373,8 @@ let CudaCleanupRules =
 let SketchFinalMinorCleanupRules =
     SketchAndCudaCleanupRules  @
     [
+        Xgrs "copySketchTypesToTerms*"
+
         Xgrs "convertArrayAssignForSketch*"
         Xgrs "setAssertCalls* & deleteDangling*"
         Xgrs "setFcnBinaryCallBaseType*"

@@ -89,6 +89,16 @@ rule setSketchTypeUnit {
     modify { x -:SketchType-> :TypeUnit; }
 }
 
+// dumb rule so codegen can distinguish
+// term symbols and type symbols
+rule copySketchTypesToTerms {
+    x:Symbol -:TypeSymbol-> typ:Symbol
+        -:SketchType-> n:Node;
+    negative { x -:SketchType-> .; }
+
+    modify { x -:SketchType-> n; }
+}
+
 
 
 rule connectFunctions {

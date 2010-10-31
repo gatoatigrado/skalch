@@ -222,6 +222,13 @@ edge class CfgStrictlySequentialNode;
 
 node class CudaParallelIndexCall extends FcnCall;
 
+abstract node class CudaMemType;
+node class CudaMemImplicitShared extends CudaMemType; // no need to add annotations
+node class CudaMemShared extends CudaMemImplicitShared;
+node class CudaMemGlobal extends CudaMemType;
+node class CudaMemLocal extends CudaMemType;
+edge class TermMemLocationType connect Symbol --> CudaMemType;
+
 
 
 abstract edge class StringRep;
@@ -315,6 +322,7 @@ node class NSRSafeParens extends NSRParens;
 {% include "nodes/gen/debug_name_graph_nodes.gm" %}
 {% include "nodes/gen/set_types_value_or_reference.gm" %}
 {% include "nodes/gen/sketch_vlarray_to_fixed.gm" %}
+{% include "nodes/gen/sketch_cuda_mem_types.gm" %}
 // add unified here
 
 
@@ -346,6 +354,9 @@ edge class PackageDefFcn extends Subtree;
 node class SKWhileLoop extends ScAstNode;
 edge class SKWhileLoopCond extends Subtree;
 edge class SKWhileLoopBody extends Subtree;
+
+edge class ExtendedTypeInfo;
+node class ExtendedTypeInfoNode;
 
 
 

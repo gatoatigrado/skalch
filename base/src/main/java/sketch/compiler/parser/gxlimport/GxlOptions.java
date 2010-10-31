@@ -2,6 +2,7 @@ package sketch.compiler.parser.gxlimport;
 
 import sketch.util.cli.CliAnnotatedOptionGroup;
 import sketch.util.cli.CliParameter;
+import sketch.util.cuda.CudaThreadBlockDim;
 
 /**
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
@@ -18,4 +19,6 @@ public class GxlOptions extends CliAnnotatedOptionGroup {
     public boolean noDefaults = false;
     @CliParameter(metavar = "FILE", help = "Dump the input to a file")
     public String dumpInputParse = null;
+    @CliParameter(help = "Dimensions of the thread block")
+    public CudaThreadBlockDim threadBlockDim = new CudaThreadBlockDim(2, 1, 1);
 }

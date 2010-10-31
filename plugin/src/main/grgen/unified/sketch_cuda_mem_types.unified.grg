@@ -1,0 +1,74 @@
+{% import "macros.grg" as macros with context %}
+
+{% block comment %}
+// author: gatoatigrado (nicholas tung) [ntung at ntung]
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may
+// not use this file except in compliance with the License. You may obtain a
+// copy of the License at http://www.apache.org/licenses/LICENSE-2.0 .
+//
+// DESCRIPTION OF FILE HERE
+// TODO -- update rewrite_rules.fs, rewrite_stage_info.fs, transformer.fs
+{% endblock %}
+
+{% block gm %}
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+{% endblock %}
+
+{% block grg %}
+
+rule setSharedForKernelParameters {
+    x:FcnDef -:FcnDefSymbol-> sym:Symbol -:CudaKernelFcn-> sym;
+    x -:FcnDefParamsList-> lst:List;
+
+    iterated {
+        y:ValDef -:ValDefSymbol-> termsym:Symbol;
+        :IsListElt(lst, y);
+        modify { termsym -:TermMemLocationType-> :CudaMemImplicitShared; }
+    }
+    modify { }
+}
+
+rule setAnnotatedShared {
+    x:Symbol -:TypeSymbol-> .;
+    annot:Annotated(x, "scMemShared");
+    negative { x -:TermMemLocationType-> :CudaMemShared; }
+    modify { annot(); x -:TermMemLocationType-> :CudaMemShared; }
+}
+
+rule setAnnotatedGlobal {
+    x:Symbol -:TypeSymbol-> .;
+    annot:Annotated(x, "scMemGlobal");
+    negative { x -:TermMemLocationType-> :CudaMemGlobal; }
+    modify { annot(); x -:TermMemLocationType-> :CudaMemGlobal; }
+}
+
+rule setDefaultAsLocal {
+    x:Symbol -:TypeSymbol-> .;
+    negative { x -:TermMemLocationType-> .; }
+    modify { x -:TermMemLocationType-> :CudaMemLocal; }
+}
+
+test existsConflictingMemTypes {
+    x:Symbol -:TermMemLocationType-> .;
+    x -:TermMemLocationType-> .;
+}
+
+rule createDefaultMemLocation {
+    x:Symbol -:TypeSymbol-> x;
+    negative { x -:TermMemLocationType-> .; }
+
+    alternative {
+        A {
+            x -:MReferenceType-> x;
+            modify { x -:TermMemLocationType-> :CudaMemGlobal; }
+        }
+        B {
+            x -:MValueType-> x;
+            modify { x -:TermMemLocationType-> :CudaMemLocal; }
+        }
+    }
+    modify { }
+}
+
+{% endblock %}

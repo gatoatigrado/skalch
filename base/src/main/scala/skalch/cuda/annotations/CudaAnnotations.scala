@@ -25,3 +25,6 @@ class scRetype(typ : Class[_]) extends StaticAnnotation
 class scRetypeTemplate(name : String) extends StaticAnnotation
 class scRetypeTemplateInner(name : String) extends StaticAnnotation
 class scTemplateInstanceType(paramValues : Class[_]*) extends StaticAnnotation
+
+class scMemShared extends StaticAnnotation
+class scMemGlobal extends StaticAnnotation

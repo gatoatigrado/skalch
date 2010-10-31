@@ -82,12 +82,11 @@ test existsDanglingAnnotation {
 // Process CudaKernel annotations
 //-------------------------------------------------- 
 rule setCudaFunction {
-    x:Symbol -e:SymbolAnnotation-> :Annotation
-        -:AnnotationSymbol-> y:Symbol;
-    if { y.fullSymbolName == "skalch.cuda.annotations.scKernel"; }
+    x:Symbol;
+    annot:Annotated(x, "scKernel");
 
     modify {
-        delete(e);
+        annot();
         x -:CudaKernelFcn-> x;
     }
 }

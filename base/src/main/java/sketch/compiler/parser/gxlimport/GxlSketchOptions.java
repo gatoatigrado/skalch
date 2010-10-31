@@ -2,6 +2,7 @@ package sketch.compiler.parser.gxlimport;
 
 import sketch.compiler.main.seq.SequentialSketchOptions;
 import sketch.util.cli.SketchCliParser;
+import sketch.util.cuda.CudaThreadBlockDim;
 
 public class GxlSketchOptions extends SequentialSketchOptions {
     protected GxlOptions gxlOpts;
@@ -20,5 +21,10 @@ public class GxlSketchOptions extends SequentialSketchOptions {
     public static GxlSketchOptions getSingleton() {
         assert SequentialSketchOptions._singleton != null : "no singleton instance";
         return (GxlSketchOptions) SequentialSketchOptions._singleton;
+    }
+
+    @Override
+    public CudaThreadBlockDim getCudaBlockDim() {
+        return this.gxlOpts.threadBlockDim;
     }
 }

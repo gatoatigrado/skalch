@@ -141,11 +141,23 @@ let SpecializeCudaFcnCalls = {
         description = "make threadIdx, etc. special syms that won't get renamed.";
         stage = rewriteStage SpecializeCudaFcnCallsRules }
 
+let CMemTypeValueOrReference = {
+    stageDefault with
+        name = "CMemTypes";
+        description = "Denote types of nodes as value or reference, but don't generate type structure";
+        stage = rewriteStage (SetTypeValueOrReferenceRules) }
+
 let CMemTypes = {
     stageDefault with
         name = "CMemTypes";
         description = "Set C memory types based on annotations, and add relevant address-of and dereference code";
-        stage = rewriteStage (SetTypeValueOrReferenceRules) }
+        stage = rewriteStage (CMemTypesRules) }
+
+let SketchCudaMemTypes = {
+    stageDefault with
+        name = "SketchCudaMemTypes";
+        description = "Denote variables as being lcoal or global";
+        stage = rewriteStage SketchCudaMemTypesRules }
 
 let NewInitializerFcnStubs = {
     stageDefault with

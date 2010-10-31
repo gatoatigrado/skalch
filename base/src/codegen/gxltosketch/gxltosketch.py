@@ -42,10 +42,10 @@ FcnDef(FcnDefSymbol:PrintSymName, FcnDefReturnTypeSymbol, OL[FcnDefParamsList], 
 
 
 STMTS = r"""
-ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName)
+ValDef(ValDefSymbol, ValDefSymbol:PrintSymName)
     -> new StmtVarDecl(<ctx>, Type, String, <null>)
 
-ValDef(ValDefSymbol:TypeSymbol, ValDefSymbol:PrintSymName)
+ValDef(ValDefSymbol, ValDefSymbol:PrintSymName)
     -> new Parameter(Type, String)
 
 VarRef(VarRefSymbol:PrintSymName)
@@ -124,18 +124,23 @@ SketchThreadIdx(.indexName)
 
 
 TYPES = r"""
+Symbol(SketchType, TermMemLocationType)
+    -> Type(Type, CudaMemoryType)
 TypeBoolean() -> TypePrimitive "TypePrimitive.bittype"
 TypeInt() -> TypePrimitive "TypePrimitive.inttype"
 TypeUnit() -> TypePrimitive "TypePrimitive.voidtype"
-TypeArray(ArrayInnerTypeSymbol:SketchType, ArrayLengthExpr) -> new TypeArray(Type, Expression)
-
-Symbol() -> Type "getType(followEdge(\"SketchType\", node))"
+TypeArray(ArrayInnerTypeSymbol, ArrayLengthExpr) -> new TypeArray(Type, Expression)
 
 TypeStructRef() -> new TypeStructRef("createString(getStringAttribute(\"typename\", node))")
 """
 
 MISC = r"""
 PrintName(.name) -> String(String)
+
+CudaMemShared() -> CudaMemoryType "CudaMemoryType.GLOBAL"
+CudaMemImplicitShared() -> CudaMemoryType "CudaMemoryType.GLOBAL"
+CudaMemGlobal() -> CudaMemoryType "CudaMemoryType.GLOBAL"
+CudaMemLocal() -> CudaMemoryType "CudaMemoryType.LOCAL"
 """
 
 GXL_TO_SKETCH = STRUCTURE + STMTS + EXPRS + TYPES + MISC

@@ -222,6 +222,13 @@ edge class CfgStrictlySequentialNode;
 
 node class CudaParallelIndexCall extends FcnCall;
 
+abstract node class CudaMemType;
+node class CudaMemImplicitShared extends CudaMemType; // no need to add annotations
+node class CudaMemShared extends CudaMemImplicitShared;
+node class CudaMemGlobal extends CudaMemType;
+node class CudaMemLocal extends CudaMemType;
+edge class TermMemLocationType connect Symbol --> CudaMemType;
+
 
 
 abstract edge class StringRep;
@@ -476,6 +483,9 @@ edge class GTInstParamMap;
 
 
 
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 // add unified here
 
 
@@ -507,6 +517,9 @@ edge class PackageDefFcn extends Subtree;
 node class SKWhileLoop extends ScAstNode;
 edge class SKWhileLoopCond extends Subtree;
 edge class SKWhileLoopBody extends Subtree;
+
+edge class ExtendedTypeInfo;
+node class ExtendedTypeInfoNode;
 
 
 

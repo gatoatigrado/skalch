@@ -46,4 +46,5 @@ using ScalaAstModel;
 #include "rules/gen/debug_name_graph_nodes.grg"
 #include "rules/gen/set_types_value_or_reference.grg"
 #include "rules/gen/sketch_vlarray_to_fixed.grg"
+#include "rules/gen/sketch_cuda_mem_types.grg"
 // add unified here

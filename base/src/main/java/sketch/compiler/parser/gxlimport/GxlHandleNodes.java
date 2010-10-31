@@ -13,6 +13,7 @@ import sketch.compiler.ast.cuda.exprs.*;
 import sketch.compiler.ast.cuda.stmts.*;
 import sketch.compiler.ast.core.typs.*;
 import sketch.compiler.ast.scala.exprs.*;
+import sketch.compiler.ast.cuda.typs.CudaMemoryType;
 import sketch.util.datastructures.TprintTuple;
 
 /**
@@ -122,8 +123,7 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public StmtVarDecl getStmtVarDeclFromValDef(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        GXLNode arg1_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
-        Type arg1 = getType(followEdge("TypeSymbol", arg1_tmp1)); // gen marker 2
+        Type arg1 = getType(followEdge("ValDefSymbol", node)); // gen marker 2
 
         GXLNode arg2_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
         String arg2 = getString(followEdge("PrintSymName", arg2_tmp1)); // gen marker 2
@@ -134,8 +134,7 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
     public Parameter getParameterFromValDef(final GXLNode node) {
-        GXLNode arg0_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
-        Type arg0 = getType(followEdge("TypeSymbol", arg0_tmp1)); // gen marker 2
+        Type arg0 = getType(followEdge("ValDefSymbol", node)); // gen marker 2
 
         GXLNode arg1_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
         String arg1 = getString(followEdge("PrintSymName", arg1_tmp1)); // gen marker 2
@@ -419,6 +418,16 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public Type getTypeFromSymbol(final GXLNode node) {
+        Type arg0 = getType(followEdge("SketchType", node)); // gen marker 2
+
+        CudaMemoryType arg1 = getCudaMemoryType(followEdge("TermMemLocationType", node)); // gen marker 2
+
+        return createType(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public TypePrimitive getTypePrimitiveFromTypeBoolean(final GXLNode node) {
         return TypePrimitive.bittype;
     }
@@ -438,18 +447,11 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
     public TypeArray getTypeArrayFromTypeArray(final GXLNode node) {
-        GXLNode arg0_tmp1 = followEdge("ArrayInnerTypeSymbol", node); // gen marker 3
-        Type arg0 = getType(followEdge("SketchType", arg0_tmp1)); // gen marker 2
+        Type arg0 = getType(followEdge("ArrayInnerTypeSymbol", node)); // gen marker 2
 
         Expression arg1 = getExpression(followEdge("ArrayLengthExpr", node)); // gen marker 2
 
         return new TypeArray(arg0, arg1);
-    }
-
-    // NOTE -- some constructors are marked deprecated to avoid later use.
-    @SuppressWarnings("deprecation")
-    public Type getTypeFromSymbol(final GXLNode node) {
-        return getType(followEdge("SketchType", node));
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -464,6 +466,30 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         String arg0 = getStringAttribute("name", node); // gen marker 7
 
         return createString(arg0);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public CudaMemoryType getCudaMemoryTypeFromCudaMemShared(final GXLNode node) {
+        return CudaMemoryType.GLOBAL;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public CudaMemoryType getCudaMemoryTypeFromCudaMemImplicitShared(final GXLNode node) {
+        return CudaMemoryType.GLOBAL;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public CudaMemoryType getCudaMemoryTypeFromCudaMemGlobal(final GXLNode node) {
+        return CudaMemoryType.GLOBAL;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public CudaMemoryType getCudaMemoryTypeFromCudaMemLocal(final GXLNode node) {
+        return CudaMemoryType.LOCAL;
     }
 
 
@@ -861,6 +887,21 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprStarFromHoleCall(node);
         } else {
             throw new RuntimeException("no way to return a 'ExprStar' from a node of type " + typ);
+        }
+    }
+
+    public CudaMemoryType getCudaMemoryType(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("CudaMemLocal")) {
+            return getCudaMemoryTypeFromCudaMemLocal(node);
+        } else if (typ.equals("CudaMemGlobal")) {
+            return getCudaMemoryTypeFromCudaMemGlobal(node);
+        } else if (typ.equals("CudaMemImplicitShared")) {
+            return getCudaMemoryTypeFromCudaMemImplicitShared(node);
+        } else if (typ.equals("CudaMemShared")) {
+            return getCudaMemoryTypeFromCudaMemShared(node);
+        } else {
+            throw new RuntimeException("no way to return a 'CudaMemoryType' from a node of type " + typ);
         }
     }
 

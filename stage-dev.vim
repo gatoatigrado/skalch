@@ -197,7 +197,7 @@ badd +46 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +3 plugin/src/main/grgen/build_templates.py
 badd +221 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
 badd +267 plugin/src/main/grgen/rewrite_rules.fs
-badd +47 base/src/codegen/gxltosketch/gxltosketch.py
+badd +119 base/src/codegen/gxltosketch/gxltosketch.py
 badd +51 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
 badd +15 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +1 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
@@ -217,7 +217,7 @@ badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Functio
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
 badd +253 plugin/src/main/grgen/unified/array_lowering.unified.grg
 badd +313 plugin/src/main/scala/skalch/plugins/ScalaGxlNodeMap.scala
-badd +21 base/src/test/scala/cuda/VectorAdd.scala
+badd +28 base/src/test/scala/cuda/VectorAdd.scala
 badd +2 base/src/main/java/sketch/compiler/parser/gxlimport/GxlSketchOptions.java
 badd +31 base/src/main/scala/skalch/cuda/CudaKernel.scala
 badd +41 plugin/src/main/grgen/rules/print_graph/sym_names.grg
@@ -261,7 +261,7 @@ badd +32 plugin/src/main/grgen/unified/debug_name_graph_nodes.unified.grg
 badd +66 plugin/src/main/grgen/unified/set_types_value_or_reference.unified.grg
 badd +48 plugin/src/main/grgen/unified/sketch_vlarray_to_fixed.unified.grg
 badd +79 plugin/src/main/grgen/unified/cstyle_assns.unified.grg
-badd +37 plugin/src/main/grgen/unified/sketch_cuda_mem_types.unified.grg
+badd +51 plugin/src/main/grgen/unified/sketch_cuda_mem_types.unified.grg
 args modular_rules_compile.fs
 edit plugin/src/main/grgen/unified/sketch_cuda_mem_types.unified.grg
 set splitbelow splitright
@@ -370,12 +370,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 48 - ((47 * winheight(0) + 47) / 95)
+let s:l = 51 - ((50 * winheight(0) + 47) / 95)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-48
-normal! 044l
+51
+normal! 0
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
@@ -474,14 +474,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 132 - ((76 * winheight(0) + 47) / 95)
+let s:l = 119 - ((35 * winheight(0) + 47) / 95)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-132
-normal! 030l
+119
+normal! 0
 lcd ~/sandbox/skalch
 wincmd w
+2wincmd w
 exe 'vert 1resize ' . ((&columns * 82 + 82) / 165)
 exe 'vert 2resize ' . ((&columns * 82 + 82) / 165)
 tabnext 1

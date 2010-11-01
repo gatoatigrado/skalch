@@ -7,12 +7,19 @@ import sketch.util._
 object VectorAdd extends CudaKernel {
     type IntArr = Array[Int]
 
-    def getb(b2 : IntArr @ scMemGlobal, off : Int) = b2(threadIdx.x + off)
-    @scKernel def vectoradd(a : IntArr @ scInlineArray, alen : Int, b : IntArr)
+    def getb(b2 : IntArr @ scMemGlobal, off : Int) = {
+        assert (b2(threadIdx.x + off) == 0)
+        0 }
+
+    @scKernel def vectoradd(a_ : IntArr @ scInlineArray, alen : Int, b : IntArr)
     {
-        val l2 : Int @scMemShared = alen;
-        a(threadIdx.x) += getb(b, l2)
-        __syncthreads()
+        // NOTE -- SKETCH doesn't support writing to input arrays
+        val a : IntArr @scMemGlobal = a_;
+
+        a(threadIdx.x) += getb(b, 12)
+        assert (a(threadIdx.x) == 0)
+        a(threadIdx.x) += (?? : Int) * threadIdx.x;
+        assert (a(threadIdx.x) == threadIdx.x + threadIdx.x)
     }
 
     @harness def sketchTest(x : Int) {

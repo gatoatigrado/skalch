@@ -102,6 +102,9 @@ new-unified-module:
 grgen: gen killall stagetf-compile
 	source ./env; tf-test
 
+vectoradd: compile
+	source ./env; tf --goal sketch base/src/test/scala/cuda/VectorAdd.scala.ast.gxl --export output.sketch.ast.gxl
+
 stagetf-compile: $(libgrg)/fsharp_stage_transformer.dll $(grgenfiles)/transformer.exe # compile the stage transformer (computes changes in transformer.fs and its library)
 
 $(grgenfiles)/transformer.exe: $(grgenfiles)/rewrite_rules.fs $(grgenfiles)/rewrite_stage_info.fs $(grgenfiles)/transformer.fs
@@ -129,7 +132,7 @@ plugin_dev: # build the plugin and compile the a test given by $(testfile)
 java_gxlimport: gen
 	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=src/test/scala/angelic/simple/SugaredTest.sketch.ast.gxl")
 
-java_cuda_gxlimport: gen
+vectoradd_gxlimport: gen
 	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=../output.sketch.ast.gxl")
 
 

@@ -30,101 +30,19 @@ public class EntanglementGuiBase extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPasswordField1 = new javax.swing.JPasswordField();
-        frameLabel = new javax.swing.JLabel();
-        splitPane = new javax.swing.JSplitPane();
-        partitionScrollPane = new javax.swing.JScrollPane();
-        verticalSplitPane = new javax.swing.JSplitPane();
-        programScrollPane = new javax.swing.JScrollPane();
-        programEditorPane = new javax.swing.JEditorPane();
-        debugPanel = new javax.swing.JPanel();
-        debugLabel = new javax.swing.JLabel();
-        debugScrollPane = new javax.swing.JScrollPane();
-        debugEditorPane = new javax.swing.JEditorPane();
-        entanglementScrollPane = new javax.swing.JScrollPane();
-        refineAngelButton = new javax.swing.JButton();
-        refineTraceButton = new javax.swing.JButton();
-
-        jPasswordField1.setText("jPasswordField1");
+        tabbedPane = new javax.swing.JTabbedPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        frameLabel.setText("Synthesized Traces");
-
-        splitPane.setDividerLocation(266);
-        splitPane.setLeftComponent(partitionScrollPane);
-
-        verticalSplitPane.setDividerLocation(230);
-        verticalSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-
-        programEditorPane.setContentType("text/html");
-        programEditorPane.setPreferredSize(new java.awt.Dimension(60, 6));
-        programScrollPane.setViewportView(programEditorPane);
-
-        verticalSplitPane.setTopComponent(programScrollPane);
-
-        debugPanel.setBorder(null);
-
-        debugLabel.setText("Debug Output");
-
-        debugEditorPane.setContentType("text/html");
-        debugScrollPane.setViewportView(debugEditorPane);
-
-        javax.swing.GroupLayout debugPanelLayout = new javax.swing.GroupLayout(debugPanel);
-        debugPanel.setLayout(debugPanelLayout);
-        debugPanelLayout.setHorizontalGroup(
-            debugPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(debugPanelLayout.createSequentialGroup()
-                .addComponent(debugLabel)
-                .addContainerGap(191, Short.MAX_VALUE))
-            .addComponent(debugScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
-        );
-        debugPanelLayout.setVerticalGroup(
-            debugPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(debugPanelLayout.createSequentialGroup()
-                .addComponent(debugLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(debugScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE))
-        );
-
-        verticalSplitPane.setRightComponent(debugPanel);
-
-        splitPane.setRightComponent(verticalSplitPane);
-
-        refineAngelButton.setText("Disentangle by Angels");
-
-        refineTraceButton.setText("Disentangle by Traces");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(refineAngelButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 624, Short.MAX_VALUE)
-                    .addComponent(frameLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(entanglementScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE))
-                    .addComponent(refineTraceButton, javax.swing.GroupLayout.DEFAULT_SIZE, 624, Short.MAX_VALUE))
-                .addContainerGap())
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 648, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(frameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(entanglementScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
-                    .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(refineAngelButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(refineTraceButton)
-                .addContainerGap())
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
         );
 
         pack();
@@ -143,44 +61,10 @@ public class EntanglementGuiBase extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JEditorPane debugEditorPane;
-    private javax.swing.JLabel debugLabel;
-    private javax.swing.JPanel debugPanel;
-    private javax.swing.JScrollPane debugScrollPane;
-    private javax.swing.JScrollPane entanglementScrollPane;
-    private javax.swing.JLabel frameLabel;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JScrollPane partitionScrollPane;
-    private javax.swing.JEditorPane programEditorPane;
-    private javax.swing.JScrollPane programScrollPane;
-    private javax.swing.JButton refineAngelButton;
-    private javax.swing.JButton refineTraceButton;
-    private javax.swing.JSplitPane splitPane;
-    private javax.swing.JSplitPane verticalSplitPane;
+    private javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
 
-    protected javax.swing.JScrollPane getPartitionPane() {
-        return partitionScrollPane;
+    protected javax.swing.JTabbedPane getTabbedPane() {
+        return tabbedPane;
     }
-
-    protected javax.swing.JScrollPane getEntanglementPane() {
-        return entanglementScrollPane;
-    }
-
-    protected javax.swing.JEditorPane getDebugEditorPane() {
-        return debugEditorPane;
-    }
-
-    protected javax.swing.JEditorPane getProgramEditorPane() {
-        return programEditorPane;
-    }
-    
-    protected javax.swing.JButton getRefineAngelButton() {
-        return refineAngelButton;
-    };
-
-    protected javax.swing.JButton getRefineTraceButton() {
-        return refineTraceButton;
-    };
-
 }

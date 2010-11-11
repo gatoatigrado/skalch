@@ -21,12 +21,12 @@ public class DisentanglementGui extends DisentanglementGuiBase implements Action
 
     private JList chooseList;
     private JList partitionList;
-    private EntanglementGui parent;
+    private EntanglementGuiPanel parent;
 
-    public DisentanglementGui(EntanglementGui parent, boolean modal,
+    public DisentanglementGui(EntanglementGuiPanel parent, boolean modal,
             List<DynAngel> angelOrder)
     {
-        super(parent, modal);
+        super(parent.getFrame(), modal);
         partitions = new Vector<Set<DynAngel>>();
         originalAngelOrder = new Vector<DynAngel>(angelOrder);
         this.angelOrder = new Vector<DynAngel>(angelOrder);
@@ -86,6 +86,8 @@ public class DisentanglementGui extends DisentanglementGuiBase implements Action
             }
         } else if ("refine".equals(event.getActionCommand())) {
             parent.partitionTraces(new HashSet<Set<DynAngel>>(partitions));
+            setVisible(false);
+            dispose();
         }
     }
 }

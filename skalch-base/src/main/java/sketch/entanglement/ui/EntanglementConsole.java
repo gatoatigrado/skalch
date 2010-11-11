@@ -22,6 +22,7 @@ import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.EntanglementComparison;
 import sketch.entanglement.Event;
+import sketch.entanglement.HeuristicSearch;
 import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
 import sketch.entanglement.partition.SubsetOfTraces;
@@ -58,7 +59,7 @@ public class EntanglementConsole extends InteractiveThread {
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
                     "values", "help", "color", "nocolor", "grow", "gui", "summary",
-                    "guisummary" };
+                    "auto" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results,
             ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
@@ -170,8 +171,8 @@ public class EntanglementConsole extends InteractiveThread {
                     }
                 } else if ("gui".equals(command)) {
                     EntanglementGui gui =
-                            new EntanglementGui(traceToStack, satEA, ea, sketch,
-                                    sourceCodeInfo);
+                            new EntanglementGui(subsetsStack.peek(), traceToStack,
+                                    sketch, sourceCodeInfo);
                     gui.pack();
                     gui.setVisible(true);
                 } else if ("summary".equals(command)) {
@@ -181,6 +182,13 @@ public class EntanglementConsole extends InteractiveThread {
                         angelList.add(e.dynAngel);
                     }
                     printSummary(angelList, satEA, ea);
+                } else if ("auto".equals(command)) {
+                    Trace trace = traceToStack.keySet().iterator().next();
+                    List<DynAngel> angelList = new ArrayList<DynAngel>();
+                    for (Event e : trace.getEvents()) {
+                        angelList.add(e.dynAngel);
+                    }
+                    autoPartition(angelList, satEA, ea);
                 } else {
                     System.out.println("Unknown command: " + command);
                 }
@@ -662,6 +670,13 @@ public class EntanglementConsole extends InteractiveThread {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    private void autoPartition(List<DynAngel> angelOrder, SATEntanglementAnalysis satEA,
+            SimpleEntanglementAnalysis ea)
+    {
+        HeuristicSearch hs = new HeuristicSearch(angelOrder, satEA, ea);
+        hs.partition();
     }
 
     @Override

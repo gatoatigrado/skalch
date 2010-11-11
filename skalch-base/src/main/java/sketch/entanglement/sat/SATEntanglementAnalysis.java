@@ -111,13 +111,12 @@ public class SATEntanglementAnalysis {
     public Set<Set<DynAngel>> getEntangledPartitions() {
         AnalysisResult result = cache.get(ai);
         if (result != null) {
-            System.out.println("Found matching set of traces, no need to invoke sat based partitioner");
             return getPartitions(result.converter, result.entangledSets);
         }
 
         TraceConverter converter = new TraceConverter(angels, traces);
-        System.out.println("Invoking sat based partitioner with " +
-                converter.getTraces().size() + " traces.");
+        // System.out.println("Invoking sat based partitioner with " +
+        // converter.getTraces().size() + " traces.");
 
         List<IntSet> entangledSets =
                 EntanglementDetector.entanglement(converter.getTraces());

@@ -63,7 +63,7 @@ public abstract class ScDebugRun {
 
     protected final void setAssertInfo(StackTraceElement assertInfo, Exception e) {
         if (assertInfo == null) {
-            DebugOut.assertFalse("assert info null after failure", e);
+            DebugOut.print("assert info null after failure", e);
         }
         this.assertInfo = assertInfo;
     }

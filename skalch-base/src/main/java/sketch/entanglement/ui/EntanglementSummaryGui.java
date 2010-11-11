@@ -54,11 +54,11 @@ public class EntanglementSummaryGui extends EntanglementSummaryGuiBase implement
     }
 
     public void mouseClicked(MouseEvent event) {
-        PartitionSummaryPanel panel = (PartitionSummaryPanel) event.getSource();
-        EntanglementGui subsetGui =
-                new EntanglementGui(panel.getTraceToStack(), panel.getSatEA(),
-                        panel.getEA(), sketch, sourceCodeInfo);
-        subsetGui.setVisible(true);
+    // PartitionSummaryPanel panel = (PartitionSummaryPanel) event.getSource();
+    // EntanglementGui subsetGui =
+    // new EntanglementGui(panel.getTraceToStack(), panel.getSatEA(),
+    // panel.getEA(), sketch, sourceCodeInfo);
+    // subsetGui.setVisible(true);
     }
 
     public void mouseEntered(MouseEvent arg0) {

@@ -139,7 +139,10 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         GXLNode arg1_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
         String arg1 = getString(followEdge("PrintSymName", arg1_tmp1)); // gen marker 2
 
-        return new Parameter(arg0, arg1);
+        GXLNode arg2_tmp1 = followEdge("SketchParamType", node); // gen marker 3
+        int arg2 = getIntAttribute("typecode", arg2_tmp1); // gen marker 7
+
+        return new Parameter(arg0, arg1, arg2);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -241,6 +244,14 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         FEContext arg0 = create_fe_context(node);
 
         return new CudaSyncthreads(arg0);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public StmtEmpty getStmtEmptyFromUnitConstant(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        return new StmtEmpty(arg0);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -507,7 +518,9 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     public Statement getStatement(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
-        if (typ.equals("SyncthreadsCall")) {
+        if (typ.equals("UnitConstant")) {
+            return getStmtEmptyFromUnitConstant(node);
+        } else if (typ.equals("SyncthreadsCall")) {
             return getCudaSyncthreadsFromSyncthreadsCall(node);
         } else if (typ.equals("SKWhileLoop")) {
             return getStmtWhileFromSKWhileLoop(node);
@@ -763,6 +776,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getCudaSyncthreadsFromSyncthreadsCall(node);
         } else {
             throw new RuntimeException("no way to return a 'CudaSyncthreads' from a node of type " + typ);
+        }
+    }
+
+    public StmtEmpty getStmtEmpty(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("UnitConstant")) {
+            return getStmtEmptyFromUnitConstant(node);
+        } else {
+            throw new RuntimeException("no way to return a 'StmtEmpty' from a node of type " + typ);
         }
     }
 

@@ -227,9 +227,17 @@ rule typifyVariableLenArrays {
 // or InnerTypeSymbol edges
 //-------------------------------------------------- 
 /// TODO -- move to another file
+
+pattern UpdateableType(x:Node, typ:Symbol) {
+    x -:ScTypeSymbol-> typ;
+    // don't propagate null types
+    negative { if { typ.fullSymbolName == "scala.Null"; } }
+}
+
 rule updateAssignLhsTypes {
     x:Assign -:AssignRhs-> y:ScAstNode;
-    y -:ScTypeSymbol-> newsym:Symbol;
+    newsym:Symbol;
+    :UpdateableType(y, newsym);
 
     x -:AssignLhs-> z:ScAstNode;
     z -e:ScTypeSymbol-> oldsym:Symbol;
@@ -246,7 +254,8 @@ rule updateValDefSymbolTypes {
     sym -e:TypeSymbol-> .;
 
     x -:ValDefRhs-> y:ScAstNode;
-    y -:ScTypeSymbol-> newsym:Symbol;
+    newsym:Symbol;
+    :UpdateableType(y, newsym);
 
     modify {
         delete(e);
@@ -256,7 +265,8 @@ rule updateValDefSymbolTypes {
 
 rule updateVarRefTypes {
     x:VarRef -:VarRefSymbol-> sym:Symbol;
-    sym -:TypeSymbol-> z:Symbol;
+    z:Symbol;
+    :UpdateableType(sym, z);
     x -e:VarRefTypeSymbol-> w:Symbol;
 
     modify {

@@ -5,6 +5,7 @@ import sketch.compiler.main.seq.SequentialSketchMain;
 import sketch.compiler.passes.cuda.CopyCudaMemTypeToFcnReturn;
 import sketch.compiler.passes.cuda.GenerateAllOrSomeThreadsFunctions;
 import sketch.compiler.passes.cuda.SplitAssignFromVarDef;
+import sketch.compiler.passes.lowering.FunctionParamExtension;
 import sketch.compiler.passes.preprocessing.ConvertArrayAssignmentsToInout;
 import sketch.compiler.solvers.constructs.StaticHoleTracker;
 import sketch.compiler.solvers.constructs.ValueOracle;
@@ -38,13 +39,19 @@ public class SequentialSketchGxlMain extends SequentialSketchMain {
         public GxlIRStage2() {
             super();
             this.passes.add(new SplitAssignFromVarDef());
+
+            // custom dependencies using old stages
             final GenerateAllOrSomeThreadsFunctions genThreadsFcns =
                     new GenerateAllOrSomeThreadsFunctions(
-                            SequentialSketchGxlMain.this.options);
+                            SequentialSketchGxlMain.this.options,
+                            SequentialSketchGxlMain.this.varGen);
             final SemanticCheckPass semanticCheck = new SemanticCheckPass();
+            final FunctionParamExtension paramExt = new FunctionParamExtension();
             this.passes.add(genThreadsFcns);
+            this.passes.add(paramExt);
             this.passes.add(semanticCheck);
-            this.stageRequires.append(semanticCheck, genThreadsFcns);
+            this.stageRequires.append(paramExt, genThreadsFcns);
+            this.stageRequires.append(semanticCheck, paramExt);
         }
     }
 

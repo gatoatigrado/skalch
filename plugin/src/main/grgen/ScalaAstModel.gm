@@ -486,6 +486,9 @@ edge class GTInstParamMap;
 
 
 // place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
+
+
+// place temporary node classes here; permanent ones in ScalaAstModel.gm.jinja2
 // add unified here
 
 
@@ -520,6 +523,12 @@ edge class SKWhileLoopBody extends Subtree;
 
 edge class ExtendedTypeInfo;
 node class ExtendedTypeInfoNode;
+
+abstract node class AbstractSketchParamType { typecode : int; }
+edge class SketchParamType;
+node class SketchInParamType extends AbstractSketchParamType { typecode = 0; }
+node class SketchOutParamType extends AbstractSketchParamType { typecode = 1; }
+node class SketchInoutParamType extends AbstractSketchParamType { typecode = 2; }
 
 
 

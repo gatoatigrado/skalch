@@ -45,8 +45,8 @@ STMTS = r"""
 ValDef(ValDefSymbol, ValDefSymbol:PrintSymName)
     -> new StmtVarDecl(<ctx>, Type, String, <null>)
 
-ValDef(ValDefSymbol, ValDefSymbol:PrintSymName)
-    -> new Parameter(Type, String)
+ValDef(ValDefSymbol, ValDefSymbol:PrintSymName, SketchParamType.typecode)
+    -> new Parameter(Type, String, int)
 
 VarRef(VarRefSymbol:PrintSymName)
     -> new ExprVar(<ctx>, String)
@@ -74,6 +74,9 @@ SKWhileLoop(SKWhileLoopCond, SKWhileLoopBody)
 
 SyncthreadsCall()
     -> new CudaSyncthreads(<ctx>)
+
+UnitConstant()
+    -> new StmtEmpty(<ctx>)
 """
 
 
@@ -175,7 +178,7 @@ def ast_inheritance(rules):
 #        "Class": "ExprBinary",
         "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange ExprTprint CudaThreadIdx",
         "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
-        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile CudaSyncthreads",
+        "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile CudaSyncthreads StmtEmpty",
         "Type": "TypeStruct TypePrimitive TypeStructRef TypeArray" }
     immediate = dict((k, v.split()) for k, v in immediate.items())
     for rule in rules:

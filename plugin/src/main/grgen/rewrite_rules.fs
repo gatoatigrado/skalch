@@ -317,6 +317,11 @@ let ArrayLoweringRules = [
     Xgrs "updateVarRefTypes*"
 
     ValidateNeg ("existsAssignToDiffLenArray", "no alternating/variable array lengths yet, sorry")
+
+    (* re-update types / FIXME, hack *)
+    Xgrs "deleteDangling*"
+    Xgrs "typifyConstLenArrays*"
+    Xgrs "typifyVariableLenArrays*"
     ]
 
 let LowerPhiFunctionsRules = [
@@ -373,7 +378,13 @@ let CudaCleanupRules =
 let SketchFinalMinorCleanupRules =
     SketchAndCudaCleanupRules  @
     [
+        (* Attach more specific type information to terms *)
         Xgrs "copySketchTypesToTerms*"
+        ValidateNeg ("existsVDSymWithoutTerm", "Didn't assign symbol a sketch type")
+
+        (* Set arrays to be reference types *)
+        Xgrs "setArrayReferenceParamInout*"
+        Xgrs "setOtherParamIn*"
 
         Xgrs "convertArrayAssignForSketch*"
         Xgrs "setAssertCalls* & deleteDangling*"

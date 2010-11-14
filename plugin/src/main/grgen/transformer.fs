@@ -194,7 +194,8 @@ let zone_nice_lists =
         NewInitializerFcnStubs
         RewriteObjects
         CreateSpecialCudaNodesForSketch
-        SpecializeCudaFcnCalls ]
+        SpecializeCudaFcnCalls
+        ]
 let zone_ssa =
     nullStage "ssa",
     [
@@ -206,7 +207,9 @@ let zone_ssa =
 let zone_cmemtypes =
     CMemTypeValueOrReference,
     [
-        CMemTypes ]
+        CMemTypes
+        SketchCudaMemTypes
+        ]
 (*let zone_ll_ssa =
     LowerPhiFunctions, []*)
 let zone_cstyle =
@@ -245,7 +248,7 @@ let deps =
         ProcessAnnotations <+? CstyleMain
         ProcessAnnotations <+? ResolveGT
         ArrayLowering <+? CMemTypes
-        ArrayLowering <+? SketchCudaMemTypes
+        CMemTypes <+? SketchCudaMemTypes
 
         (* most later stages require decorate... *)
         DecorateNodes <+? NiceLists

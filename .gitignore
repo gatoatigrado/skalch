@@ -17,3 +17,5 @@ plugin/src/main/grgen/dependencies.txt
 *.exe
 test-output.txt
 *.swp
+*.jinja2.html
+*.scala.html

@@ -323,6 +323,7 @@ node class NSRSafeParens extends NSRParens;
 {% include "nodes/gen/set_types_value_or_reference.gm" %}
 {% include "nodes/gen/sketch_vlarray_to_fixed.gm" %}
 {% include "nodes/gen/sketch_cuda_mem_types.gm" %}
+{% include "nodes/gen/build_c_mem_types.gm" %}
 // add unified here
 
 
@@ -357,6 +358,12 @@ edge class SKWhileLoopBody extends Subtree;
 
 edge class ExtendedTypeInfo;
 node class ExtendedTypeInfoNode;
+
+abstract node class AbstractSketchParamType { typecode : int; }
+edge class SketchParamType;
+node class SketchInParamType extends AbstractSketchParamType { typecode = 0; }
+node class SketchOutParamType extends AbstractSketchParamType { typecode = 1; }
+node class SketchInoutParamType extends AbstractSketchParamType { typecode = 2; }
 
 
 

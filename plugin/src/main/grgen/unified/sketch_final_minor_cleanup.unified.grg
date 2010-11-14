@@ -99,6 +99,34 @@ rule copySketchTypesToTerms {
     modify { x -:SketchType-> n; }
 }
 
+test existsVDSymWithoutTerm {
+    :ValDef -:ValDefSymbol-> x:Symbol;
+    negative { x -:SketchType-> .; }
+}
+
+pattern ParamSym(x:ValDef, y:Symbol) {
+    . -:FcnDefParamsList-> :List
+        -:ListElt-> . -:ListValue->
+        x -:ValDefSymbol-> y;
+    negative { x -:SketchParamType-> .; }
+}
+
+rule setArrayReferenceParamInout {
+    x:ValDef; y:Symbol;
+    :ParamSym(x, y);
+    y -:MType-> :MPtr;
+    y -:TypeSymbol-> :ScArraySymbol;
+
+    modify { x -:SketchParamType-> :SketchInoutParamType; }
+}
+
+rule setOtherParamIn {
+    x:ValDef; y:Symbol;
+    :ParamSym(x, y);
+
+    modify { x -:SketchParamType-> :SketchInParamType; }
+}
+
 
 
 rule connectFunctions {

@@ -13,17 +13,20 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 
 /** @author Casey Rodarmor */
-class DfsSketch() extends AngelicSketch {
+class Dfs2Sketch() extends AngelicSketch {
   
     val tests = Array( () )
 
     class Graph() {
         var nodes = new ArrayBuffer[Node]
 
-        val d = new Node("d")
-        val c = new Node("c", d)
-        val b = new Node("b")
-        val a = new Node("a", b, c)
+        val e = new Node("e")
+        val d = new Node("d", e)
+        val c = new Node("c", d, e)
+        val b = new Node("b", c, e)
+        val a = new Node("a", b)
+        e.children += a
+        d.children += b
 
         val root = a
 
@@ -72,7 +75,7 @@ class DfsSketch() extends AngelicSketch {
 
         def visit() {
             synthAssert(visited == false)
-            visited = true
+            this.visited = true
         }
 
         def checkpoint() {
@@ -100,7 +103,7 @@ class DfsSketch() extends AngelicSketch {
         }
 
         def toStringChild() : String = {
-        	var string = name + ":["
+            var string = name + ":["
             for(child <- children) {
                 string += child.name + " "
             }
@@ -149,10 +152,6 @@ class DfsSketch() extends AngelicSketch {
         
         val extraLocations = mkLocations(extraStorage)
 
-        def getRef() : Stack[A] = {
-            return reference;
-        }
-        
         def push(current: A, next: A) {
             // used to limit the search path of the synthesizer
             reference.push(current)
@@ -184,7 +183,7 @@ class DfsSketch() extends AngelicSketch {
 
             borrowedCur.write(values.remove(skput_check(!!(values.size))))
             for(location <- extraLocations) {
-        		location.write(values.remove(skput_check(!!(values.size))))
+                location.write(values.remove(skput_check(!!(values.size))))
             }
         }
 
@@ -251,8 +250,7 @@ class DfsSketch() extends AngelicSketch {
 
         val stack = new KeyholeStack[Node](1, g.nodes)
         stack.push(origin, root)
-//        stack.push(root, origin)
-        
+
         var current = root
 
         var step = 0
@@ -286,11 +284,10 @@ class DfsSketch() extends AngelicSketch {
                 // backtrack
                 current = stack.pop(current)
                 skdprint("graph after pop: " + origin.toStringChild() + g.toString() + "ex:"
-                		+ stack.extraStorage.mkString("[", ",", "]"))
+                        + stack.extraStorage.mkString("[", ",", "]"))
             }
         }
-        
-        synthAssert(stack.getRef().isEmpty)
+        synthAssert(stack.reference.size == 0)
     }
     
     def toString(nodes : Buffer[Node]): String = {
@@ -322,11 +319,11 @@ class DfsSketch() extends AngelicSketch {
     }
 }
 
-object Dfs {
+object Dfs2 {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
         BackendOptions.addOpts(cmdopts)
-        skalch.AngelicSketchSynthesize(() => new DfsSketch())
+        skalch.AngelicSketchSynthesize(() => new Dfs2Sketch())
     }
 }
 

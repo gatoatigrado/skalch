@@ -25,14 +25,14 @@ class ListZipReversalSketch8 extends AngelicSketch {
             if (!!() && depth < 4) {
                 if (!up) r = skcheck(!!(List(a)).head) + skcheck(!!(List(b)).head) :: r
                
-                val aaa = if (!!()) a else a.tail
+                val aaa = if (false) a else a.tail
                 val bbb = if (!!()) b else b.tail
                
                 val (aa, bb) = descent(aaa, bbb, depth+1)
                
-                if (up) r = skcheck(!!(a,aa).head) + skcheck(!!(b,bb).head) :: r  
+                if (up) r = skcheck(a.head) + skcheck(!!(b,bb).head) :: r  
                
-                return (!!(a,aa).tail,!!(b,bb).tail)  // we could make .tail optional but the only reason I could see for passing an induction variable up the resursion stack is to advance that variable, so all choices have .tail. 
+                return (a.tail,!!(b,bb).tail)  // we could make .tail optional but the only reason I could see for passing an induction variable up the resursion stack is to advance that variable, so all choices have .tail. 
             } else {
                 return (a,b)   // no other values are available to the angel in the base case
             }

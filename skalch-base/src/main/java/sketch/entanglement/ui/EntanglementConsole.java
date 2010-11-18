@@ -59,7 +59,7 @@ public class EntanglementConsole extends InteractiveThread {
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
                     "values", "help", "color", "nocolor", "grow", "gui", "summary",
-                    "auto" };
+                    "auto", "invert" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results,
             ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
@@ -155,7 +155,18 @@ public class EntanglementConsole extends InteractiveThread {
                 } else if ("size".equals(command)) {
                     printSize();
                 } else if ("values".equals(command)) {
-                    printValues(ea, getAllTraces(subsetsStack.peek()));
+                    if (tokens.hasMoreTokens()) {
+                        String angelList = "";
+                        while (tokens.hasMoreTokens()) {
+                            angelList += tokens.nextToken() + " ";
+                        }
+                        Set<Trace> values =
+                                ea.getValues(new HashSet<DynAngel>(
+                                        DynAngel.parseDynAngelList(angelList)));
+                        System.out.println(values.size());
+                    } else {
+                        printValues(ea, getAllTraces(subsetsStack.peek()));
+                    }
                 } else if ("color".equals(command)) {
                     colorTraces();
                 } else if ("nocolor".equals(command)) {
@@ -189,6 +200,20 @@ public class EntanglementConsole extends InteractiveThread {
                         angelList.add(e.dynAngel);
                     }
                     autoPartition(angelList, satEA, ea);
+                } else if ("invert".equals(command)) {
+                    Set<Trace> curTraces =
+                            new HashSet<Trace>(
+                                    getAllTraces(subsetsStack.get(subsetsStack.size() - 1)));
+                    Set<Trace> prevTraces =
+                            new HashSet<Trace>(
+                                    getAllTraces(subsetsStack.get(subsetsStack.size() - 2)));
+                    prevTraces.removeAll(curTraces);
+                    SubsetOfTraces invert =
+                            new SubsetOfTraces(new ArrayList<Trace>(prevTraces),
+                                    "invert", subsetsStack.peek().get(0));
+                    ArrayList<SubsetOfTraces> singleton = new ArrayList<SubsetOfTraces>();
+                    singleton.add(invert);
+                    subsetsStack.push(singleton);
                 } else {
                     System.out.println("Unknown command: " + command);
                 }
@@ -208,8 +233,14 @@ public class EntanglementConsole extends InteractiveThread {
     private void pullFromResults() {
         traceToStack.clear();
         ArrayList<ScStack> solutions = results.getSolutions();
+        // HashMap<Trace, ScStack> traceToStackBuffer = new HashMap<Trace, ScStack>();
         for (ScStack solution : solutions) {
             traceToStack.put(solution.getExecutionTrace(), solution);
+            // if (traceToStackBuffer.size() >= 10000) {
+            // System.out.println(traceToStack.size());
+            // traceToStack.putAll(traceToStackBuffer);
+            // traceToStackBuffer.clear();
+            // }
         }
         List<SubsetOfTraces> initialPartition = new ArrayList<SubsetOfTraces>();
         initialPartition.add(new SubsetOfTraces(new ArrayList<Trace>(

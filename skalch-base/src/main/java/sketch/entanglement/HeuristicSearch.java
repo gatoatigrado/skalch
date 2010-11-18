@@ -30,7 +30,7 @@ public class HeuristicSearch {
 
             Set<DynAngel> constant = ea.getConstantAngels();
 
-            int numConstantStaticAngels = getNumConstantStaticAngels(ea, subset);
+            float numConstantStaticAngels = getNumConstantStaticAngels(ea, subset);
 
             int numPermutations = getNumPermutations(ea);
 
@@ -177,7 +177,7 @@ public class HeuristicSearch {
                 minSize = size;
             }
         }
-        System.out.print(", " + minSize + ", " + maxSize + "\t");
+        System.out.print(", (" + minSize + "," + maxSize + ")\t");
 
         SimpleEntanglementAnalysis ea = new SimpleEntanglementAnalysis(subset);
         SATEntanglementAnalysis satEA = new SATEntanglementAnalysis(subset);
@@ -186,13 +186,18 @@ public class HeuristicSearch {
         int numConstantDynamicAngels = constant.size();
         System.out.print(numConstantDynamicAngels + "\t");
 
-        int numConstantStaticAngels = getNumConstantStaticAngels(ea, subset);
+        float numConstantStaticAngels = getNumConstantStaticAngels(ea, subset);
         System.out.print(numConstantStaticAngels + "\t");
 
         int numPermutations = getNumPermutations(ea);
         System.out.print(numPermutations + "\t");
 
         Set<Set<DynAngel>> partitions = satEA.getEntangledPartitions();
+
+        int numPermutationsInEntanglement =
+                getNumPermutationsInEntanglement(ea, partitions);
+        System.out.print(numPermutationsInEntanglement + "\t");
+
         int entanglementScore =
                 getEntanglementScore(this.satEA.getEntangledPartitions(), partitions);
         System.out.print(entanglementScore + "\t");
@@ -211,10 +216,10 @@ public class HeuristicSearch {
         System.out.println();
     }
 
-    private int getScore(int numDynamicConstantAngels, int numConstantStaticAngels,
-            int numPermutations, int entanglementScore)
+    private int getScore(int numDynamicConstantAngels, float numConstantStaticAngels,
+            float numPermutations, int entanglementScore)
     {
-        return (numConstantStaticAngels + numPermutations) * 1000 + entanglementScore;
+        return (int) ((numConstantStaticAngels + numPermutations) * 1000 + entanglementScore);
     }
 
     public static int getEntanglementScore(Set<Set<DynAngel>> oldPartitions,
@@ -237,15 +242,15 @@ public class HeuristicSearch {
         return score - totalAngels;
     }
 
-    public static int getNumConstantStaticAngels(SimpleEntanglementAnalysis ea,
+    public static float getNumConstantStaticAngels(SimpleEntanglementAnalysis ea,
             Set<Trace> subset)
     {
         Map<Integer, Set<DynAngel>> staticAngels = getStaticAngelMapping(ea);
 
-        int maxConstantStaticAngels = 0;
+        float maxConstantStaticAngels = 0;
 
         for (Trace trace : subset) {
-            int numConstantStaticAngels = 0;
+            float numConstantStaticAngels = 0;
             for (Integer staticId : staticAngels.keySet()) {
                 Set<DynAngel> staticAngelSet = staticAngels.get(staticId);
                 Trace value = trace.getSubTrace(staticAngelSet);
@@ -253,22 +258,64 @@ public class HeuristicSearch {
                 if (events.isEmpty()) {
                     continue;
                 }
-                boolean hasSameValue = true;
+                // System.out.print(events);
+
+                Map<Integer, Integer> values = new HashMap<Integer, Integer>();
                 for (Event event : events) {
-                    if (event.valueChosen != events.get(0).valueChosen) {
-                        hasSameValue = false;
-                        break;
+                    int valueChosen = event.valueChosen;
+                    if (values.containsKey(valueChosen)) {
+                        values.put(valueChosen, values.get(valueChosen) + 1);
+                    } else {
+                        values.put(valueChosen, 1);
                     }
                 }
-                if (hasSameValue) {
-                    numConstantStaticAngels++;
+
+                int maxOccurences = 0;
+                for (Integer valueChosen : values.keySet()) {
+                    int numOccurences = values.get(valueChosen);
+                    if (numOccurences > maxOccurences) {
+                        maxOccurences = numOccurences;
+
+                    }
                 }
+                numConstantStaticAngels += ((float) maxOccurences) / events.size();
+                // System.out.println("  " + numConstantStaticAngels);
             }
+            // System.out.println("  " + numConstantStaticAngels);
             if (numConstantStaticAngels > maxConstantStaticAngels) {
                 maxConstantStaticAngels = numConstantStaticAngels;
             }
         }
         return maxConstantStaticAngels;
+    }
+
+    public static int getNumPermutationsInEntanglement(SimpleEntanglementAnalysis ea,
+            Set<Set<DynAngel>> partitions)
+    {
+        int numPermutationAngels = 0;
+
+        for (Set<DynAngel> partition : partitions) {
+            Set<Trace> values = ea.getValues(partition);
+            boolean isPermutation = true;
+            for (Trace value : values) {
+                List<Event> events = value.events;
+                if (events.isEmpty()) {
+                    continue;
+                }
+                Set<Integer> valuesSeen = new HashSet<Integer>();
+                for (Event event : events) {
+                    if (valuesSeen.contains(event.valueChosen)) {
+                        isPermutation = false;
+                        break;
+                    }
+                    valuesSeen.add(event.valueChosen);
+                }
+            }
+            if (isPermutation) {
+                numPermutationAngels++;
+            }
+        }
+        return numPermutationAngels;
     }
 
     public static int getNumPermutations(SimpleEntanglementAnalysis ea) {

@@ -13,7 +13,7 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 
 /** @author Casey Rodarmor */
-class DfsSketch() extends AngelicSketch {
+class DfsSketchD1() extends AngelicSketch {
   
     val tests = Array( () )
 
@@ -143,7 +143,7 @@ class DfsSketch() extends AngelicSketch {
 
         var i = 0
         while(i < allowedExtraStorage) {
-            extraStorage += !!(domainA)
+            extraStorage += domainA(3)
             i += 1
         }
         
@@ -322,11 +322,11 @@ class DfsSketch() extends AngelicSketch {
     }
 }
 
-object Dfs {
+object DfsD1 {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
         BackendOptions.addOpts(cmdopts)
-        skalch.AngelicSketchSynthesize(() => new DfsSketch())
+        skalch.AngelicSketchSynthesize(() => new DfsSketchD1())
     }
 }
 

@@ -105,7 +105,7 @@ class MaxComponent5Sketch extends AngelicSketch {
             
             def createCC(curVertex : Vertex, visited : ListBuffer[Vertex]) : Set[Vertex] = {
                 val cc : Set[Vertex] = new HashSet[Vertex]
-                for (val i <- 0 to vertices.size) {
+                for (val i <- 0 until vertices.size) {
                     if (!!()) {
                         cc.add(vertices(i))
                         synthAssert(visited.contains(vertices(i)))

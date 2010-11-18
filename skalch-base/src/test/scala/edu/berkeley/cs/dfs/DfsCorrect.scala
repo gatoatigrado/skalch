@@ -13,7 +13,7 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 
 /** @author Casey Rodarmor */
-class DfsSketch() extends AngelicSketch {
+class DfsCorrectSketch() extends AngelicSketch {
   
     val tests = Array( () )
 
@@ -26,7 +26,6 @@ class DfsSketch() extends AngelicSketch {
         val a = new Node("a", b, c)
 
         val root = a
-
         nodes ++= List(a,b,c,d)
 
         def checkpoint() {
@@ -100,7 +99,7 @@ class DfsSketch() extends AngelicSketch {
         }
 
         def toStringChild() : String = {
-        	var string = name + ":["
+            var string = name + ":["
             for(child <- children) {
                 string += child.name + " "
             }
@@ -149,16 +148,12 @@ class DfsSketch() extends AngelicSketch {
         
         val extraLocations = mkLocations(extraStorage)
 
-        def getRef() : Stack[A] = {
-            return reference;
-        }
-        
         def push(current: A, next: A) {
             // used to limit the search path of the synthesizer
             reference.push(current)
 
             val nodeList = List(current, next)
-            val nodeIndex = !!(nodeList.size)
+            val nodeIndex = 0
             skput_check(nodeIndex)
             val node = nodeList(nodeIndex)
             
@@ -182,9 +177,9 @@ class DfsSketch() extends AngelicSketch {
                      + ") : " + extraStorage.mkString("e[", ", ", "]")
                      + " borrowedVal[" + borrowedCur.read.toString() + "]")
 
-            borrowedCur.write(values.remove(skput_check(!!(values.size))))
+            borrowedCur.write(values.remove(skput_check(3)))
             for(location <- extraLocations) {
-        		location.write(values.remove(skput_check(!!(values.size))))
+                location.write(values.remove(skput_check(1)))
             }
         }
 
@@ -200,7 +195,7 @@ class DfsSketch() extends AngelicSketch {
               nodes += location.read()
             }
             
-            var nodeIndex = !!(nodes.size)
+            var nodeIndex = 1
             skput_check(nodeIndex)
             var node = nodes(nodeIndex)
             
@@ -218,15 +213,17 @@ class DfsSketch() extends AngelicSketch {
             }
             values += restore
             
-            val returnValue = !!(values)
+            val returnValue = values(1)
             synthAssert(returnValue == refPoppedVal)  
             
             skdprint("pop(" + restore.toString() + ") : " 
                      + extraStorage.mkString("e[", ", ", "]") 
                      + " return[" + refPoppedVal.toString() + "]")
 
+            var i = 0;
             for(location <- allLocations) {
-                location.write(values.remove(skput_check(!!(values.size))))
+                location.write(values.remove(skput_check(i)))
+                i += 2
             }
 
             returnValue
@@ -251,8 +248,7 @@ class DfsSketch() extends AngelicSketch {
 
         val stack = new KeyholeStack[Node](1, g.nodes)
         stack.push(origin, root)
-//        stack.push(root, origin)
-        
+
         var current = root
 
         var step = 0
@@ -286,11 +282,10 @@ class DfsSketch() extends AngelicSketch {
                 // backtrack
                 current = stack.pop(current)
                 skdprint("graph after pop: " + origin.toStringChild() + g.toString() + "ex:"
-                		+ stack.extraStorage.mkString("[", ",", "]"))
+                        + stack.extraStorage.mkString("[", ",", "]"))
             }
         }
-        
-        synthAssert(stack.getRef().isEmpty)
+        synthAssert(stack.reference.size == 0)
     }
     
     def toString(nodes : Buffer[Node]): String = {
@@ -322,11 +317,11 @@ class DfsSketch() extends AngelicSketch {
     }
 }
 
-object Dfs {
+object DfsCorrect {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
         BackendOptions.addOpts(cmdopts)
-        skalch.AngelicSketchSynthesize(() => new DfsSketch())
+        skalch.AngelicSketchSynthesize(() => new DfsCorrectSketch())
     }
 }
 

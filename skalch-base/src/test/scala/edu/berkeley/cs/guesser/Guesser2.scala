@@ -81,7 +81,13 @@ class Guesser2Sketch extends AngelicSketch {
                 val i3 : Int = !!(List(1,2,3,4,5,6));
                 val i4 : Int = !!(List(1,2,3,4,5,6));
                 
+                synthAssert(i1 == 1) 
+                
                 val guess : Tuple4[Int, Int, Int, Int] = (i1, i2, i3, i4)
+                if (i == 1) {
+                    synthAssert(guess.equals((1,1,1,1)));
+                }
+                
                 skdprint("Guess: " + guess)
                 
                 guesser.submitGuess(guess)

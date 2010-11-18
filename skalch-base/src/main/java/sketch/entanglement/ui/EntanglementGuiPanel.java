@@ -381,9 +381,10 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             // sketch, sourceCodeInfo);
             // subsetGui.setVisible(true);
             newGui.addTraceSubset(angelOrder, subsetTraceToStack);
-            newGui.pack();
-            newGui.setVisible(true);
         }
+        newGui.pack();
+        newGui.setVisible(true);
+
         EntanglementGui gui =
                 new EntanglementGui(subsets, traceToStack, sketch, sourceCodeInfo);
         gui.setVisible(true);

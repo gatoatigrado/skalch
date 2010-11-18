@@ -32,19 +32,19 @@ class ListZipReversalSketch6 extends AngelicSketch {
     
                 val aaa = if (!!()) a else a.tail
                 // these values don't matter (becasue the retunr value is under angelic control)
-                val bbb = if (true/*!!()*/) b else b.tail
+                val bbb = if (/*true*/!!()) b else b.tail
                 val (aa, bb) = descent(aaa, bbb, depth+1)
     
                 // always select bb is correct
                 // always select b is not correct (ie b is sometimes the correct choice)
-                if (up) r = skcheck(!!(List(a,aa)).head) + skcheck(bb/*!!(List(b,bb))*/.head) :: r  
+                if (up) r = skcheck(!!(List(a,aa)).head) + skcheck(/*bb*/!!(List(b,bb)).head) :: r  
                
                 // the first two values are always 1,2
                 // the last value of !!(sublists(y)) returned to main does not matter
-                return (!!(sublists(x)),bb.tail/*!!(sublists(y))*/)
+                return (!!(sublists(x)),/*bb.tail*/!!(sublists(y)))
             } else {
                 // value is always 0
-                return (!!(sublists(x)),b/*!!(sublists(y))*/)
+                return (!!(sublists(x)),/*b*/!!(sublists(y)))
             }
         }
         descent(x,y)

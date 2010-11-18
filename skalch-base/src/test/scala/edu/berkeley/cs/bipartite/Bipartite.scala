@@ -202,7 +202,7 @@ class BipartiteSketch extends AngelicSketch {
     G.addEdge(v1,v3)
     G.addEdge(v5,v6)
     G.addEdge(v6,v2)
-    G.addEdge(v4,v0)
+//    G.addEdge(v4,v0)
     
 	// so far, the angels in S are able to do the right thing, no matter in which
 	// order we feed the edges. to think about entanglement.

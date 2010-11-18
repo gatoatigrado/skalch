@@ -29,13 +29,13 @@ class DfsWrongSketch() extends AngelicSketch {
 //        nodes ++= List(a,b,c)
 
         // input 2
-//        val d = new Node("d")
-//        val c = new Node("c", d)
-//        val b = new Node("b", c)
-//        val a : Node = new Node("a", a, b)
-//        d.children += a;
-//        val root = a
-//        nodes ++= List(a,b,c,d)
+        val d = new Node("d")
+        val c = new Node("c", d)
+        val b = new Node("b", c)
+        val a : Node = new Node("a", a, b)
+        d.children += a;
+        val root = a
+        nodes ++= List(a,b,c,d)
 
         // input 3
 //        val d = new Node("d")
@@ -58,16 +58,29 @@ class DfsWrongSketch() extends AngelicSketch {
 //        nodes ++= List(a,b,c,d)
 
         //input 5
-        val e = new Node("e")
-        val d = new Node("d", e)
-        val c = new Node("c", d, e)
-        val b = new Node("b", c, e)
-        val a = new Node("a", b)
-        e.children += a
-        d.children += b
-        val root = a
-        nodes ++= List(a,b,c,d,e)
+//        val e = new Node("e")
+//        val d = new Node("d", e)
+//        val c = new Node("c", d, e)
+//        val b = new Node("b", c, e)
+//        val a = new Node("a", b)
+//        e.children += a
+//        d.children += b
+//        val root = a
+//        nodes ++= List(a,b,c,d,e)
 
+        //input 6
+//        val e = new Node("e")
+//        val d = new Node("d")
+//        val c = new Node("c", d)
+//        val b = new Node("b", c)
+//        val a = new Node("a", b)
+////        e.children += a
+////        d.children += b
+//        val root = a
+//        nodes ++= List(a,b,c,d)
+
+
+                                    
         
         def checkpoint() {
             for(node <- getNodes()) {
@@ -112,7 +125,7 @@ class DfsWrongSketch() extends AngelicSketch {
 
         def visit() {
             synthAssert(visited == false)
-            this.visited = true
+            visited = true
         }
 
         def checkpoint() {
@@ -214,9 +227,9 @@ class DfsWrongSketch() extends AngelicSketch {
                 values += location.read()
             }
 
-            skdprint("push(" + current.toString() + "," + next.toString 
-                     + ") : " + extraStorage.mkString("e[", ", ", "]")
-                     + " borrowedVal[" + borrowedCur.read.toString() + "]")
+//            skdprint("push(" + current.toString() + "," + next.toString 
+//                     + ") : " + extraStorage.mkString("e[", ", ", "]")
+//                     + " borrowedVal[" + borrowedCur.read.toString() + "]")
 
             borrowedCur.write(values.remove(skput_check(!!(values.size))))
             for(location <- extraLocations) {
@@ -257,9 +270,9 @@ class DfsWrongSketch() extends AngelicSketch {
             val returnValue = !!(values)
             synthAssert(returnValue == refPoppedVal)  
             
-            skdprint("pop(" + /*restore.toString() +*/ ") : " 
-                     + extraStorage.mkString("e[", ", ", "]") 
-                     + " return[" + refPoppedVal.toString() + "]")
+//            skdprint("pop(" + /*restore.toString() +*/ ") : " 
+//                     + extraStorage.mkString("e[", ", ", "]") 
+//                     + " return[" + refPoppedVal.toString() + "]")
 
             for(location <- allLocations) {
                 location.write(values.remove(skput_check(!!(values.size))))
@@ -291,17 +304,17 @@ class DfsWrongSketch() extends AngelicSketch {
         var current = root
 
         var step = 0
-        skdprint("original graph: " + origin.toStringChild() + g.toString() + "ex:" 
-                + stack.extraStorage.mkString("[", ",", "]"))
+//        skdprint("original graph: " + origin.toStringChild() + g.toString() + "ex:" 
+//                + stack.extraStorage.mkString("[", ",", "]"))
           
         while(current != origin) {
             synthAssert(step < 10)
             step += 1
 
             if(current.visited) {
-                skdprint("Backtracking: " + current.name)
+//                skdprint("Backtracking: " + current.name)
             } else {
-                skdprint("Visiting: " + current.name)
+//                skdprint("Visiting: " + current.name)
                 current.visit()
             }
 
@@ -314,14 +327,14 @@ class DfsWrongSketch() extends AngelicSketch {
             if(next != null) {
                 stack.push(current, next)
                 
-                skdprint("graph after push: " + origin.toStringChild() + g.toString() + "ex:" 
-                        + stack.extraStorage.mkString("[", ",", "]"))
+//                skdprint("graph after push: " + origin.toStringChild() + g.toString() + "ex:" 
+//                        + stack.extraStorage.mkString("[", ",", "]"))
                 current = next
             } else {
                 // backtrack
                 current = stack.pop(current)
-                skdprint("graph after pop: " + origin.toStringChild() + g.toString() + "ex:"
-                        + stack.extraStorage.mkString("[", ",", "]"))
+//                skdprint("graph after pop: " + origin.toStringChild() + g.toString() + "ex:"
+//                        + stack.extraStorage.mkString("[", ",", "]"))
             }
         }
     }
@@ -351,7 +364,7 @@ class DfsWrongSketch() extends AngelicSketch {
         for(node <- g.nodes) {
             synthAssert(node.visited)
         }
-        skdprint("Final graph " + g.toString())
+//        skdprint("Final graph " + g.toString())
     }
 }
 

@@ -13,7 +13,7 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 
 /** @author Casey Rodarmor */
-class DfsSketch() extends AngelicSketch {
+class DfsSketchD2() extends AngelicSketch {
   
     val tests = Array( () )
 
@@ -143,7 +143,7 @@ class DfsSketch() extends AngelicSketch {
 
         var i = 0
         while(i < allowedExtraStorage) {
-            extraStorage += !!(domainA)
+            extraStorage += domainA(3)
             i += 1
         }
         
@@ -182,9 +182,9 @@ class DfsSketch() extends AngelicSketch {
                      + ") : " + extraStorage.mkString("e[", ", ", "]")
                      + " borrowedVal[" + borrowedCur.read.toString() + "]")
 
-            borrowedCur.write(values.remove(skput_check(!!(values.size))))
+            borrowedCur.write(values.remove(skput_check(3)))
             for(location <- extraLocations) {
-        		location.write(values.remove(skput_check(!!(values.size))))
+        		location.write(values.remove(skput_check(1)))
             }
         }
 
@@ -218,15 +218,17 @@ class DfsSketch() extends AngelicSketch {
             }
             values += restore
             
-            val returnValue = !!(values)
+            val returnValue = values(1)
             synthAssert(returnValue == refPoppedVal)  
             
             skdprint("pop(" + restore.toString() + ") : " 
                      + extraStorage.mkString("e[", ", ", "]") 
                      + " return[" + refPoppedVal.toString() + "]")
 
+            var i = 2
             for(location <- allLocations) {
-                location.write(values.remove(skput_check(!!(values.size))))
+                location.write(values.remove(skput_check(i)))
+                i -= 2
             }
 
             returnValue
@@ -322,11 +324,11 @@ class DfsSketch() extends AngelicSketch {
     }
 }
 
-object Dfs {
+object DfsD2 {
     def main(args: Array[String])  = {
         val cmdopts = new cli.CliParser(args)
         BackendOptions.addOpts(cmdopts)
-        skalch.AngelicSketchSynthesize(() => new DfsSketch())
+        skalch.AngelicSketchSynthesize(() => new DfsSketchD2())
     }
 }
 

@@ -142,6 +142,8 @@ public class PartitionPanel extends JPanel implements ActionListener {
             listValues.add(new ValueListElement(value));
         }
 
+        label.setText("[" + listValues.size() + "]" + label.getText());
+
         model = new PartitionListModel(listValues);
         list = new JList(model);
         list.setSelectedIndex(0);

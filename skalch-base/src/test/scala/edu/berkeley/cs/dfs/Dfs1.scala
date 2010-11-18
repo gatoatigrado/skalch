@@ -76,7 +76,7 @@ class DfsSketch1() extends AngelicSketch {
 
         def visit() {
             synthAssert(visited == false)
-            this.visited = true
+            visited = true
         }
 
         def checkpoint() {

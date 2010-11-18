@@ -257,7 +257,7 @@ class BipartiteClassifier3 extends AngelicSketch {
     G1.addEdge(vA, vC)
     G1.addEdge(vB, vC)
     G1.addEdge(vC, vD)
-    G1.addEdge(vD, vA)
+    G1.addEdge(vD, vB)
 
     synthAssert(!G1.classify(vA))
     

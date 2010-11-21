@@ -55,94 +55,6 @@ rule convertParallelIndexVecToField {
 
 
 
-//--------------------------------------------------
-// remove $this variable from object functions
-//-------------------------------------------------- 
-rule createObjDefs {
-    x:ClassDef -:ClassDefSymbol-> sym:Symbol;
-    sym -:ObjectSymbol-> sym;
-
-    modify { next:ObjectDef<x>; }
-}
-
-pattern ObjectMethodSymbol(sym:Symbol) {
-    sym -:SymbolOwner-> sym2:Symbol
-        -:ObjectSymbol-> sym2;
-}
-
-rule removeObjArgFromFcnCalls {
-    x:FcnCall -:FcnArgList-> args:List;
-    tvr_node:ListNode -:ListValue-> tvr:ThisVarRef;
-    :IsFirstListNode(args, tvr_node);
-
-    x -:FcnCallSymbol-> sym:Symbol <-:FcnDefSymbol- .;
-    :ObjectMethodSymbol(sym);
-
-    modify { exec(listDelete(tvr_node)); }
-}
-
-rule removeObjArgFromFcnDefs {
-    x:FcnDef -:FcnDefParamsList-> params:List;
-    tvd_node:ListNode -:ListValue-> tvd:ThisValDef;
-    :IsFirstListNode(params, tvd_node);
-
-    x -:FcnDefSymbol-> sym:Symbol;
-    :ObjectMethodSymbol(sym);
-
-    modify { exec(listDelete(tvd_node)); }
-}
-
-rule removeSuperCallFromInit {
-    x:ListNode -:ListValue-> :FcnSuperCall
-        -:FcnCallSymbol-> sym:Symbol;
-    if { sym.symbolName == "<init>"; }
-
-    modify { exec(listDelete(x)); }
-}
-
-rule addObjFieldAsGlobal {
-    x:PackageDef;
-    y:ObjectDef -:ClassDefFieldsList-> :List
-        -:ListElt-> . -:ListValue-> sym:Symbol;
-    negative { x -:GlobalField-> sym; }
-
-    modify {
-        x -:GlobalField-> sym;
-        sym -:GlobalVariable-> sym;
-    }
-}
-
-rule convertObjFieldAccessToGlobalRef {
-    x:FieldAccess -:FieldAccessObject-> tvr:ThisVarRef;
-    x -e1:FieldAccessSymbol-> sym:Symbol
-        -:GlobalVariable-> sym;
-    x -e3:ScTypeSymbol-> typ:Symbol;
-
-    modify {
-        delete(tvr, e1, e3);
-        next:VarRef<x> -:VarRefSymbol-> sym;
-        next -:VarRefTypeSymbol-> typ;
-    }
-}
-
-
-
-{#
-rule removeThisVarFromCudaKernel {
-    x:FcnDef -:FcnDefSymbol-> sym:Symbol;
-    sym -:CudaKernelFcn-> sym;
-
-    ths_lst_node:ListNode;
-    ths_valdef:ThisValDef;
-    :ThisVarFcn(x, ths_lst_node, ths_valdef);
-
-    modify {
-        exec(removeThisVarFromFcn(x, ths_lst_node, ths_valdef)
-            || assertFalse("removing $this from kernel failed!"));
-    }
-}
-#}
-
 rule rewriteSyncthreadsCall {
     x:FcnCall -:FcnArgList-> args:List;
     x -:FcnCallSymbol-> sym:Symbol;
@@ -179,6 +91,20 @@ rule createSketchThreadIdxNodes {
     modify {
         delete(e1, e2);
         next:SketchThreadIdx<x>;
+        eval { next.indexName = idx.symbolName; }
+    }
+}
+
+rule createSketchBlockDimNodes {
+    x:FieldAccess
+        -e1:FieldAccessObject-> y:CudaParallelIndexCall
+        -:FcnCallSymbol-> sym:Symbol;
+    if { sym.symbolName == "blockDim"; }
+    x -e2:FieldAccessSymbol-> idx:Symbol;
+
+    modify {
+        delete(e1, e2);
+        next:SketchBlockDim<x>;
         eval { next.indexName = idx.symbolName; }
     }
 }

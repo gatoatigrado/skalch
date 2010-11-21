@@ -48,7 +48,29 @@ rule raiseWhileLoopGotos {
     }
 }
 
+rule replaceDoubleNestedBlocks {
+    x:Block -e:BlockStmtList-> lst:List;
+    y:Block -:BlockStmtList-> lst2:List;
+    :SingletonList(lst, y);
+
+    modify {
+        delete(e, y);
+        x -:BlockStmtList-> lst2;
+    }
+}
+
+test existsNonUnitBlockAsWhileLoopBody {
+    w:SKWhileLoop -:SKWhileLoopBody-> blk:Block;
+    negative { blk -:BlockTypeSymbol-> :ScalaUnitTypeSymbol; }
+}
+
+rule retypeWhileLoopBlock {
+    w:SKWhileLoop -:SKWhileLoopBody-> blk:Block \ SKBlock;
+    modify { next:SKBlock<blk>; }
+}
+
 test existsLabelDef {
     :LabelDef;
 }
+
 {% endblock %}

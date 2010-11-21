@@ -48,7 +48,8 @@ rule retypeBlockSKBlock {
             negative { if { typeof(blk_typ) >= ScalaUnitTypeSymbol; } }
             modify {
                 next_block:SKBlock<block> -:BlockStmtLast-> ret:Return
-                    -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
+                    -:ReturnTypeSymbol-> blk_typ;
+                    // -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
                 last -:BlockStmtNext-> ret;
                 ret -:ReturnExpr-> expr;
             }

@@ -17,11 +17,11 @@ rule convertVLArraySymbolToFixed {
 
     modify {
         next:FixedArraySymbol<x>;
-        eval { next.value = 100; }
+        eval { next.value = 16; }
     }
 }
 
-// replace "array = new Array[Int](100)" with "int[100] array = 0"
+// replace "array = new Array[Int](16)" with "int[16] array = 0"
 rule setNewAssignedArrayCalls {
     :Assign -:AssignRhs-> x:NewArrayCall;
     modify {
@@ -30,8 +30,8 @@ rule setNewAssignedArrayCalls {
     }
 }
 
-// replace "new Array[Int](100)" with "{ 0 } : FixedArray[100]"
-// (which will later get translated to "int[100] tmp = 0")
+// replace "new Array[Int](16)" with "{ 0 } : FixedArray[16]"
+// (which will later get translated to "int[16] tmp = 0")
 rule setNewAnonymousArrayCalls {
     x:NewArrayCall;
     x -e1:FcnArgList-> .;

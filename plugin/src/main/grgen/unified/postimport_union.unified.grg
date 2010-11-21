@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block grg %}
+
 rule instantiateTemplateSymbols {
     x:TemplateClassSymbol;
     y:TemplateClassSymbol;
@@ -23,6 +24,7 @@ rule instantiateTemplateSymbols {
         eval {
             y.number = y.number + 1;
             y.symbolName = "RewriteTemplates$" + y.simpleName + "_" + y.number;
+            y.uniqueSymbolName = "RewriteTemplates$" + y.simpleName + "_" + y.number;
             y.fullSymbolName = "skalch." + y.symbolName;
         }
     }

@@ -74,6 +74,13 @@ rule {{ init_fcn("cfgDeleteParamsNodes") }} {
     modify { delete(z); }
 }
 
+rule {{ init_fcn("cfgDeletePackageDefGlobals") }} {
+    . -:PackageDefGlobal-> :ValDef
+        --> x:CfgAbstractNode;
+
+    modify { delete(x); }
+}
+
 // STEP 2: Edges from CFG to CFG nodes
 // based on AST edge types
 // Temporary edges are created from AST nodes to other AST nodes

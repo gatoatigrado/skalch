@@ -100,8 +100,13 @@ let LowerTprintRules = [
     ]
 
 let RaiseSpecialGotosRules = [
+    (* while loops *)
     Xgrs "raiseWhileLoopGotos*"
+    Xgrs "replaceDoubleNestedBlocks*"
+    ValidateNeg ("existsNonUnitBlockAsWhileLoopBody", "Scala compiler yielding non-unit while loop body")
+    Xgrs "retypeWhileLoopBlock*"
     Xgrs "deleteDangling*"
+
     ValidateNeg ("existsLabelDef", "Could not recognize control flow structure (unknown goto)!") ]
 
 let CleanTypedTmpBlockRules = [
@@ -109,9 +114,11 @@ let CleanTypedTmpBlockRules = [
     Xgrs "cleanupDummyVarBlocks*"
     Xgrs "deleteDuplicateAnnotations*"
     Xgrs "deleteAnnotationLink"
+    Xgrs "deleteDangling*"
     ValidateNeg ("existsDanglingAnnotation", "Failed to convert annotations to relevant functions")
 
-    Xgrs "deleteDangling*"]
+    (* Xgrs "deleteDangling*" *)
+    ]
 
 
 
@@ -205,17 +212,20 @@ let SpecializeCudaFcnCallsRules =
         Xgrs "convertParallelIdxToCudaSpecial*"
         Xgrs "convertParallelIndexVecToField*"
         Xgrs "deleteDangling*"
-        Xgrs "[createObjDefs]"
         Xgrs "rewriteSyncthreadsCall*" ]
 
 let RewriteObjectsRules = [
     (* delete $this variables from object functions *)
+    Xgrs "[createObjDefs]"
     Xgrs "removeObjArgFromFcnCalls*"
     Xgrs "removeObjArgFromFcnDefs*"
     Xgrs "removeSuperCallFromInit*"
     Xgrs "deleteDangling*"
     Xgrs "addObjFieldAsGlobal*"
-    Xgrs "convertObjFieldAccessToGlobalRef*" ]
+    Xgrs "convertObjFieldAccessToGlobalRef*"
+    Xgrs "deletePlaceholderNullAssign*"
+    Xgrs "deleteDangling*"
+    ]
 
 let ConvertVLArraysToFixedRules = [
     Xgrs "convertVLArraySymbolToFixed*"
@@ -227,6 +237,7 @@ let CreateSpecialCudaNodesForSketchRules = [
     Xgrs "convertParallelIdxToCudaSpecial*"
     Xgrs "convertParallelIndexVecToField*"
     Xgrs "createSketchThreadIdxNodes*"
+    Xgrs "createSketchBlockDimNodes*"
     Xgrs "createSyncthreadsNodes*" ]
 
 (* CMemTypes rules *)
@@ -252,6 +263,7 @@ let CMemTypesRules = [
 let FinalSetCudaMemTypesRules = [
     Xgrs "setDefaultAsLocal*"
     Xgrs "createDefaultMemLocation*"
+    Xgrs "ignoreDefaultShared*"
     ValidateNeg ("existsConflictingMemTypes", "Annotations for type of variable conflict") ]
 
 let SketchCudaMemTypesRules = [
@@ -289,39 +301,45 @@ let SSAFormRules =
         Xgrs "deleteDangling*" ]
         (* todo convertFirstVDToSSAAssign *)
 
-let ArrayLoweringRules = [
-    (* a = Array(1, 2, 3, 4) *)
-    Xgrs "countNewArrayElts*"
-    Xgrs "deleteWrapNewArray*"
-    Xgrs "simplifyArrayConstructors*"
-
-    (* a = new Array(len)     for now, only constants supported *)
-    Xgrs "simplifyVarLenArrayCtors*"
-
-    (* fcns to sketch specials *)
-    Xgrs "decorateArrayGet*"
-    Xgrs "decorateArraySet*"
-    Xgrs "deleteDangling*"
-
-    (* create fixed array symbols *)
-    Xgrs "createArrayLengthSyms*"
-    Xgrs "typifyConstLenArrays*"
-
-    (* create variable length array symbols *)
-    Xgrs "createVariableArraySyms*"
-    Xgrs "typifyVariableLenArrays*"
-
+let UpdateTypes = [
     (* propagate types to further variables *)
     Xgrs "updateAssignLhsTypes*"
     Xgrs "updateValDefSymbolTypes*"
     Xgrs "updateVarRefTypes*"
+    Xgrs "updateReturnTypes*"
+    Xgrs "updateBlockTypes*"
+    Xgrs "updateFcnDefTypes*"
+    ]
 
-    ValidateNeg ("existsAssignToDiffLenArray", "no alternating/variable array lengths yet, sorry")
+let ArrayLoweringRules =
+    [
+        (* a = Array(1, 2, 3, 4) *)
+        Xgrs "countNewArrayElts*"
+        Xgrs "deleteWrapNewArray*"
+        Xgrs "simplifyArrayConstructors*"
 
-    (* re-update types / FIXME, hack *)
-    Xgrs "deleteDangling*"
-    Xgrs "typifyConstLenArrays*"
-    Xgrs "typifyVariableLenArrays*"
+        (* a = new Array(len)     for now, only constants supported *)
+        Xgrs "simplifyVarLenArrayCtors*"
+
+        (* fcns to sketch specials *)
+        Xgrs "decorateArrayGet*"
+        Xgrs "decorateArraySet*"
+        Xgrs "deleteDangling*"
+
+        (* create fixed array symbols *)
+        Xgrs "createArrayLengthSyms*"
+        Xgrs "typifyConstLenArrays*"
+
+        (* create variable length array symbols *)
+        Xgrs "createVariableArraySyms*"
+        Xgrs "typifyVariableLenArrays*"
+    ] @ UpdateTypes @ [
+        ValidateNeg ("existsAssignToDiffLenArray", "no alternating/variable array lengths yet, sorry")
+
+        (* re-update types / FIXME, hack *)
+        Xgrs "deleteDangling*"
+        Xgrs "typifyConstLenArrays*"
+        Xgrs "typifyVariableLenArrays*"
     ]
 
 let LowerPhiFunctionsRules = [
@@ -346,8 +364,11 @@ let CstyleStmtsRules =
         Xgrs "deleteLastAttachables* & deleteLastAttachables2*"
         ValidateXgrs ("! existsBlockify", "Failed to convert all statements to C-style statements") ]
 
-let CstyleAssnsRules = [Xgrs "makeValDefsEmpty*";
-    Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"]
+let CstyleAssnsRules = [
+    Xgrs "makeValDefsEmpty*"
+    Xgrs "cstyleAssignToIfs+ | cstyleAssignToBlocks+"
+    ValidateNeg ("existsValDefWithNonemptyAssign", "Failed to create a separate assignment node for ValDef")
+    ]
 
 let CstyleMinorCleanupRules = [
     Xgrs "unitBlocksToSKBlocks" ] @ FinalSetCudaMemTypesRules
@@ -476,11 +497,14 @@ let CudaGenerateCodeRules = [
     Xgrs "[printMethodStringRep]"
     ]
 
-let CreateTemplatesRules = [
-    Xgrs "[markTemplates] & [deleteNonTemplates] & deleteDangling*"
-    Xgrs "convertFieldsToTmplParams*"
-    Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*"
-    Xgrs "[printAndRetypeTemplates]" ] @ CleanTypedTmpBlockRules
+let CreateTemplatesRules =
+    [
+        Xgrs "markTemplates* & [deleteNonTemplates]"
+        Xgrs "deleteDangling*"
+        Xgrs "convertFieldsToTmplParams*"
+        Xgrs "[deleteUnnecessaryTemplateFcns] & deleteDangling*"
+        Xgrs "[printAndRetypeTemplates]"
+    ] @ CleanTypedTmpBlockRules
 
 let CreateLibrariesRules = [
     Xgrs "[printClassNames]" ] @ CleanTypedTmpBlockRules

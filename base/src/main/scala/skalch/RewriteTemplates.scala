@@ -9,15 +9,17 @@ import skalch.cuda.annotations._
 */
 
 class RewriteTemplates extends AngelicSketch {
-    @SkalchIgnoreClass
     abstract class Template(name : String)
+
+    /// not log2 value, the actual size
+    class ConstructDomainSize(sz : Int) extends StaticAnnotation
 
     object IntRangeHole extends Template("int range hole") {
         val from_ : Int = -32
         val to_ : Int = 31
 
         @generator def fcn = {
-            val v = (?? : Int) + from_
+            val v = (?? : Int @ ConstructDomainSize(to_ - from_)) + from_
             assert (v <= to_)
             v
         }

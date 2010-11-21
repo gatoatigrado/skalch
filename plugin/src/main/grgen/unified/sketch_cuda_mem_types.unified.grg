@@ -32,14 +32,14 @@ rule setSharedForKernelParameters {
 rule setAnnotatedShared {
     x:Symbol -:TypeSymbol-> .;
     annot:Annotated(x, "scMemShared");
-    negative { x -:TermMemLocationType-> :CudaMemShared; }
+    // negative { x -:TermMemLocationType-> :CudaMemShared; }
     modify { annot(); x -:TermMemLocationType-> :CudaMemShared; }
 }
 
 rule setAnnotatedGlobal {
     x:Symbol -:TypeSymbol-> .;
     annot:Annotated(x, "scMemGlobal");
-    negative { x -:TermMemLocationType-> :CudaMemGlobal; }
+    // negative { x -:TermMemLocationType-> :CudaMemGlobal; }
     modify { annot(); x -:TermMemLocationType-> :CudaMemGlobal; }
 }
 
@@ -47,6 +47,12 @@ rule setDefaultAsLocal {
     x:Symbol -:TypeSymbol-> .;
     negative { x -:TermMemLocationType-> .; }
     modify { x -:TermMemLocationType-> :CudaMemLocal; }
+}
+
+rule ignoreDefaultShared {
+    x:Symbol -:TermMemLocationType-> .;
+    x -:TermMemLocationType-> y:CudaMemDefaultShared;
+    modify { delete(y); }
 }
 
 test existsConflictingMemTypes {

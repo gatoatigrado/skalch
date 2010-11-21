@@ -111,4 +111,11 @@ rule unitBlocksToSKBlocks {
     modify { next:SKBlock<x>; }
 }
 
+/// Forbid this, since the (admittedly primitive) SKETCH translation
+/// doesn't support these nodes, and it's probably a sign of
+/// incomplete transformations elsewhere anyway
+test existsValDefWithNonemptyAssign {
+    x:ValDef -:ValDefRhs-> rhs:ScAstNode \ EmptyTree;
+}
+
 {% endblock %}

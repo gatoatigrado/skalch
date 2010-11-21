@@ -76,6 +76,7 @@ edge class PrintCallArgList extends FcnArgList;
 edge class FcnDefIsGenerator;
 
 node class SketchThreadIdx extends ScAstNode { indexName : string; }
+node class SketchBlockDim extends ScAstNode { indexName : string; }
 
 
 
@@ -132,7 +133,7 @@ edge class MNodeValue;
 abstract node class BlockifySafe;
 node class MemberFcn extends FcnDef;
 node class SketchMainFcnDef extends MemberFcn;
-node class InsertedReturnSymbol extends Symbol;
+// node class InsertedReturnSymbol extends Symbol;
 // execute this statement before the given one.
 node class BlockifyValDef extends ValDef;
 node class ThisVarRef extends VarRef, BlockifySafe;
@@ -173,7 +174,6 @@ edge class TmpArrayTypeSymbol extends ScTypeSymbol;
 
 node class ObjectDef extends ClassDef;
 edge class GlobalVariable;
-edge class GlobalField extends ScTermSymbol;
 
 
 
@@ -224,6 +224,7 @@ node class CudaParallelIndexCall extends FcnCall;
 
 abstract node class CudaMemType;
 node class CudaMemImplicitShared extends CudaMemType; // no need to add annotations
+node class CudaMemDefaultShared extends CudaMemImplicitShared;
 node class CudaMemShared extends CudaMemImplicitShared;
 node class CudaMemGlobal extends CudaMemType;
 node class CudaMemLocal extends CudaMemType;
@@ -324,6 +325,7 @@ node class NSRSafeParens extends NSRParens;
 {% include "nodes/gen/sketch_vlarray_to_fixed.gm" %}
 {% include "nodes/gen/sketch_cuda_mem_types.gm" %}
 {% include "nodes/gen/build_c_mem_types.gm" %}
+{% include "nodes/gen/rewrite_objects.gm" %}
 // add unified here
 
 
@@ -615,6 +617,7 @@ edge class EmptyTreeTypeSymbol extends ScTermSymbol;
 edge class FcnCallSymbol extends ScTermSymbol;
 edge class FcnDefSymbol extends ScTermSymbol;
 edge class FieldAccessSymbol extends ScTermSymbol;
+edge class FieldAccessTermSymbol extends ScTypeSymbol;
 edge class LabelDefSymbol extends ScTermSymbol;
 edge class NewClassSymbol extends ScTermSymbol;
 edge class PackageDefSymbol extends ScTermSymbol;

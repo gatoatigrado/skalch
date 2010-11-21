@@ -118,6 +118,7 @@ pattern CreateFixedArraySymbol(x:ScalaArraySymbol, inner:Symbol, var value:int) 
 
     modify {
         z:FixedArraySymbol -:SymbolOwner-> x;
+        z -:TypeSymbol-> z;
         z -:SpecializedSymbolBase-> x;
         z -:SymbolTypeArgsList-> {{ macros.finiteListInit(["inner"]) }}
         eval {
@@ -182,6 +183,7 @@ pattern CreateVariableArraySymbol(x:ScalaArraySymbol, inner:Symbol) {
     }
 
     modify {
+        z -:TypeSymbol-> z;
         z:VariableArraySymbol -:SymbolOwner-> x;
         z -:SpecializedSymbolBase-> x;
         z -:SymbolTypeArgsList-> {{ macros.finiteListInit(["inner"]) }}
@@ -272,6 +274,44 @@ rule updateVarRefTypes {
     modify {
         delete(e);
         x -:typeof(e)-> z;
+    }
+}
+
+rule updateReturnTypes {
+    x:Return -:ReturnExpr-> y:ScAstNode;
+    newsym:Symbol;
+    :UpdateableType(y, newsym);
+    x -e:ReturnTypeSymbol-> .;
+
+    modify {
+        delete(e);
+        x -:ReturnTypeSymbol-> newsym;
+    }
+}
+
+rule updateBlockTypes {
+    x:Block -:BlockStmtList-> lst:List
+        -:ListLast-> ln:ListLastNode;
+    ln <-:ListNext- :ListNode -:ListValue-> y:ScAstNode;
+    newsym:Symbol;
+    :UpdateableType(y, newsym);
+    x -e:BlockTypeSymbol-> .;
+
+    modify {
+        delete(e);
+        x -:BlockTypeSymbol-> newsym;
+    }
+}
+
+rule updateFcnDefTypes {
+    x:FcnDef -:FcnBody-> y:ScAstNode;
+    newsym:Symbol;
+    :UpdateableType(y, newsym);
+    x -e:FcnDefReturnTypeSymbol-> .;
+
+    modify {
+        delete(e);
+        x -:FcnDefReturnTypeSymbol-> newsym;
     }
 }
 

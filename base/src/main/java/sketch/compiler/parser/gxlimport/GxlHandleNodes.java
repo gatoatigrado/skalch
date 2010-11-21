@@ -54,11 +54,11 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public StreamSpec getStreamSpecFromPackageDef(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        Vector<StmtVarDecl> arg5_vec = new Vector<StmtVarDecl>();
+        Vector<FieldDecl> arg5_vec = new Vector<FieldDecl>();
         for (GXLNode arg5_tmp1 : followEdgeUL("PackageDefGlobal", node)) {
-            arg5_vec.add(getStmtVarDecl(arg5_tmp1)); // gen marker 4
+            arg5_vec.add(getFieldDecl(arg5_tmp1)); // gen marker 4
         }
-        List<StmtVarDecl> arg5 = unmodifiableList(arg5_vec);
+        List<FieldDecl> arg5 = unmodifiableList(arg5_vec);
 
         Vector<Function> arg6_vec = new Vector<Function>();
         for (GXLNode arg6_tmp1 : followEdgeUL("PackageDefFcn", node)) {
@@ -143,6 +143,19 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         int arg2 = getIntAttribute("typecode", arg2_tmp1); // gen marker 7
 
         return new Parameter(arg0, arg1, arg2);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public FieldDecl getFieldDeclFromValDef(final GXLNode node) {
+        FENode arg0 = new DummyFENode(create_fe_context(node));
+
+        Type arg1 = getType(followEdge("ValDefSymbol", node)); // gen marker 2
+
+        GXLNode arg2_tmp1 = followEdge("ValDefSymbol", node); // gen marker 3
+        String arg2 = getString(followEdge("PrintSymName", arg2_tmp1)); // gen marker 2
+
+        return new FieldDecl(arg0, arg1, arg2, null);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -327,7 +340,9 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public ExprStar getExprStarFromHoleCall(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        return new ExprStar(arg0, 10);
+        Type arg2 = getType(followEdge("FcnCallTypeSymbol", node)); // gen marker 2
+
+        return new ExprStar(arg0, 4, arg2);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
@@ -429,6 +444,16 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
 
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
+    public CudaBlockDim getCudaBlockDimFromSketchBlockDim(final GXLNode node) {
+        FEContext arg0 = create_fe_context(node);
+
+        String arg1 = getStringAttribute("indexName", node); // gen marker 7
+
+        return new CudaBlockDim(arg0, arg1);
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
     public Type getTypeFromSymbol(final GXLNode node) {
         Type arg0 = getType(followEdge("SketchType", node)); // gen marker 2
 
@@ -488,6 +513,12 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     // NOTE -- some constructors are marked deprecated to avoid later use.
     @SuppressWarnings("deprecation")
     public CudaMemoryType getCudaMemoryTypeFromCudaMemImplicitShared(final GXLNode node) {
+        return CudaMemoryType.GLOBAL;
+    }
+
+    // NOTE -- some constructors are marked deprecated to avoid later use.
+    @SuppressWarnings("deprecation")
+    public CudaMemoryType getCudaMemoryTypeFromCudaMemDefaultShared(final GXLNode node) {
         return CudaMemoryType.GLOBAL;
     }
 
@@ -624,6 +655,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getFunctionFromFcnDef(node);
         } else {
             throw new RuntimeException("no way to return a 'Function' from a node of type " + typ);
+        }
+    }
+
+    public CudaBlockDim getCudaBlockDim(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("SketchBlockDim")) {
+            return getCudaBlockDimFromSketchBlockDim(node);
+        } else {
+            throw new RuntimeException("no way to return a 'CudaBlockDim' from a node of type " + typ);
         }
     }
 
@@ -823,6 +863,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getExprConstIntFromIntConstant(node);
         } else if (typ.equals("BooleanConstant")) {
             return getExprConstBooleanFromBooleanConstant(node);
+        } else if (typ.equals("SketchBlockDim")) {
+            return getCudaBlockDimFromSketchBlockDim(node);
         } else if (typ.equals("SketchThreadIdx")) {
             return getCudaThreadIdxFromSketchThreadIdx(node);
         } else if (typ.equals("SketchTprintCall")) {
@@ -876,6 +918,15 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
         }
     }
 
+    public FieldDecl getFieldDecl(final GXLNode node) {
+        String typ = GxlImport.nodeType(node);
+        if (typ.equals("ValDef")) {
+            return getFieldDeclFromValDef(node);
+        } else {
+            throw new RuntimeException("no way to return a 'FieldDecl' from a node of type " + typ);
+        }
+    }
+
     public ExprNullPtr getExprNullPtr(final GXLNode node) {
         String typ = GxlImport.nodeType(node);
         if (typ.equals("NullTypeConstant")) {
@@ -918,6 +969,8 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
             return getCudaMemoryTypeFromCudaMemLocal(node);
         } else if (typ.equals("CudaMemGlobal")) {
             return getCudaMemoryTypeFromCudaMemGlobal(node);
+        } else if (typ.equals("CudaMemDefaultShared")) {
+            return getCudaMemoryTypeFromCudaMemDefaultShared(node);
         } else if (typ.equals("CudaMemImplicitShared")) {
             return getCudaMemoryTypeFromCudaMemImplicitShared(node);
         } else if (typ.equals("CudaMemShared")) {

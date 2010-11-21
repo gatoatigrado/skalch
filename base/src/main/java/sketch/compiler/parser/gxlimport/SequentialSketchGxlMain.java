@@ -4,7 +4,10 @@ import sketch.compiler.ast.core.Program;
 import sketch.compiler.main.seq.SequentialSketchMain;
 import sketch.compiler.passes.cuda.CopyCudaMemTypeToFcnReturn;
 import sketch.compiler.passes.cuda.GenerateAllOrSomeThreadsFunctions;
+import sketch.compiler.passes.cuda.GlobalToLocalImplicitCasts;
+import sketch.compiler.passes.cuda.ReplaceBlockDimAndGridDim;
 import sketch.compiler.passes.cuda.SplitAssignFromVarDef;
+import sketch.compiler.passes.lowering.ExtractComplexLoopConditions;
 import sketch.compiler.passes.lowering.FunctionParamExtension;
 import sketch.compiler.passes.preprocessing.ConvertArrayAssignmentsToInout;
 import sketch.compiler.solvers.constructs.StaticHoleTracker;
@@ -39,19 +42,28 @@ public class SequentialSketchGxlMain extends SequentialSketchMain {
         public GxlIRStage2() {
             super();
             this.passes.add(new SplitAssignFromVarDef());
+            this.passes.add(new GenerateAllOrSomeThreadsFunctions(
+                    SequentialSketchGxlMain.this.options,
+                    SequentialSketchGxlMain.this.varGen));
+            this.passes.add(new GlobalToLocalImplicitCasts(
+                    SequentialSketchGxlMain.this.options));
+        }
 
-            // custom dependencies using old stages
-            final GenerateAllOrSomeThreadsFunctions genThreadsFcns =
-                    new GenerateAllOrSomeThreadsFunctions(
-                            SequentialSketchGxlMain.this.options,
-                            SequentialSketchGxlMain.this.varGen);
+        @Override
+        protected Program postRun(Program prog) {
+            SequentialSketchGxlMain.this.debugShowPhase("threads",
+                    "After transforming threads to loops", prog);
+
             final SemanticCheckPass semanticCheck = new SemanticCheckPass();
+            ExtractComplexLoopConditions ec =
+                    new ExtractComplexLoopConditions(SequentialSketchGxlMain.this.varGen);
             final FunctionParamExtension paramExt = new FunctionParamExtension();
-            this.passes.add(genThreadsFcns);
-            this.passes.add(paramExt);
-            this.passes.add(semanticCheck);
-            this.stageRequires.append(paramExt, genThreadsFcns);
-            this.stageRequires.append(semanticCheck, paramExt);
+
+            prog = (Program) semanticCheck.visitProgram(prog);
+            prog = (Program) ec.visitProgram(prog);
+            prog = (Program) paramExt.visitProgram(prog);
+
+            return prog;
         }
     }
 
@@ -68,8 +80,9 @@ public class SequentialSketchGxlMain extends SequentialSketchMain {
     @Override
     public void run() {
         this.log(1, "Benchmark = " + this.benchmarkName());
+        this.prog =
+                (Program) (new ReplaceBlockDimAndGridDim(this.options)).visitProgram(this.prog);
         this.preprocAndSemanticCheck();
-        this.prog.debugDump("After preprocessing");
 
         this.oracle = new ValueOracle(new StaticHoleTracker(this.varGen));
         this.partialEvalAndSolve();

@@ -12,6 +12,12 @@ public class GxlSketchOptions extends SequentialSketchOptions {
     }
 
     @Override
+    public void preinit() {
+        // this.bndOpts.unrollAmnt = 32;
+        super.preinit();
+    }
+
+    @Override
     public void parseCommandline(final SketchCliParser parser) {
         this.gxlOpts = new GxlOptions();
         this.gxlOpts.parse(parser);

@@ -29,7 +29,7 @@ PackageDef(<this>, UL[PackageDefElement])
 
 PackageDef(UL[PackageDefGlobal], UL[PackageDefFcn])
     -> new StreamSpec(<ctx>, "StreamSpec.STREAM_FILTER", "new StreamType((FEContext)null,
-            TypePrimitive.bittype, TypePrimitive.bittype)", "\"MAIN\"", "Collections.EMPTY_LIST", List[StmtVarDecl], List[Function])
+            TypePrimitive.bittype, TypePrimitive.bittype)", "\"MAIN\"", "Collections.EMPTY_LIST", List[FieldDecl], List[Function])
 
 ClassDef(ClassDefSymbol:PrintSymName, OL[ClassDefFieldsList]:PrintSymName,
         OL[ClassDefFieldsList]:TypeSymbol:SketchType)
@@ -47,6 +47,9 @@ ValDef(ValDefSymbol, ValDefSymbol:PrintSymName)
 
 ValDef(ValDefSymbol, ValDefSymbol:PrintSymName, SketchParamType.typecode)
     -> new Parameter(Type, String, int)
+
+ValDef(ValDefSymbol, ValDefSymbol:PrintSymName)
+    -> new FieldDecl(<ctxnode>, Type, String, "null")
 
 VarRef(VarRefSymbol:PrintSymName)
     -> new ExprVar(<ctx>, String)
@@ -99,7 +102,7 @@ SKNew(FcnCallTypeSymbol)
 FieldAccess(FieldAccessObject, FieldAccessSymbol:PrintSymName)
     -> new ExprField(<ctxnode>, Expression, String)
 
-HoleCall() -> new ExprStar(<ctx>, "10")
+HoleCall(FcnCallTypeSymbol) -> new ExprStar(<ctx>, "4", Type)
 
 NullTypeConstant() -> new ExprNullPtr(<ctx>)
 
@@ -122,6 +125,9 @@ SketchPrintTuple(SketchPrintTupleName.value, SketchPrintTupleValue)
 
 SketchThreadIdx(.indexName)
     -> new CudaThreadIdx(<ctx>, String)
+
+SketchBlockDim(.indexName)
+    -> new CudaBlockDim(<ctx>, String)
 """
 
 
@@ -142,6 +148,7 @@ PrintName(.name) -> String(String)
 
 CudaMemShared() -> CudaMemoryType "CudaMemoryType.GLOBAL"
 CudaMemImplicitShared() -> CudaMemoryType "CudaMemoryType.GLOBAL"
+CudaMemDefaultShared() -> CudaMemoryType "CudaMemoryType.GLOBAL"
 CudaMemGlobal() -> CudaMemoryType "CudaMemoryType.GLOBAL"
 CudaMemLocal() -> CudaMemoryType "CudaMemoryType.LOCAL"
 """
@@ -176,7 +183,7 @@ def ast_inheritance(rules):
     immediate = {
 #        "Object": "Type Class String",
 #        "Class": "ExprBinary",
-        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange ExprTprint CudaThreadIdx",
+        "Expression": "ExprBinary ExprStar ExprConstant ExprVar ExprUnary ExprFunCall ExprField ExprNullPtr ExprNew ExprArrayInit ExprArrayRange ExprTprint CudaThreadIdx CudaBlockDim",
         "ExprConstant": "ExprConstBoolean ExprConstInt ExprConstUnit",
         "Statement": "StmtVarDecl StmtAssert StmtBlock StmtReturn StmtAssign StmtIfThen StmtExpr StmtWhile CudaSyncthreads StmtEmpty",
         "Type": "TypeStruct TypePrimitive TypeStructRef TypeArray" }

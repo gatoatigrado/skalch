@@ -143,7 +143,7 @@ let SpecializeCudaFcnCalls = {
 
 let CMemTypeValueOrReference = {
     stageDefault with
-        name = "CMemTypes";
+        name = "CMemTypeValueOrReference";
         description = "Denote types of nodes as value or reference, but don't generate type structure";
         stage = rewriteStage (SetTypeValueOrReferenceRules) }
 
@@ -156,7 +156,7 @@ let CMemTypes = {
 let SketchCudaMemTypes = {
     stageDefault with
         name = "SketchCudaMemTypes";
-        description = "Denote variables as being lcoal or global";
+        description = "Denote variables as being local or global";
         stage = rewriteStage SketchCudaMemTypesRules }
 
 let NewInitializerFcnStubs = {

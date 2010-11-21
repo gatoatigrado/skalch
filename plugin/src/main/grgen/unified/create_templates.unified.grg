@@ -25,11 +25,11 @@ node class TemplateToExport;
 
 {% block grg %}
 rule markTemplates {
-    clsdef:ClassDef -:ClassDefSymbol-> x:Symbol;
-    independent {
-        x -:ParentTypeSymbol-> y:Symbol --> :IgnoreClassAnnotation;
-        if { y.symbolName == "RewriteTemplates$Template"; }
-    }
+    clsdef:ClassDef -:ClassDefSymbol-> x:Symbol \ TemplateClassSymbol;
+
+    x -:ParentTypeSymbol-> y:Symbol;
+    if { y.symbolName == "RewriteTemplates$Template"; }
+
     modify {
         clsdef -:CreateTemplate-> clsdef;
         :TemplateClassSymbol<x>;

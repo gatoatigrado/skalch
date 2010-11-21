@@ -19,6 +19,7 @@ clean:
 	zsh -c "setopt -G; rm -f **/*timestamp **/*.(pyc|dll|exe|pidb|mdb) **/*~ **/skalch/plugins/type_graph.gxl"
 	zsh -c "setopt -G; rm -rf **/(bin|target) .gen **/gen/"
 	zsh -c "setopt -G; rm -rf ~/.m2/repository/edu/berkeley/cs/sketch/skalch-plugin"
+	zsh -c "setopt -G; rm -rf ~/.sketch/skalch-templates ~/.sketch/skalch-libraries"
 
 show-env-vars:
 	@echo "\$$grgenfiles from $(origin grgenfiles), value '$(grgenfiles)'"
@@ -133,7 +134,7 @@ java_gxlimport: gen
 	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=src/test/scala/angelic/simple/SugaredTest.sketch.ast.gxl")
 
 vectoradd_gxlimport: gen
-	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=../output.sketch.ast.gxl")
+	(cd base; mvn -e compile exec:java "-Dexec.mainClass=sketch.compiler.parser.gxlimport.GxlImport" "-Dexec.args=--fe-cegis-path /home/gatoatigrado/sandbox/sketch-backend/src/SketchSolver/cegis ../output.sketch.ast.gxl")
 
 
 

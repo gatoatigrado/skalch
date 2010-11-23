@@ -33,6 +33,12 @@ let DecorateNodes = {
         description = "Retype certain skalch constructs and function symbols";
         stage = rewriteStage DecorateNodesRules }
 
+let DeleteFcnTarget = {
+    stageDefault with
+        name = "DeleteFcnTarget";
+        description = "Change function targets to arguments";
+        stage = rewriteStage DeleteFcnTargetRules }
+
 let ConvertThis = {
     stageDefault with
         name = "ConvertThis";

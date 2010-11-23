@@ -114,11 +114,18 @@ rule simplifyClassConstruction() {
 
 // NOTE -- run this in parallel with remove dangling.
 rule removeNopTypeCast() {
-    typed:Typed -:TypedTypeSymbol-> sym:Symbol;
+    parent:Node -e:Replaceable->
+        typed:Typed -:TypedTypeSymbol-> sym:Symbol;
     typed -:TypedExpression-> expr:ScAstNode --> sym;
+
+    iterated {
+        typed -e3:Edge-> o:Node;
+        modify { delete(e3); expr -:typeof(e3)-> o; }
+    }
+
     modify {
-        exec(redirect_incoming(typed, expr)* |
-            redirect_outgoing_subtrees(typed, expr));
+        delete(e);
+        parent -:typeof(e)-> expr;
     }
 }
 

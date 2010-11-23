@@ -32,6 +32,39 @@ rule replaceUnaryNeg {
         }
     }
 }
+
+rule replaceSubtraction {
+    x:FcnCallBinarySubtract -e:FcnCallSymbol-> .;
+    x -e2:FcnCallTypeSymbol-> typ:Symbol;
+    x -e3:FcnArgList-> args:List;
+
+    c1:IntConstant;
+    c2:IntConstant;
+    :FiniteList2(args, c1, c2);
+
+    modify {
+        delete(e, e2, e3);
+        next:IntConstant<x> -:LiteralTypeSymbol-> typ;
+        eval { next.value = c1.value - c2.value; }
+    }
+}
+
+rule replaceAddition {
+    x:FcnCallBinaryAdd -e:FcnCallSymbol-> .;
+    x -e2:FcnCallTypeSymbol-> typ:Symbol;
+    x -e3:FcnArgList-> args:List;
+
+    c1:IntConstant;
+    c2:IntConstant;
+    :FiniteList2(args, c1, c2);
+
+    modify {
+        delete(e, e2, e3);
+        next:IntConstant<x> -:LiteralTypeSymbol-> typ;
+        eval { next.value = c1.value + c2.value; }
+    }
+}
+
 {#
 // view other files if you want example rules that do something.
 // rule myRule {

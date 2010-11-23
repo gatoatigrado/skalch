@@ -19,7 +19,7 @@ class RewriteTemplates extends AngelicSketch {
         val to_ : Int = 31
 
         @generator def fcn = {
-            val v = (?? : Int @ ConstructDomainSize(to_ - from_)) + from_
+            val v = (?? : Int @ ConstructDomainSize(to_ - from_ + 1)) + from_
             assert (v <= to_)
             v
         }

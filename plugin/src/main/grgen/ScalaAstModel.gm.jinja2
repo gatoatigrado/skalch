@@ -50,9 +50,10 @@ node class HoleSymbol extends SketchConstructSymbol;
 abstract node class SketchClassSymbol extends SketchBaseSymbol;
 node class AngelicSketchInstSymbol extends SketchClassSymbol;
 
-abstract node class SketchConstructCall extends ScAstNode, BlockifySafe;
+abstract node class SketchConstructCall extends ScAstNode, BlockifySafe { domainsize : int = 1024; }
 node class BangBangCall extends SketchConstructCall;
 node class HoleCall extends SketchConstructCall;
+
 node class SyncthreadsCall extends ScAstNode, BlockifySafe;
 
 edge class PackageDefGlobal extends Subtree;

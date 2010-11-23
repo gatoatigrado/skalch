@@ -18,8 +18,8 @@ object VectorAdd extends CudaKernel {
         val N : Int @scMemShared = 10
         var delta = 1
         while (delta < N) {
-            val a_i : Int = delta * (1 + 2 * threadIdx.x) - 1
-            val b_i : Int = delta * (2 + 2 * threadIdx.x) - 1
+            val a_i : Int = delta * (1 + 2 * threadIdx.x) + adj
+            val b_i : Int = delta * (2 + 2 * threadIdx.x) + adj
             assert (a_i < b_i)
             if (b_i < N) {
                 a(b_i) += a(a_i)

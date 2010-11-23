@@ -24,12 +24,17 @@ pattern GetTemplateInstance(tmpl:TemplateFcn, var name : string) {
 rule setTemplateParameter {
     y:ScAstNode -e:TemplateArgument-> x:TemplateFcn;
     x -:FcnDefSymbol-> fcn:Symbol -:SymbolOwner-> z:TemplateClassSymbol;
-    w:TemplateParameter -:SkTemplateSymbol-> z;
+    w:TemplateParameter -e2:SkTemplateSymbol-> z;
     if { w.name == e.name; }
     modify {
-        delete(e);
+        delete(e2);
         exec(replaceSubtree(w, y) || assertFalse("replace failed"));
     }
+}
+
+rule deleteTemplateArgumentEdges {
+    . -e:TemplateArgument-> .;
+    modify { delete(e); }
 }
 
 rule createFcnCallTemplates {

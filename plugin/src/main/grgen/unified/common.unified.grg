@@ -23,6 +23,14 @@ pattern Annotated(sym : Symbol, var annotName : string) {
     modify { delete(e); }
 }
 
+//--------------------------------------------------
+// pattern TypeAnnotatedNode(node : ScAstNode, var annotName : string) {
+//     node -e:TypeAnnotation-> annot:Annotation;
+//     if { annot.typename == annotName; }
+//     modify { delete(e); }
+// }
+//-------------------------------------------------- 
+
 rule assertFalse(var msg : string) {
     modify { emit("[GRG ASSERT FAILURE] " + msg + "\n"); }
 }

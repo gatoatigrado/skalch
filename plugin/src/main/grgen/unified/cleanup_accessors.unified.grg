@@ -23,13 +23,6 @@ node class GetterFcnCall extends FcnCall;
 {% endblock %}
 
 {% block grg %}
-rule markGetterCalls {
-    x:FcnCall;
-    independent {
-        x -:FcnCallSymbol-> sym:Symbol -:GetterFcn-> sym;
-    }
-    modify { next:GetterFcnCall<x>; }
-}
 
 rule setGetterFcnFieldEdges {
     x:FcnDef -:FcnDefSymbol-> sym:Symbol -:GetterFcn-> sym;
@@ -37,16 +30,30 @@ rule setGetterFcnFieldEdges {
     modify { sym -:GetterFcnField-> fld_sym; }
 }
 
+test existsGetterFcnSymWithoutFld {
+    sym:Symbol -:GetterFcn-> sym;
+    negative { sym -:GetterFcnField-> .; }
+}
+
+/// the scala compiler produces more [minorly] weird output
+rule redirectErroneousFieldAccessesToFlds {
+    x:FieldAccess -e:FieldAccessSymbol-> sym:Symbol
+        -:GetterFcn-> sym -:GetterFcnField-> realfld:Symbol;
+
+    modify {
+        delete(e);
+        x -:FieldAccessSymbol-> realfld;
+    }
+}
+
 rule replaceGetterFcnCalls {
-    x:GetterFcnCall;
-        x -:FcnCallTypeSymbol-> fcn_typ:Symbol;
-        x -:FcnArgChain-> :EmptyChain;
-        x -:FcnTarget -> y:ScAstNode;
-        x -:FcnCallSymbol-> sym:Symbol -:GetterFcnField-> fld_sym:Symbol;
-    replace {
-        sym;
-        fld_access:FieldAccess<x>
-            -:FieldAccessObject-> y;
+    x:FcnCall -:FcnCallTypeSymbol-> fcn_typ:Symbol;
+    x -e1:FcnArgChain-> ths:This <-e2:FcnArgLast- x;
+    x -e3:FcnCallSymbol-> sym:Symbol -:GetterFcnField-> fld_sym:Symbol;
+
+    modify {
+        delete(e1, e2, e3);
+        fld_access:FieldAccess<x> -:FieldAccessObject-> ths;
         fld_access -:FieldAccessSymbol-> fld_sym;
         fld_access -:FieldAccessTypeSymbol-> fcn_typ;
     }

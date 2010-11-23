@@ -157,7 +157,7 @@ let CstyleMain = {
     stageDefault with
         name = "CstyleMain"
         description = "convert AST to C-style syntax (e.g. if statements aren't expressions)"
-        stage = MetaStage [CstyleStmts; CstyleAssns; CstyleMinorCleanup] }
+        stage = MetaStage [CstyleStmts; BlockifyFcndefs; CstyleAssns; CstyleMinorCleanup] }
 
 
 
@@ -174,10 +174,11 @@ let zone_initial = [
 let zone_decorated =
     DecorateNodes,
     [
+        DeleteFcnTarget
         CleanSketchConstructs
         RedirectAccessorsToFields
         ConvertThis
-        BlockifyFcndefs ]
+        ]
 let zone_nice_lists =
     NiceLists,
     [
@@ -186,10 +187,12 @@ let zone_nice_lists =
         RaiseSpecialGotos
         ProcessAnnotations
         ResolveGT
+
         CreateTemplates
         ExportTemplates
         CreateLibraries
         ExportLibraries
+
         LossyReplacements
         NewInitializerFcnStubs
         RewriteObjects
@@ -242,8 +245,7 @@ let deps =
         DeleteMarkedIgnore <+? CreateTemplates
 
         (* interzone dependencies *)
-        BlockifyFcndefs <+? CreateTemplates
-        BlockifyFcndefs <?? CleanSketchConstructs
+        (* BlockifyFcndefs <?? CleanSketchConstructs *)
         SimplifyConstants <+? ProcessAnnotations
         ProcessAnnotations <+? CstyleMain
         ProcessAnnotations <+? ResolveGT
@@ -254,11 +256,15 @@ let deps =
         DecorateNodes <+? NiceLists
 
         (* zone_decorated intradependencies *)
-        RedirectAccessorsToFields <?? BlockifyFcndefs
-        RedirectAccessorsToFields <?? ConvertThis
+        (* redirect accessors is currently not used. *)
+        DeleteFcnTarget <+? CleanSketchConstructs
+        (* RedirectAccessorsToFields <?? BlockifyFcndefs *)
+        (* RedirectAccessorsToFields <?? ConvertThis *)
 
         (* zone_nice_lists intradependencies *)
         ProcessAnnotations <?? LossyReplacements
+        (* ProcessAnnotations <?? BlockifyFcndefs *)
+        (* BlockifyFcndefs <+? CreateTemplates *)
         CreateTemplates <?? ExportTemplates
         CreateLibraries <?? ExportLibraries
         LossyReplacements <?? NewInitializerFcnStubs
@@ -270,13 +276,17 @@ let deps =
         EmitRequiredImports <?? SketchNospec
 
         (* Code generation should be last *)
+        (*--------------------------------------------------
+        * BlockifyFcndefs <+? SketchFinalMinorCleanup
+        * BlockifyFcndefs <+? CudaCleanup
+        *--------------------------------------------------*)
         CudaCleanup <?? CudaGenerateCode
     ]
 
 
 
 (* metastages *)
-let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported ]
+let innocuous_meta = [ (*SetSymbolLabels*) DeleteMarkedIgnore; WarnUnsupported; DeleteFcnTarget ]
 let no_oo_meta = [ ConvertThis ]
 (* add ssa to below *)
 let optimize_meta = [ ArrayLowering ]
@@ -292,7 +302,7 @@ let sketch_meta = sketch_base_meta @ [ ProcessAnnotations;
 let cuda_meta = sketch_base_meta @ [ ProcessAnnotations;
     CMemTypes; CudaCleanup; CudaGenerateCode ]
 let cstyle_meta = [ RaiseSpecialGotos; NewInitializerFcnStubs;
-    BlockifyFcndefs; CstyleMain ]
+    CstyleMain ]
 let library_meta = [ EmitRequiredImports ]
 let create_templates_meta = sketch_base_meta @ [ CreateTemplates;
     ExportTemplates;

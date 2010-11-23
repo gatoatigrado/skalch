@@ -33,6 +33,7 @@ let CleanupNonuniqueSymbolsRules = [
 let DecorateNodesRules = [
     (* misc cleanup *)
     Xgrs "cleanupLiteralTypeOnClassOf*"
+    Xgrs "(deleteDangling+ | removeNopTypeCast+)*"
 
     Xgrs "[setRootSymbol]"
     ValidateXgrs ("existsRootSymbol && ! multipleRootSymbols", "ASG has multiple root symbols")
@@ -50,6 +51,11 @@ let DecorateNodesRules = [
     Xgrs "deleteDangling*"
     ValidateNeg ("existsBridgeFcnSymbol", "failed to cleanup Java API bridge functions") ] @ CleanupNonuniqueSymbolsRules
 
+let DeleteFcnTargetRules = [
+    Xgrs "removeEmptyFcnTarget* & removeFcnTarget*"
+    ValidateXgrs ("! existsFcnTarget", "failed to rewrite function targets (x.f()) into arguments (f(x))")
+    ]
+
 let ConvertThisRules = [
     Xgrs "setEnclosingFunctionInitial+"
     Xgrs "[transformFcnWrapper]"
@@ -58,12 +64,16 @@ let ConvertThisRules = [
     Xgrs "setSketchMainFcn*"]
 
 let RedirectAccessorsToFieldsRules = [
-    Xgrs "[markGetterCalls]";
-    Xgrs "[setGetterFcnFieldEdges]";
-    Xgrs "replaceGetterFcnCalls*";
-    Xgrs "[deleteGetterEdges]";
-    Xgrs "deleteDangling*" ]
+    Xgrs "[setGetterFcnFieldEdges]"
+    ValidateNeg ("existsGetterFcnSymWithoutFld", "did not create getter function fields")
 
+    Xgrs "redirectErroneousFieldAccessesToFlds*"
+    Xgrs "replaceGetterFcnCalls*"
+    Xgrs "[deleteGetterEdges]"
+    Xgrs "deleteDangling*"
+    ]
+
+(* rules file simplify_sketch_constructs.unified.grg *)
 let CleanSketchConstructsRules = [
     Xgrs "replaceAssertCalls* & deleteAssertElidableAnnot*"
     Xgrs "(valueConstructAssigned+ | classConstructAssigned+ | valueConstructAssigned2+ | valueConstructAssigned3+)*"
@@ -75,24 +85,23 @@ let CleanSketchConstructsRules = [
 
 
 let BlockifyFcndefsRules = [
-    Xgrs "removeEmptyFcnTarget* & removeFcnTarget*"
-    ValidateXgrs ("! existsFcnTarget", "failed to rewrite function targets (x.f()) into arguments (f(x))")
-    Xgrs "(deleteDangling+ | removeNopTypeCast)*"
+    Xgrs "(deleteDangling+ | removeNopTypeCast+)*"
     Xgrs "createFunctionBlocks* & retypeBlockSKBlock*"
     Xgrs "deleteFcnBlockEmptyTrees*"
     ValidateNeg ("existsFcnNonBlockBody", "failed to convert all function bodies into blocks") ]
 
-let NiceListsRules = [Xgrs "listBlockInit*";
-    Xgrs "listClassDefsInit*";
-    Xgrs "listInitAllOrdered";
-    Xgrs "listAddClassField*";
-    Xgrs "listSetNext*";
-    Xgrs "listCompleteLast*";
-    Xgrs "listCompleteBlockLast*"]
+let NiceListsRules = [
+    Xgrs "listBlockInit*"
+    Xgrs "listClassDefsInit*"
+    Xgrs "listInitAllOrdered"
+    Xgrs "listAddClassField*"
+    Xgrs "listSetNext*"
+    Xgrs "listCompleteLast*"
+    Xgrs "listCompleteBlockLast*"
+    ]
 
-(* TODO (x+ | y+)+ *)
 let SimplifyConstantsRules = [
-    Xgrs "replaceUnaryNeg+" ]
+    Xgrs "(replaceUnaryNeg+ | replaceSubtraction+ | replaceAddition+)+" ]
 
 let LowerTprintRules = [
     Xgrs "(convertTprintArrayToArgList+ | deleteDangling+)+"
@@ -125,6 +134,9 @@ let CleanTypedTmpBlockRules = [
 let ProcessAnnotationsRules1 =
     CleanTypedTmpBlockRules @
     [
+        (* cleanup *)
+        Xgrs "(deleteDangling+ | removeNopTypeCast+)*"
+
         (* gt-independent retype annotations *)
         Xgrs "retypeSymbolsAnnotations*"
 
@@ -154,11 +166,17 @@ let PostImportUnionRules = [
 
 let ProcessAnnotationsRules2 =
     PostImportUnionRules @
-    [ Xgrs "attachAnnotationsToTemplates*";
-    Xgrs "setTemplateParameter*";
-    Xgrs "createFcnCallTemplates*";
-    ValidateNeg ("existsUnreplacedCall", "A requested template was not imported or correctly connected");
-    ValidateNeg ("existsDanglingTemplateFcn", "An template imported was not connected") ]
+    [
+        Xgrs "attachAnnotationsToTemplates*"
+        Xgrs "setTemplateParameter*"
+        Xgrs "deleteTemplateArgumentEdges*"
+        Xgrs "createFcnCallTemplates*"
+        Xgrs "deleteDangling*"
+        ValidateNeg ("existsUnreplacedCall", "A requested template was not imported or correctly connected")
+        ValidateNeg ("existsDanglingTemplateFcn", "An template imported was not connected")
+    ] @ SimplifyConstantsRules @ [
+        Xgrs "setConstructDomainSize*"
+    ]
 
 let ResolveTemplatesRules = [
     Xgrs "deleteGTInstanceTypeDefinition*"

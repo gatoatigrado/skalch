@@ -19,3 +19,4 @@ test-output.txt
 *.swp
 *.jinja2.html
 *.scala.html
+base/after-irstage-2.sk

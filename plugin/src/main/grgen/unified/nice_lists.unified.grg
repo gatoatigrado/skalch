@@ -292,6 +292,15 @@ pattern SingletonList(lst:List, v:Node) {
     vnode -:ListValue-> v;
 }
 
+pattern FiniteList2(lst:List, v1:Node, v2:Node) {
+    lst -:ListFirst-> :ListFirstNode
+        -:ListNext-> vnode1:ListNode
+        -:ListNext-> vnode2:ListNode
+        -:ListNext-> :ListLastNode;
+    vnode1 -:ListValue-> v1;
+    vnode2 -:ListValue-> v2;
+}
+
 
 
 //--------------------------------------------------

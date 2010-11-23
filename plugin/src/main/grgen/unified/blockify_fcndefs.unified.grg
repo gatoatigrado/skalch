@@ -16,46 +16,52 @@ rule createFunctionBlocks {
     x:FcnDef -fcn_body:FcnBody-> y:ScAstNode;
     x -:FcnDefReturnTypeSymbol-> z:Symbol;
     negative { if { typeof(y) >= Block; } }
+
     modify {
         delete(fcn_body);
 
-        x -:FcnBody-> block:Block -:BlockExpr-> y;
-        block -:BlockStmtChain-> et:EmptyTree;
-        block -:BlockStmtLast-> et;
+        x -:FcnBody-> block:SKBlock;
+        block -:BlockStmtList-> {{ macros.finiteListInit(
+            ["ret:Return"]) }}
+        ret -:ReturnExpr-> y;
+
+        ret -:ReturnTypeSymbol-> z;
         block -:BlockTypeSymbol-> z;
 
         eval {
-            {{ macros.copySrcPosition("y", ["block"]) }}
+            {{ macros.copySrcPosition("y", ["ret", "block"]) }}
         }
     }
 }
 
+// NOTE -- use of BlockStmtLast is discouraged, use the list
+// pattern matchers (IsListLastNode) instead
 rule retypeBlockSKBlock {
-    :FcnDef --> block:Block -e:BlockExpr-> expr:ScAstNode;
-    block -e2:BlockStmtLast-> last:ScAstNode;
+    :FcnDef -:FcnBody-> block:Block -:BlockTypeSymbol-> blk_typ:Symbol;
     if { typeof(block) == Block; }
 
     alternative {
         UnitType {
-            block -:BlockTypeSymbol-> :ScalaUnitTypeSymbol;
+            if { typeof(blk_typ) >= ScalaUnitTypeSymbol; }
             modify {
-                next_block:SKBlock<block> -:BlockStmtLast-> expr;
-                last -:BlockStmtNext-> expr;
+                next_block:SKBlock<block>;
             }
         }
         Typed {
-            block -:BlockTypeSymbol-> blk_typ:Symbol;
+            block -:BlockExpr-> lastnode:ListNode;
+            lastnode -e:ListValue-> retval:ScAstNode;
+
             negative { if { typeof(blk_typ) >= ScalaUnitTypeSymbol; } }
             modify {
-                next_block:SKBlock<block> -:BlockStmtLast-> ret:Return
-                    -:ReturnTypeSymbol-> blk_typ;
-                    // -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
-                last -:BlockStmtNext-> ret;
-                ret -:ReturnExpr-> expr;
+                next_block:SKBlock<block>;
+                delete(e);
+                lastnode -:ListValue-> ret:Return -:ReturnTypeSymbol-> blk_typ;
+                // -:ReturnSymbol-> :InsertedReturnSymbol -:TypeSymbol-> blk_typ;
+                ret -:ReturnExpr-> retval;
             }
         }
     }
-    modify { delete(e, e2); }
+    modify { }
 }
 
 rule deleteFcnBlockEmptyTrees {
@@ -65,6 +71,19 @@ rule deleteFcnBlockEmptyTrees {
     modify {
         delete(et);
         blk -:BlockStmtChain-> y;
+    }
+}
+
+rule setConstructDomainSize {
+    x:SketchConstructCall -e:TypeAnnotation->
+        annot:Annotation -:AnnotationArgsList-> args:List;
+    inner:IntConstant;
+    :SingletonList(args, inner);
+    if { annot.typename == "RewriteTemplates$ConstructDomainSize"; }
+
+    modify {
+        delete(e);
+        eval { x.domainsize = inner.value; }
     }
 }
 

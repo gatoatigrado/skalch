@@ -9,51 +9,51 @@ map <NL> ok
 noremap <silent>  :call Comment()
 map  o
 nnoremap  :set paste:read !xclip_paste:set nopaste
-map Oo :
-map Oj *
-map Om -
-map Ok +
-map Ol ,
-map OM 
-map Ow 7
-map Ox 8
-map Oy 9
-map Ot 4
-map Ou 5
-map Ov 6
-map Oq 1
-map Or 2
-map Os 3
-map Op 0
-map On .
-map [H 0
-map [F $
-map [1~ 0
-map [4~ $
-map [A k
-map [B j
-map [C l
-map [D h
-map [E i
-map OH 0
-map OF $
-map O2H 0
-map O2F $
-map O5H 0
-map O5F $
-map [2;2~ i
-map [3;2~ x
-map [2;5~ i
-map [3;5~ x
-map O2A ^B
-map O2B ^F
-map O2D b
-map O2C w
-map O5A ^B
-map O5B ^F
-map O5D b
-map O5C w
 map OE i
+map O5C w
+map O5D b
+map O5B ^F
+map O5A ^B
+map O2C w
+map O2D b
+map O2B ^F
+map O2A ^B
+map [3;5~ x
+map [2;5~ i
+map [3;2~ x
+map [2;2~ i
+map O5F $
+map O5H 0
+map O2F $
+map O2H 0
+map OF $
+map OH 0
+map [E i
+map [D h
+map [C l
+map [B j
+map [A k
+map [4~ $
+map [1~ 0
+map [F $
+map [H 0
+map On .
+map Op 0
+map Os 3
+map Or 2
+map Oq 1
+map Ov 6
+map Ou 5
+map Ot 4
+map Oy 9
+map Ox 8
+map Ow 7
+map OM 
+map Ol ,
+map Ok +
+map Om -
+map Oj *
+map Oo :
 map [3~ x
 xmap <silent> ,e <Plug>CamelCaseMotion_e
 xmap <silent> ,b <Plug>CamelCaseMotion_b
@@ -110,51 +110,51 @@ map <F9> =
 imap S <Plug>ISurround
 imap s <Plug>Isurround
 imap  <Plug>Isurround
-map! Oo :
-map! Oj *
-map! Om -
-map! Ok +
-map! Ol ,
-map! OM 
-map! Ow 7
-map! Ox 8
-map! Oy 9
-map! Ot 4
-map! Ou 5
-map! Ov 6
-map! Oq 1
-map! Or 2
-map! Os 3
-map! Op 0
-map! On .
-map! [H <Home>
-map! [F <End>
-map! [1~ <Home>
-map! [4~ <End>
-map! [A <Up>
-map! [B <Down>
-map! [C <Right>
-map! [D <Left>
-map! [E <Insert>
-map! OH <Home>
-map! OF <End>
-map! O2H <Home>
-map! O2F <End>
-map! O5H <Home>
-map! O5F <End>
-map! [2;2~ <Insert>
-map! [3;2~ <Del>
-map! [2;5~ <Insert>
-map! [3;5~ <Del>
-map! O2A <PageUp>
-map! O2B <PageDown>
-map! O2C <S-Right>
-map! O2D <S-Left>
-map! O5A <PageUp>
-map! O5B <PageDown>
-map! O5C <S-Right>
-map! O5D <S-Left>
 map! OE <Insert>
+map! O5D <S-Left>
+map! O5C <S-Right>
+map! O5B <PageDown>
+map! O5A <PageUp>
+map! O2D <S-Left>
+map! O2C <S-Right>
+map! O2B <PageDown>
+map! O2A <PageUp>
+map! [3;5~ <Del>
+map! [2;5~ <Insert>
+map! [3;2~ <Del>
+map! [2;2~ <Insert>
+map! O5F <End>
+map! O5H <Home>
+map! O2F <End>
+map! O2H <Home>
+map! OF <End>
+map! OH <Home>
+map! [E <Insert>
+map! [D <Left>
+map! [C <Right>
+map! [B <Down>
+map! [A <Up>
+map! [4~ <End>
+map! [1~ <Home>
+map! [F <End>
+map! [H <Home>
+map! On .
+map! Op 0
+map! Os 3
+map! Or 2
+map! Oq 1
+map! Ov 6
+map! Ou 5
+map! Ot 4
+map! Oy 9
+map! Ox 8
+map! Ow 7
+map! OM 
+map! Ol ,
+map! Ok +
+map! Om -
+map! Oj *
+map! Oo :
 map! [3~ <Del>
 map á ea
 map é bi
@@ -195,9 +195,9 @@ badd +10 base/src/test/scala/angelic/simple/SugaredTest.scala
 badd +21 plugin/src/main/grgen/unified/common.unified.grg
 badd +46 plugin/src/main/grgen/unified/lower_tprint.unified.grg
 badd +3 plugin/src/main/grgen/build_templates.py
-badd +469 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
-badd +79 plugin/src/main/grgen/rewrite_rules.fs
-badd +115 base/src/codegen/gxltosketch/gxltosketch.py
+badd +54 plugin/src/main/grgen/ScalaAstModel.gm.jinja2
+badd +181 plugin/src/main/grgen/rewrite_rules.fs
+badd +61 base/src/codegen/gxltosketch/gxltosketch.py
 badd +51 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodes.java.jinja2
 badd +15 ~/sandbox/grgen/engine-net-2/FSharpBindings/cmdline.fs
 badd +1 ~/sandbox/grgen/engine-net-2/FSharpBindings/stages.fs
@@ -216,7 +216,7 @@ badd +1 ~/sandbox/sketch-frontend/src/main/java/sketch/compiler/ast/core/Functio
 badd +155 base/src/main/java/sketch/compiler/parser/gxlimport/GxlHandleNodesBase.java
 badd +21 plugin/src/main/grgen/unified/array_lowering.unified.grg
 badd +147 plugin/src/main/scala/skalch/plugins/ScalaGxlNodeMap.scala
-badd +29 base/src/test/scala/cuda/VectorAdd.scala
+badd +19 base/src/test/scala/cuda/VectorAdd.scala
 badd +2 base/src/main/java/sketch/compiler/parser/gxlimport/GxlSketchOptions.java
 badd +31 base/src/main/scala/skalch/cuda/CudaKernel.scala
 badd +41 plugin/src/main/grgen/rules/print_graph/sym_names.grg
@@ -247,7 +247,7 @@ badd +152 ~/sandbox/grgen/engine-net-2/src/lgspBackend/lgspGrGen.cs
 badd +1 ~/sandbox/scala/src/compiler/scala/tools/nsc/transform/Erasure.scala
 badd +13 plugin/src/main/scala/skalch/plugins/SketchRewriter.scala
 badd +39 plugin/src/main/grgen/unified/resolve_templates.unified.grg
-badd +85 plugin/src/main/grgen/unified/blockify_fcndefs.unified.grg
+badd +72 plugin/src/main/grgen/unified/blockify_fcndefs.unified.grg
 badd +1 plugin/src/main/grgen/generate_typegraph.grs
 badd +344 ~/sandbox/grgen/engine-net-2/src/GrShell/GrShellImpl.cs
 badd +50 plugin/src/main/grgen/unified/cleanup.unified.grg
@@ -269,9 +269,9 @@ badd +2 base/src/test/scala/cuda/VectorAdd.scala.html
 badd +56 plugin/src/main/grgen/unified/simplify_sketch_constructs.unified.grg
 badd +49 plugin/src/main/grgen/unified/template_util.unified.grg
 badd +64 plugin/src/main/grgen/unified/simplify_constants.unified.grg
-badd +0 plugin/src/main/grgen/unified/cleanup_accessors.unified.grg
+badd +58 plugin/src/main/grgen/unified/cleanup_accessors.unified.grg
 args modular_rules_compile.fs
-edit plugin/src/main/grgen/unified/cleanup_accessors.unified.grg
+edit plugin/src/main/grgen/unified/process_annotations.unified.grg
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
@@ -378,12 +378,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 49 - ((48 * winheight(0) + 53) / 107)
+let s:l = 298 - ((99 * winheight(0) + 53) / 107)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-49
-normal! 013l
+298
+normal! 0
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
@@ -482,12 +482,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 51 - ((50 * winheight(0) + 53) / 107)
+let s:l = 37 - ((36 * winheight(0) + 53) / 107)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-51
-normal! 039l
+37
+normal! 038l
 lcd ~/sandbox/skalch
 wincmd w
 2wincmd w

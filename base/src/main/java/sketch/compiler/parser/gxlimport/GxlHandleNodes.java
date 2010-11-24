@@ -340,9 +340,9 @@ public class GxlHandleNodes extends GxlHandleNodesBase {
     public ExprStar getExprStarFromHoleCall(final GXLNode node) {
         FEContext arg0 = create_fe_context(node);
 
-        Type arg2 = getType(followEdge("FcnCallTypeSymbol", node)); // gen marker 2
+        Type arg1 = getType(followEdge("FcnCallTypeSymbol", node)); // gen marker 2
 
-        return new ExprStar(arg0, 4, arg2);
+        return new ExprStar(arg0, arg1, 4);
     }
 
     // NOTE -- some constructors are marked deprecated to avoid later use.

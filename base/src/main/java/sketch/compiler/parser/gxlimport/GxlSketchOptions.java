@@ -13,6 +13,8 @@ public class GxlSketchOptions extends SequentialSketchOptions {
 
     @Override
     public void preinit() {
+        // this.solverOpts.synth = SynthSolvers.ABC;
+        // this.solverOpts.verif = VerifSolvers.ABC;
         // this.bndOpts.unrollAmnt = 32;
         super.preinit();
     }

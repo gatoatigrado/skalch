@@ -10,16 +10,13 @@ object VectorAdd extends CudaKernel {
     @generator def upstep_off1 = (?? : Int @ Range(0 to 2))
     @generator def upstep_off2 = (?? : Int @ Range(1 to 3))
     @generator def adj = (?? : Int @ Range(-2 to 2))
-    //--------------------------------------------------
-    // @generator def delta2 = (?? : Int @ Range(1 to 2))
-    //-------------------------------------------------- 
 
     def upstep(a : IntArr @scMemGlobal/*, N : Int*/) {
         val N : Int @scMemShared = 10
         var delta = 1
         while (delta < N) {
             val a_i : Int = delta * (1 + 2 * threadIdx.x) + adj
-            val b_i : Int = delta * (2 + 2 * threadIdx.x) + adj
+            val b_i : Int = delta * (2 + 2 * threadIdx.x) - 1
             assert (a_i < b_i)
             if (b_i < N) {
                 a(b_i) += a(a_i)
@@ -29,11 +26,10 @@ object VectorAdd extends CudaKernel {
         }
     }
 
-    @scKernel def vectoradd(a2 : IntArr/*, N : Int*/) {
-        upstep(a2/*, N*/)
-    }
+    @scKernel def vectoradd(a2 : IntArr) { upstep(a2) }
 
     @harness def sketchtest(x : Int) {
+        // output the result
         val arr2 = Array((?? : Int), (?? : Int), (?? : Int), (?? : Int),
                          (?? : Int), (?? : Int), (?? : Int), (?? : Int),
                          (?? : Int), (?? : Int), (?? : Int), (?? : Int),

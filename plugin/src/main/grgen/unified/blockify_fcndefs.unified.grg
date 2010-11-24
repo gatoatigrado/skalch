@@ -74,19 +74,6 @@ rule deleteFcnBlockEmptyTrees {
     }
 }
 
-rule setConstructDomainSize {
-    x:SketchConstructCall -e:TypeAnnotation->
-        annot:Annotation -:AnnotationArgsList-> args:List;
-    inner:IntConstant;
-    :SingletonList(args, inner);
-    if { annot.typename == "RewriteTemplates$ConstructDomainSize"; }
-
-    modify {
-        delete(e);
-        eval { x.domainsize = inner.value; }
-    }
-}
-
 test existsFcnNonBlockBody {
     x:FcnDef -:FcnBody-> y:ScAstNode \ SKBlock;
 }

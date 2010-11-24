@@ -84,6 +84,8 @@ UnitConstant()
 
 
 
+# HoleCall(FcnCallTypeSymbol, .domainsize) -> new ExprStar(<ctx>, Type, int)
+
 #FieldAccess(FieldAccessObject, ...)
 #    -> new ExprField(<ctxnode>, Expression,
 EXPRS = r"""
@@ -102,7 +104,7 @@ SKNew(FcnCallTypeSymbol)
 FieldAccess(FieldAccessObject, FieldAccessSymbol:PrintSymName)
     -> new ExprField(<ctxnode>, Expression, String)
 
-HoleCall(FcnCallTypeSymbol) -> new ExprStar(<ctx>, "4", Type)
+HoleCall(FcnCallTypeSymbol) -> new ExprStar(<ctx>, Type, "4")
 
 NullTypeConstant() -> new ExprNullPtr(<ctx>)
 

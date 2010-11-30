@@ -14,7 +14,6 @@ import pygtk; pygtk.require("2.0")
 import gtk
 import re, sys, time
 from multiprocessing import Process
-from amara import bindery
 import resource
 
 mbyte = 1 << 20

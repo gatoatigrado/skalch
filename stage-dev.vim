@@ -9,51 +9,51 @@ map <NL> ok
 noremap <silent>  :call Comment()
 map  o
 nnoremap  :set paste:read !xclip_paste:set nopaste
-map OE i
-map O5C w
-map O5D b
-map O5B ^F
-map O5A ^B
-map O2C w
-map O2D b
-map O2B ^F
-map O2A ^B
-map [3;5~ x
-map [2;5~ i
-map [3;2~ x
-map [2;2~ i
-map O5F $
-map O5H 0
-map O2F $
-map O2H 0
-map OF $
-map OH 0
-map [E i
-map [D h
-map [C l
-map [B j
-map [A k
-map [4~ $
-map [1~ 0
-map [F $
-map [H 0
-map On .
-map Op 0
-map Os 3
-map Or 2
-map Oq 1
-map Ov 6
-map Ou 5
-map Ot 4
-map Oy 9
-map Ox 8
-map Ow 7
-map OM 
-map Ol ,
-map Ok +
-map Om -
-map Oj *
 map Oo :
+map Oj *
+map Om -
+map Ok +
+map Ol ,
+map OM 
+map Ow 7
+map Ox 8
+map Oy 9
+map Ot 4
+map Ou 5
+map Ov 6
+map Oq 1
+map Or 2
+map Os 3
+map Op 0
+map On .
+map [H 0
+map [F $
+map [1~ 0
+map [4~ $
+map [A k
+map [B j
+map [C l
+map [D h
+map [E i
+map OH 0
+map OF $
+map O2H 0
+map O2F $
+map O5H 0
+map O5F $
+map [2;2~ i
+map [3;2~ x
+map [2;5~ i
+map [3;5~ x
+map O2A ^B
+map O2B ^F
+map O2D b
+map O2C w
+map O5A ^B
+map O5B ^F
+map O5D b
+map O5C w
+map OE i
 map [3~ x
 xmap <silent> ,e <Plug>CamelCaseMotion_e
 xmap <silent> ,b <Plug>CamelCaseMotion_b
@@ -110,51 +110,51 @@ map <F9> =
 imap S <Plug>ISurround
 imap s <Plug>Isurround
 imap  <Plug>Isurround
-map! OE <Insert>
-map! O5D <S-Left>
-map! O5C <S-Right>
-map! O5B <PageDown>
-map! O5A <PageUp>
-map! O2D <S-Left>
-map! O2C <S-Right>
-map! O2B <PageDown>
-map! O2A <PageUp>
-map! [3;5~ <Del>
-map! [2;5~ <Insert>
-map! [3;2~ <Del>
-map! [2;2~ <Insert>
-map! O5F <End>
-map! O5H <Home>
-map! O2F <End>
-map! O2H <Home>
-map! OF <End>
-map! OH <Home>
-map! [E <Insert>
-map! [D <Left>
-map! [C <Right>
-map! [B <Down>
-map! [A <Up>
-map! [4~ <End>
-map! [1~ <Home>
-map! [F <End>
-map! [H <Home>
-map! On .
-map! Op 0
-map! Os 3
-map! Or 2
-map! Oq 1
-map! Ov 6
-map! Ou 5
-map! Ot 4
-map! Oy 9
-map! Ox 8
-map! Ow 7
-map! OM 
-map! Ol ,
-map! Ok +
-map! Om -
-map! Oj *
 map! Oo :
+map! Oj *
+map! Om -
+map! Ok +
+map! Ol ,
+map! OM 
+map! Ow 7
+map! Ox 8
+map! Oy 9
+map! Ot 4
+map! Ou 5
+map! Ov 6
+map! Oq 1
+map! Or 2
+map! Os 3
+map! Op 0
+map! On .
+map! [H <Home>
+map! [F <End>
+map! [1~ <Home>
+map! [4~ <End>
+map! [A <Up>
+map! [B <Down>
+map! [C <Right>
+map! [D <Left>
+map! [E <Insert>
+map! OH <Home>
+map! OF <End>
+map! O2H <Home>
+map! O2F <End>
+map! O5H <Home>
+map! O5F <End>
+map! [2;2~ <Insert>
+map! [3;2~ <Del>
+map! [2;5~ <Insert>
+map! [3;5~ <Del>
+map! O2A <PageUp>
+map! O2B <PageDown>
+map! O2C <S-Right>
+map! O2D <S-Left>
+map! O5A <PageUp>
+map! O5B <PageDown>
+map! O5C <S-Right>
+map! O5D <S-Left>
+map! OE <Insert>
 map! [3~ <Del>
 map á ea
 map é bi
@@ -206,7 +206,7 @@ badd +6 base/src/test/scala/angelic/simple/Test0005_tprint.scala
 badd +19 base/src/main/scala/skalch/AngelicSketch.scala
 badd +160 ~/sandbox/grgen/engine-net-2/FSharpBindings/graph.fs
 badd +213 plugin/src/main/grgen/unified/decorate_nodes.unified.grg
-badd +45 plugin/src/main/grgen/unified/process_annotations.unified.grg
+badd +265 plugin/src/main/grgen/unified/process_annotations.unified.grg
 badd +49 plugin/src/main/grgen/AllRules_0.grg
 badd +41 plugin/src/main/grgen/unified/macros.grg
 badd +27 base/src/main/scala/skalch/RewriteTemplates.scala
@@ -378,12 +378,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 298 - ((99 * winheight(0) + 53) / 107)
+let s:l = 265 - ((66 * winheight(0) + 53) / 107)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-298
-normal! 0
+265
+normal! 050l
 lcd ~/sandbox/skalch
 wincmd w
 argglobal
@@ -482,12 +482,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 37 - ((36 * winheight(0) + 53) / 107)
+let s:l = 42 - ((41 * winheight(0) + 53) / 107)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-37
-normal! 038l
+42
+normal! 014l
 lcd ~/sandbox/skalch
 wincmd w
 2wincmd w

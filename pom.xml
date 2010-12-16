@@ -2,7 +2,7 @@
 To build, try
     >>> mvn install
 
-For some reason, you need to install the plugin (it's not smart enough to just use the jar)
+For some reason, you need to install the plugin (it's not smart enough to just use the jar ) 
 therefore, if you want to install (to ~/.m2) as little as possible, try
     >>> (cd skalch-plugin; mvn install)
     >>> mvn compile

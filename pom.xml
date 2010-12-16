@@ -90,9 +90,9 @@ Update dependency versions
             <url>http://scala-tools.org/repo-releases</url>
         </repository>
         <repository>
-            <id>uc berkeley cobol</id>
+            <id>uc berkeley ntung</id>
             <name>UC Berkeley Maven2 Repository</name>
-            <url>http://cobol.cs.berkeley.edu/mvn/</url>
+            <url>http://ntung.com/mvn</url>
         </repository>
         <repository>
             <id>central</id>
@@ -106,9 +106,9 @@ Update dependency versions
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>uc berkeley cobol</id>
+            <id>uc berkeley ntung</id>
             <name>UC Berkeley Maven2 Repository</name>
-            <url>http://cobol.cs.berkeley.edu/mvn/</url>
+            <url>http://ntung.com/mvn</url>
         </pluginRepository>
 <!--        <pluginRepository>
             <id>scala-tools.org</id>

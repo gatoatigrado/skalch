@@ -10,5 +10,7 @@
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/angels"/>
 	<classpathentry kind="lib" path="/angels/lib/kodkod.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sketch-frontend"/>
+	<classpathentry kind="lib" path="/home/sbarman/Research/workspace/angels.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

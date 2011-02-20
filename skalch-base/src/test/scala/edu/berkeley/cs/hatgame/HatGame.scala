@@ -78,20 +78,48 @@ class HatGameSketch extends AngelicSketch {
       }
 
       var valueMap: Map[List[Int], Int] = new HashMap[List[Int], Int]
-      for (value <- input) {
-        valueMap += value -> !!(output)
-      }
+      //for (value <- input) {
+      //  valueMap += value -> !!(output)
+      //}
 
-      valueMap.foreach(mapping =>
-        skdprint(mapping._1 + "-->" + mapping._2))
-
-      val function: List[Int] => Int = (input => valueMap(input))
+      val function: List[Int] => Int = (input => { 
+        if (!valueMap.contains(input)) {
+          valueMap += input -> !!(output)
+        }
+        valueMap(input)
+      })
       return function
     }
 
     def getGuessingFunction(): List[(List[Int] => Int)] = {
       var guessingFunctions: List[(List[Int] => Int)] = Nil
       for (i <- 0 until num) {
+        guessingFunctions ::= getFunction()
+      }
+      return guessingFunctions
+    }
+
+    def getConstantFunction(valueMap : Map[List[Int], Int]) : List[Int] => Int = {
+        return (input => valueMap(input))
+    }
+    
+    def getConstantGuessingFunction(): List[(List[Int] => Int)] = {
+      var guessingFunctions: List[(List[Int] => Int)] = Nil
+      
+      var valueMap : Map[List[Int], Int] = new HashMap[List[Int], Int]()
+      valueMap += List(0,0) -> 0
+      valueMap += List(0,1) -> 1
+      valueMap += List(0,2) -> 2
+      valueMap += List(1,0) -> 0
+      valueMap += List(1,1) -> 1
+      valueMap += List(1,2) -> 0
+      valueMap += List(2,0) -> 1
+      valueMap += List(2,1) -> 2
+      valueMap += List(2,2) -> 2
+      
+      guessingFunctions ::= getConstantFunction(valueMap)
+      
+      for (i <- 0 until num-1) {
         guessingFunctions ::= getFunction()
       }
       return guessingFunctions
@@ -148,11 +176,22 @@ class HatGameSketch extends AngelicSketch {
       return false
     }
 
-    val functions: List[(List[Int] => Int)] = getGuessingFunction
+    val functions: List[(List[Int] => Int)] = getConstantGuessingFunction
+//    val functions: List[(List[Int] => Int)] = getGuessingFunction
     checkGuesses(functions)
 //    val tests : List[List[Int]] = List(List(0,0,0),List(1,1,1),List(2,2,2),List(0,1,2),List(0,0,2),
-            List(1,1,2))
+//            List(1,1,2))
 //    checkGuessesLimited(functions, tests)
+    for (function <- functions) {
+      skdprint("function")
+      var input: List[List[Int]] = Nil
+      val iterator: HatIterator = new HatIterator(num - 1, num)
+      var value: List[Int] = iterator.next
+      while (value != Nil) {
+        skdprint(value + "-->" + function(value))
+        value = iterator.next
+      }
+    }
   }
 }
 

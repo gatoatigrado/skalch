@@ -1,5 +1,6 @@
 package sketch.dyn.main.angelic;
 
+import java.awt.Color;
 import java.util.Vector;
 
 import sketch.dyn.constructs.ctrls.ScCtrlConf;
@@ -100,6 +101,10 @@ public class ScAngelicSketchBase {
 
     public void skdprintBackend(String text) {
         debugOut.add(new ScGeneralDebugEntry(text));
+    }
+
+    public void skdprintBackend(String text, Color color) {
+        debugOut.add(new ScGeneralDebugEntry(text, color));
     }
 
     public void skqueuePutBackend(int queueNum, Object value) {

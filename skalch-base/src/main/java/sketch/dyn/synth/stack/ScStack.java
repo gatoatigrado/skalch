@@ -1,5 +1,6 @@
 package sketch.dyn.synth.stack;
 
+import java.awt.Color;
 import java.util.EmptyStackException;
 
 import sketch.dyn.constructs.ctrls.ScSynthCtrlConf;
@@ -36,6 +37,7 @@ import sketch.util.wrapper.ScRichString;
 public class ScStack extends ScPrefixSearch {
     public ScSynthCtrlConf ctrlConf;
     public ScSolvingInputConf oracleConf;
+    // public ScFixedInputConf fixedOracleConf;
     protected FactoryStack<ScStackEntry> stack;
     protected int addedEntries = 0;
     protected boolean firstRun = true;
@@ -44,7 +46,7 @@ public class ScStack extends ScPrefixSearch {
     public final static int SYNTH_HOLE_LOG_TYPE = 3;
     public final static int SYNTH_ORACLE_LOG_TYPE = 6;
 
-    public int[][] setCnt;
+    public Color[][] color;
 
     public ScStack(ScPrefix defaultPrefix, int maxStackDepth) {
         this.maxStackDepth = maxStackDepth;
@@ -77,21 +79,25 @@ public class ScStack extends ScPrefixSearch {
 
     public void initializeFixedForIllustration(ScDynamicSketchCall<?> sketchCall) {
         ctrlConf.generateValueStrings();
-        ScFixedInputConf fixedOracles = oracleConf.fixedInputs();
-        // sbarman: hack to display angelic values as a certain color
-        if (setCnt != null) {
-            for (int i = 0; i < setCnt.length; i++) {
-                for (int j = 0; j < setCnt[i].length; j++) {
-                    fixedOracles.setCnt(i, j, setCnt[i][j]);
-                }
-            }
+        ScFixedInputConf fixedOracleConf = oracleConf.fixedInputs();
+        oracleConf.setColor(color);
+
+        // Display angelic values as a certain color
+        if (color != null) {
+            fixedOracleConf.setColor(color);
         }
-        fixedOracles.generateValueStrings();
-        sketchCall.initializeBeforeAllTests(ctrlConf, fixedOracles, null);
+
+        fixedOracleConf.generateValueStrings();
+        sketchCall.initializeBeforeAllTests(ctrlConf, fixedOracleConf, null);
     }
 
-    public void setCnt(int[][] setCnt) {
-        this.setCnt = setCnt;
+    /**
+     * Set the colors of the angels based upon their entanglement partition
+     * 
+     * @param setColor
+     */
+    public void setPartitionColor(Color[][] color) {
+        this.color = color;
     }
 
     public void resetBeforeRun() {

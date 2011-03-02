@@ -5,7 +5,7 @@ import scala.collection.immutable.HashMap
 import skalch.AngelicSketch
 import sketch.util._
 
-class HatGameSketch extends AngelicSketch {
+class HatGame1Sketch extends AngelicSketch {
   val tests = Array(())
 
   def main() {
@@ -140,10 +140,10 @@ class HatGameSketch extends AngelicSketch {
       valueMap += List(2,2) -> 1
       
       
-      guessingFunctions ::= getConstantFunction(valueMap)
       for (i <- 0 until num-1) {
         guessingFunctions ::= getFunction()
       }
+      guessingFunctions ::= getConstantFunction(valueMap)
       return guessingFunctions
     }
 
@@ -177,7 +177,7 @@ class HatGameSketch extends AngelicSketch {
       var people: List[(List[Int] => Int)] = guessingFunction
       var hats: List[Int] = assignment
       var seenHat : Boolean = false
-
+      
       for (i <- 0 until num) {
         val person: List[Int] => Int = people.head
         people = people.tail
@@ -187,11 +187,16 @@ class HatGameSketch extends AngelicSketch {
         val (fronthalf, backhalf) = assignment.splitAt(i)
         var seenHats: List[Int] = fronthalf ::: backhalf.tail
 
+        //skdprint("Person: " + i)
+        //skdprint("Hat: " + hat)
+        //skdprint("Seen Hats: " + seenHats)
+        //skdprint("Guess: " + person(seenHats))
 
         if (hat == person(seenHats)) {
           seenHat = true
         }
       }
+
       return seenHat
     }
 
@@ -209,12 +214,12 @@ class HatGameSketch extends AngelicSketch {
   }
 }
 
-object HatGame {
+object HatGame1 {
   def main(args: Array[String]) = {
     for (arg <- args)
       Console.println(arg)
     //val cmdopts = new cli.CliParser(args)
     skalch.AngelicSketchSynthesize(() =>
-      new HatGameSketch())
+      new HatGame1Sketch())
   }
 }

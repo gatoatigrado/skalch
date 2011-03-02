@@ -11,14 +11,15 @@ import sketch.dyn.synth.stack.ScStack;
  * 
  * @author gatoatigrado (nicholas tung) [email: ntung at ntung]
  * @license This file is licensed under BSD license, available at
- *          http://creativecommons.org/licenses/BSD/. While not required, if you
- *          make changes, please consider contributing back!
+ *          http://creativecommons.org/licenses/BSD/. While not required, if you make
+ *          changes, please consider contributing back!
  */
 public class ScDebugStackRun extends ScDefaultDebugRun {
     protected ScStack stack;
 
-    public ScDebugStackRun(
-            ScDynamicSketchCall<ScAngelicSketchBase> sketchCall, ScStack stack) {
+    public ScDebugStackRun(ScDynamicSketchCall<ScAngelicSketchBase> sketchCall,
+            ScStack stack)
+    {
         super(sketchCall);
         this.stack = stack;
     }

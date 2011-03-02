@@ -169,8 +169,6 @@ public class EntanglementConsole extends InteractiveThread {
                     }
                 } else if ("color".equals(command)) {
                     colorTraces();
-                } else if ("nocolor".equals(command)) {
-                    removeColorTraces();
                 } else if ("grow".equals(command)) {
                     int n = Integer.parseInt(tokens.nextToken());
                     growTraces(n);
@@ -549,50 +547,10 @@ public class EntanglementConsole extends InteractiveThread {
         return traces;
     }
 
-    private void removeColorTraces() {
-        setCntMatrix(null);
-    }
-
     private void colorTraces() {
-        Set<DynAngel> angels = ea.getAngels();
-        int maxStaticAngel = -1;
-        for (DynAngel angel : angels) {
-            if (angel.staticAngelId > maxStaticAngel) {
-                maxStaticAngel = angel.staticAngelId;
-            }
-        }
-        int[] maxExecNum = new int[maxStaticAngel + 1];
-        for (DynAngel angel : angels) {
-            if (angel.execNum > maxExecNum[angel.staticAngelId]) {
-                maxExecNum[angel.staticAngelId] = angel.execNum;
-            }
-        }
-        int[][] cntMatrix = new int[maxStaticAngel + 1][];
-        for (int i = 0; i < cntMatrix.length; i++) {
-            cntMatrix[i] = new int[maxExecNum[i] + 1];
-        }
-
-        int val = 4;
-        int inc = 4;
-        int constant = 0;
-        Set<Set<DynAngel>> partitions = satEA.getEntangledPartitions();
-        for (Set<DynAngel> partition : partitions) {
-            if (partition.size() == 1) {
-                DynAngel d = partition.iterator().next();
-                cntMatrix[d.staticAngelId][d.execNum] = constant;
-            } else {
-                for (DynAngel d : partition) {
-                    cntMatrix[d.staticAngelId][d.execNum] = val;
-                }
-                val += inc;
-            }
-        }
-        setCntMatrix(cntMatrix);
-    }
-
-    private void setCntMatrix(int[][] cntMatrix) {
+        EntanglementColoring c = new EntanglementColoring(ea, satEA);
         for (Trace t : traceToStack.keySet()) {
-            traceToStack.get(t).setCnt(cntMatrix);
+            traceToStack.get(t).setPartitionColor(c.getColorMatrix());
         }
     }
 

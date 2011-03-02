@@ -1,6 +1,7 @@
 package skalch
 
 import sketch.util.DebugOut
+import sketch.ui.ScUiColor
 
 /**
  * New dynamic sketching base class. This class supports the oracle,
@@ -101,11 +102,21 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
             skdprintBackend(x)
         }
     }
+    
+    def skdprint(x : => String, c : => java.awt.Color) {
+        if (debugPrintEnable) {
+            skdprintBackend(x, c)
+        }
+    }
 
     def skdprint_loc(x : => String) {
         if (debugPrintEnable) {
             skdprintLocationBackend(x)
         }
+    }
+    
+    def sklast_angel_color() : java.awt.Color = {
+        oracleConf.getLastAngelColor()
     }
  
     def skput[T](x : T) : T = {

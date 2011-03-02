@@ -2,6 +2,7 @@ package sketch.dyn.constructs.inputs;
 
 import static sketch.util.fcns.ScArrayUtil.extend_arr;
 
+import java.awt.Color;
 import java.util.Vector;
 
 import sketch.dyn.synth.stack.ScStack;
@@ -26,6 +27,9 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
     protected int[] defaultUntilv;
     protected int[] next;
     protected int numUids = 0;
+    private int lastSubUid;
+    private int lastUid;
+    private Color[][] colors;
 
     @SuppressWarnings("unchecked")
     public ScSolvingInputConf(ScStack stack, int logType) {
@@ -167,6 +171,10 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
             untilv[uid].add(untilv_);
         }
         int v = values[uid].get(uidNext);
+
+        lastUid = uid;
+        lastSubUid = uidNext;
+
         next[uid] += 1;
         return v;
     }
@@ -189,5 +197,22 @@ public class ScSolvingInputConf extends ScInputConf implements Cloneable {
             result[a] = boxed[a];
         }
         return result;
+    }
+
+    @Override
+    public Color getLastAngelColor() {
+        if (colors != null) {
+            if (lastUid >= 0 && lastSubUid >= 0) {
+                Color color = colors[lastUid][lastSubUid];
+                if (color != null) {
+                    return color;
+                }
+            }
+        }
+        return Color.black;
+    }
+
+    public void setColor(Color[][] color) {
+        colors = color;
     }
 }

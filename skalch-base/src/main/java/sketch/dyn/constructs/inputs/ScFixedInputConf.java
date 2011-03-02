@@ -1,5 +1,6 @@
 package sketch.dyn.constructs.inputs;
 
+import java.awt.Color;
 import java.util.Vector;
 
 import sketch.ui.sourcecode.ScConstructValue;
@@ -21,6 +22,7 @@ import sketch.util.wrapper.ScRichString;
 public class ScFixedInputConf extends ScInputConf {
     protected int[][] values;
     protected int[][] setCnt;
+    protected Color[][] colors;
     protected int[] untilv;
     protected int[] next;
     public Vector<ScConstructValueString>[] valueString;
@@ -99,6 +101,10 @@ public class ScFixedInputConf extends ScInputConf {
         }
     }
 
+    public void setColor(Color[][] colors) {
+        this.colors = colors;
+    }
+
     /** NOTE - a bit of messy (uid, subuid) -> index mapping */
     @SuppressWarnings("unchecked")
     public void generateValueStrings() {
@@ -106,9 +112,15 @@ public class ScFixedInputConf extends ScInputConf {
         for (int uidIdx = 0; uidIdx < values.length; uidIdx++) {
             for (int subuidIdx = 0; subuidIdx < values[uidIdx].length; subuidIdx++) {
                 ScConstructValue value = new ScConstructValue(values[uidIdx][subuidIdx]);
-                int colorV = setCnt[uidIdx][subuidIdx];
+                int count = setCnt[uidIdx][subuidIdx];
                 int[] idArr = { uidIdx, subuidIdx };
-                valueArr.add(new ScHighlightValues.Value(value, colorV, idArr));
+                Color color;
+                if (colors != null && colors[uidIdx][subuidIdx] != null) {
+                    color = colors[uidIdx][subuidIdx];
+                } else {
+                    color = Color.black;
+                }
+                valueArr.add(new ScHighlightValues.Value(value, count, idArr, color));
             }
         }
         ScHighlightValues.genValueStrings(valueArr);
@@ -152,5 +164,10 @@ public class ScFixedInputConf extends ScInputConf {
             }
         }
         return result;
+    }
+
+    @Override
+    public Color getLastAngelColor() {
+        return null;
     }
 }

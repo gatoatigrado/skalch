@@ -77,9 +77,6 @@ class HatGameSketch extends AngelicSketch {
       }
 
       var valueMap: Map[List[Int], Int] = new HashMap[List[Int], Int]
-      //for (value <- input) {
-      //  valueMap += value -> !!(output)
-      //}
 
       val function: List[Int] => Int = (input => { 
         if (!valueMap.contains(input)) {
@@ -108,15 +105,6 @@ class HatGameSketch extends AngelicSketch {
       var guessingFunctions: List[(List[Int] => Int)] = Nil
       
       var valueMap : Map[List[Int], Int] = new HashMap[List[Int], Int]()
-//      valueMap += List(0,0) -> 2
-//      valueMap += List(0,1) -> 1
-//      valueMap += List(0,2) -> 0
-//      valueMap += List(1,0) -> 0
-//      valueMap += List(1,1) -> 2
-//      valueMap += List(1,2) -> 1
-//      valueMap += List(2,0) -> 1
-//      valueMap += List(2,1) -> 0
-//      valueMap += List(2,2) -> 2
 
 //      fail
 //      valueMap += List(0,0) -> 0
@@ -129,6 +117,16 @@ class HatGameSketch extends AngelicSketch {
 //      valueMap += List(2,1) -> 1
 //      valueMap += List(2,2) -> 2
 
+//      valueMap += List(0,0) -> 1
+//      valueMap += List(0,1) -> 0
+//      valueMap += List(0,2) -> 0
+//      valueMap += List(1,0) -> 2
+//      valueMap += List(1,1) -> 2
+//      valueMap += List(1,2) -> 0
+//      valueMap += List(2,0) -> 2
+//      valueMap += List(2,1) -> 1
+//      valueMap += List(2,2) -> 1
+      
       valueMap += List(0,0) -> 0
       valueMap += List(0,1) -> 1
       valueMap += List(0,2) -> 2
@@ -138,7 +136,7 @@ class HatGameSketch extends AngelicSketch {
       valueMap += List(2,0) -> 2
       valueMap += List(2,1) -> 0
       valueMap += List(2,2) -> 1
-      
+
       
       guessingFunctions ::= getConstantFunction(valueMap)
       for (i <- 0 until num-1) {

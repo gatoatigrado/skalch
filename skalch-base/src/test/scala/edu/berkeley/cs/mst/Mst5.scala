@@ -5,9 +5,9 @@ import scala.collection.immutable.HashMap
 
 import skalch.AngelicSketch
 
-// n version, updates par to the newly added node
+// n version, updates par to any node, Satish's example
 
-class Mst3Sketch extends AngelicSketch {
+class Mst5Sketch extends AngelicSketch {
   val tests = Array(())
 
   def main() {
@@ -99,9 +99,14 @@ class Mst3Sketch extends AngelicSketch {
           }
           val unnodes = graph.nodes.filter(node => !mst.containsElem(node.elem))
           for (unnode <- unnodes) {
-            if(!!()) {
-              par += unnode -> addedNode
-              skdprint ("Updated node: " + unnode + " -> " + addedNode)
+            val nodes = graph.nodes
+            val nextNode : Int = !!(nodes.length + 1)
+            if(nextNode == nodes.length) {
+              par -= unnode
+              skdprint ("Updated node: " + unnode + " -> _")
+            } else {
+              par += unnode -> nodes(nextNode)
+              skdprint ("Updated node: " + unnode + " -> " + nodes(nextNode))
             }
           }
         }
@@ -110,22 +115,21 @@ class Mst3Sketch extends AngelicSketch {
     }
     
     val g = new Graph[String]
-    g.addEdge("a", "b", 4)
-    g.addEdge("b", "c", 5)
-    g.addEdge("c", "d", 6)
-    g.addEdge("a", "d", 7)
+    g.addEdge("a", "b", 5)
+    g.addEdge("a", "c", 2)
+    g.addEdge("b", "c", 7)
 
     val m = new MST[String](g)
     val mst = m.getMST()
     val edgeSum = mst.edges.foldRight[Int](0)((edge,sum) => edge._3 + sum)
-    synthAssert(edgeSum == 15)
+    synthAssert(edgeSum == 7)
     skdprint(edgeSum.toString())
   }
 }
 
-object Mst3 {
+object Mst5 {
   def main(args: Array[String]) = {
     skalch.AngelicSketchSynthesize(() =>
-      new Mst3Sketch())
+      new Mst5Sketch())
   }
 }

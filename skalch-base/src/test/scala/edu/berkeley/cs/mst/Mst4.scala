@@ -5,7 +5,9 @@ import scala.collection.immutable.HashMap
 
 import skalch.AngelicSketch
 
-class Mst3Sketch extends AngelicSketch {
+// n version, updates par to any node
+
+class Mst4Sketch extends AngelicSketch {
   val tests = Array(())
 
   def main() {
@@ -97,9 +99,14 @@ class Mst3Sketch extends AngelicSketch {
           }
           val unnodes = graph.nodes.filter(node => !mst.containsElem(node.elem))
           for (unnode <- unnodes) {
-            if(!!()) {
-              par += unnode -> addedNode
-              skdprint ("Updated node: " + unnode + " -> " + addedNode)
+            val nodes = graph.nodes
+            val nextNode : Int = !!(nodes.length + 1)
+            if(nextNode == nodes.length) {
+              par -= unnode
+              skdprint ("Updated node: " + unnode + " -> _")
+            } else {
+              par += unnode -> nodes(nextNode)
+              skdprint ("Updated node: " + unnode + " -> " + nodes(nextNode))
             }
           }
         }
@@ -121,9 +128,9 @@ class Mst3Sketch extends AngelicSketch {
   }
 }
 
-object Mst3 {
+object Mst4 {
   def main(args: Array[String]) = {
     skalch.AngelicSketchSynthesize(() =>
-      new Mst3Sketch())
+      new Mst4Sketch())
   }
 }

@@ -5,6 +5,8 @@ import scala.collection.immutable.HashMap
 
 import skalch.AngelicSketch
 
+// n^2 version, angelic in choice of initial node
+
 class Mst2Sketch extends AngelicSketch {
   val tests = Array(())
 

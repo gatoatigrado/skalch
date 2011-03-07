@@ -3,9 +3,11 @@ dist/*
 skalch-plugin/bin/*
 skalch-plugin/target/*
 skalch-plugin/bin.timestamp
+skalch-plugin/.settings/*
 skalch-base/bin/*
 skalch-base/target/*
 skalch-base/bin.timestamp
+skalch-base/.settings/*
 bin.timestamp
 *.pyc
 *.hints.xml

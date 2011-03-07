@@ -1,7 +1,6 @@
 package skalch
 
 import sketch.util.DebugOut
-import sketch.ui.ScUiColor
 
 /**
  * New dynamic sketching base class. This class supports the oracle,

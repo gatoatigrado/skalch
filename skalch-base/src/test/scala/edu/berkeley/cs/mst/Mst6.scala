@@ -5,7 +5,7 @@ import scala.collection.immutable.HashMap
 
 import skalch.AngelicSketch
 
-// n version, updates par to any node, Satish's example
+// n version, updates par to any node, Emina's example (9 nodes, 15 edges)
 
 class Mst6Sketch extends AngelicSketch {
   val tests = Array(())

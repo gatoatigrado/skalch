@@ -2,6 +2,8 @@
 package edu.berkeley.cs.hatgame
 
 import scala.collection.immutable.HashMap
+import java.awt.Color
+
 import skalch.AngelicSketch
 import sketch.util._
 
@@ -62,7 +64,7 @@ class HatGameSketch extends AngelicSketch {
       }
     }
 
-    def getFunction(): List[Int] => Int = {
+    def getFunction(): (List[Int] => Int, List[Int] => Color) = {
       var output: List[Int] = Nil
       for (value <- 0 until num) {
         output ::= value
@@ -77,22 +79,33 @@ class HatGameSketch extends AngelicSketch {
       }
 
       var valueMap: Map[List[Int], Int] = new HashMap[List[Int], Int]
+      var colorMap: Map[List[Int], Color] = new HashMap[List[Int], Color]
 
       val function: List[Int] => Int = (input => { 
         if (!valueMap.contains(input)) {
           valueMap += input -> !!(output)
           val c = sklast_angel_color()
+          colorMap += input -> c
           skdprint("Creating input: " + input + " -> " + valueMap(input), c)
         }
         valueMap(input)
       })
-      return function
+      
+      val colorFunction: List[Int] => Color = (input => { 
+        if (!colorMap.contains(input)) {
+          colorMap(input)
+        } else {
+          Color.black
+        }
+      })
+      
+      return (function, colorFunction)
     }
 
     def getGuessingFunction(): List[(List[Int] => Int)] = {
       var guessingFunctions: List[(List[Int] => Int)] = Nil
       for (i <- 0 until num) {
-        guessingFunctions ::= getFunction()
+        guessingFunctions ::= getFunction()._1
       }
       return guessingFunctions
     }
@@ -117,30 +130,30 @@ class HatGameSketch extends AngelicSketch {
 //      valueMap += List(2,1) -> 1
 //      valueMap += List(2,2) -> 2
 
-//      valueMap += List(0,0) -> 1
-//      valueMap += List(0,1) -> 0
-//      valueMap += List(0,2) -> 0
-//      valueMap += List(1,0) -> 2
-//      valueMap += List(1,1) -> 2
-//      valueMap += List(1,2) -> 0
-//      valueMap += List(2,0) -> 2
-//      valueMap += List(2,1) -> 1
-//      valueMap += List(2,2) -> 1
-      
-      valueMap += List(0,0) -> 0
-      valueMap += List(0,1) -> 1
-      valueMap += List(0,2) -> 2
-      valueMap += List(1,0) -> 1
+      valueMap += List(0,0) -> 1
+      valueMap += List(0,1) -> 0
+      valueMap += List(0,2) -> 0
+      valueMap += List(1,0) -> 2
       valueMap += List(1,1) -> 2
       valueMap += List(1,2) -> 0
       valueMap += List(2,0) -> 2
-      valueMap += List(2,1) -> 0
+      valueMap += List(2,1) -> 1
       valueMap += List(2,2) -> 1
+      
+//      valueMap += List(0,0) -> 0
+//      valueMap += List(0,1) -> 1
+//      valueMap += List(0,2) -> 2
+//      valueMap += List(1,0) -> 1
+//      valueMap += List(1,1) -> 2
+//      valueMap += List(1,2) -> 0
+//      valueMap += List(2,0) -> 2
+//      valueMap += List(2,1) -> 0
+//      valueMap += List(2,2) -> 1
 
       
       guessingFunctions ::= getConstantFunction(valueMap)
       for (i <- 0 until num-1) {
-        guessingFunctions ::= getFunction()
+        guessingFunctions ::= getFunction()._1
       }
       return guessingFunctions
     }

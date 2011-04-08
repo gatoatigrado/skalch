@@ -25,8 +25,8 @@ import sketch.entanglement.Event;
 import sketch.entanglement.HeuristicSearch;
 import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
-import sketch.entanglement.partition.SubsetOfTraces;
 import sketch.entanglement.partition.TracePartitioner;
+import sketch.entanglement.partition.TraceSubset;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.entanglement.sat.SubsetTraceFilter;
 import sketch.result.ScSynthesisResults;
@@ -46,11 +46,11 @@ public class EntanglementConsole extends InteractiveThread {
     private Map<Trace, ScStack> traceToStack;
     private ScSynthesisResults results;
 
-    private Stack<List<SubsetOfTraces>> subsetsStack;
+    private Stack<List<TraceSubset>> subsetsStack;
 
     private HashSet<String> commandSet;
 
-    private Map<Integer, List<SubsetOfTraces>> traceSetStorage;
+    private Map<Integer, List<TraceSubset>> traceSetStorage;
     private ScDynamicSketchCall<?> sketch;
     private Set<ScSourceConstruct> sourceCodeInfo;
 
@@ -58,8 +58,7 @@ public class EntanglementConsole extends InteractiveThread {
             { "compare", "constant", "entanglement", "info", "pull", "push", "store",
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
-                    "values", "help", "color", "nocolor", "grow", "gui", "summary",
-                    "auto", "invert" };
+                    "values", "help", "grow", "gui", "summary", "auto", "invert" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results,
             ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
@@ -71,9 +70,9 @@ public class EntanglementConsole extends InteractiveThread {
         this.sourceCodeInfo = sourceCodeInfo;
 
         traceToStack = new HashMap<Trace, ScStack>();
-        subsetsStack = new Stack<List<SubsetOfTraces>>();
+        subsetsStack = new Stack<List<TraceSubset>>();
         commandSet = new HashSet<String>();
-        traceSetStorage = new HashMap<Integer, List<SubsetOfTraces>>();
+        traceSetStorage = new HashMap<Integer, List<TraceSubset>>();
 
         for (int i = 0; i < commands.length; i++) {
             commandSet.add(commands[i]);
@@ -167,8 +166,6 @@ public class EntanglementConsole extends InteractiveThread {
                     } else {
                         printValues(ea, getAllTraces(subsetsStack.peek()));
                     }
-                } else if ("color".equals(command)) {
-                    colorTraces();
                 } else if ("grow".equals(command)) {
                     int n = Integer.parseInt(tokens.nextToken());
                     growTraces(n);
@@ -206,10 +203,10 @@ public class EntanglementConsole extends InteractiveThread {
                             new HashSet<Trace>(
                                     getAllTraces(subsetsStack.get(subsetsStack.size() - 2)));
                     prevTraces.removeAll(curTraces);
-                    SubsetOfTraces invert =
-                            new SubsetOfTraces(new ArrayList<Trace>(prevTraces),
-                                    "invert", subsetsStack.peek().get(0));
-                    ArrayList<SubsetOfTraces> singleton = new ArrayList<SubsetOfTraces>();
+                    TraceSubset invert =
+                            new TraceSubset(new ArrayList<Trace>(prevTraces), "invert",
+                                    subsetsStack.peek().get(0));
+                    ArrayList<TraceSubset> singleton = new ArrayList<TraceSubset>();
                     singleton.add(invert);
                     subsetsStack.push(singleton);
                 } else {
@@ -240,9 +237,9 @@ public class EntanglementConsole extends InteractiveThread {
             // traceToStackBuffer.clear();
             // }
         }
-        List<SubsetOfTraces> initialPartition = new ArrayList<SubsetOfTraces>();
-        initialPartition.add(new SubsetOfTraces(new ArrayList<Trace>(
-                traceToStack.keySet()), "init", null));
+        List<TraceSubset> initialPartition = new ArrayList<TraceSubset>();
+        initialPartition.add(new TraceSubset(new ArrayList<Trace>(traceToStack.keySet()),
+                "init", null));
         subsetsStack.push(initialPartition);
         storeSubsets(0);
         updateEntanglement();
@@ -250,8 +247,8 @@ public class EntanglementConsole extends InteractiveThread {
 
     private void pushToResults() {
         List<ScStack> stackList = new ArrayList<ScStack>();
-        List<SubsetOfTraces> partitions = subsetsStack.peek();
-        for (SubsetOfTraces partition : partitions) {
+        List<TraceSubset> partitions = subsetsStack.peek();
+        for (TraceSubset partition : partitions) {
             for (Trace trace : partition.getTraces()) {
                 stackList.add(traceToStack.get(trace));
             }
@@ -268,17 +265,17 @@ public class EntanglementConsole extends InteractiveThread {
 
     private void createTraceSubsets(TracePartitioner traceListPartitioner, String args[])
     {
-        List<SubsetOfTraces> newPartitions = new ArrayList<SubsetOfTraces>();
-        for (SubsetOfTraces partition : subsetsStack.peek()) {
+        List<TraceSubset> newPartitions = new ArrayList<TraceSubset>();
+        for (TraceSubset partition : subsetsStack.peek()) {
             newPartitions.addAll(traceListPartitioner.getSubsets(partition, args));
         }
         subsetsStack.push(newPartitions);
     }
 
     private void chooseSubset(int n) {
-        List<SubsetOfTraces> curPartitions = subsetsStack.peek();
+        List<TraceSubset> curPartitions = subsetsStack.peek();
         if (n < curPartitions.size()) {
-            List<SubsetOfTraces> newPartition = new ArrayList<SubsetOfTraces>();
+            List<TraceSubset> newPartition = new ArrayList<TraceSubset>();
             newPartition.add(curPartitions.get(n));
             subsetsStack.push(newPartition);
             updateEntanglement();
@@ -286,9 +283,9 @@ public class EntanglementConsole extends InteractiveThread {
     }
 
     private void removeSubset(int n) {
-        List<SubsetOfTraces> curPartitions = subsetsStack.peek();
+        List<TraceSubset> curPartitions = subsetsStack.peek();
         if (n < curPartitions.size()) {
-            List<SubsetOfTraces> newPartition = new ArrayList<SubsetOfTraces>();
+            List<TraceSubset> newPartition = new ArrayList<TraceSubset>();
             newPartition.addAll(curPartitions);
             newPartition.remove(curPartitions.get(n));
             subsetsStack.push(newPartition);
@@ -304,7 +301,7 @@ public class EntanglementConsole extends InteractiveThread {
     }
 
     private void printSubsets() {
-        List<SubsetOfTraces> curSubsets = subsetsStack.peek();
+        List<TraceSubset> curSubsets = subsetsStack.peek();
         for (int i = 0; i < curSubsets.size(); i++) {
             System.out.println("[" + i + "]" + curSubsets.get(i).toString());
         }
@@ -319,7 +316,7 @@ public class EntanglementConsole extends InteractiveThread {
 
     private void restoreSubsets(int n) {
         if (traceSetStorage.containsKey(n)) {
-            List<SubsetOfTraces> s = traceSetStorage.get(n);
+            List<TraceSubset> s = traceSetStorage.get(n);
             subsetsStack.push(s);
             updateEntanglement();
         }
@@ -330,7 +327,7 @@ public class EntanglementConsole extends InteractiveThread {
         Collections.sort(keys);
         for (Integer key : keys) {
             StringBuilder result = new StringBuilder("[" + key + "] {");
-            List<SubsetOfTraces> curPartitions = traceSetStorage.get(key);
+            List<TraceSubset> curPartitions = traceSetStorage.get(key);
             for (int i = 0; i < curPartitions.size(); i++) {
                 result.append(curPartitions.get(i).toString());
                 if (i != curPartitions.size() - 1) {
@@ -344,7 +341,7 @@ public class EntanglementConsole extends InteractiveThread {
 
     private void printIsSubset(int n) {
         if (traceSetStorage.containsKey(n)) {
-            List<SubsetOfTraces> s = traceSetStorage.get(n);
+            List<TraceSubset> s = traceSetStorage.get(n);
             if (isSubset(s, subsetsStack.peek())) {
                 System.out.println(n + " is a subset of the current traces.");
             } else {
@@ -353,7 +350,7 @@ public class EntanglementConsole extends InteractiveThread {
         }
     }
 
-    private boolean isSubset(List<SubsetOfTraces> subset, List<SubsetOfTraces> superset) {
+    private boolean isSubset(List<TraceSubset> subset, List<TraceSubset> superset) {
         Set<Trace> subsetTraces = getAllTraces(subset);
         Set<Trace> supersetTraces = getAllTraces(superset);
 
@@ -361,8 +358,8 @@ public class EntanglementConsole extends InteractiveThread {
     }
 
     private void printInfo() {
-        List<SubsetOfTraces> subsets = subsetsStack.peek();
-        for (SubsetOfTraces subset : subsets) {
+        List<TraceSubset> subsets = subsetsStack.peek();
+        for (TraceSubset subset : subsets) {
             System.out.println("****** " + subset.getPartitionName() + " ******");
             List<Trace> traces = subset.getTraces();
             System.out.println("Size: " + traces.size());
@@ -539,24 +536,17 @@ public class EntanglementConsole extends InteractiveThread {
         return result.toString();
     }
 
-    private Set<Trace> getAllTraces(List<SubsetOfTraces> subsetsList) {
+    private Set<Trace> getAllTraces(List<TraceSubset> subsetsList) {
         Set<Trace> traces = new HashSet<Trace>();
-        for (SubsetOfTraces partition : subsetsList) {
+        for (TraceSubset partition : subsetsList) {
             traces.addAll(partition.getTraces());
         }
         return traces;
     }
 
-    private void colorTraces() {
-        EntanglementColoring c = new EntanglementColoring(ea, satEA);
-        for (Trace t : traceToStack.keySet()) {
-            traceToStack.get(t).setPartitionColor(c.getColorMatrix());
-        }
-    }
-
     private void growTraces(int n) {
         if (traceSetStorage.containsKey(n)) {
-            List<SubsetOfTraces> s = traceSetStorage.get(n);
+            List<TraceSubset> s = traceSetStorage.get(n);
             Set<Trace> allTraces = getAllTraces(s);
             SATEntanglementAnalysis allTraceEA = new SATEntanglementAnalysis(allTraces);
             Set<Trace> subsetTraces = getAllTraces(subsetsStack.peek());
@@ -576,7 +566,7 @@ public class EntanglementConsole extends InteractiveThread {
                             EntanglementDetector.entanglement(subset));
 
             System.out.println("here");
-            List<SubsetOfTraces> partitions = new ArrayList<SubsetOfTraces>();
+            List<TraceSubset> partitions = new ArrayList<TraceSubset>();
             int index = 0;
             while (it.hasNext()) {
 
@@ -584,8 +574,8 @@ public class EntanglementConsole extends InteractiveThread {
                 System.out.println("new trace set" + traces.size());
 
                 List<Trace> sketchTraces = allTraceEA.getTraceConverter().convert(traces);
-                SubsetOfTraces partition =
-                        new SubsetOfTraces(sketchTraces, "grow" + index, null);
+                TraceSubset partition =
+                        new TraceSubset(sketchTraces, "grow" + index, null);
                 partitions.add(partition);
                 index++;
             }

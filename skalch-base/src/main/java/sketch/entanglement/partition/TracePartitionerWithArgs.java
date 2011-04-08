@@ -13,7 +13,7 @@ public class TracePartitionerWithArgs extends TracePartitioner {
     }
 
     @Override
-    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String[] args) {
+    public List<TraceSubset> getSubsets(TraceSubset p, String[] args) {
         return partitioner.getSubsets(p, storedArgs);
     }
 

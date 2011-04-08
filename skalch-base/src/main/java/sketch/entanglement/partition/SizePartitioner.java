@@ -9,7 +9,7 @@ import sketch.entanglement.Trace;
 public class SizePartitioner extends TracePartitioner {
 
     @Override
-    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String args[]) {
+    public List<TraceSubset> getSubsets(TraceSubset p, String args[]) {
         List<Trace> traces = p.getTraces();
         HashMap<Integer, List<Trace>> sizePartitions =
                 new HashMap<Integer, List<Trace>>();
@@ -25,10 +25,10 @@ public class SizePartitioner extends TracePartitioner {
             partition.add(trace);
         }
 
-        List<SubsetOfTraces> partitions = new ArrayList<SubsetOfTraces>();
+        List<TraceSubset> partitions = new ArrayList<TraceSubset>();
         for (Integer size : sizePartitions.keySet()) {
-            SubsetOfTraces partition =
-                    new SubsetOfTraces(sizePartitions.get(size), size.toString(), p);
+            TraceSubset partition =
+                    new TraceSubset(sizePartitions.get(size), size.toString(), p);
             partitions.add(partition);
         }
         return partitions;

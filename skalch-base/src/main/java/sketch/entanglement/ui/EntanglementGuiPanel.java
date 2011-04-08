@@ -36,7 +36,7 @@ import sketch.entanglement.DynAngel;
 import sketch.entanglement.Event;
 import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
-import sketch.entanglement.partition.SubsetOfTraces;
+import sketch.entanglement.partition.TraceSubset;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.entanglement.sat.TraceConverter;
 import sketch.ui.sourcecode.ScSourceConstruct;
@@ -60,6 +60,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
     private ScDynamicSketchCall<?> sketch;
     public Set<ScSourceConstruct> sourceCodeInfo;
     private EntanglementGui gui;
+    private EntanglementColoring color;
 
     public EntanglementGuiPanel(EntanglementGui gui, Map<Trace, ScStack> traceToStack,
             ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
@@ -72,6 +73,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         ea = new SimpleEntanglementAnalysis(traces);
         this.sketch = sketch;
         this.sourceCodeInfo = sourceCodeInfo;
+        color = new EntanglementColoring(ea, satEA);
 
         partitionPanels = new ArrayList<PartitionPanel>();
         angelOrder = new ArrayList<DynAngel>();
@@ -100,11 +102,12 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
 
         addSummary();
         addPartitions();
+        updateOutput();
     }
 
     private void addSummary() {
         PartitionSummaryPanel panel =
-                new PartitionSummaryPanel(traceToStack, angelOrder, satEA, ea);
+                new PartitionSummaryPanel(traceToStack, angelOrder, satEA, ea, color);
         JScrollPane entanglementPane = getEntanglementPane();
         entanglementPane.getViewport().add(panel);
     }
@@ -144,12 +147,14 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
     }
 
     public void valueChanged(ListSelectionEvent arg) {
+        if (!arg.getValueIsAdjusting()) {
+            updateOutput();
+        }
+    }
+
+    private void updateOutput() {
         Set<Event> unorderedTrace = new HashSet<Event>();
         boolean clearOutput = false;
-
-        if (arg.getValueIsAdjusting()) {
-            return;
-        }
 
         for (PartitionPanel panel : partitionPanels) {
             Trace value = panel.getSelectedValue();
@@ -176,7 +181,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             if (selectedTrace != null) {
 
                 ScStack stack = traceToStack.get(selectedTrace);
-
+                stack.setPartitionColor(color.getColorMatrix());
                 setProgramOutput(stack);
                 ScDebugRun debugRun =
                         new ScDebugStackRun(
@@ -295,6 +300,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
     public void actionPerformed(ActionEvent event) {
         if ("refineAngel".equals(event.getActionCommand())) {
             final EntanglementGuiPanel parent = this;
+
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     DisentanglementGui gui =
@@ -354,40 +360,65 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
 
         Traces satTraces = converter.getTraces();
 
-        EntanglementSummaryGui newGui =
-                new EntanglementSummaryGui(sketch, sourceCodeInfo);
+        // EntanglementSummaryGui newGui =
+        // new EntanglementSummaryGui(sketch, sourceCodeInfo);
 
-        List<SubsetOfTraces> subsets = new ArrayList<SubsetOfTraces>();
+        final Set<Trace> goodTraces = new HashSet<Trace>();
+        final Set<Trace> badTraces = new HashSet<Trace>();
+
+        for (PartitionPanel panel : partitionPanels) {
+            goodTraces.addAll(panel.getGoodTraces());
+            badTraces.addAll(panel.getBadTraces());
+        }
+
+        List<TraceSubset> subsets = new ArrayList<TraceSubset>();
         int i = 0;
+
         for (Iterator<Traces> supports =
                 MaxSupportFinder.findMaximalSupports(satTraces, oldSatPartitions,
                         newPartitions); supports.hasNext();)
         {
             Traces support = supports.next();
             List<Trace> subsetTraces = converter.convert(support);
-            subsets.add(new SubsetOfTraces(subsetTraces, "" + i, null));
-            i++;
-
-            HashMap<Trace, ScStack> subsetTraceToStack = new HashMap<Trace, ScStack>();
-            for (Trace trace : subsetTraces) {
-                subsetTraceToStack.put(trace, traceToStack.get(trace));
+            if (goodSubset(subsetTraces, goodTraces, badTraces)) {
+                subsets.add(new TraceSubset(subsetTraces, "" + i, null));
             }
-            // SATEntanglementAnalysis subsetSatEA =
-            // new SATEntanglementAnalysis(subsetTraceToStack.keySet());
-            // SimpleEntanglementAnalysis subsetEA =
-            // new SimpleEntanglementAnalysis(subsetTraceToStack.keySet());
-            // EntanglementGui subsetGui =
-            // new EntanglementGui(subsetTraceToStack, subsetSatEA, subsetEA,
-            // sketch, sourceCodeInfo);
-            // subsetGui.setVisible(true);
-            newGui.addTraceSubset(angelOrder, subsetTraceToStack);
+            i++;
         }
-        newGui.pack();
-        newGui.setVisible(true);
+
+        // newGui.pack();
+        // newGui.setVisible(true);
 
         EntanglementGui gui =
                 new EntanglementGui(subsets, traceToStack, sketch, sourceCodeInfo);
         gui.setVisible(true);
+    }
+
+    private boolean goodSubset(List<Trace> subsetTraces, Set<Trace> goodSubtraces,
+            Set<Trace> badSubtraces)
+    {
+        for (Trace goodTrace : goodSubtraces) {
+            Set<DynAngel> angels = goodTrace.getAngels();
+            for (Trace trace : subsetTraces) {
+                if (trace.getSubTrace(angels).equals(goodTrace)) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        for (Trace badTrace : badSubtraces) {
+            Set<DynAngel> angels = badTrace.getAngels();
+            for (Trace trace : subsetTraces) {
+                if (trace.getSubTrace(angels).equals(badTrace)) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+        }
+        return true;
     }
 
     public Frame getFrame() {

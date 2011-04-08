@@ -2,10 +2,8 @@ package sketch.entanglement.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.swing.BoxLayout;
@@ -28,18 +26,15 @@ public class PartitionSummaryPanel extends JPanel {
 
     public PartitionSummaryPanel(Map<Trace, ScStack> traceToStack,
             List<DynAngel> angelOrder, SATEntanglementAnalysis satEA,
-            SimpleEntanglementAnalysis ea)
+            SimpleEntanglementAnalysis ea, EntanglementColoring ec)
     {
         this.traceToStack = traceToStack;
         this.satEA = satEA;
         this.ea = ea;
-        color = new EntanglementColoring(ea, satEA).getColorMatrix();
+        this.color = ec.getColorMatrix();
 
         partitions = satEA.getEntangledPartitions();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        HashMap<DynAngel, Integer> colorMapping = new HashMap<DynAngel, Integer>();
-
-        Random random = new Random();
 
         for (DynAngel angel : angelOrder) {
             JLabel angelLabel = new JLabel(angel.toString(), SwingConstants.CENTER);

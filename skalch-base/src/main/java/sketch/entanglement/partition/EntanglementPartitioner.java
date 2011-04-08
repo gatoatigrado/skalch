@@ -17,9 +17,9 @@ import entanglement.trace.Traces;
 public class EntanglementPartitioner extends TracePartitioner {
 
     @Override
-    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String[] args) {
+    public List<TraceSubset> getSubsets(TraceSubset p, String[] args) {
         if (args.length == 0) {
-            ArrayList<SubsetOfTraces> returnPartition = new ArrayList<SubsetOfTraces>();
+            ArrayList<TraceSubset> returnPartition = new ArrayList<TraceSubset>();
             returnPartition.add(p);
             return returnPartition;
         }
@@ -85,7 +85,7 @@ public class EntanglementPartitioner extends TracePartitioner {
 
         int i = 0;
         Traces satTraces = converter.getTraces();
-        List<SubsetOfTraces> subsets = new ArrayList<SubsetOfTraces>();
+        List<TraceSubset> subsets = new ArrayList<TraceSubset>();
 
         long startTime = System.currentTimeMillis();
 
@@ -96,7 +96,7 @@ public class EntanglementPartitioner extends TracePartitioner {
             Traces support = supports.next();
             System.out.println("Found support: " + support.size());
             List<Trace> subsetTraces = converter.convert(support);
-            SubsetOfTraces subset = new SubsetOfTraces(subsetTraces, "" + i, p);
+            TraceSubset subset = new TraceSubset(subsetTraces, "" + i, p);
             subsets.add(subset);
             i++;
         }

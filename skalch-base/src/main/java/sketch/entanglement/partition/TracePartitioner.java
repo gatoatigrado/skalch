@@ -9,7 +9,7 @@ public abstract class TracePartitioner {
                     new EntanglementPartitioner(), new HeuristicPartitioner(),
                     new HeuristicAutoPartitioner() };
 
-    public abstract List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String args[]);
+    public abstract List<TraceSubset> getSubsets(TraceSubset p, String args[]);
 
     @Override
     public abstract String toString();

@@ -74,6 +74,7 @@ class Mst12Sketch extends AngelicSketch {
           if (i == 0) {
             // angelically choose the first node
             addedNode = !!(graph.nodes) // graph.nodes.head
+            synthAssert(addedNode.elem == "n1")
             mst.addNode(addedNode.elem)
             skdprint("Added node " + addedNode)
           } else {
@@ -118,18 +119,20 @@ class Mst12Sketch extends AngelicSketch {
           }
           // update the nodes not in mst
           val unnodes = graph.nodes.filter(node => !mst.containsElem(node.elem))
-          for (unnode <- unnodes) {
+          for (unnode : Node[T] <- unnodes) {
             val nodes = graph.nodes
             val nextNode : Int = !!(nodes.length + 2)
+            val c = sklast_angel_color()
+          
             // remove the mapping from par
             if(nextNode == nodes.length + 1) {
               par -= unnode
-              skdprint ("Updated node: " + unnode + " -> _")
-            } else if(nextNode == nodes.length) {
-              skdprint ("Do nothing")  
+              skdprint ("Updated node: " + unnode + " -> _", c)
+            } else if (nextNode == nodes.length) {
+              skdprint ("Updated node: " + unnode + " -> do nothing", c)  
             } else {
               par += unnode -> nodes(nextNode)
-              skdprint ("Updated node: " + unnode + " -> " + nodes(nextNode))
+              skdprint ("Updated node: " + unnode + " -> " + nodes(nextNode), c)
             }
           }
         }

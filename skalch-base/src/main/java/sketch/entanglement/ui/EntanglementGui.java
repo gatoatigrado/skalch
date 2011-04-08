@@ -14,7 +14,7 @@ import javax.swing.JTabbedPane;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.Trace;
-import sketch.entanglement.partition.SubsetOfTraces;
+import sketch.entanglement.partition.TraceSubset;
 import sketch.ui.sourcecode.ScSourceConstruct;
 
 public class EntanglementGui extends EntanglementGuiBase implements ActionListener {
@@ -25,7 +25,7 @@ public class EntanglementGui extends EntanglementGuiBase implements ActionListen
     private Map<Trace, ScStack> traceToStack;
     private JButton removeTabButton;
 
-    public EntanglementGui(List<SubsetOfTraces> subsets,
+    public EntanglementGui(List<TraceSubset> subsets,
             Map<Trace, ScStack> traceToStack, ScDynamicSketchCall<?> sketch,
             Set<ScSourceConstruct> sourceCodeInfo)
     {
@@ -39,14 +39,14 @@ public class EntanglementGui extends EntanglementGuiBase implements ActionListen
         removeTabButton.setActionCommand("removeTab");
         removeTabButton.addActionListener(this);
 
-        for (SubsetOfTraces subset : subsets) {
+        for (TraceSubset subset : subsets) {
             addTraceSet(subset);
         }
 
         pack();
     }
 
-    private void addTraceSet(SubsetOfTraces subset) {
+    private void addTraceSet(TraceSubset subset) {
         HashMap<Trace, ScStack> filteredTraceToStack = new HashMap<Trace, ScStack>();
         Set<Trace> traces = new HashSet<Trace>(subset.getTraces());
 

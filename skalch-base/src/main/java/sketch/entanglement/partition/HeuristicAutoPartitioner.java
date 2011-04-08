@@ -39,9 +39,9 @@ public class HeuristicAutoPartitioner extends TracePartitioner {
     }
 
     @Override
-    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String[] args) {
+    public List<TraceSubset> getSubsets(TraceSubset p, String[] args) {
         if (args.length < 3) {
-            List<SubsetOfTraces> singleton = new ArrayList<SubsetOfTraces>();
+            List<TraceSubset> singleton = new ArrayList<TraceSubset>();
             singleton.add(p);
             return singleton;
         }
@@ -59,9 +59,9 @@ public class HeuristicAutoPartitioner extends TracePartitioner {
         }
         Collections.sort(rankedSubsets);
 
-        List<SubsetOfTraces> returnedSubsets = new ArrayList<SubsetOfTraces>();
+        List<TraceSubset> returnedSubsets = new ArrayList<TraceSubset>();
         for (int i = 0; i < numSubsets && i < returnedSubsets.size(); i++) {
-            returnedSubsets.add(new SubsetOfTraces(new ArrayList<Trace>(
+            returnedSubsets.add(new TraceSubset(new ArrayList<Trace>(
                     rankedSubsets.get(i).traces), "" + i, p));
         }
         return returnedSubsets;

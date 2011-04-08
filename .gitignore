@@ -3,11 +3,9 @@ dist/*
 skalch-plugin/bin/*
 skalch-plugin/target/*
 skalch-plugin/bin.timestamp
-skalch-plugin/.settings/*
 skalch-base/bin/*
 skalch-base/target/*
 skalch-base/bin.timestamp
-skalch-base/.settings/*
 bin.timestamp
 *.pyc
 *.hints.xml
@@ -19,6 +17,9 @@ buildutil/sketchrewriter.jar
 buildutil/build_info.pickle
 skalch-base/.classpath
 skalch-base/.settings/*
+skalch-base/.settings/org.eclipse.jdt.core.prefs
+skalch-plugin/.settings/*
+skalch-plugin/.settings/org.eclipse.jdt.core.prefs
 .scala_dependencies
 *.manager*
 *.log

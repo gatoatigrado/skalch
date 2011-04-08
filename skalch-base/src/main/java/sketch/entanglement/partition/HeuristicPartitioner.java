@@ -15,9 +15,9 @@ import sketch.entanglement.sat.SATEntanglementAnalysis;
 public class HeuristicPartitioner extends TracePartitioner {
 
     @Override
-    public List<SubsetOfTraces> getSubsets(SubsetOfTraces p, String[] args) {
+    public List<TraceSubset> getSubsets(TraceSubset p, String[] args) {
         if (args.length == 0) {
-            List<SubsetOfTraces> singleton = new ArrayList<SubsetOfTraces>();
+            List<TraceSubset> singleton = new ArrayList<TraceSubset>();
             singleton.add(p);
             return singleton;
         }
@@ -38,9 +38,9 @@ public class HeuristicPartitioner extends TracePartitioner {
         search.partition();
 
         List<Set<Trace>> topSubsets = search.getTopSubsets(numSubsets);
-        List<SubsetOfTraces> returnedSubsets = new ArrayList<SubsetOfTraces>();
+        List<TraceSubset> returnedSubsets = new ArrayList<TraceSubset>();
         for (int i = 0; i < numSubsets && i < topSubsets.size(); i++) {
-            returnedSubsets.add(new SubsetOfTraces(
+            returnedSubsets.add(new TraceSubset(
                     new ArrayList<Trace>(topSubsets.get(i)), "" + i, p));
         }
         return returnedSubsets;

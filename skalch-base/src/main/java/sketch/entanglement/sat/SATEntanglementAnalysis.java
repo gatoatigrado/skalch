@@ -109,6 +109,7 @@ public class SATEntanglementAnalysis {
     }
 
     public Set<Set<DynAngel>> getEntangledPartitions() {
+        long startTime = System.currentTimeMillis();
         AnalysisResult result = cache.get(ai);
         if (result != null) {
             return getPartitions(result.converter, result.entangledSets);
@@ -123,6 +124,8 @@ public class SATEntanglementAnalysis {
         cache.put(ai, new AnalysisResult(converter, entangledSets));
 
         Set<Set<DynAngel>> subsets = getPartitions(converter, entangledSets);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time (entanglement): " + (endTime - startTime));
         return subsets;
     }
 

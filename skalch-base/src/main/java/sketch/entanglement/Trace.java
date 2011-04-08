@@ -1,6 +1,7 @@
 package sketch.entanglement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,14 @@ public class Trace {
             }
         }
         return newTrace;
+    }
+
+    public Set<DynAngel> getAngels() {
+        Set<DynAngel> angels = new HashSet<DynAngel>();
+        for (Event event : events) {
+            angels.add(event.dynAngel);
+        }
+        return angels;
     }
 
     @Override

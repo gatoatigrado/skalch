@@ -1,4 +1,4 @@
-#Fri Jan 29 13:40:47 PST 2010
+#Mon Mar 07 23:11:32 PST 2011
 eclipse.preferences.version=1
 org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.2
 org.eclipse.jdt.core.compiler.compliance=1.4
@@ -39,7 +39,7 @@ org.eclipse.jdt.core.formatter.brace_position_for_annotation_type_declaration=en
 org.eclipse.jdt.core.formatter.brace_position_for_anonymous_type_declaration=next_line_on_wrap
 org.eclipse.jdt.core.formatter.brace_position_for_array_initializer=end_of_line
 org.eclipse.jdt.core.formatter.brace_position_for_block=next_line_on_wrap
-org.eclipse.jdt.core.formatter.brace_position_for_block_in_case=end_of_line
+org.eclipse.jdt.core.formatter.brace_position_for_block_in_case=next_line_on_wrap
 org.eclipse.jdt.core.formatter.brace_position_for_constructor_declaration=next_line_on_wrap
 org.eclipse.jdt.core.formatter.brace_position_for_enum_constant=end_of_line
 org.eclipse.jdt.core.formatter.brace_position_for_enum_declaration=end_of_line
@@ -86,7 +86,7 @@ org.eclipse.jdt.core.formatter.insert_new_line_before_finally_in_try_statement=d
 org.eclipse.jdt.core.formatter.insert_new_line_before_while_in_do_statement=do not insert
 org.eclipse.jdt.core.formatter.insert_new_line_in_empty_annotation_declaration=do not insert
 org.eclipse.jdt.core.formatter.insert_new_line_in_empty_anonymous_type_declaration=do not insert
-org.eclipse.jdt.core.formatter.insert_new_line_in_empty_block=do not insert
+org.eclipse.jdt.core.formatter.insert_new_line_in_empty_block=insert
 org.eclipse.jdt.core.formatter.insert_new_line_in_empty_enum_constant=do not insert
 org.eclipse.jdt.core.formatter.insert_new_line_in_empty_enum_declaration=do not insert
 org.eclipse.jdt.core.formatter.insert_new_line_in_empty_method_body=do not insert

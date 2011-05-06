@@ -38,6 +38,7 @@ import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
 import sketch.entanglement.partition.TraceSubset;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
+import sketch.entanglement.sat.SubtraceFilter;
 import sketch.entanglement.sat.TraceConverter;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceTraceVisitor;
@@ -358,8 +359,6 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
 
         List<IntSet> newPartitions = converter.getIntSetPartitions(partitioning);
 
-        Traces satTraces = converter.getTraces();
-
         // EntanglementSummaryGui newGui =
         // new EntanglementSummaryGui(sketch, sourceCodeInfo);
 
@@ -371,6 +370,15 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             badTraces.addAll(panel.getBadTraces());
         }
 
+        Traces satTraces = converter.getTraces();
+
+        boolean updateTraces = !badTraces.isEmpty();
+
+        if (updateTraces) {
+            satTraces =
+                    satTraces.restrict(new SubtraceFilter(badTraces, converter, true));
+        }
+
         List<TraceSubset> subsets = new ArrayList<TraceSubset>();
         int i = 0;
 
@@ -380,7 +388,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         {
             Traces support = supports.next();
             List<Trace> subsetTraces = converter.convert(support);
-            if (goodSubset(subsetTraces, goodTraces, badTraces)) {
+            if (goodSubset(subsetTraces, goodTraces)) {
                 subsets.add(new TraceSubset(subsetTraces, "" + i, null));
             }
             i++;
@@ -394,9 +402,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         gui.setVisible(true);
     }
 
-    private boolean goodSubset(List<Trace> subsetTraces, Set<Trace> goodSubtraces,
-            Set<Trace> badSubtraces)
-    {
+    private boolean goodSubset(List<Trace> subsetTraces, Set<Trace> goodSubtraces) {
         for (Trace goodTrace : goodSubtraces) {
             Set<DynAngel> angels = goodTrace.getAngels();
             for (Trace trace : subsetTraces) {
@@ -408,16 +414,6 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             }
         }
 
-        for (Trace badTrace : badSubtraces) {
-            Set<DynAngel> angels = badTrace.getAngels();
-            for (Trace trace : subsetTraces) {
-                if (trace.getSubTrace(angels).equals(badTrace)) {
-                    return false;
-                } else {
-                    continue;
-                }
-            }
-        }
         return true;
     }
 

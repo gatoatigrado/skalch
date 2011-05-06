@@ -10,13 +10,13 @@ import sketch.entanglement.Event;
 import entanglement.trace.Trace;
 import entanglement.trace.TraceFilter;
 
-public class SubsetTraceFilter implements TraceFilter {
+public class SubtraceFilter implements TraceFilter {
 
     final private TraceConverter converter;
     final private HashSet<Map<DynAngel, Integer>> convertedTraces;
     private boolean negate;
 
-    public SubsetTraceFilter(Set<sketch.entanglement.Trace> traces,
+    public SubtraceFilter(Set<sketch.entanglement.Trace> traces,
             TraceConverter converter, boolean negate)
     {
         convertedTraces = new HashSet<Map<DynAngel, Integer>>();
@@ -51,12 +51,16 @@ public class SubsetTraceFilter implements TraceFilter {
                 output += angel + "=" + angelValue + ", ";
                 if (angelValue == -1) {
                     if (convertedTrace.containsKey(angel)) {
+                        System.out.println(convertedTrace);
+                        System.out.println(output);
                         continue trace;
                     }
                 } else {
-                    if (!convertedTrace.containsKey(angel) ||
+                    if (convertedTrace.containsKey(angel) &&
                             convertedTrace.get(angel) != angelValue)
                     {
+                        System.out.println(convertedTrace);
+                        System.out.println(output);
                         continue trace;
                     }
                 }

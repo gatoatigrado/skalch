@@ -1,4 +1,4 @@
-package angelic.simple
+package angelic.old.cossimple
 import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
 import sketch.util.DebugOut
@@ -11,9 +11,9 @@ class GaFindMeSketch() extends AngelicSketch {
         val guess = !!(1000000)
         skdprint("input: " + value_to_match + ", value: " + guess)
         val difference = Math.abs(guess - value_to_match)
-        skAddCost(difference)
+        addCost(difference)
         synthAssert(difference == 0)
-        skAddCost(-1000000) // reward it for getting farther.
+        addCost(-1000000) // reward it for getting farther.
     }
 }
 

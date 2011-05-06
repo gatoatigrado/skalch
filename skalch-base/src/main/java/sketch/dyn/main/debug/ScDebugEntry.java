@@ -13,5 +13,6 @@ public abstract class ScDebugEntry {
     public abstract String consoleString();
 
     /** TODO - make this some sort of visitor pattern */
-    public abstract String htmlString(LinkedList<String> activeHtmlContexts);
+    public abstract String htmlString();
+    public abstract boolean hasEndline();
 }

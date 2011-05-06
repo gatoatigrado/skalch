@@ -1,5 +1,5 @@
 // @code standards ignore file
-package edu.berkeley.cs.dfs
+package edu.berkeley.cs.color
 
 import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
@@ -144,6 +144,7 @@ class DfsSketch() extends AngelicSketch {
     var i = 0
     while (i < allowedExtraStorage) {
       extraStorage += !!(domainA)
+      println("Extra: " + extraStorage(extraStorage.size - 1), sklast_angel_color());
       i += 1
     }
 
@@ -159,10 +160,12 @@ class DfsSketch() extends AngelicSketch {
 
       val nodeList = List(current, next)
       val nodeIndex = !!(nodeList.size)
+      print("Node index", sklast_angel_color());
       skput_check(nodeIndex)
       val node = nodeList(nodeIndex)
 
       val borrowedCurIndex = !!(node.locations().size)
+      println("Node", sklast_angel_color());
       skput_check(borrowedCurIndex)
       val borrowedCur = node.locations()(borrowedCurIndex)
 
@@ -178,13 +181,14 @@ class DfsSketch() extends AngelicSketch {
         values += location.read()
       }
 
-      skdprint("push(" + current.toString() + "," + next.toString
+      println("push(" + current.toString() + "," + next.toString
         + ") : " + extraStorage.mkString("e[", ", ", "]")
         + " borrowedVal[" + borrowedCur.read.toString() + "]")
 
       borrowedCur.write(values.remove(skput_check(!!(values.size))))
       for (location <- extraLocations) {
         location.write(values.remove(skput_check(!!(values.size))))
+        println("Write", sklast_angel_color());
       }
     }
 
@@ -201,10 +205,12 @@ class DfsSketch() extends AngelicSketch {
       }
 
       var nodeIndex = !!(nodes.size)
+      println("Node index", sklast_angel_color());
       skput_check(nodeIndex)
       var node = nodes(nodeIndex)
 
       var borrowedLocIndex = !!(node.locations().size)
+      println("Node", sklast_angel_color());
       skput_check(borrowedLocIndex)
       var borrowedLoc = node.locations()(borrowedLocIndex)
 
@@ -221,12 +227,13 @@ class DfsSketch() extends AngelicSketch {
       val returnValue = !!(values)
       synthAssert(returnValue == refPoppedVal)
 
-      skdprint("pop(" + restore.toString() + ") : "
+      println("pop(" + restore.toString() + ") : "
         + extraStorage.mkString("e[", ", ", "]")
         + " return[" + refPoppedVal.toString() + "]")
 
       for (location <- allLocations) {
         location.write(values.remove(skput_check(!!(values.size))))
+        println("Write", sklast_angel_color());
       }
 
       returnValue
@@ -251,12 +258,11 @@ class DfsSketch() extends AngelicSketch {
 
     val stack = new KeyholeStack[Node](1, g.nodes)
     stack.push(origin, root)
-    //        stack.push(root, origin)
 
     var current = root
 
     var step = 0
-    skdprint("original graph: " + origin.toStringChild() + g.toString() + "ex:"
+    println("original graph: " + origin.toStringChild() + g.toString() + "ex:"
       + stack.extraStorage.mkString("[", ",", "]"))
 
     while (current != origin) {
@@ -264,9 +270,9 @@ class DfsSketch() extends AngelicSketch {
       step += 1
 
       if (current.visited) {
-        skdprint("Backtracking: " + current.name)
+        println("Backtracking: " + current.name)
       } else {
-        skdprint("Visiting: " + current.name)
+        println("Visiting: " + current.name)
         current.visit()
       }
 
@@ -279,13 +285,13 @@ class DfsSketch() extends AngelicSketch {
       if (next != null) {
         stack.push(current, next)
 
-        skdprint("graph after push: " + origin.toStringChild() + g.toString() + "ex:"
+        println("graph after push: " + origin.toStringChild() + g.toString() + "ex:"
           + stack.extraStorage.mkString("[", ",", "]"))
         current = next
       } else {
         // backtrack
         current = stack.pop(current)
-        skdprint("graph after pop: " + origin.toStringChild() + g.toString() + "ex:"
+        println("graph after pop: " + origin.toStringChild() + g.toString() + "ex:"
           + stack.extraStorage.mkString("[", ",", "]"))
       }
     }
@@ -318,7 +324,7 @@ class DfsSketch() extends AngelicSketch {
     for (node <- g.nodes) {
       synthAssert(node.visited)
     }
-    skdprint("Final graph " + g.toString())
+    println("Final graph " + g.toString())
   }
 }
 

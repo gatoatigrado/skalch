@@ -197,11 +197,18 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         StringBuilder debugText = new StringBuilder();
         debugText.append("<html>\n  <head>\n<style>\n" + "body {\nfont-size: 12pt;\n}\n"
                 + "ul {\nmargin-left: 20pt;\n}\n</style>\n  </head>" + "\n  <body>\n<ul>");
-        LinkedList<String> htmlContexts = new LinkedList<String>();
-        htmlContexts.add("body");
-        htmlContexts.add("ul");
+        
+        boolean newLine = true;
         for (ScDebugEntry debugEntry : debugRun.debugOut) {
-            debugText.append(debugEntry.htmlString(htmlContexts));
+            if (newLine) {
+                debugText.append("<li>");
+                newLine = false;
+            }
+            debugText.append(debugEntry.htmlString());
+            if (debugEntry.hasEndline()) {
+                debugText.append("</li>\n");
+                newLine = true;
+            }
         }
         debugText.append("\n</ul>\n");
         if (debugRun.assertFailed()) {

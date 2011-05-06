@@ -1,4 +1,4 @@
-package angelic.simple
+package angelic.old.simple
 import skalch.AngelicSketch
 import sketch.dyn.BackendOptions
 import sketch.util.DebugOut

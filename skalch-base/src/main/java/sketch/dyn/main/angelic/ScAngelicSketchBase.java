@@ -72,7 +72,7 @@ public class ScAngelicSketchBase {
         sketchQueueTrace = new Vector<Object>();
     }
 
-    public synchronized void skCompilerAssertInternal(Object... arr) {
+    public synchronized void compilerAssertInternal(Object... arr) {
         DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n", false,
                 "FAILED COMPILER ASSERT");
         DebugOut.print_colored(DebugOut.BASH_RED, "[critical failure]", "\n", false, arr);
@@ -84,34 +84,30 @@ public class ScAngelicSketchBase {
         DebugOut.assertFalse("compiler failure");
     }
 
-    public void skCompilerAssert(boolean truth, Object... arr) {
+    public void compilerAssert(boolean truth, Object... arr) {
         if (!truth) {
-            skCompilerAssertInternal(arr);
+            compilerAssertInternal(arr);
         }
     }
 
-    public synchronized void skprint(String... text) {
+    public synchronized void print(String... text) {
         DebugOut.print_colored(DebugOut.BASH_GREY, "[program]", " ", false,
                 (Object[]) text);
     }
 
-    public void skAddCost(int cost) {
+    public void addCost(int cost) {
         solutionCost += cost;
     }
 
-    public void skdprintBackend(String text) {
-        debugOut.add(new ScGeneralDebugEntry(text));
+    public void printBackend(String text, boolean hasEndline, Color color) {
+        debugOut.add(new ScGeneralDebugEntry(text, hasEndline, color));
     }
 
-    public void skdprintBackend(String text, Color color) {
-        debugOut.add(new ScGeneralDebugEntry(text, color));
-    }
-
-    public void skqueuePutBackend(int queueNum, Object value) {
+    public void queuePutBackend(int queueNum, Object value) {
         sketchQueue.add(value);
     }
 
-    public void skqueueCheckBackend(int queueNum, Object value, boolean ifDebug) {
+    public void queueCheckBackend(int queueNum, Object value, boolean ifDebug) {
         if (queueIterator != null && !queueIterator.checkValue(value)) {
             synthAssert(false);
         }
@@ -120,7 +116,7 @@ public class ScAngelicSketchBase {
         }
     }
 
-    public void skdprintLocationBackend(String location) {
+    public void printLocationBackend(String location) {
         debugOut.add(new ScLocationDebugEntry(location));
     }
 }

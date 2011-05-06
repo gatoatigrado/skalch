@@ -554,7 +554,7 @@ public class EntanglementConsole extends InteractiveThread {
             Traces subset =
                     allTraceEA.getTraceConverter().getTraces().restrict(
                             new SubsetTraceFilter(subsetTraces,
-                                    allTraceEA.getTraceConverter()));
+                                    allTraceEA.getTraceConverter(), false));
             System.out.println(subset.size());
             System.out.println(allTraceEA.getEntangledIntSets());
             System.out.println(EntanglementDetector.entanglement(subset));

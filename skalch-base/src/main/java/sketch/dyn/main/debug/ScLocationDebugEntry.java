@@ -23,11 +23,12 @@ public class ScLocationDebugEntry extends ScDebugEntry {
     }
 
     @Override
-    public String htmlString(LinkedList<String> activeHtmlContexts) {
-        String rv = "<p><i>@ " + location + ":</i></p>";
-        if (activeHtmlContexts.contains("ul")) {
-            rv = "</ul>" + rv + "<ul>";
-        }
-        return rv;
+    public String htmlString() {
+        return "<p><i>@ " + location + ":</i></p>";
+    }
+
+    @Override
+    public boolean hasEndline() {
+        return true;
     }
 }

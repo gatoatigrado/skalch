@@ -16,16 +16,16 @@ class BipartiteClassifierSketch extends AngelicSketch {
       var edges: Array[Vertex] = new Array[Vertex](MAX_OUT)
       var numedges: Int = 0
       var inset: Int = -1 // uninit
-      var visited : Boolean = false
+      var visited: Boolean = false
 
       override def toString(): String = {
         var returnString: String = id
         returnString += "["
         for (j <- 0 to numedges - 1) {
-            returnString += edges(j).id
-            if (j != numedges - 1) {
-                returnString += ","
-            }
+          returnString += edges(j).id
+          if (j != numedges - 1) {
+            returnString += ","
+          }
         }
         returnString += "]"
         return returnString
@@ -65,108 +65,108 @@ class BipartiteClassifierSketch extends AngelicSketch {
       var edges: Array[Edge] = new Array[Edge](MAXE)
 
       // returns a wavefront traversal
-      def getEdgeTraversal(root : Vertex) : List[Edge] = {
+      def getEdgeTraversal(root: Vertex): List[Edge] = {
         resetEdgesVertices()
-        var edgeOrder : List[Edge] = Nil
-        
+        var edgeOrder: List[Edge] = Nil
+
         root.visited = true
         for (j <- 0 to ne - 1) { // repeat #edges times
           val e: Edge = edges(!!(ne))
           synthAssert(!e.handled)
           synthAssert(e.src.visited == true)
-          
+
           // bug? 
           // edgeOrder ::= e
-          edgeOrder = edgeOrder ::: List(e) 
-          
+          edgeOrder = edgeOrder ::: List(e)
+
           skdprint("Selecting Edge " + e)
-          
+
           e.handled = true
           e.dest.visited = true
         }
         return edgeOrder
       }
-      
-      def getEdgeTraversalFixed() : List[Edge] = {
+
+      def getEdgeTraversalFixed(): List[Edge] = {
         resetEdgesVertices()
-        var edgeOrder : List[Edge] = Nil
-        
+        var edgeOrder: List[Edge] = Nil
+
         for (j <- 0 to ne - 1) { // repeat #edges times
           val e: Edge = edges(j)
-          
+
           edgeOrder ::= e
           skdprint("Selecting Edge " + e)
         }
         return edgeOrder
       }
-      
-      def getFunctions() : List[Vertex => Int] = {
-          var functions : List[Vertex => Int] = Nil
-          
-          functions ::= (vertex => vertex.inset)
-          functions ::= (vertex => 1 - vertex.inset)
-          
-          return functions
+
+      def getFunctions(): List[Vertex => Int] = {
+        var functions: List[Vertex => Int] = Nil
+
+        functions ::= (vertex => vertex.inset)
+        functions ::= (vertex => 1 - vertex.inset)
+
+        return functions
       }
-      
-      def getFoldFunctions() : List[(Boolean, Edge) => Boolean] = {
-          var functions : List[(Boolean, Edge) => Boolean] = Nil
-          functions ::= ((prev, edge) => 
-              if (prev) {
-                  edge.src.inset != edge.dest.inset
-              } else {
-                  false
-              })
-          
-          functions ::= ((prev, edge) => 
-              if (!prev) {
-                  edge.src.inset != edge.dest.inset
-              } else {
-                  false
-              })
-          
-          functions ::= ((prev, edge) => 
-              if (prev) {
-                  edge.src.inset == edge.dest.inset
-              } else {
-                  false
-              })
-          
-          functions ::= ((prev, edge) => 
-              if (!prev) {
-                  edge.src.inset == edge.dest.inset
-              } else {
-                  false
-              })
-          
-          return functions
+
+      def getFoldFunctions(): List[(Boolean, Edge) => Boolean] = {
+        var functions: List[(Boolean, Edge) => Boolean] = Nil
+        functions ::= ((prev, edge) =>
+          if (prev) {
+            edge.src.inset != edge.dest.inset
+          } else {
+            false
+          })
+
+        functions ::= ((prev, edge) =>
+          if (!prev) {
+            edge.src.inset != edge.dest.inset
+          } else {
+            false
+          })
+
+        functions ::= ((prev, edge) =>
+          if (prev) {
+            edge.src.inset == edge.dest.inset
+          } else {
+            false
+          })
+
+        functions ::= ((prev, edge) =>
+          if (!prev) {
+            edge.src.inset == edge.dest.inset
+          } else {
+            false
+          })
+
+        return functions
       }
-      
-      def classify(root : Vertex) : Boolean = {
-          skdprint("Traversal")
-          val traversal : List[Edge] = getEdgeTraversal(root)
-          val functions : List[Vertex => Int] = getFunctions()
-          
-          skdprint(traversal.toString)
-          skdprint("Marking")
-          root.inset = 0
-          val marking : Vertex => Int = !!(functions)
-          for (e <- traversal) {
-              val destInset : Int = e.dest.inset
-              e.dest.inset = marking(e.src)
-              
-              // added assertion so values wont be written over
+
+      def classify(root: Vertex): Boolean = {
+        skdprint("Traversal")
+        val traversal: List[Edge] = getEdgeTraversal(root)
+        val functions: List[Vertex => Int] = getFunctions()
+
+        skdprint(traversal.toString)
+        skdprint("Marking")
+        root.inset = 0
+        val marking: Vertex => Int = !!(functions)
+        for (e <- traversal) {
+          val destInset: Int = e.dest.inset
+          e.dest.inset = marking(e.src)
+
+          // added assertion so values wont be written over
           //    synthAssert(destInset == -1 || destInset == e.dest.inset)
-          }
-       
-          skdprint("Fold traversal")
-          val foldTraversal : List[Edge] = getEdgeTraversalFixed()
-          val init : Boolean = !!()
-          
-          skdprint("Folding")
-          val fold : (Boolean, Edge) => Boolean = !!(getFoldFunctions())
-          val foldValue = foldTraversal.foldLeft[Boolean](init)(fold)
-          return foldValue
+        }
+
+        skdprint("Fold traversal")
+        val foldTraversal: List[Edge] = getEdgeTraversalFixed()
+        val init: Boolean = !!()
+
+        skdprint("Folding")
+        val fold: (Boolean, Edge) => Boolean = !!(getFoldFunctions())
+        val foldValue = foldTraversal.foldLeft[Boolean](init)(fold)
+        return foldValue
       }
 
       def beta(): Boolean = {
@@ -203,14 +203,14 @@ class BipartiteClassifierSketch extends AngelicSketch {
         v1.addEdge(v2)
         ne = ne + 1
       }
-      
+
       def resetEdgesVertices() {
-          for (i <- 0 to nv - 1) {
-              vertices(i).visited  = false
-          }
-          for (i <- 0 to ne - 1) {
-              edges(i).handled  = false
-          }
+        for (i <- 0 to nv - 1) {
+          vertices(i).visited = false
+        }
+        for (i <- 0 to ne - 1) {
+          edges(i).handled = false
+        }
       }
     }
 

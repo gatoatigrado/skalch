@@ -1,4 +1,4 @@
-package sketch.entanglement.graph;
+package sketch.entanglement.deprecated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Deprecated
 public class ScGraph<T> {
 
     private Map<T, Set<T>> vertices;

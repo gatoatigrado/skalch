@@ -1,8 +1,9 @@
-package sketch.entanglement;
+package sketch.entanglement.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class SubsetIterator {
 
     private int totalSize;

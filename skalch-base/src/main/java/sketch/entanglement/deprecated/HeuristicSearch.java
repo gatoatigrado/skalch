@@ -1,4 +1,4 @@
-package sketch.entanglement;
+package sketch.entanglement.deprecated;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +10,16 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import kodkod.util.ints.IntSet;
+import sketch.entanglement.DynAngel;
+import sketch.entanglement.Event;
+import sketch.entanglement.SimpleEntanglementAnalysis;
+import sketch.entanglement.Trace;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.entanglement.sat.TraceConverter;
 import entanglement.MaxSupportFinder;
 import entanglement.trace.Traces;
 
+@Deprecated
 public class HeuristicSearch {
 
     class TraceSubset implements Comparable<TraceSubset> {

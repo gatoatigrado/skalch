@@ -1,4 +1,4 @@
-package sketch.entanglement.ui;
+package sketch.entanglement.console;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -22,13 +22,15 @@ import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.EntanglementComparison;
 import sketch.entanglement.Event;
-import sketch.entanglement.HeuristicSearch;
 import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
+import sketch.entanglement.deprecated.HeuristicSearch;
 import sketch.entanglement.partition.TracePartitioner;
 import sketch.entanglement.partition.TraceSubset;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.entanglement.sat.SubsetTraceFilter;
+import sketch.entanglement.ui.EntanglementGui;
+import sketch.entanglement.ui.program.SkalchDisplay;
 import sketch.result.ScSynthesisResults;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.util.thread.InteractiveThread;
@@ -177,8 +179,8 @@ public class EntanglementConsole extends InteractiveThread {
                     }
                 } else if ("gui".equals(command)) {
                     EntanglementGui gui =
-                            new EntanglementGui(subsetsStack.peek(), traceToStack,
-                                    sketch, sourceCodeInfo);
+                            new EntanglementGui(subsetsStack.peek(), new SkalchDisplay(traceToStack,
+                                    sketch, sourceCodeInfo));
                     gui.pack();
                     gui.setVisible(true);
                 } else if ("summary".equals(command)) {

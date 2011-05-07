@@ -40,6 +40,7 @@ import sketch.entanglement.partition.TraceSubset;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 import sketch.entanglement.sat.SubtraceFilter;
 import sketch.entanglement.sat.TraceConverter;
+import sketch.entanglement.ui.program.ProgramDisplay;
 import sketch.ui.sourcecode.ScSourceConstruct;
 import sketch.ui.sourcecode.ScSourceTraceVisitor;
 import sketch.util.sourcecode.ScSourceCache;
@@ -57,29 +58,24 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
     private final List<DynAngel> angelOrder;
 
     private final List<PartitionPanel> partitionPanels;
-    private final Map<Trace, ScStack> traceToStack;
-    private ScDynamicSketchCall<?> sketch;
-    public Set<ScSourceConstruct> sourceCodeInfo;
     private EntanglementGui gui;
     private EntanglementColoring color;
+    private ProgramDisplay programDisplay;
 
-    public EntanglementGuiPanel(EntanglementGui gui, Map<Trace, ScStack> traceToStack,
-            ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
+    public EntanglementGuiPanel(EntanglementGui gui, Set<Trace> traces, ProgramDisplay programDisplay)
     {
         super();
         this.gui = gui;
-        this.traceToStack = traceToStack;
-        traces = traceToStack.keySet();
+        this.traces = traces;
+        this.programDisplay = programDisplay;
         satEA = new SATEntanglementAnalysis(traces);
         ea = new SimpleEntanglementAnalysis(traces);
-        this.sketch = sketch;
-        this.sourceCodeInfo = sourceCodeInfo;
         color = new EntanglementColoring(ea, satEA);
 
         partitionPanels = new ArrayList<PartitionPanel>();
         angelOrder = new ArrayList<DynAngel>();
 
-        if (traceToStack.isEmpty()) {
+        if (traces.isEmpty()) {
             return;
         }
 
@@ -108,7 +104,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
 
     private void addSummary() {
         PartitionSummaryPanel panel =
-                new PartitionSummaryPanel(traceToStack, angelOrder, satEA, ea, color);
+                new PartitionSummaryPanel(angelOrder, color);
         JScrollPane entanglementPane = getEntanglementPane();
         entanglementPane.getViewport().add(panel);
     }
@@ -166,9 +162,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             unorderedTrace.addAll(value.getEvents());
         }
 
-        if (clearOutput) {
-
-        } else {
+        if (!clearOutput) {
             Trace selectedTrace = null;
             for (Trace trace : traces) {
                 if (trace.getEvents().containsAll(unorderedTrace) &&
@@ -180,129 +174,11 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             }
 
             if (selectedTrace != null) {
-
-                ScStack stack = traceToStack.get(selectedTrace);
-                stack.setPartitionColor(color.getColorMatrix());
-                setProgramOutput(stack);
-                ScDebugRun debugRun =
-                        new ScDebugStackRun(
-                                (ScDynamicSketchCall<ScAngelicSketchBase>) sketch, stack);
-                debugRun.run();
-                setDebugOutput(debugRun);
+                getDebugEditorPane().setText(programDisplay.getDebugOutput(selectedTrace, color));
+                getProgramEditorPane().setText(programDisplay.getProgramText(selectedTrace, color));
+                //programEditor.setMinimumSize(programEditor.getSize());
             }
         }
-    }
-
-    private void setDebugOutput(ScDebugRun debugRun) {
-        StringBuilder debugText = new StringBuilder();
-        debugText.append("<html>\n  <head>\n<style>\n" + "body {\nfont-size: 12pt;\n}\n"
-                + "ul {\nmargin-left: 20pt;\n}\n</style>\n  </head>" + "\n  <body>\n<ul>");
-        
-        boolean newLine = true;
-        for (ScDebugEntry debugEntry : debugRun.debugOut) {
-            if (newLine) {
-                debugText.append("<li>");
-                newLine = false;
-            }
-            debugText.append(debugEntry.htmlString());
-            if (debugEntry.hasEndline()) {
-                debugText.append("</li>\n");
-                newLine = true;
-            }
-        }
-        debugText.append("\n</ul>\n");
-        if (debugRun.assertFailed()) {
-            StackTraceElement assertInfo = debugRun.assertInfo;
-            debugText.append(String.format("<p>failure at %s (line %d)</p>",
-                    assertInfo.getMethodName(), assertInfo.getLineNumber()));
-        } else {
-            debugText.append("<p>dysketch_main returned " +
-                    (debugRun.succeeded ? "true" : "false") + "</p>");
-        }
-        debugText.append("  </body>\n</html>\n");
-
-        JEditorPane debugEditor = getDebugEditorPane();
-        debugEditor.setText(debugText.toString());
-    }
-
-    private void setProgramOutput(ScStack stack) {
-
-        stack.initializeFixedForIllustration(sketch);
-        StringBuilder result = getSourceWithSynthesisValues();
-        result.append("<p style=\"color: #aaaaaa\">Stack view (in case "
-                + "there are bugs above or it's less readable)<br />\n");
-        result.append(stack.htmlDebugString());
-        result.append("\n</p>\n</body>\n</html>");
-
-        JEditorPane programEditor = getProgramEditorPane();
-        programEditor.setMinimumSize(programEditor.getSize());
-        programEditor.setText(result.toString());
-    }
-
-    /**
-     * get a string builder with html representing the source and filled in values; most
-     * work done by add_source_info()
-     */
-    protected StringBuilder getSourceWithSynthesisValues() {
-        HashMap<String, Vector<ScSourceConstruct>> infoByFilename =
-                new HashMap<String, Vector<ScSourceConstruct>>();
-        for (ScSourceConstruct holeInfo : sourceCodeInfo) {
-            String f = holeInfo.entireLocation.filename;
-            if (!infoByFilename.containsKey(f)) {
-                infoByFilename.put(f, new Vector<ScSourceConstruct>());
-            }
-            infoByFilename.get(f).add(holeInfo);
-        }
-        ScSourceCache.singleton().addFilenames(infoByFilename.keySet());
-        StringBuilder result = new StringBuilder();
-        result.append("<html>\n  <head>\n<style>\nbody {\n"
-                + "font-size: 12pt;\n}\n</style>\n  </head>\n  "
-                + "<body style=\"margin-top: 0px;\">"
-                + "<p style=\"margin-top: 0.1em;\">"
-                + "color indicates how often values are changed: red "
-                + "is very often, yellow is occasionally, blue is never.</p>");
-        for (Entry<String, Vector<ScSourceConstruct>> entry : infoByFilename.entrySet()) {
-            result.append("\n<p><pre style=\"font-family: serif;\">");
-            addSourceInfo(result, entry.getKey(), entry.getValue());
-            result.append("</pre></p><hr />");
-        }
-        return result;
-    }
-
-    /** sub-method for the above (getSourceWithSynthesisValues) */
-    protected void addSourceInfo(StringBuilder result, String key,
-            Vector<ScSourceConstruct> vector)
-    {
-        int contextLen = 3;
-        int contextSplitLen = 5;
-
-        ScSourceConstruct[] holeInfoSorted = vector.toArray(new ScSourceConstruct[0]);
-        Arrays.sort(holeInfoSorted);
-        ScSourceLocation start =
-                holeInfoSorted[0].entireLocation.contextBefore(contextLen);
-        ScSourceLocation end =
-                holeInfoSorted[holeInfoSorted.length - 1].entireLocation.contextAfter(contextLen);
-        ScSourceTraceVisitor v = new ScSourceTraceVisitor();
-        // starting context
-        result.append(v.visitCode(start));
-        // visit constructs and all code in between
-        for (int a = 0; a < holeInfoSorted.length; a++) {
-            result.append(v.visitHoleInfo(holeInfoSorted[a]));
-            ScSourceLocation loc = holeInfoSorted[a].entireLocation;
-            if (a + 1 < holeInfoSorted.length) {
-                ScSourceLocation nextLoc = holeInfoSorted[a + 1].entireLocation;
-                ScSourceLocation between = loc.sourceBetween(nextLoc);
-                if (between.numLines() >= contextSplitLen) {
-                    // split the context
-                    result.append(v.visitCode(loc.contextAfter(contextLen)));
-                    result.append("</pre>\n<hr /><pre>");
-                    result.append(v.visitCode(nextLoc.contextBefore(contextLen)));
-                } else {
-                    result.append(v.visitCode(loc.sourceBetween(nextLoc)));
-                }
-            }
-        }
-        result.append(v.visitCode(end));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -405,7 +281,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         // newGui.setVisible(true);
 
         EntanglementGui gui =
-                new EntanglementGui(subsets, traceToStack, sketch, sourceCodeInfo);
+                new EntanglementGui(subsets, programDisplay);
         gui.setVisible(true);
     }
 

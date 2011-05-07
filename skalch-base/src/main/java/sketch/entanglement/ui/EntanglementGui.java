@@ -15,24 +15,22 @@ import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.Trace;
 import sketch.entanglement.partition.TraceSubset;
+import sketch.entanglement.ui.program.ProgramDisplay;
 import sketch.ui.sourcecode.ScSourceConstruct;
 
 public class EntanglementGui extends EntanglementGuiBase implements ActionListener {
 
-    private ScDynamicSketchCall<?> sketch;
-    private Set<ScSourceConstruct> sourceCodeInfo;
+    private static final long serialVersionUID = 1L;
+    
     private JTabbedPane tabbedPane;
-    private Map<Trace, ScStack> traceToStack;
     private JButton removeTabButton;
+    
+    private ProgramDisplay programDisplay;
 
-    public EntanglementGui(List<TraceSubset> subsets,
-            Map<Trace, ScStack> traceToStack, ScDynamicSketchCall<?> sketch,
-            Set<ScSourceConstruct> sourceCodeInfo)
+    public EntanglementGui(List<TraceSubset> subsets, ProgramDisplay programDisplay)
     {
         super();
-        this.sketch = sketch;
-        this.sourceCodeInfo = sourceCodeInfo;
-        this.traceToStack = traceToStack;
+        this.programDisplay = programDisplay;
         tabbedPane = getTabbedPane();
 
         removeTabButton = getRemoveTabButton();
@@ -47,16 +45,15 @@ public class EntanglementGui extends EntanglementGuiBase implements ActionListen
     }
 
     private void addTraceSet(TraceSubset subset) {
-        HashMap<Trace, ScStack> filteredTraceToStack = new HashMap<Trace, ScStack>();
+//        HashMap<Trace, ScStack> filteredTraceToStack = new HashMap<Trace, ScStack>();
         Set<Trace> traces = new HashSet<Trace>(subset.getTraces());
 
-        for (Trace trace : traces) {
-            filteredTraceToStack.put(trace, traceToStack.get(trace));
-        }
+//        for (Trace trace : traces) {
+//            filteredTraceToStack.put(trace, traceToStack.get(trace));
+//        }
 
         EntanglementGuiPanel panel =
-                new EntanglementGuiPanel(this, filteredTraceToStack, sketch,
-                        sourceCodeInfo);
+                new EntanglementGuiPanel(this, traces, programDisplay);
         tabbedPane.addTab(subset.getPartitionName(), panel);
     }
 

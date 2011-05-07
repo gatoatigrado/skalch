@@ -18,22 +18,12 @@ import sketch.entanglement.Trace;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 
 public class PartitionSummaryPanel extends JPanel {
-    private Set<Set<DynAngel>> partitions;
-    private SATEntanglementAnalysis satEA;
-    private SimpleEntanglementAnalysis ea;
-    private Map<Trace, ScStack> traceToStack;
-    private Color[][] color;
-
-    public PartitionSummaryPanel(Map<Trace, ScStack> traceToStack,
-            List<DynAngel> angelOrder, SATEntanglementAnalysis satEA,
-            SimpleEntanglementAnalysis ea, EntanglementColoring ec)
+    private static final long serialVersionUID = 1L;
+    
+    public PartitionSummaryPanel(List<DynAngel> angelOrder, EntanglementColoring ec)
     {
-        this.traceToStack = traceToStack;
-        this.satEA = satEA;
-        this.ea = ea;
-        this.color = ec.getColorMatrix();
+        Color[][] color = ec.getColorMatrix();
 
-        partitions = satEA.getEntangledPartitions();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         for (DynAngel angel : angelOrder) {
@@ -49,18 +39,5 @@ public class PartitionSummaryPanel extends JPanel {
             add(angelLabel);
         }
         setVisible(true);
-
-    }
-
-    public Map<Trace, ScStack> getTraceToStack() {
-        return traceToStack;
-    }
-
-    public SATEntanglementAnalysis getSatEA() {
-        return satEA;
-    }
-
-    public SimpleEntanglementAnalysis getEA() {
-        return ea;
     }
 }

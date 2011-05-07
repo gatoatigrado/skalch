@@ -1,4 +1,4 @@
-package sketch.entanglement.partition;
+package sketch.entanglement.deprecated;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,11 +7,13 @@ import java.util.Set;
 
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.Event;
-import sketch.entanglement.HeuristicSearch;
 import sketch.entanglement.SimpleEntanglementAnalysis;
 import sketch.entanglement.Trace;
+import sketch.entanglement.partition.TracePartitioner;
+import sketch.entanglement.partition.TraceSubset;
 import sketch.entanglement.sat.SATEntanglementAnalysis;
 
+@Deprecated
 public class HeuristicPartitioner extends TracePartitioner {
 
     @Override

@@ -1,4 +1,4 @@
-package sketch.entanglement.ui;
+package sketch.entanglement.console;
 
 import java.util.HashMap;
 

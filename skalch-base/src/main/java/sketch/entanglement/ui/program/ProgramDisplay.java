@@ -15,7 +15,7 @@ public interface ProgramDisplay {
         public String debugOutput;
     }
 
-    public ProgramOutput getProgramOutput(Trace selectedTrace, EntanglementColoring color);
+    //public ProgramOutput getProgramOutput(Trace selectedTrace, EntanglementColoring color);
 
     public String getDebugOutput(Trace selectedTrace, EntanglementColoring color);
 

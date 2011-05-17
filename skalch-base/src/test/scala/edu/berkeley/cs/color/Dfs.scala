@@ -144,7 +144,7 @@ class DfsSketch() extends AngelicSketch {
     var i = 0
     while (i < allowedExtraStorage) {
       extraStorage += !!(domainA)
-      println("Extra: " + extraStorage(extraStorage.size - 1), sklast_angel_color());
+      println("Chose extra: " + extraStorage(extraStorage.size - 1), sklast_angel_color());
       i += 1
     }
 
@@ -160,15 +160,19 @@ class DfsSketch() extends AngelicSketch {
 
       val nodeList = List(current, next)
       val nodeIndex = !!(nodeList.size)
-      print("Node index", sklast_angel_color());
       skput_check(nodeIndex)
       val node = nodeList(nodeIndex)
-
+      if (nodeIndex == 0) {
+          println("Chose current: " + node, sklast_angel_color());
+      } else {
+          println("Chose next: " + node, sklast_angel_color());    
+      }
+      
       val borrowedCurIndex = !!(node.locations().size)
-      println("Node", sklast_angel_color());
       skput_check(borrowedCurIndex)
       val borrowedCur = node.locations()(borrowedCurIndex)
-
+      println("Chose borrowed node: " + borrowedCur.read(), sklast_angel_color());
+      
       var allLocations = List(borrowedCur) ++ extraLocations
 
       val values = new ListBuffer[A]
@@ -181,14 +185,11 @@ class DfsSketch() extends AngelicSketch {
         values += location.read()
       }
 
-      println("push(" + current.toString() + "," + next.toString
-        + ") : " + extraStorage.mkString("e[", ", ", "]")
-        + " borrowedVal[" + borrowedCur.read.toString() + "]")
-
       borrowedCur.write(values.remove(skput_check(!!(values.size))))
+      println("Save into borrowed: " + borrowedCur.read(), sklast_angel_color())
       for (location <- extraLocations) {
         location.write(values.remove(skput_check(!!(values.size))))
-        println("Write", sklast_angel_color());
+        println("Save into extra: " + location.read(), sklast_angel_color());
       }
     }
 

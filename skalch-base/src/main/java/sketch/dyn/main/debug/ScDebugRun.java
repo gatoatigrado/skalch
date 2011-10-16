@@ -7,6 +7,7 @@ import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.entanglement.Trace;
 import sketch.ui.queues.QueueIterator;
 import sketch.util.DebugOut;
 
@@ -25,7 +26,6 @@ public abstract class ScDebugRun {
     public StackTraceElement assertInfo;
     public Vector<ScDebugEntry> debugOut;
     public Vector<Object> queue;
-    public Vector<Object> queueTrace;
 
     public ScDebugRun(ScDynamicSketchCall<?> sketch) {
         sketchCall = sketch;
@@ -58,7 +58,6 @@ public abstract class ScDebugRun {
         }
         debugOut = getDebugOut();
         queue = getQueue();
-        queueTrace = getQueueTrace();
     }
 
     protected final void setAssertInfo(StackTraceElement assertInfo, Exception e) {
@@ -86,7 +85,7 @@ public abstract class ScDebugRun {
 
     public abstract Vector<Object> getQueue();
 
-    public abstract Vector<Object> getQueueTrace();
-
     public abstract QueueIterator getQueueIterator();
+
+    public abstract Trace getTrace();
 }

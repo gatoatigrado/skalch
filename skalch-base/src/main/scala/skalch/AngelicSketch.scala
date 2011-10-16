@@ -92,106 +92,33 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
     // === Utility functions ===
     // Most of these should be in ScDynamicSketch if possible, but some
     // constructs like "def" params are only available for Scala.
-    def print(x: => String) {
-        if (debugPrintEnable) {
-            printBackend(x, false, null)
-        }
-    }
 
-    def print(x: => String, c: => java.awt.Color) {
-        if (debugPrintEnable) {
-            printBackend(x, false, c)
-        }
-    }
-
-    def println(x: => String) {
-        if (debugPrintEnable) {
-            printBackend(x, true, null)
-        }
-    }
-
-    def println(x: => String, c: => java.awt.Color) {
-        if (debugPrintEnable) {
-            printBackend(x, true, c)
-        }
-    }
-    
-    def print_loc(x: => String) {
-        if (debugPrintEnable) {
-            printLocationBackend(x)
-        }
-    }
-
-    def last_angel_color(): java.awt.Color = {
-        oracleConf.getLastAngelColor()
-    }
-
-    def put[T](x: T): T = {
-        put(0, x)
-    }
-
-    def put[T](queueNum: Int, x: T): T = {
-        if (debugPrintEnable) {
-            queuePutBackend(queueNum, x)
-        }
-        x
-    }
-
-    def check[T](x: T): T = {
-        check(0, x)
-    }
-
-    def check[T](queueNum: Int, x: T): T = {
-        queueCheckBackend(queueNum, x, debugPrintEnable)
-        x
-    }
-
-    def put_check[T](x: T): T = {
-        put_check(0, x)
-    }
-
-    def put_check[T](queueNum: Int, x: T): T = {
-        put(queueNum, x)
-        check(queueNum, x)
-        x
-    }
-
-    // === Utility functions ===
-    // Most of these should be in ScDynamicSketch if possible, but some
-    // constructs like "def" params are only available for Scala.
-
-    @deprecated
     def skdprint(x: => String) {
         if (debugPrintEnable) {
             printBackend(x, true, null)
         }
     }
 
-    @deprecated
     def skdprint(x: => String, c: => java.awt.Color) {
         if (debugPrintEnable) {
             printBackend(x, true, c)
         }
     }
 
-    @deprecated
     def skdprint_loc(x: => String) {
         if (debugPrintEnable) {
             printLocationBackend(x)
         }
     }
 
-    @deprecated
     def sklast_angel_color(): java.awt.Color = {
         oracleConf.getLastAngelColor()
     }
     
-    @deprecated
     def skput[T](x: T): T = {
-        put(0, x)
+        skput(0, x)
     }
 
-    @deprecated
     def skput[T](queueNum: Int, x: T): T = {
         if (debugPrintEnable) {
             queuePutBackend(queueNum, x)
@@ -199,28 +126,32 @@ abstract class AngelicSketch extends sketch.dyn.main.angelic.ScAngelicSketchBase
         x
     }
 
-    @deprecated
     def skcheck[T](x: T): T = {
-        check(0, x)
+        skcheck(0, x)
     }
 
-    @deprecated
     def skcheck[T](queueNum: Int, x: T): T = {
-        queueCheckBackend(queueNum, x, debugPrintEnable)
+        queueCheckBackend(queueNum, x)
         x
     }
 
-    @deprecated
     def skput_check[T](x: T): T = {
-        put_check(0, x)
+        skput_check(0, x)
     }
 
-    @deprecated
     def skput_check[T](queueNum: Int, x: T): T = {
-        put(queueNum, x)
-        check(queueNum, x)
+        skput(queueNum, x)
+        skcheck(queueNum, x)
         x
     }
+    
+    def sktrace(index: Int, collectionSize: Int) {
+        if (debugPrintEnable) {
+            traceBackend(index, collectionSize)
+        }
+    }
+
+    
 }
 
 object AngelicSketchSynthesize {

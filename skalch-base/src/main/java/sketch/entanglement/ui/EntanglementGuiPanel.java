@@ -60,9 +60,11 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
     private final List<PartitionPanel> partitionPanels;
     private EntanglementGui gui;
     private EntanglementColoring color;
+    private boolean useTrace;
     private ProgramDisplay programDisplay;
 
-    public EntanglementGuiPanel(EntanglementGui gui, Set<Trace> traces, ProgramDisplay programDisplay)
+    public EntanglementGuiPanel(EntanglementGui gui, Set<Trace> traces, ProgramDisplay programDisplay,
+            boolean useTrace)
     {
         super();
         this.gui = gui;
@@ -70,6 +72,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         this.programDisplay = programDisplay;
         satEA = new SATEntanglementAnalysis(traces);
         ea = new SimpleEntanglementAnalysis(traces);
+        this.useTrace = useTrace;
         color = new EntanglementColoring(ea, satEA);
 
         partitionPanels = new ArrayList<PartitionPanel>();
@@ -174,8 +177,12 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
             }
 
             if (selectedTrace != null) {
-                getDebugEditorPane().setText(programDisplay.getDebugOutput(selectedTrace, color));
-                getProgramEditorPane().setText(programDisplay.getProgramText(selectedTrace, color));
+                EntanglementColoring c = null;
+                if (!useTrace) {
+                    c = color;
+                }
+                getDebugEditorPane().setText(programDisplay.getDebugOutput(selectedTrace, c));
+                getProgramEditorPane().setText(programDisplay.getProgramText(selectedTrace, c));
                 //programEditor.setMinimumSize(programEditor.getSize());
             }
         }
@@ -281,7 +288,7 @@ public class EntanglementGuiPanel extends EntanglementGuiPanelBase implements
         // newGui.setVisible(true);
 
         EntanglementGui gui =
-                new EntanglementGui(subsets, programDisplay);
+                new EntanglementGui(subsets, programDisplay, useTrace);
         gui.setVisible(true);
     }
 

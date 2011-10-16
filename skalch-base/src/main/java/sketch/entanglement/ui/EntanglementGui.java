@@ -27,7 +27,8 @@ public class EntanglementGui extends EntanglementGuiBase implements ActionListen
     
     private ProgramDisplay programDisplay;
 
-    public EntanglementGui(List<TraceSubset> subsets, ProgramDisplay programDisplay)
+    public EntanglementGui(List<TraceSubset> subsets, ProgramDisplay programDisplay,
+            boolean useTrace)
     {
         super();
         this.programDisplay = programDisplay;
@@ -38,13 +39,13 @@ public class EntanglementGui extends EntanglementGuiBase implements ActionListen
         removeTabButton.addActionListener(this);
 
         for (TraceSubset subset : subsets) {
-            addTraceSet(subset);
+            addTraceSet(subset, useTrace);
         }
 
         pack();
     }
 
-    private void addTraceSet(TraceSubset subset) {
+    private void addTraceSet(TraceSubset subset, boolean useTrace) {
 //        HashMap<Trace, ScStack> filteredTraceToStack = new HashMap<Trace, ScStack>();
         Set<Trace> traces = new HashSet<Trace>(subset.getTraces());
 
@@ -53,7 +54,7 @@ public class EntanglementGui extends EntanglementGuiBase implements ActionListen
 //        }
 
         EntanglementGuiPanel panel =
-                new EntanglementGuiPanel(this, traces, programDisplay);
+                new EntanglementGuiPanel(this, traces, programDisplay, useTrace);
         tabbedPane.addTab(subset.getPartitionName(), panel);
     }
 

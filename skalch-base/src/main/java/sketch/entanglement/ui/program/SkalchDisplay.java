@@ -43,7 +43,9 @@ public class SkalchDisplay implements ProgramDisplay {
 
     public String getDebugOutput(Trace selectedTrace, EntanglementColoring color) {
         ScStack stack = traceToStack.get(selectedTrace);
-        stack.setPartitionColor(color.getColorMatrix());
+        if (color != null)
+            stack.setPartitionColor(color.getColorMatrix());
+        
         stack.initializeFixedForIllustration(sketch);
 
         ScDebugRun debugRun =
@@ -85,7 +87,9 @@ public class SkalchDisplay implements ProgramDisplay {
 
     public String getProgramText(Trace selectedTrace, EntanglementColoring color) {
         ScStack stack = traceToStack.get(selectedTrace);
-        stack.setPartitionColor(color.getColorMatrix());
+        if (color != null)
+            stack.setPartitionColor(color.getColorMatrix());
+        
         stack.initializeFixedForIllustration(sketch);
 
         StringBuilder result = getSourceWithSynthesisValues();

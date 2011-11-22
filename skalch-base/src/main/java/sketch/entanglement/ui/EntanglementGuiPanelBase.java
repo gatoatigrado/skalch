@@ -79,11 +79,11 @@ public class EntanglementGuiPanelBase extends javax.swing.JPanel {
 
         splitPane.setRightComponent(verticalSplitPane);
 
-        frameLabel.setText("Synthesized Traces");
+        frameLabel.setText("Plans");
 
         refineTraceButton.setText("Disentangle by Traces");
 
-        refineAngelButton.setText("Disentangle by Angels");
+        refineAngelButton.setText("Refinement Query");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         setLayout(layout);

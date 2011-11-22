@@ -25,3 +25,4 @@ skalch-plugin/.settings/org.eclipse.jdt.core.prefs
 *.log
 *.diff
 *.out
+skalch-base/nbproject*

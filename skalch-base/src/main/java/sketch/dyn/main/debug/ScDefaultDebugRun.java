@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import sketch.dyn.main.ScDynamicSketchCall;
 import sketch.dyn.main.angelic.ScAngelicSketchBase;
+import sketch.entanglement.Trace;
 import sketch.ui.queues.QueueIterator;
 
 /**
@@ -50,12 +51,12 @@ public abstract class ScDefaultDebugRun extends ScDebugRun {
     }
 
     @Override
-    public Vector<Object> getQueueTrace() {
-        return sketch.sketchQueueTrace;
-    }
-
-    @Override
     public QueueIterator getQueueIterator() {
         return null;
     }
+    
+    public Trace getTrace() {
+        return sketch.trace;
+    }
+
 }

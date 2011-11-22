@@ -3,6 +3,7 @@ package sketch.dyn.main.angelic;
 import java.awt.Color;
 import java.util.Vector;
 
+import scala.Tuple2;
 import sketch.dyn.constructs.ctrls.ScCtrlConf;
 import sketch.dyn.constructs.inputs.ScInputConf;
 import sketch.dyn.main.debug.ScDebugEntry;
@@ -10,6 +11,7 @@ import sketch.dyn.main.debug.ScGeneralDebugEntry;
 import sketch.dyn.main.debug.ScLocationDebugEntry;
 import sketch.dyn.synth.ScDynamicUntilvException;
 import sketch.dyn.synth.ScSynthesisAssertFailure;
+import sketch.entanglement.Trace;
 import sketch.ui.queues.QueueIterator;
 import sketch.util.DebugOut;
 import sketch.util.sourcecode.ScSourceLocation;
@@ -27,8 +29,10 @@ public class ScAngelicSketchBase {
     public ScCtrlConf ctrlConf;
     public ScInputConf oracleConf;
     public Vector<Object> sketchQueue;
-    public Vector<Object> sketchQueueTrace;
     public QueueIterator queueIterator;
+    
+    public Trace trace;
+    private int execNum;
 
     public boolean debugPrintEnable = false;
     public Vector<ScDebugEntry> debugOut;
@@ -69,7 +73,8 @@ public class ScAngelicSketchBase {
         debugAssertFailureLocation = null;
         debugOut = new Vector<ScDebugEntry>();
         sketchQueue = new Vector<Object>();
-        sketchQueueTrace = new Vector<Object>();
+        trace = new Trace();
+        execNum = 0;
     }
 
     public synchronized void compilerAssertInternal(Object... arr) {
@@ -107,16 +112,17 @@ public class ScAngelicSketchBase {
         sketchQueue.add(value);
     }
 
-    public void queueCheckBackend(int queueNum, Object value, boolean ifDebug) {
+    public void queueCheckBackend(int queueNum, Object value) {
         if (queueIterator != null && !queueIterator.checkValue(value)) {
             synthAssert(false);
-        }
-        if (ifDebug) {
-            sketchQueueTrace.add(value);
         }
     }
 
     public void printLocationBackend(String location) {
         debugOut.add(new ScLocationDebugEntry(location));
+    }
+    
+    public void traceBackend(int value, int listSize) {
+        trace.addEvent(0, execNum++, listSize, value);
     }
 }

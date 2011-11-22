@@ -131,15 +131,25 @@ class HatGameSketch extends AngelicSketch {
 //      valueMap += List(2,2) -> 2
 
       valueMap += List(0,0) -> 1
-      valueMap += List(0,1) -> 0
+      valueMap += List(0,1) -> 2
       valueMap += List(0,2) -> 0
-      valueMap += List(1,0) -> 2
-      valueMap += List(1,1) -> 2
-      valueMap += List(1,2) -> 0
+      valueMap += List(1,0) -> 0
+      valueMap += List(1,1) -> 1
+      valueMap += List(1,2) -> 2
       valueMap += List(2,0) -> 2
-      valueMap += List(2,1) -> 1
+      valueMap += List(2,1) -> 0
       valueMap += List(2,2) -> 1
       
+//      valueMap += List(0,0) -> 1
+//      valueMap += List(0,1) -> 0
+//      valueMap += List(0,2) -> 0
+//      valueMap += List(1,0) -> 2
+//      valueMap += List(1,1) -> 2
+//      valueMap += List(1,2) -> 0
+//      valueMap += List(2,0) -> 2
+//      valueMap += List(2,1) -> 1
+//      valueMap += List(2,2) -> 1
+//      
 //      valueMap += List(0,0) -> 0
 //      valueMap += List(0,1) -> 1
 //      valueMap += List(0,2) -> 2
@@ -152,6 +162,7 @@ class HatGameSketch extends AngelicSketch {
 
       
       guessingFunctions ::= getConstantFunction(valueMap)
+      //guessingFunctions ::= getFunction()._1
       for (i <- 0 until num-1) {
         guessingFunctions ::= getFunction()._1
       }

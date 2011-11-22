@@ -16,8 +16,12 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import sketch.dyn.main.ScDynamicSketchCall;
+import sketch.dyn.main.angelic.ScAngelicSketchBase;
+import sketch.dyn.main.debug.ScDebugRun;
+import sketch.dyn.main.debug.ScDebugStackRun;
 import sketch.dyn.synth.stack.ScStack;
 import sketch.entanglement.DynAngel;
 import sketch.entanglement.EntanglementComparison;
@@ -45,6 +49,7 @@ public class EntanglementConsole extends InteractiveThread {
 
     private InputStream input;
 
+    private boolean useTrace = false;
     private Map<Trace, ScStack> traceToStack;
     private ScSynthesisResults results;
 
@@ -60,7 +65,7 @@ public class EntanglementConsole extends InteractiveThread {
             { "compare", "constant", "entanglement", "info", "pull", "push", "store",
                     "restore", "showstored", "issubset", "update", "partitioners",
                     "subsets", "size", "partition", "choose", "remove", "reset", "exit",
-                    "values", "help", "grow", "gui", "summary", "auto", "invert" };
+                    "values", "help", "grow", "gui", "summary", "auto", "invert", "trace" };
 
     public EntanglementConsole(InputStream input, ScSynthesisResults results,
             ScDynamicSketchCall<?> sketch, Set<ScSourceConstruct> sourceCodeInfo)
@@ -97,6 +102,8 @@ public class EntanglementConsole extends InteractiveThread {
                 if (!commandSet.contains(command)) {
                     System.out.println("Unknown command: " + command);
                     continue;
+                } else if ("trace".equals(command)) {
+                    useTrace = true;
                 } else if ("update".equals(command)) {
                     updateEntanglement();
                 } else if ("pull".equals(command)) {
@@ -180,7 +187,7 @@ public class EntanglementConsole extends InteractiveThread {
                 } else if ("gui".equals(command)) {
                     EntanglementGui gui =
                             new EntanglementGui(subsetsStack.peek(), new SkalchDisplay(traceToStack,
-                                    sketch, sourceCodeInfo));
+                                    sketch, sourceCodeInfo), useTrace);
                     gui.pack();
                     gui.setVisible(true);
                 } else if ("summary".equals(command)) {
@@ -229,16 +236,23 @@ public class EntanglementConsole extends InteractiveThread {
 
     private void pullFromResults() {
         traceToStack.clear();
-        ArrayList<ScStack> solutions = results.getSolutions();
-        // HashMap<Trace, ScStack> traceToStackBuffer = new HashMap<Trace, ScStack>();
-        for (ScStack solution : solutions) {
-            traceToStack.put(solution.getExecutionTrace(), solution);
-            // if (traceToStackBuffer.size() >= 10000) {
-            // System.out.println(traceToStack.size());
-            // traceToStack.putAll(traceToStackBuffer);
-            // traceToStackBuffer.clear();
-            // }
+        if (useTrace) {
+            ArrayList<ScStack> solutions = results.getSolutions();
+            for (ScStack solution : solutions) {
+                ScStack _stack = solution.clone();
+                ScDebugRun debugRun = new ScDebugStackRun(
+                        (ScDynamicSketchCall<ScAngelicSketchBase>) sketch, _stack);
+                debugRun.run();
+                traceToStack.put(debugRun.getTrace(), solution);
+            }
+
+        } else {
+            ArrayList<ScStack> solutions = results.getSolutions();
+            for (ScStack solution : solutions) {
+                traceToStack.put(solution.getExecutionTrace(), solution);
+            }
         }
+        
         List<TraceSubset> initialPartition = new ArrayList<TraceSubset>();
         initialPartition.add(new TraceSubset(new ArrayList<Trace>(traceToStack.keySet()),
                 "init", null));

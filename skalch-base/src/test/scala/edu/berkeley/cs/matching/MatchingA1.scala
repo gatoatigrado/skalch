@@ -99,7 +99,6 @@ class MatchingA1Sketch extends AngelicSketch {
                 synthAssert(added);
             }
 
-                        
             for (j <- 0 until groups) {
                 for (k <- 0 until groupSize) {
                     sktrace(roundGroups(j)(k), n);
@@ -118,7 +117,6 @@ class MatchingA1Sketch extends AngelicSketch {
         
         printMatrix(prevGrouped);
 //        traceMatrix(prevGrouped);
-
     }
     
     def traceMatrix(matrix : Array[Array[Int]]) {
